@@ -935,49 +935,6 @@
   "division_sylhet": "Sylhet",
   "division_rangpur": "Rangpur",
   "division_mymensingh": "Mymensingh",
-  "@@_section_messageTemplate": "MESSAGE TEMPLATES (SMS / WhatsApp)  |  lib/core/l10n - client SMS / WhatsApp templates",
-  "messageTemplate_clientSms": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}",
-  "@messageTemplate_clientSms": {
-      "description": "SMS sent to clients about an upcoming hearing.",
-      "placeholders": {
-          "clientName": {
-              "type": "String"
-          },
-          "caseNumber": {
-              "type": "String"
-          },
-          "nextDate": {
-              "type": "String"
-          },
-          "court": {
-              "type": "String"
-          },
-          "lawyerName": {
-              "type": "String"
-          }
-      }
-  },
-  "messageTemplate_clientWhatsApp": "Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}",
-  "@messageTemplate_clientWhatsApp": {
-      "description": "WhatsApp template sent to clients about an upcoming hearing.",
-      "placeholders": {
-          "clientName": {
-              "type": "String"
-          },
-          "caseNumber": {
-              "type": "String"
-          },
-          "nextDate": {
-              "type": "String"
-          },
-          "court": {
-              "type": "String"
-          },
-          "lawyerName": {
-              "type": "String"
-          }
-      }
-  },
   "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
   "clientNotification_long": "{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\n\nBest regards,\n{lawyerName}{contactLine}",
   "@clientNotification_long": {

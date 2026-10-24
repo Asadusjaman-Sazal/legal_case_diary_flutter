@@ -329,6 +329,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     if (current == null) return;
     await showCaseContactActions(
       context,
+      ref: ref,
       currentCase: current,
       court: _court,
       onBehalf: _onBehalf,

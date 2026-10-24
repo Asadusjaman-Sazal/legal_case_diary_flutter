@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.621 - The Exit App? window's title is now centred.
+Version: 0.0.622 - The case card's Message button now uses the Client Notification templates from Settings; the old client templates and their builder are removed.
 --------------------------------------
 
 ## Version History Log:
@@ -635,3 +635,4 @@ Version: 0.0.618 - The client prompt is now 'Send Message to Client?', with a re
 Version: 0.0.619 - The Contact Number window matches the Update corner and Exit App button size with a 50% wider gap; examples are labelled Example: with no stripe.
 Version: 0.0.620 - The Exit App? window uses the Update window's corner, and its Cancel/Exit buttons are 50% further apart.
 Version: 0.0.621 - The Exit App? window's title is now centred.
+Version: 0.0.622 - The case card's Message button now uses the Client Notification templates from Settings; the old client templates and their builder are removed.

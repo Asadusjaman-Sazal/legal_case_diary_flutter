@@ -3291,30 +3291,6 @@ abstract class AppLocalizations {
   /// **'Mymensingh'**
   String get division_mymensingh;
 
-  /// SMS sent to clients about an upcoming hearing.
-  ///
-  /// In en, this message translates to:
-  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}'**
-  String messageTemplate_clientSms(
-    String clientName,
-    String caseNumber,
-    String nextDate,
-    String court,
-    String lawyerName,
-  );
-
-  /// WhatsApp template sent to clients about an upcoming hearing.
-  ///
-  /// In en, this message translates to:
-  /// **'Dear {clientName}, your case {caseNumber} is scheduled for hearing on {nextDate} at {court}. - {lawyerName}'**
-  String messageTemplate_clientWhatsApp(
-    String clientName,
-    String caseNumber,
-    String nextDate,
-    String court,
-    String lawyerName,
-  );
-
   /// The long automated client message, used when the long template is selected.
   ///
   /// In en, this message translates to:

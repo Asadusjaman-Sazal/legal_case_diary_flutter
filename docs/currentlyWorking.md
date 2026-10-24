@@ -1,5 +1,15 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The Message button speaks the same template — COMPLETE (0.0.622)
+
+- **What was asked.** The case card's Message button should use the Default Notification Template from Settings → Notifications, and the old pre-filled message should be removed everywhere it still exists.
+- **What changed.**
+  - `showCaseContactActions` now takes the `WidgetRef` and reads the account's `UserSettings` and Profile mobile. WhatsApp composes with the WhatsApp Long/Short choice, the native SMS with the SMS choice, through `buildClientNotificationMessage`; the represented client, localized case type + number, date, steps, court, lawyer and the call-back number (settings → Profile → omitted) all come from the same facts builder as the automated update.
+  - The old `messageTemplate_clientWhatsApp`/`messageTemplate_clientSms` ARB keys, `buildContactMessage`, and their `AppStrings` constants are deleted. The composer's date is now optional, so a case with no next date still opens the Message chooser without a fabricated 1970 date.
+  - Seven screens pass `ref: ref`; the contact tests now pump a ProviderScope with a settings fake.
+- **Tests.** The old template group was replaced by launch tests: SMS defaults to the Short note (no name), WhatsApp to the Long letter (name and sign-off), and a new test proves changing each channel's Long/Short choice in Settings changes the Message button's text. Full `flutter test` **2020 passed**; `flutter analyze` clean; version **0.0.622** recorded.
+- **Docs.** Task 14's template item is marked superseded, Task 13 notes the shared templates, and the plan's client-notification bullet records the removal.
+
 ### 2026-10-23 — The Exit App title is centred — COMPLETE (0.0.621)
 
 - **What was asked.** The **Exit App?** title should be middle aligned.

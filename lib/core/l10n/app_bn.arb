@@ -890,49 +890,6 @@
   "division_sylhet": "সিলেট",
   "division_rangpur": "রংপুর",
   "division_mymensingh": "ময়মনসিংহ",
-  "@@_section_messageTemplate": "MESSAGE TEMPLATES (SMS / WhatsApp)  |  lib/core/l10n - client SMS / WhatsApp templates",
-  "messageTemplate_clientSms": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এর পরবর্তী তারিখ {nextDate}, {court}। - {lawyerName}",
-  "@messageTemplate_clientSms": {
-      "description": "ক্লায়েন্টকে পরবর্তী তারিখ সম্পর্কে এসএমএস পাঠানো হয়েছে।",
-      "placeholders": {
-          "clientName": {
-              "type": "String"
-          },
-          "caseNumber": {
-              "type": "String"
-          },
-          "nextDate": {
-              "type": "String"
-          },
-          "court": {
-              "type": "String"
-          },
-          "lawyerName": {
-              "type": "String"
-          }
-      }
-  },
-  "messageTemplate_clientWhatsApp": "প্রিয় {clientName}, আপনার মামলা {caseNumber} এর পরবর্তী তারিখ {nextDate}, {court}। - {lawyerName}",
-  "@messageTemplate_clientWhatsApp": {
-      "description": "ক্লায়েন্টকে পরবর্তী তারিখ সম্পর্কে হোয়াটসঅ্যাপ মেসেজ পাঠানো হয়েছে।",
-      "placeholders": {
-          "clientName": {
-              "type": "String"
-          },
-          "caseNumber": {
-              "type": "String"
-          },
-          "nextDate": {
-              "type": "String"
-          },
-          "court": {
-              "type": "String"
-          },
-          "lawyerName": {
-              "type": "String"
-          }
-      }
-  },
   "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
   "clientNotification_long": "{clientName},\nআপনার মামলা, {caseLine}, {court} কোর্টে আগামী {nextDate} ইং তারিখ{stepsClause} দিন ধার্য্য আছে।\n\nশুভেচ্ছান্তে,\n{lawyerName}{contactLine}",
   "@clientNotification_long": {

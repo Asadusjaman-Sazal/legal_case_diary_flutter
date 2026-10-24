@@ -1845,28 +1845,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get division_mymensingh => 'ময়মনসিংহ';
 
   @override
-  String messageTemplate_clientSms(
-    String clientName,
-    String caseNumber,
-    String nextDate,
-    String court,
-    String lawyerName,
-  ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর পরবর্তী তারিখ $nextDate, $court। - $lawyerName';
-  }
-
-  @override
-  String messageTemplate_clientWhatsApp(
-    String clientName,
-    String caseNumber,
-    String nextDate,
-    String court,
-    String lawyerName,
-  ) {
-    return 'প্রিয় $clientName, আপনার মামলা $caseNumber এর পরবর্তী তারিখ $nextDate, $court। - $lawyerName';
-  }
-
-  @override
   String clientNotification_long(
     String clientName,
     String caseLine,

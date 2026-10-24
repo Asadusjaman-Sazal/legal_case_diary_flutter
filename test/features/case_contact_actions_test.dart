@@ -2,8 +2,9 @@
 ///
 /// What is worth pinning here is every rule the Addendum names — the represented
 /// party comes from `on_behalf_id` rather than field order, the message sheet's
-/// pre-filled text is the ARB template with the case's own facts, and the only
-/// routes launched are the documented `tel:`, `sms:` and `https://wa.me/…` ones
+/// pre-filled text is the Client Notification template chosen in Settings with
+/// the case's own facts, and the only routes launched are the documented `tel:`,
+/// `sms:` and `https://wa.me/…` ones
 /// (WhatsApp publishes no call scheme, so the chat is the fallback). The window
 /// itself names no party and prints no number, and the call sheet's WhatsApp
 /// route opens the bare chat. The launcher is a seam, so the tests assert the
@@ -11,16 +12,23 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/contact_launcher.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/core/utils/on_behalf_side.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/presentation/case_contact_actions.dart';
+import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+
+import 'settings_test_support.dart';
 
 /// Records every URI the actions try to open.
 class _RecordingLauncher implements ContactLauncher {
@@ -183,74 +191,6 @@ void main() {
     });
   });
 
-  group('message template', () {
-    test('English SMS text carries every substituted fact', () async {
-      final l = await AppLocalizations.delegate.load(const Locale('en'));
-      final body = buildContactMessage(
-        l: l,
-        currentCase: caseRow(),
-        clientName: 'Md. Rahim Uddin',
-        courtLabel: 'Joint District Judge, 2nd Court, Dhaka',
-        lawyerName: 'Adv. Rahima Khatun',
-        whatsApp: false,
-      );
-
-      expect(body, contains('Md. Rahim Uddin'));
-      expect(body, contains('423/2023'));
-      expect(body, contains('Joint District Judge, 2nd Court, Dhaka'));
-      expect(body, contains('Adv. Rahima Khatun'));
-      expect(
-        body,
-        contains(
-          AppDateUtils.formatDateDDMMYYYY(nextDate, locale: 'en'),
-        ),
-      );
-      // No placeholder is left behind.
-      expect(body, isNot(contains('{')));
-    });
-
-    test('Bengali text substitutes the same facts, digits included', () async {
-      final l = await AppLocalizations.delegate.load(const Locale('bn'));
-      final body = buildContactMessage(
-        l: l,
-        currentCase: caseRow(),
-        clientName: 'মো. রহিম উদ্দিন',
-        courtLabel: 'জয়েন্ট জেলা জজ, ২য় আদালত, ঢাকা',
-        lawyerName: 'অ্যাড. রহিমা খাতুন',
-        whatsApp: false,
-      );
-
-      expect(body, contains('মো. রহিম উদ্দিন'));
-      expect(body, contains('423/2023'));
-      expect(body, contains('জয়েন্ট জেলা জজ, ২য় আদালত, ঢাকা'));
-      expect(body, contains('অ্যাড. রহিমা খাতুন'));
-      final bengaliDate = AppDateUtils.formatDateDDMMYYYY(nextDate, locale: 'bn');
-      expect(body, contains(bengaliDate));
-      // The date is rendered in Bengali digits, not Latin ones.
-      expect(bengaliDate, isNot(matches(RegExp(r'[0-9]'))));
-      expect(body, isNot(contains('{')));
-    });
-
-    test('each channel fills its own template with the same facts', () async {
-      final l = await AppLocalizations.delegate.load(const Locale('en'));
-      String body({required bool whatsApp}) => buildContactMessage(
-        l: l,
-        currentCase: caseRow(),
-        clientName: 'Md. Rahim Uddin',
-        courtLabel: 'Court',
-        lawyerName: 'Lawyer',
-        whatsApp: whatsApp,
-      );
-
-      // The two templates read the same today; each channel still owns its own
-      // key, and both carry the case's facts with no placeholder left behind.
-      for (final whatsApp in <bool>[true, false]) {
-        expect(body(whatsApp: whatsApp), contains('423/2023'));
-        expect(body(whatsApp: whatsApp), isNot(contains('{')));
-      }
-    });
-  });
-
   /// Pumps a host that opens the chooser for [message] and taps it.
   Future<void> pumpChooser(
     WidgetTester tester, {
@@ -258,29 +198,41 @@ void main() {
     required _RecordingLauncher launcher,
     OnBehalf? onBehalf,
     Case? currentCase,
+    UserSettings settings = const UserSettings(),
     Locale locale = const Locale('en'),
   }) async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: locale,
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: ElevatedButton(
-                onPressed: () => showCaseContactActions(
-                  context,
-                  currentCase: currentCase ?? caseRow(),
-                  court: court(),
-                  onBehalf:
-                      onBehalf ??
-                      role('contact-category-role-petitioner', 'Petitioner'),
-                  lawyerName: 'Adv. Rahima Khatun',
-                  message: message,
-                  launcher: launcher,
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          settingsRepositoryProvider.overrideWith(
+            (ref) async => FakeSettingsRepository(settings),
+          ),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: locale,
+          home: Consumer(
+            builder: (context, ref, _) => Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () => showCaseContactActions(
+                    context,
+                    ref: ref,
+                    currentCase: currentCase ?? caseRow(),
+                    court: court(),
+                    onBehalf:
+                        onBehalf ??
+                        role('contact-category-role-petitioner', 'Petitioner'),
+                    lawyerName: 'Adv. Rahima Khatun',
+                    message: message,
+                    launcher: launcher,
+                  ),
+                  child: const Text('open'),
                 ),
-                child: const Text('open'),
               ),
             ),
           ),
@@ -342,10 +294,12 @@ void main() {
         onBehalf: role('contact-category-role-respondent', 'Respondent'),
       );
 
-      await tester.tap(find.byKey(ValueKey('${prefix(true)}-native')));
+      // WhatsApp's default Long template names the client; the short SMS note
+      // deliberately carries no name.
+      await tester.tap(find.byKey(ValueKey('${prefix(true)}-whatsapp')));
       await tester.pumpAndSettle();
 
-      final body = launcher.opened.single.queryParameters['body']!;
+      final body = launcher.opened.single.queryParameters['text']!;
       expect(body, contains('Bangladesh Government'));
       expect(body, isNot(contains('Md. Rahim Uddin')));
     });
@@ -381,10 +335,12 @@ void main() {
       final uri = launcher.opened.single;
       expect(uri.scheme, 'sms');
       expect(uri.path, '01812332721');
+      // SMS defaults to the Short template: the case line, date, steps and
+      // court — no client name and no sign-off.
       final body = uri.queryParameters['body']!;
-      expect(body, contains('423/2023'));
-      expect(body, contains('Adv. Rahima Khatun'));
-      expect(body, contains('Md. Rahim Uddin'));
+      expect(body, contains('Civil Suit 423/2023'));
+      expect(body, isNot(contains('Best regards')));
+      expect(body, isNot(contains('Md. Rahim Uddin')));
     });
 
     testWidgets('Message → WhatsApp chat with the same facts', (tester) async {
@@ -405,7 +361,44 @@ void main() {
       expect(uri.host, 'wa.me');
       // `wa.me` takes the digits without the leading `+`.
       expect(uri.path, '/8801812332721');
-      expect(uri.queryParameters['text'], contains('423/2023'));
+      // WhatsApp defaults to the Long template.
+      final body = uri.queryParameters['text']!;
+      expect(body, contains('Md. Rahim Uddin'));
+      expect(body, contains('423/2023'));
+      expect(body, contains('Best regards,'));
+    });
+
+    testWidgets('Message follows the template chosen in Settings', (
+      tester,
+    ) async {
+      final launcher = _RecordingLauncher();
+      await pumpChooser(
+        tester,
+        message: true,
+        launcher: launcher,
+        settings: const UserSettings(
+          automatedNotificationWhatsAppTemplate: clientNotificationTemplateShort,
+          automatedNotificationSmsTemplate: clientNotificationTemplateLong,
+          notificationContactNumber: '01700000000',
+        ),
+      );
+
+      // WhatsApp now uses its Short choice.
+      await tester.tap(find.byKey(ValueKey('case-contact-message-whatsapp')));
+      await tester.pumpAndSettle();
+      final whatsApp = launcher.opened.last.queryParameters['text']!;
+      expect(whatsApp, isNot(contains('Best regards')));
+      expect(whatsApp, contains('Civil Suit 423/2023'));
+
+      // And the native message uses its Long choice, with the call-back line.
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(ValueKey('case-contact-message-native')));
+      await tester.pumpAndSettle();
+      final sms = launcher.opened.last.queryParameters['body']!;
+      expect(sms, contains('Best regards,'));
+      expect(sms, contains('Md. Rahim Uddin'));
+      expect(sms, contains('Contact: 01700000000'));
     });
 
     testWidgets('Phone → the dialer, with no message attached', (tester) async {

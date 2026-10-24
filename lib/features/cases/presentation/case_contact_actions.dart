@@ -10,24 +10,31 @@
 ///   number, and that number is the only one any route may use;
 /// * the window offers the two routes and nothing else: it names no party and
 ///   prints no number, because the case behind it already does;
-/// * the **message** sheet's routes carry the ARB `messageTemplate_*` text with
-///   the case number, next date, court and lawyer name substituted. The **call**
-///   sheet's WhatsApp route deliberately carries none: it opens the bare chat,
-///   which is where the user reaches the client to call them;
+/// * the **message** sheet's routes carry the template chosen in
+///   Settings → Notifications → Client Notification: WhatsApp uses its own
+///   Long/Short choice, the native message its own, and both substitute the
+///   represented client, the case, the next date, the steps, the court, the
+///   lawyer and the call-back number. The **call** sheet's WhatsApp route
+///   deliberately carries none: it opens the bare chat, which is where the user
+///   reaches the client to call them;
 /// * no undocumented URL scheme is used. WhatsApp publishes no call scheme, so
 ///   the sheet offers WhatsApp **chat** — where a call can be started — and the
 ///   standard dialer as the explicit fallback.
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/services/client_notification_message.dart';
 import '../../../core/services/contact_launcher.dart';
-import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/on_behalf_side.dart';
 import '../../../database/app_database.dart';
+import '../../accounts_and_profile/data/profile_name_store.dart';
+import '../../settings/data/settings_repository.dart';
+import '../../settings/presentation/settings_viewmodel.dart';
 
 /// The party-side rule lives in `core/utils/on_behalf_side.dart`, so the Case
 /// Detail party card, this chooser and the scoped case search cannot disagree
@@ -62,51 +69,6 @@ ContactTargets resolveContactTargets({
   number: normalizeLaunchNumber(currentCase.partyPhone),
 );
 
-/// The pre-filled message: the ARB template with this case's own facts.
-///
-/// [clientName] is the **represented** client (resolved through `on_behalf_id`),
-/// not simply the petitioner, so a firm acting for the respondent sends the
-/// respondent's name. The court falls back to the case's stored court text when
-/// the id is not pre-seeded, and the lawyer's name comes from the Profile
-/// screen — the same two values the printed sheet uses.
-///
-/// [whatsApp] picks the channel's own template. The two read the same today,
-/// but each channel keeps its text so one can be reworded on its own.
-String buildContactMessage({
-  required AppLocalizations l,
-  required Case currentCase,
-  required String clientName,
-  required String courtLabel,
-  required String lawyerName,
-  required bool whatsApp,
-}) {
-  final nextDate = currentCase.nextDate == null
-      ? ''
-      : AppDateUtils.formatDateDDMMYYYY(
-          currentCase.nextDate!,
-          locale: l.localeName,
-        );
-  final client = clientName.trim();
-  final court = courtLabel.trim();
-  final lawyer = lawyerName.trim();
-
-  return whatsApp
-      ? l.messageTemplate_clientWhatsApp(
-          client,
-          currentCase.caseNumber,
-          nextDate,
-          court,
-          lawyer,
-        )
-      : l.messageTemplate_clientSms(
-          client,
-          currentCase.caseNumber,
-          nextDate,
-          court,
-          lawyer,
-        );
-}
-
 /// Shows the Phone or Message chooser and launches the chosen route.
 ///
 /// [message] false offers the call routes and true offers the message routes;
@@ -117,6 +79,7 @@ String buildContactMessage({
 /// opens the chat bare, and `tel:` has nowhere to put text anyway.
 Future<void> showCaseContactActions(
   BuildContext context, {
+  required WidgetRef ref,
   required Case currentCase,
   required Court? court,
   required OnBehalf? onBehalf,
@@ -130,11 +93,11 @@ Future<void> showCaseContactActions(
     currentCase: currentCase,
     onBehalf: onBehalf,
   );
-  // The court row is normally loaded with the case; when its lookup failed the
-  // id still resolves through the seed data, so the message keeps the court.
-  final courtLabel = court == null
-      ? translations.seedLabel(currentCase.courtId)
-      : translations.seedLabel(court.id, fallbackEn: court.courtName);
+  // The message follows the account's Client Notification settings, so the
+  // Message button and the automated update cannot disagree about the wording.
+  final settings = await _clientNotificationSettings(ref);
+  if (!context.mounted) return;
+  final profileMobile = ref.read(profileFieldsProvider).mobile;
 
   final route = await showDialog<_ContactRoute>(
     context: context,
@@ -144,15 +107,34 @@ Future<void> showCaseContactActions(
 
   final number = targets.number!;
 
+  final contact = settings.notificationContactNumber.trim().isNotEmpty
+      ? settings.notificationContactNumber.trim()
+      : profileMobile.trim().isEmpty
+      ? null
+      : profileMobile.trim();
+
   /// The pre-filled text for one channel, built only where a route carries it.
-  String messageFor({required bool whatsApp}) => buildContactMessage(
-    l: l,
-    currentCase: currentCase,
-    clientName: targets.clientName,
-    courtLabel: courtLabel,
-    lawyerName: lawyerName,
-    whatsApp: whatsApp,
-  );
+  String messageFor({required bool whatsApp}) {
+    final facts = buildClientMessageFacts(
+      translations: translations,
+      currentCase: currentCase,
+      court: court,
+      onBehalf: onBehalf,
+      nextDateMs: currentCase.nextDate,
+      lawyerName: lawyerName,
+      contactNumber: contact,
+    );
+    final long = whatsApp
+        ? settings.automatedNotificationWhatsAppTemplate ==
+              clientNotificationTemplateLong
+        : settings.automatedNotificationSmsTemplate ==
+              clientNotificationTemplateLong;
+    return buildClientNotificationMessage(
+      translations: translations,
+      facts: facts,
+      long: long,
+    );
+  }
 
   final uri = switch (route) {
     // The call sheet reaches the client by opening their chat with nothing
@@ -190,6 +172,15 @@ Future<void> showCaseContactActions(
 
 /// Which launch route the user picked.
 enum _ContactRoute { standard, whatsApp }
+
+/// The account's Client Notification settings; defaults apply if unreadable.
+Future<UserSettings> _clientNotificationSettings(WidgetRef ref) async {
+  try {
+    return await ref.read(settingsViewModelProvider.future);
+  } catch (_) {
+    return const UserSettings();
+  }
+}
 
 /// The chooser: the two documented routes, and nothing else.
 ///

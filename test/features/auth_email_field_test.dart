@@ -8,7 +8,8 @@
 /// the `@`, a chosen domain is attached with no space, the window always hangs
 /// under the box (scrolling the page up when the keyboard leaves too little
 /// room), and it closes on a tap outside or an empty box — but not on a keystroke,
-/// a tap inside it, or a press that travels (a scroll).
+/// a tap inside it, or a press that travels (a scroll). A drag that starts on the
+/// window scrolls the page under it.
 library;
 
 import 'package:flutter/material.dart';
@@ -326,5 +327,53 @@ void main() {
     expect(panel.top, greaterThan(box.bottom));
     expect(panel.bottom, lessThanOrEqualTo(341));
     expect(box.top, lessThan(200));
+  });
+
+  testWidgets('dragging the window scrolls the screen', (tester) async {
+    tester.view.physicalSize = const Size(420, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    final scroll = ScrollController();
+    addTearDown(scroll.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            controller: scroll,
+            child: Column(
+              children: [
+                const SizedBox(height: 100),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: AuthEmailField(
+                    controller: controller,
+                    label: 'Email',
+                    hint: 'example@gmail.com',
+                  ),
+                ),
+                const SizedBox(height: 1200),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextFormField), 'john');
+    await tester.pumpAndSettle();
+    expect(window, findsOneWidget);
+    expect(scroll.offset, 0);
+
+    // Holding the window and moving the finger scrolls the page under it; the
+    // window stays attached to the box and stays open.
+    await tester.drag(window, const Offset(0, -140));
+    await tester.pumpAndSettle();
+
+    expect(scroll.offset, greaterThan(80));
+    expect(window, findsOneWidget);
   });
 }

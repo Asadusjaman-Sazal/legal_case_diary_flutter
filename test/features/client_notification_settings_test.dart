@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_notifications/client_notification_section.dart';
@@ -41,13 +42,15 @@ void main() {
   bool selected(WidgetTester tester, String key) =>
       tester.widget<SettingsChoiceButton>(find.byKey(ValueKey(key))).selected;
 
+  /// The example message, the last line under the "Example:" label.
   String preview(WidgetTester tester, String key) => tester
-      .widget<Text>(
+      .widgetList<Text>(
         find.descendant(
           of: find.byKey(ValueKey(key)),
           matching: find.byType(Text),
         ),
       )
+      .last
       .data!;
 
   testWidgets('starts off, asking, on WhatsApp, Long and Short, no number', (
@@ -64,6 +67,8 @@ void main() {
     expect(selected(tester, 'client-notification-whatsapp-long'), isTrue);
     expect(selected(tester, 'client-notification-sms-short'), isTrue);
     expect(find.text('Not set'), findsOneWidget);
+    // Each template names its example instead of carrying an accent stripe.
+    expect(find.text('Example:'), findsNWidgets(2));
 
     // Ask sits directly after the Automated Notification switch (user request).
     final askY = tester
@@ -175,6 +180,26 @@ void main() {
       find.byKey(const ValueKey('client-notification-contact-edit')),
     );
     await tester.pumpAndSettle();
+
+    // The Update window's corner, the Exit App action size, and a 12 px gap
+    // (50% more than the actions' default 8, user request).
+    final dialog = tester.widget<AlertDialog>(
+      find.byKey(const ValueKey('client-notification-contact-dialog')),
+    );
+    expect(
+      (dialog.shape! as RoundedRectangleBorder).borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
+    final cancel = tester.getRect(
+      find.byKey(const ValueKey('client-notification-contact-cancel')),
+    );
+    final save = tester.getRect(
+      find.byKey(const ValueKey('client-notification-contact-save')),
+    );
+    expect(cancel.height, 48);
+    expect(save.width, greaterThanOrEqualTo(112));
+    expect(save.left - cancel.right, 12);
+
     await tester.enterText(
       find.byKey(const ValueKey('client-notification-contact-input')),
       '01800000000',

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The contact window and template examples match the app — COMPLETE (0.0.619)
+
+- **What was asked.** In Settings → Notifications → Client Notification Settings: the Contact Number window should use the Update window's corner and the Exit App window's button size, with the button gap 50% wider; the black stripe should leave the template examples, and each should read **Example:** first.
+- **What changed.** The number dialog's `AlertDialog` carries the 8 px Update corner; Cancel/Save use the 112 × 48 at 16 pt action size, and 2 px on each side lifts the actions' 8 px gap to 12. Each template's quotation lost its left accent border and now shows a muted **Example:** line above the justified text. New ARB key `clientNotification_exampleLabel` ("Example:" / "উদাহরণ:") in both languages.
+- **Tests.** The settings-section test now reads the message under the label, asserts both examples are labelled, and checks the dialog's corner, button sizes and 12 px gap. `flutter analyze` clean; full `flutter test` **2021 passed**; version **0.0.619** recorded.
+- **Docs and mockup.** Plan §10 and Task 13 record the dialog styling and the labelled examples; the Notifications mockup drops the stripe and labels both examples.
+
 ### 2026-10-23 — The client prompt reads as a message, not automation — COMPLETE (0.0.618)
 
 - **What was asked.** In the confirmation only: drop "Automated" from the title and body, double the gap between No and Yes, make No red with white text, and move **Remember my choice** under the two buttons.

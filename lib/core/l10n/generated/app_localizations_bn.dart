@@ -1876,7 +1876,7 @@ class AppLocalizationsBn extends AppLocalizations {
     String lawyerName,
     String contactLine,
   ) {
-    return '$clientName,\nআপনার মামলা, $caseLine, $court কোর্টে আগামী $nextDate ইং তারিখ$stepsClause দিন ধার্য্য আছে।\nশুভেচ্ছান্তে,\n$lawyerName$contactLine';
+    return '$clientName,\nআপনার মামলা, $caseLine, $court কোর্টে আগামী $nextDate ইং তারিখ$stepsClause দিন ধার্য্য আছে।\n\nশুভেচ্ছান্তে,\n$lawyerName$contactLine';
   }
 
   @override

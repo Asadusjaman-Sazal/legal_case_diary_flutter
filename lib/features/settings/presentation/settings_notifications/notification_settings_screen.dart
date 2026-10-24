@@ -163,6 +163,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
+          // The client-facing automated message, for every account, sits above
+          // the OEM/battery guidance (user request, 0.0.615).
+          const ClientNotificationSection(),
+          const SizedBox(height: AppSpacing.lg),
           // OEM battery-killer reminder: the plan keeps this on the screen until
           // the user finishes the setup guide, and tapping it opens the guide.
           if (!settings.notificationSetupDone) ...[
@@ -188,9 +192,6 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: l.settingsNotifications_sendTestSubtitle,
             onTap: () => _sendTestNotification(context, ref),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          // The client-facing automated message, for every account.
-          const ClientNotificationSection(),
         ],
       ),
     );

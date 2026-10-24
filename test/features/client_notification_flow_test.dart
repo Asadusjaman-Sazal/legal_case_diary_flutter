@@ -203,7 +203,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(prompt, findsNothing);
     expect(launcher.opened, isEmpty);
-    expect(repo.settings.automatedNotificationRememberedAnswer, isEmpty);
+    // No without Remember changes nothing, so the next change asks again.
+    expect(repo.settings.automatedNotificationEnabled, isTrue);
+    expect(repo.settings.automatedNotificationAskBeforeSending, isTrue);
 
     await run(tester);
     await tester.tap(find.byKey(const ValueKey('client-notification-yes')));
@@ -232,7 +234,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('client-notification-yes')));
     await tester.pumpAndSettle();
 
-    expect(repo.settings.automatedNotificationRememberedAnswer, 'yes');
+    expect(repo.settings.automatedNotificationEnabled, isTrue);
+    expect(repo.settings.automatedNotificationAskBeforeSending, isFalse);
     expect(launcher.opened, hasLength(1));
 
     await run(tester);
@@ -240,20 +243,46 @@ void main() {
     expect(launcher.opened, hasLength(2));
   });
 
-  testWidgets('Remember + No never sends and never asks again', (tester) async {
+  testWidgets('Remember + No turns the feature off, so nothing is sent', (
+    tester,
+  ) async {
+    await pumpFlow(tester, previous: previousDate);
+
+    await run(tester);
+    await tester.tap(
+      find.byKey(const ValueKey('client-notification-remember')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('client-notification-no')));
+    await tester.pumpAndSettle();
+
+    expect(repo.settings.automatedNotificationEnabled, isFalse);
+    expect(repo.settings.automatedNotificationAskBeforeSending, isFalse);
+    expect(launcher.opened, isEmpty);
+
+    // Off means the next change asks nothing and sends nothing.
+    await run(tester);
+    expect(prompt, findsNothing);
+    expect(launcher.opened, isEmpty);
+  });
+
+  testWidgets('manual On + Ask On brings the prompt back', (tester) async {
+    // The state Remember + No leaves behind, then changed by hand.
     await pumpFlow(
       tester,
       settings: const UserSettings(
-        automatedNotificationEnabled: true,
-        automatedNotificationRememberedAnswer:
-            clientNotificationRememberedNo,
+        automatedNotificationEnabled: false,
+        automatedNotificationAskBeforeSending: false,
       ),
       previous: previousDate,
     );
 
+    repo.settings = const UserSettings(
+      automatedNotificationEnabled: true,
+      automatedNotificationAskBeforeSending: true,
+    );
     await run(tester);
-    expect(prompt, findsNothing);
-    expect(launcher.opened, isEmpty);
+    expect(prompt, findsOneWidget);
   });
 
   testWidgets('Ask = No sends without a prompt', (tester) async {

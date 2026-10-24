@@ -64,7 +64,6 @@ class ClientNotificationSection extends ConsumerWidget {
                   ref,
                   (current) => current.copyWith(
                     automatedNotificationEnabled: true,
-                    automatedNotificationRememberedAnswer: '',
                   ),
                 ),
               ),
@@ -78,7 +77,6 @@ class ClientNotificationSection extends ConsumerWidget {
                   ref,
                   (current) => current.copyWith(
                     automatedNotificationEnabled: false,
-                    automatedNotificationRememberedAnswer: '',
                   ),
                 ),
               ),
@@ -181,8 +179,9 @@ class ClientNotificationSection extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          // Ask first, or open the app straight away. Changing this clears a
-          // remembered answer so the new setting is what applies.
+          // Ask first, or open the app straight away. Remembering an answer in
+          // the prompt writes these two switches: Yes keeps the feature on and
+          // turns Ask off; No turns both off.
           SettingsSectionLabel(l.clientNotification_askLabel),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -195,7 +194,6 @@ class ClientNotificationSection extends ConsumerWidget {
                   ref,
                   (current) => current.copyWith(
                     automatedNotificationAskBeforeSending: true,
-                    automatedNotificationRememberedAnswer: '',
                   ),
                 ),
               ),
@@ -208,7 +206,6 @@ class ClientNotificationSection extends ConsumerWidget {
                   ref,
                   (current) => current.copyWith(
                     automatedNotificationAskBeforeSending: false,
-                    automatedNotificationRememberedAnswer: '',
                   ),
                 ),
               ),
@@ -346,15 +343,7 @@ class _TemplateRow extends StatelessWidget {
               selected: longSelected,
               onTap: () => onChanged(true),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                '/',
-                style: AppTypography.labelLg.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ),
+            const SizedBox(width: AppSpacing.sm),
             SettingsChoiceButton(
               key: shortKey,
               label: l.clientNotification_shortLabel,

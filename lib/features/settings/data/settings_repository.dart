@@ -35,12 +35,6 @@ const String clientNotificationTemplateLong = 'long';
 /// Template length chosen for an automated client message.
 const String clientNotificationTemplateShort = 'short';
 
-/// The remembered answer given when the lawyer ticks "Remember my choice".
-const String clientNotificationRememberedYes = 'yes';
-
-/// The remembered answer given when the lawyer ticks "Remember my choice".
-const String clientNotificationRememberedNo = 'no';
-
 /// Aggregated view of a user's settings.
 class UserSettings {
   /// Whether the user currently has premium access.
@@ -174,20 +168,15 @@ class UserSettings {
 
   /// Whether the client message waits for the confirmation dialog.
   ///
-  /// When false, a changed date opens the chosen app without asking; a
-  /// remembered answer still wins (see [automatedNotificationRememberedAnswer]).
+  /// When false, a changed date opens the chosen app without asking. Remembering
+  /// Yes writes this to false and the master switch to true; remembering No
+  /// switches both off, so nothing is asked or sent until the lawyer changes
+  /// the settings by hand.
   final bool automatedNotificationAskBeforeSending;
 
   /// Channel for the automated client message: [clientNotificationChannelWhatsApp]
   /// or [clientNotificationChannelSms].
   final String automatedNotificationChannel;
-
-  /// The answer the lawyer asked the app to remember: empty (ask every time),
-  /// [clientNotificationRememberedYes] or [clientNotificationRememberedNo].
-  ///
-  /// Changing [automatedNotificationAskBeforeSending] clears it, so the new
-  /// setting is what applies.
-  final String automatedNotificationRememberedAnswer;
 
   /// Template length for WhatsApp: [clientNotificationTemplateLong] or
   /// [clientNotificationTemplateShort].
@@ -243,7 +232,6 @@ class UserSettings {
     this.automatedNotificationEnabled = false,
     this.automatedNotificationAskBeforeSending = true,
     this.automatedNotificationChannel = clientNotificationChannelWhatsApp,
-    this.automatedNotificationRememberedAnswer = '',
     this.automatedNotificationWhatsAppTemplate = clientNotificationTemplateLong,
     this.automatedNotificationSmsTemplate = clientNotificationTemplateShort,
     this.notificationContactNumber = '',
@@ -283,8 +271,6 @@ class UserSettings {
     automatedNotificationEnabled: automatedNotificationEnabled,
     automatedNotificationAskBeforeSending: automatedNotificationAskBeforeSending,
     automatedNotificationChannel: automatedNotificationChannel,
-    automatedNotificationRememberedAnswer:
-        automatedNotificationRememberedAnswer,
     automatedNotificationWhatsAppTemplate:
         automatedNotificationWhatsAppTemplate,
     automatedNotificationSmsTemplate: automatedNotificationSmsTemplate,
@@ -323,7 +309,6 @@ class UserSettings {
     bool? automatedNotificationEnabled,
     bool? automatedNotificationAskBeforeSending,
     String? automatedNotificationChannel,
-    String? automatedNotificationRememberedAnswer,
     String? automatedNotificationWhatsAppTemplate,
     String? automatedNotificationSmsTemplate,
     String? notificationContactNumber,
@@ -362,9 +347,6 @@ class UserSettings {
         this.automatedNotificationAskBeforeSending,
     automatedNotificationChannel:
         automatedNotificationChannel ?? this.automatedNotificationChannel,
-    automatedNotificationRememberedAnswer:
-        automatedNotificationRememberedAnswer ??
-        this.automatedNotificationRememberedAnswer,
     automatedNotificationWhatsAppTemplate:
         automatedNotificationWhatsAppTemplate ??
         this.automatedNotificationWhatsAppTemplate,
@@ -403,8 +385,6 @@ class UserSettings {
     'automated_notification_ask_before_sending':
         automatedNotificationAskBeforeSending,
     'automated_notification_channel': automatedNotificationChannel,
-    'automated_notification_remembered_answer':
-        automatedNotificationRememberedAnswer,
     'automated_notification_whatsapp_template':
         automatedNotificationWhatsAppTemplate,
     'automated_notification_sms_template': automatedNotificationSmsTemplate,
@@ -528,15 +508,6 @@ class UserSettings {
           clientNotificationChannelSms,
         },
         clientNotificationChannelWhatsApp,
-      ),
-      automatedNotificationRememberedAnswer: _readChoice(
-        json['automated_notification_remembered_answer'],
-        <String>{
-          clientNotificationRememberedYes,
-          clientNotificationRememberedNo,
-          '',
-        },
-        '',
       ),
       automatedNotificationWhatsAppTemplate: _readChoice(
         json['automated_notification_whatsapp_template'],

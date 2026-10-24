@@ -233,12 +233,16 @@ class SettingsChoiceButton extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
               ],
-              Text(
-                label,
-                style: AppTypography.labelLg.copyWith(
-                  color: selected
-                      ? AppColors.onPrimary
-                      : AppColors.onSurfaceVariant,
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelLg.copyWith(
+                    color: selected
+                        ? AppColors.onPrimary
+                        : AppColors.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],

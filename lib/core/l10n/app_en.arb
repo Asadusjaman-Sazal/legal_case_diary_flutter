@@ -979,7 +979,7 @@
       }
   },
   "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
-  "clientNotification_long": "{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\nBest regards,\n{lawyerName}{contactLine}",
+  "clientNotification_long": "{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\n\nBest regards,\n{lawyerName}{contactLine}",
   "@clientNotification_long": {
       "description": "The long automated client message, used when the long template is selected.",
       "placeholders": {

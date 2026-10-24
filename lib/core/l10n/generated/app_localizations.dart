@@ -3318,7 +3318,7 @@ abstract class AppLocalizations {
   /// The long automated client message, used when the long template is selected.
   ///
   /// In en, this message translates to:
-  /// **'{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\nBest regards,\n{lawyerName}{contactLine}'**
+  /// **'{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\n\nBest regards,\n{lawyerName}{contactLine}'**
   String clientNotification_long(
     String clientName,
     String caseLine,

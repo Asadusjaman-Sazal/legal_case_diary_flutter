@@ -66,24 +66,16 @@ void main() {
     expect(find.text('Not set'), findsOneWidget);
   });
 
-  testWidgets('turning automation on and off stores the answer and clears memory', (
+  testWidgets('turning automation on and off stores the answer', (
     tester,
   ) async {
-    await pumpSection(
-      tester,
-      settings: const UserSettings(
-        automatedNotificationRememberedAnswer:
-            clientNotificationRememberedYes,
-      ),
-    );
+    await pumpSection(tester);
 
     await tester.tap(
       find.byKey(const ValueKey('client-notification-enabled-on')),
     );
     await tester.pumpAndSettle();
-
     expect(repo.settings.automatedNotificationEnabled, isTrue);
-    expect(repo.settings.automatedNotificationRememberedAnswer, isEmpty);
 
     await tester.tap(
       find.byKey(const ValueKey('client-notification-enabled-off')),
@@ -92,20 +84,16 @@ void main() {
     expect(repo.settings.automatedNotificationEnabled, isFalse);
   });
 
-  testWidgets('Ask clears the remembered answer when it changes', (tester) async {
-    await pumpSection(
-      tester,
-      settings: const UserSettings(
-        automatedNotificationRememberedAnswer:
-            clientNotificationRememberedNo,
-      ),
-    );
+  testWidgets('the Ask pair persists', (tester) async {
+    await pumpSection(tester);
 
     await tester.tap(find.byKey(const ValueKey('client-notification-ask-no')));
     await tester.pumpAndSettle();
-
     expect(repo.settings.automatedNotificationAskBeforeSending, isFalse);
-    expect(repo.settings.automatedNotificationRememberedAnswer, isEmpty);
+
+    await tester.tap(find.byKey(const ValueKey('client-notification-ask-yes')));
+    await tester.pumpAndSettle();
+    expect(repo.settings.automatedNotificationAskBeforeSending, isTrue);
   });
 
   testWidgets('the channel and both template choices persist', (tester) async {

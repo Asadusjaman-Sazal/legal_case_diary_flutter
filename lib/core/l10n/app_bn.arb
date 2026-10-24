@@ -934,7 +934,7 @@
       }
   },
   "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
-  "clientNotification_long": "{clientName},\nআপনার মামলা, {caseLine}, {court} কোর্টে আগামী {nextDate} ইং তারিখ{stepsClause} দিন ধার্য্য আছে।\nশুভেচ্ছান্তে,\n{lawyerName}{contactLine}",
+  "clientNotification_long": "{clientName},\nআপনার মামলা, {caseLine}, {court} কোর্টে আগামী {nextDate} ইং তারিখ{stepsClause} দিন ধার্য্য আছে।\n\nশুভেচ্ছান্তে,\n{lawyerName}{contactLine}",
   "@clientNotification_long": {
       "description": "দীর্ঘ স্বয়ংক্রিয় ক্লায়েন্ট বার্তা, দীর্ঘ টেমপ্লেট নির্বাচিত হলে ব্যবহৃত হয়।",
       "placeholders": {

@@ -291,6 +291,11 @@ void main() {
       expect(remaining, isEmpty);
     });
 
+    test('the cached chamber row carries the logo fields', () async {
+      final columns = await _tableColumns(db, 'firms');
+      expect(columns, containsAll(<String>['logo_path', 'logo_version']));
+    });
+
     test('purgeSoftDeletedRecords keeps recent synced tombstones', () async {
       final now = DateTime.now().toUtc().millisecondsSinceEpoch;
       // A synced tombstone from 5 days ago is still within retention.

@@ -420,6 +420,10 @@ class SupabaseProfileRepository implements ProfileRepository {
         tierPendingFrom: Value(
           subscriptionExpiryToEpochMs(firm['tier_pending_from']),
         ),
+        // The chamber logo's server-stamped state (0.0.629). A row that has
+        // never had a logo reads "no path, version 0".
+        logoPath: Value(firm['logo_path'] as String?),
+        logoVersion: Value((firm['logo_version'] as num?)?.toInt() ?? 0),
         createdAt: Value(
           subscriptionExpiryToEpochMs(firm['created_at']) ??
               DateTime.now().toUtc().millisecondsSinceEpoch,

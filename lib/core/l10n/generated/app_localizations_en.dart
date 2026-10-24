@@ -1695,6 +1695,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharedLabels_chamberMember => 'A Chamber Member';
 
   @override
+  String get shared_avatarUnreadable =>
+      'This picture could not be used. Please try a JPG or PNG image.';
+
+  @override
   String get appShell_exitTitle => 'Exit App?';
 
   @override
@@ -4711,6 +4715,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_firmNameHint => 'Enter Your Chamber Or Firm Name';
+
+  @override
+  String get manageAssociates_addLogo => 'Add Logo';
+
+  @override
+  String get manageAssociates_changeLogo => 'Change Logo';
+
+  @override
+  String get manageAssociates_removeLogo => 'Remove Logo';
+
+  @override
+  String get manageAssociates_logoNeedsPlan =>
+      'An active chamber plan is needed to change the logo.';
 
   @override
   String get manageAssociates_createFirm => 'Create Firm';

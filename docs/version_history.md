@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.628 - The Cancel Subscription window's title is centred.
+Version: 0.0.629 - The side menu now names the chamber with its logo and the member's role; the owner sets the logo in Manage Associates.
 --------------------------------------
 
 ## Version History Log:
@@ -642,3 +642,4 @@ Version: 0.0.625 - Manage Plan's free limitations use the new wording, followed 
 Version: 0.0.626 - Manage Plan shows premium usage with full-width Renew and Cancel; a chamber member reads the plans read-only and is not offered History.
 Version: 0.0.627 - The Cancel Subscription window takes the Exit App corner, is 10% wider and taller with 10% taller buttons.
 Version: 0.0.628 - The Cancel Subscription window's title is centred.
+Version: 0.0.629 - The side menu now names the chamber with its logo and the member's role; the owner sets the logo in Manage Associates.

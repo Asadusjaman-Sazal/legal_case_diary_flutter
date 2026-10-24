@@ -28,10 +28,14 @@
 /// to exist before the code that invites into their firm can.
 library;
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -52,6 +56,10 @@ import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
+import '../data/avatar_image_processor.dart';
+import '../data/firm_logo_repository.dart';
+import '../data/firm_logo_store.dart';
+import '../data/firm_logo_sync.dart';
 import '../data/firm_repository.dart';
 import '../data/profile_repository.dart' show AccountRole;
 
@@ -119,7 +127,8 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
   /// screen from becoming a second copy of the firm's server state (AGENTS.md
   /// rule 4: `firm_members` and `firm_invites` are not this device's to own).
   Widget _rosterBody(AppLocalizations l) {
-    final firmName = ref.watch(accountFirmProvider).value?.name ?? '';
+    final firm = ref.watch(accountFirmProvider).value;
+    final firmName = firm?.name ?? '';
     final members = ref.watch(firmMembersListProvider);
     final invites = ref.watch(firmInvitesListProvider);
 
@@ -152,7 +161,12 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           AuthErrorBanner(text: _failureText(l)),
           const SizedBox(height: AppSpacing.md),
         ],
-        _FirmCard(label: l.settingsManageAccount_firm, name: firmName),
+        _FirmCard(
+          label: l.settingsManageAccount_firm,
+          name: firmName,
+          onChange: _busy || firm == null ? null : _pickFirmLogo,
+          onRemove: _busy || firm == null ? null : _removeFirmLogo,
+        ),
         const SizedBox(height: AppSpacing.gutter),
         _PrimaryButton(
           icon: Icons.person_add_alt_1_outlined,
@@ -395,6 +409,18 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     );
     if (!confirmed) return;
     await _run(() async {
+      // The logo belongs to the chamber and goes with it. Removed before the
+      // dissolve, while this account is still its owner and the storage policy
+      // still admits the delete; a failure is logged and must not block the
+      // dissolve, which is the user's real request.
+      final firmId = ref.read(accountFirmProvider).value?.id;
+      if (firmId != null) {
+        try {
+          await ref.read(firmLogoRepositoryProvider).remove('$firmId.jpg');
+        } on Object catch (error) {
+          recordFailure(ref.read(errorLogProvider), 'firm.logo', error);
+        }
+      }
       try {
         await ref.read(firmRepositoryProvider).dissolveFirm();
       } on DissolveRefusal {
@@ -416,6 +442,50 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
       if (!mounted) return;
       _say(context, l.manageAssociates_dissolveDone);
     });
+  }
+
+  /// Picks a chamber logo, shrinks it to 50 KB, and stores it locally first.
+  ///
+  /// The upload is detached: a save must never wait on the network, and a
+  /// failure leaves the local picture waiting for the next refresh. A known
+  /// lapsed entitlement is told up front; an entitlement still loading is
+  /// allowed to try, because the bucket's policy is the boundary either way.
+  Future<void> _pickFirmLogo() async {
+    final l = AppLocalizations.of(context);
+    if (ref.read(premiumAccessProvider).value == false) {
+      _say(context, l.manageAssociates_logoNeedsPlan);
+      return;
+    }
+    final firmId = ref.read(accountFirmProvider).value?.id;
+    if (firmId == null) return;
+
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 90,
+    );
+    if (picked == null || !mounted) return;
+
+    try {
+      final bytes = await File(picked.path).readAsBytes();
+      final processed = await processAvatar(bytes);
+      await ref.read(firmLogoProvider.notifier).setBytes(processed, firmId);
+      if (!mounted) return;
+      unawaited(ref.read(firmLogoSyncProvider)());
+    } on AvatarImageException {
+      if (mounted) _say(context, l.shared_avatarUnreadable);
+    } on Object catch (error) {
+      recordFailure(ref.read(errorLogProvider), 'firm.logo', error);
+      if (mounted) _say(context, l.shared_avatarUnreadable);
+    }
+  }
+
+  /// Removes the chamber logo, locally at once and from Storage when possible.
+  Future<void> _removeFirmLogo() async {
+    await ref.read(firmLogoProvider.notifier).clear();
+    if (!mounted) return;
+    unawaited(ref.read(firmLogoSyncProvider)());
   }
 
   /// Opens one member's permissions sheet.
@@ -477,44 +547,106 @@ class _MessageBody extends StatelessWidget {
 }
 
 /// The firm header card: what this account's firm is called.
-class _FirmCard extends StatelessWidget {
-  const _FirmCard({required this.label, required this.name});
+/// The chamber's identity: its logo, its name, and the owner's two actions.
+///
+/// The card shows the local copy immediately (the provider is synchronous), so
+/// a newly chosen logo appears before its upload finishes. Remove is offered
+/// only when there is something to remove.
+class _FirmCard extends ConsumerWidget {
+  const _FirmCard({
+    required this.label,
+    required this.name,
+    required this.onChange,
+    required this.onRemove,
+  });
+
   final String label;
   final String name;
+  final VoidCallback? onChange;
+  final VoidCallback? onRemove;
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: settingsCardDecoration(),
-    padding: const EdgeInsets.all(AppSpacing.md),
-    child: Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          ),
-          child: const Icon(Icons.apartment_outlined, color: AppColors.primary),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final logo = ref.watch(firmLogoProvider);
+    final hasLogo = logo != null;
+
+    return Container(
+      decoration: settingsCardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
             children: [
-              Text(
-                label,
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: AppColors.surfaceContainerLow,
+                backgroundImage: logo != null ? FileImage(logo) : null,
+                child: logo == null
+                    ? const Icon(
+                        Icons.apartment_outlined,
+                        color: AppColors.primary,
+                        size: 28,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(name, style: AppTypography.bodyLg),
+                  ],
                 ),
               ),
-              Text(name, style: AppTypography.bodyLg),
             ],
           ),
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: AppSpacing.gutter),
+          // Wrapped, not a Row: at a large text setting the two labels may not
+          // fit side by side on a narrow phone.
+          Align(
+            alignment: Alignment.centerRight,
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: [
+                TextButton(
+                  key: const ValueKey('firm-logo-change'),
+                  style: TextButton.styleFrom(
+                    textStyle: AppTypography.labelLg,
+                  ),
+                  onPressed: onChange,
+                  child: Text(
+                    hasLogo
+                        ? l.manageAssociates_changeLogo
+                        : l.manageAssociates_addLogo,
+                  ),
+                ),
+                if (hasLogo)
+                  TextButton(
+                    key: const ValueKey('firm-logo-remove'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      textStyle: AppTypography.labelLg,
+                    ),
+                    onPressed: onRemove,
+                    child: Text(l.manageAssociates_removeLogo),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// One associate: name on the left, role on the right, an edit affordance when

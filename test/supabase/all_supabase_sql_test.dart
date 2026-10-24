@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        67,
+        68,
         reason:
+            'The chamber logo bucket (2026-10-25) added one file. '
             'The user_devices retention pruner (2026-10-23) added one file. '
             'The device revocation broadcast (2026-10-23) added one file. '
             'The device identity columns and collision guard (2026-10-23) '

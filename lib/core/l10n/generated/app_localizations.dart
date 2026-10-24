@@ -3015,6 +3015,12 @@ abstract class AppLocalizations {
   /// **'A Chamber Member'**
   String get sharedLabels_chamberMember;
 
+  /// No description provided for @shared_avatarUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'This picture could not be used. Please try a JPG or PNG image.'**
+  String get shared_avatarUnreadable;
+
   /// No description provided for @appShell_exitTitle.
   ///
   /// In en, this message translates to:
@@ -8074,6 +8080,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter Your Chamber Or Firm Name'**
   String get manageAssociates_firmNameHint;
+
+  /// No description provided for @manageAssociates_addLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Logo'**
+  String get manageAssociates_addLogo;
+
+  /// No description provided for @manageAssociates_changeLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Logo'**
+  String get manageAssociates_changeLogo;
+
+  /// No description provided for @manageAssociates_removeLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Logo'**
+  String get manageAssociates_removeLogo;
+
+  /// No description provided for @manageAssociates_logoNeedsPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'An active chamber plan is needed to change the logo.'**
+  String get manageAssociates_logoNeedsPlan;
 
   /// No description provided for @manageAssociates_createFirm.
   ///

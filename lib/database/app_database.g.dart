@@ -11670,6 +11670,29 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _logoPathMeta = const VerificationMeta(
+    'logoPath',
+  );
+  @override
+  late final GeneratedColumn<String> logoPath = GeneratedColumn<String>(
+    'logo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _logoVersionMeta = const VerificationMeta(
+    'logoVersion',
+  );
+  @override
+  late final GeneratedColumn<int> logoVersion = GeneratedColumn<int>(
+    'logo_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _ownerIdMeta = const VerificationMeta(
     'ownerId',
   );
@@ -11749,6 +11772,8 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
   List<GeneratedColumn> get $columns => [
     id,
     name,
+    logoPath,
+    logoVersion,
     ownerId,
     subscriptionStatus,
     subscriptionExpiry,
@@ -11781,6 +11806,21 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('logo_path')) {
+      context.handle(
+        _logoPathMeta,
+        logoPath.isAcceptableOrUnknown(data['logo_path']!, _logoPathMeta),
+      );
+    }
+    if (data.containsKey('logo_version')) {
+      context.handle(
+        _logoVersionMeta,
+        logoVersion.isAcceptableOrUnknown(
+          data['logo_version']!,
+          _logoVersionMeta,
+        ),
+      );
     }
     if (data.containsKey('owner_id')) {
       context.handle(
@@ -11859,6 +11899,14 @@ class $FirmsTable extends Firms with TableInfo<$FirmsTable, Firm> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      logoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}logo_path'],
+      ),
+      logoVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}logo_version'],
+      )!,
       ownerId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}owner_id'],
@@ -11903,6 +11951,17 @@ class Firm extends DataClass implements Insertable<Firm> {
   /// Firm display name.
   final String name;
 
+  /// Object name of the chamber logo in the `firm-avatars` bucket, or null.
+  ///
+  /// Server-written by the storage trigger, never by a device.
+  final String? logoPath;
+
+  /// Bumped by the server on every logo write or delete.
+  ///
+  /// A member's device compares it with the version it last downloaded, so a
+  /// changed or removed logo is noticed on the next profile refresh.
+  final int logoVersion;
+
   /// Firm owner UUID.
   final String ownerId;
 
@@ -11913,12 +11972,13 @@ class Firm extends DataClass implements Insertable<Firm> {
   final int? subscriptionExpiry;
 
   /// The chamber's subscription tier, mirrored from its owner's plan:
-  /// `free`, `pro`, `firm` or `firm_plus`.
+  /// `free`, `starter`, `pro`, `firm`, `firm_plus` or `enterprise`.
   ///
-  /// This row is the chamber's **source of the seat cap** — Pro 0, Firm 5,
-  /// Firm Plus 20 — and the allowance a lapsed member falls back to, so it is
-  /// read rather than re-derived from the owner's expiry. Defaults to `free`,
-  /// the safe answer for a row cached before the column existed.
+  /// This row is the chamber's **source of the seat cap** — Starter and Pro 0,
+  /// Firm 5, Firm Plus 12, Enterprise unlimited — and the allowance a lapsed
+  /// member falls back to, so it is read rather than re-derived from the owner's
+  /// expiry. Defaults to `free`, the safe answer for a row cached before the
+  /// column existed.
   final String tier;
 
   /// The tier a mid-term downgrade will fall to, or null when none is waiting.
@@ -11932,6 +11992,8 @@ class Firm extends DataClass implements Insertable<Firm> {
   const Firm({
     required this.id,
     required this.name,
+    this.logoPath,
+    required this.logoVersion,
     required this.ownerId,
     required this.subscriptionStatus,
     this.subscriptionExpiry,
@@ -11945,6 +12007,10 @@ class Firm extends DataClass implements Insertable<Firm> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || logoPath != null) {
+      map['logo_path'] = Variable<String>(logoPath);
+    }
+    map['logo_version'] = Variable<int>(logoVersion);
     map['owner_id'] = Variable<String>(ownerId);
     map['subscription_status'] = Variable<String>(subscriptionStatus);
     if (!nullToAbsent || subscriptionExpiry != null) {
@@ -11965,6 +12031,10 @@ class Firm extends DataClass implements Insertable<Firm> {
     return FirmsCompanion(
       id: Value(id),
       name: Value(name),
+      logoPath: logoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(logoPath),
+      logoVersion: Value(logoVersion),
       ownerId: Value(ownerId),
       subscriptionStatus: Value(subscriptionStatus),
       subscriptionExpiry: subscriptionExpiry == null && nullToAbsent
@@ -11989,6 +12059,8 @@ class Firm extends DataClass implements Insertable<Firm> {
     return Firm(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      logoPath: serializer.fromJson<String?>(json['logoPath']),
+      logoVersion: serializer.fromJson<int>(json['logoVersion']),
       ownerId: serializer.fromJson<String>(json['ownerId']),
       subscriptionStatus: serializer.fromJson<String>(
         json['subscriptionStatus'],
@@ -12006,6 +12078,8 @@ class Firm extends DataClass implements Insertable<Firm> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'logoPath': serializer.toJson<String?>(logoPath),
+      'logoVersion': serializer.toJson<int>(logoVersion),
       'ownerId': serializer.toJson<String>(ownerId),
       'subscriptionStatus': serializer.toJson<String>(subscriptionStatus),
       'subscriptionExpiry': serializer.toJson<int?>(subscriptionExpiry),
@@ -12019,6 +12093,8 @@ class Firm extends DataClass implements Insertable<Firm> {
   Firm copyWith({
     String? id,
     String? name,
+    Value<String?> logoPath = const Value.absent(),
+    int? logoVersion,
     String? ownerId,
     String? subscriptionStatus,
     Value<int?> subscriptionExpiry = const Value.absent(),
@@ -12029,6 +12105,8 @@ class Firm extends DataClass implements Insertable<Firm> {
   }) => Firm(
     id: id ?? this.id,
     name: name ?? this.name,
+    logoPath: logoPath.present ? logoPath.value : this.logoPath,
+    logoVersion: logoVersion ?? this.logoVersion,
     ownerId: ownerId ?? this.ownerId,
     subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
     subscriptionExpiry: subscriptionExpiry.present
@@ -12045,6 +12123,10 @@ class Firm extends DataClass implements Insertable<Firm> {
     return Firm(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      logoPath: data.logoPath.present ? data.logoPath.value : this.logoPath,
+      logoVersion: data.logoVersion.present
+          ? data.logoVersion.value
+          : this.logoVersion,
       ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
       subscriptionStatus: data.subscriptionStatus.present
           ? data.subscriptionStatus.value
@@ -12068,6 +12150,8 @@ class Firm extends DataClass implements Insertable<Firm> {
     return (StringBuffer('Firm(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('logoPath: $logoPath, ')
+          ..write('logoVersion: $logoVersion, ')
           ..write('ownerId: $ownerId, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
@@ -12083,6 +12167,8 @@ class Firm extends DataClass implements Insertable<Firm> {
   int get hashCode => Object.hash(
     id,
     name,
+    logoPath,
+    logoVersion,
     ownerId,
     subscriptionStatus,
     subscriptionExpiry,
@@ -12097,6 +12183,8 @@ class Firm extends DataClass implements Insertable<Firm> {
       (other is Firm &&
           other.id == this.id &&
           other.name == this.name &&
+          other.logoPath == this.logoPath &&
+          other.logoVersion == this.logoVersion &&
           other.ownerId == this.ownerId &&
           other.subscriptionStatus == this.subscriptionStatus &&
           other.subscriptionExpiry == this.subscriptionExpiry &&
@@ -12109,6 +12197,8 @@ class Firm extends DataClass implements Insertable<Firm> {
 class FirmsCompanion extends UpdateCompanion<Firm> {
   final Value<String> id;
   final Value<String> name;
+  final Value<String?> logoPath;
+  final Value<int> logoVersion;
   final Value<String> ownerId;
   final Value<String> subscriptionStatus;
   final Value<int?> subscriptionExpiry;
@@ -12120,6 +12210,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
   const FirmsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.logoPath = const Value.absent(),
+    this.logoVersion = const Value.absent(),
     this.ownerId = const Value.absent(),
     this.subscriptionStatus = const Value.absent(),
     this.subscriptionExpiry = const Value.absent(),
@@ -12132,6 +12224,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
   FirmsCompanion.insert({
     required String id,
     required String name,
+    this.logoPath = const Value.absent(),
+    this.logoVersion = const Value.absent(),
     required String ownerId,
     required String subscriptionStatus,
     this.subscriptionExpiry = const Value.absent(),
@@ -12148,6 +12242,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
   static Insertable<Firm> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? logoPath,
+    Expression<int>? logoVersion,
     Expression<String>? ownerId,
     Expression<String>? subscriptionStatus,
     Expression<int>? subscriptionExpiry,
@@ -12160,6 +12256,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (logoPath != null) 'logo_path': logoPath,
+      if (logoVersion != null) 'logo_version': logoVersion,
       if (ownerId != null) 'owner_id': ownerId,
       if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
       if (subscriptionExpiry != null) 'subscription_expiry': subscriptionExpiry,
@@ -12174,6 +12272,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
   FirmsCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
+    Value<String?>? logoPath,
+    Value<int>? logoVersion,
     Value<String>? ownerId,
     Value<String>? subscriptionStatus,
     Value<int?>? subscriptionExpiry,
@@ -12186,6 +12286,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     return FirmsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      logoPath: logoPath ?? this.logoPath,
+      logoVersion: logoVersion ?? this.logoVersion,
       ownerId: ownerId ?? this.ownerId,
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
       subscriptionExpiry: subscriptionExpiry ?? this.subscriptionExpiry,
@@ -12205,6 +12307,12 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (logoPath.present) {
+      map['logo_path'] = Variable<String>(logoPath.value);
+    }
+    if (logoVersion.present) {
+      map['logo_version'] = Variable<int>(logoVersion.value);
     }
     if (ownerId.present) {
       map['owner_id'] = Variable<String>(ownerId.value);
@@ -12238,6 +12346,8 @@ class FirmsCompanion extends UpdateCompanion<Firm> {
     return (StringBuffer('FirmsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('logoPath: $logoPath, ')
+          ..write('logoVersion: $logoVersion, ')
           ..write('ownerId: $ownerId, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
           ..write('subscriptionExpiry: $subscriptionExpiry, ')
@@ -23238,6 +23348,8 @@ typedef $$FirmsTableCreateCompanionBuilder =
     FirmsCompanion Function({
       required String id,
       required String name,
+      Value<String?> logoPath,
+      Value<int> logoVersion,
       required String ownerId,
       required String subscriptionStatus,
       Value<int?> subscriptionExpiry,
@@ -23251,6 +23363,8 @@ typedef $$FirmsTableUpdateCompanionBuilder =
     FirmsCompanion Function({
       Value<String> id,
       Value<String> name,
+      Value<String?> logoPath,
+      Value<int> logoVersion,
       Value<String> ownerId,
       Value<String> subscriptionStatus,
       Value<int?> subscriptionExpiry,
@@ -23276,6 +23390,16 @@ class $$FirmsTableFilterComposer extends Composer<_$AppDatabase, $FirmsTable> {
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get logoPath => $composableBuilder(
+    column: $table.logoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get logoVersion => $composableBuilder(
+    column: $table.logoVersion,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -23334,6 +23458,16 @@ class $$FirmsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get logoPath => $composableBuilder(
+    column: $table.logoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get logoVersion => $composableBuilder(
+    column: $table.logoVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get ownerId => $composableBuilder(
     column: $table.ownerId,
     builder: (column) => ColumnOrderings(column),
@@ -23384,6 +23518,14 @@ class $$FirmsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get logoPath =>
+      $composableBuilder(column: $table.logoPath, builder: (column) => column);
+
+  GeneratedColumn<int> get logoVersion => $composableBuilder(
+    column: $table.logoVersion,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get ownerId =>
       $composableBuilder(column: $table.ownerId, builder: (column) => column);
@@ -23445,6 +23587,8 @@ class $$FirmsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> logoPath = const Value.absent(),
+                Value<int> logoVersion = const Value.absent(),
                 Value<String> ownerId = const Value.absent(),
                 Value<String> subscriptionStatus = const Value.absent(),
                 Value<int?> subscriptionExpiry = const Value.absent(),
@@ -23456,6 +23600,8 @@ class $$FirmsTableTableManager
               }) => FirmsCompanion(
                 id: id,
                 name: name,
+                logoPath: logoPath,
+                logoVersion: logoVersion,
                 ownerId: ownerId,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,
@@ -23469,6 +23615,8 @@ class $$FirmsTableTableManager
               ({
                 required String id,
                 required String name,
+                Value<String?> logoPath = const Value.absent(),
+                Value<int> logoVersion = const Value.absent(),
                 required String ownerId,
                 required String subscriptionStatus,
                 Value<int?> subscriptionExpiry = const Value.absent(),
@@ -23480,6 +23628,8 @@ class $$FirmsTableTableManager
               }) => FirmsCompanion.insert(
                 id: id,
                 name: name,
+                logoPath: logoPath,
+                logoVersion: logoVersion,
                 ownerId: ownerId,
                 subscriptionStatus: subscriptionStatus,
                 subscriptionExpiry: subscriptionExpiry,

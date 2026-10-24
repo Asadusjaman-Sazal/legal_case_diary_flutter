@@ -20,8 +20,10 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:image/image.dart' as img;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
@@ -34,7 +36,9 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/profile_picture_store.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
@@ -71,6 +75,34 @@ const String loginMarker = 'Login Screen';
 
 /// The address the drawer's account sheet is expected to print.
 const String signedInEmail = 'rahim@example.com';
+
+/// A firm associate's cached profile, for the chamber header.
+Profile firmProfile({String role = 'associate'}) => Profile(
+  id: 'drawer-test-user',
+  fullName: 'Zaid',
+  role: role,
+  firmId: 'firm-1',
+  subscriptionStatus: 'premium',
+  subscriptionExpiry: DateTime.now()
+      .add(const Duration(days: 30))
+      .millisecondsSinceEpoch,
+  tier: 'pro',
+  createdAt: 0,
+);
+
+/// The chamber row beside it.
+Firm firmRow({String name = 'Rahman & Associates'}) => Firm(
+  id: 'firm-1',
+  name: name,
+  ownerId: 'owner-1',
+  subscriptionStatus: 'premium',
+  subscriptionExpiry: DateTime.now()
+      .add(const Duration(days: 30))
+      .millisecondsSinceEpoch,
+  tier: 'firm',
+  logoVersion: 0,
+  createdAt: 0,
+);
 
 /// An update repository that answers from memory, recording its calls.
 class _FakeUpdateRepository extends UpdateRepository {
@@ -206,6 +238,8 @@ void main() {
     int? adminBadgeCount,
     bool firmMember = false,
     SubscriptionTier? tier,
+    Profile? profile,
+    Firm? firm,
   }) async {
     // Tall, so the plan row (below the eight nav items) is on screen to tap.
     await tester.binding.setSurfaceSize(const Size(500, 1400));
@@ -264,6 +298,16 @@ void main() {
           // The tier behind the plan label's Limited Access tag: stubbed only
           // where a test needs the ended state, so no other case changes.
           if (tier != null) allowanceTierProvider.overrideWithValue(tier),
+          // The account and chamber the header names, when a test is about the
+          // firm header rather than the plan.
+          if (profile != null)
+            accountProfileProvider.overrideWith(
+              (ref) => Stream<Profile?>.value(profile),
+            ),
+          if (firm != null)
+            accountFirmProvider.overrideWith(
+              (ref) => Stream<Firm?>.value(firm),
+            ),
           // The address the sheet names. Stubbed, so a sheet that invented its
           // own address (or printed nothing) would fail the assertion below.
           authIdentityProvider.overrideWithValue(
@@ -365,6 +409,139 @@ void main() {
       lessThan(tester.getTopLeft(drawerText('লিগ্যাল কেস ডায়েরি')).dy),
     );
     expect(tester.widget<Text>(drawerText('এর')).textAlign, TextAlign.center);
+  });
+
+  testWidgets('a chamber header names the chamber, then the member and role', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Zaid'));
+    await pumpDrawerOnRouter(tester, profile: firmProfile(), firm: firmRow());
+
+    expect(drawerText('Legal Case Diary'), findsOneWidget);
+    expect(drawerText('of'), findsOneWidget);
+    expect(drawerText('Rahman & Associates'), findsOneWidget);
+    expect(
+      drawerText('Zaid · ${l.settingsManageAccount_roleAssociate}'),
+      findsOneWidget,
+    );
+
+    // The possessive names the chamber; the signed-in member follows it.
+    final appY = tester.getTopLeft(drawerText('Legal Case Diary')).dy;
+    final ofY = tester.getTopLeft(drawerText('of')).dy;
+    final firmY = tester.getTopLeft(drawerText('Rahman & Associates')).dy;
+    final memberY = tester
+        .getTopLeft(
+          drawerText('Zaid · ${l.settingsManageAccount_roleAssociate}'),
+        )
+        .dy;
+    expect(appY, lessThan(ofY));
+    expect(ofY, lessThan(firmY));
+    expect(firmY, lessThan(memberY));
+  });
+
+  testWidgets('a chamber owner is named with Owner', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Asad'));
+    await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+    );
+
+    expect(
+      drawerText('Asad · ${l.settingsManageAccount_roleOwner}'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a chamber row with no name keeps the member header', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Zaid'));
+    await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(),
+      firm: firmRow(name: ''),
+    );
+
+    expect(drawerText('Zaid'), findsOneWidget);
+    expect(drawerText(l.settingsManageAccount_roleAssociate), findsNothing);
+  });
+
+  testWidgets('the chamber logo fills the circle', (tester) async {
+    // Synchronous IO: a widget test runs on a fake clock, so a real async file
+    // call inside the body would never complete.
+    final dir = Directory.systemTemp.createTempSync('drawer-logo');
+    addTearDown(() => dir.delete(recursive: true));
+    final logo = File('${dir.path}/firm_firm-1.jpg');
+    logo.writeAsBytesSync(img.encodePng(img.Image(width: 4, height: 4)));
+    await prefs.setString(firmLogoPathKey, logo.path);
+    await prefs.setString('firm_logo_firm_id', 'firm-1');
+
+    await pumpDrawerOnRouter(tester, profile: firmProfile(), firm: firmRow());
+
+    final avatar = tester.widget<CircleAvatar>(
+      find
+          .descendant(
+            of: find.byType(Drawer),
+            matching: find.byType(CircleAvatar),
+          )
+          .first,
+    );
+    expect(avatar.backgroundImage, isA<FileImage>());
+    expect((avatar.backgroundImage! as FileImage).file.path, logo.path);
+  });
+
+  testWidgets('without a chamber logo the member picture is the fallback', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('drawer-member-picture');
+    addTearDown(() => dir.delete(recursive: true));
+    final member = File('${dir.path}/member.jpg');
+    member.writeAsBytesSync(img.encodePng(img.Image(width: 4, height: 4)));
+    await prefs.setString(profilePicturePathKey, member.path);
+
+    await pumpDrawerOnRouter(tester, profile: firmProfile(), firm: firmRow());
+
+    final avatar = tester.widget<CircleAvatar>(
+      find
+          .descendant(
+            of: find.byType(Drawer),
+            matching: find.byType(CircleAvatar),
+          )
+          .first,
+    );
+    expect((avatar.backgroundImage! as FileImage).file.path, member.path);
+  });
+
+  testWidgets('the Bengali chamber header keeps the member line last', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await ProfileStore(prefs).write(const ProfileFields(fullName: 'Zaid'));
+    await pumpDrawerOnRouter(
+      tester,
+      locale: const Locale('bn'),
+      profile: firmProfile(),
+      firm: firmRow(),
+    );
+
+    final firmLine = drawerText('Rahman & Associates');
+    final memberLine = drawerText(
+      'Zaid · ${l.settingsManageAccount_roleAssociate}',
+    );
+    expect(firmLine, findsOneWidget);
+    expect(memberLine, findsOneWidget);
+    expect(
+      tester.getTopLeft(firmLine).dy,
+      lessThan(tester.getTopLeft(drawerText('এর')).dy),
+    );
+    expect(
+      tester.getTopLeft(drawerText('লিগ্যাল কেস ডায়েরি')).dy,
+      lessThan(tester.getTopLeft(memberLine).dy),
+    );
   });
 
   testWidgets('the plan row names the running plan, then expands to two pages', (

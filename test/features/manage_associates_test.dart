@@ -16,6 +16,9 @@
 /// still lets an owner manage the firm they already have.
 library;
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -26,6 +29,7 @@ import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
@@ -40,6 +44,12 @@ import 'settings_test_support.dart';
 
 /// Marker rendered by the stand-in Paywall route.
 const String manageAssociatesPaywallMarker = 'Paywall Route';
+
+/// Minimal valid 1x1 PNG, so a `FileImage` decodes without errors.
+final List<int> _pngBytes = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/'
+  'q842iQAAAABJRU5ErkJggg==',
+);
 
 /// Epoch ms 30 days from now: an active premium entitlement for the caches.
 int get _premiumExpiryMs =>
@@ -71,19 +81,34 @@ void main() {
     Future<void> Function(AppDatabase db)? seed,
     bool online = true,
     List<Override> overrides = const <Override>[],
+    Map<String, Object> preferences = const <String, Object>{},
   }) async {
     await tester.binding.setSurfaceSize(const Size(420, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
+    final providerOverrides = await harness.setUp(
+      extra: [
+        isOnlineProvider.overrideWith((_) => Stream<bool>.value(online)),
+        ...overrides,
+      ],
+    );
+    // Values the picture provider reads at its first build (a saved logo, for
+    // one). They are written after the harness has reset its preferences and
+    // before the screen is pumped.
+    for (final entry in preferences.entries) {
+      if (entry.value is String) {
+        await harness.prefs.setString(entry.key, entry.value as String);
+      } else if (entry.value is bool) {
+        await harness.prefs.setBool(entry.key, entry.value as bool);
+      } else if (entry.value is int) {
+        await harness.prefs.setInt(entry.key, entry.value as int);
+      }
+    }
+
     await pumpSettingsRouter(
       tester,
       location: AppRoutes.settingsManageAssociates,
-      overrides: await harness.setUp(
-        extra: [
-          isOnlineProvider.overrideWith((_) => Stream<bool>.value(online)),
-          ...overrides,
-        ],
-      ),
+      overrides: providerOverrides,
       routes: [
         GoRoute(
           path: AppRoutes.settingsManageAssociates,
@@ -149,6 +174,15 @@ void main() {
     String role = AccountRole.owner,
     bool premium = true,
   }) async {
+    // A member's entitlement is the chamber's expiry, so a lapsed owner needs a
+    // lapsed **firm** row as well — otherwise every firm account still reads
+    // premium and the lapse cannot be exercised.
+    final expiry = premium
+        ? _premiumExpiryMs
+        : DateTime.now()
+              .toUtc()
+              .subtract(const Duration(days: 3))
+              .millisecondsSinceEpoch;
     await ProfilesDao(db).upsert(
       ProfilesCompanion(
         id: const Value('user-1'),
@@ -156,7 +190,7 @@ void main() {
         role: Value(role),
         firmId: const Value('firm-1'),
         subscriptionStatus: Value(premium ? 'active' : 'free'),
-        subscriptionExpiry: Value(premium ? _premiumExpiryMs : null),
+        subscriptionExpiry: Value(expiry),
         createdAt: const Value(1),
       ),
     );
@@ -165,8 +199,8 @@ void main() {
         id: const Value('firm-1'),
         name: const Value('Rahman & Associates'),
         ownerId: const Value('user-1'),
-        subscriptionStatus: const Value('active'),
-        subscriptionExpiry: Value(_premiumExpiryMs),
+        subscriptionStatus: Value(premium ? 'active' : 'free'),
+        subscriptionExpiry: Value(expiry),
         createdAt: const Value(1),
       ),
     );
@@ -282,6 +316,85 @@ void main() {
     expect(find.text('Adv. Karim'), findsOneWidget);
     expect(find.text(l.settingsManageAccount_roleOwner), findsOneWidget);
     expect(find.text(l.settingsManageAccount_roleAssociate), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the owner sees the chamber logo actions', (tester) async {
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    expect(find.byKey(const ValueKey('firm-logo-change')), findsOneWidget);
+    expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
+    // Nothing to remove until a logo exists.
+    expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a saved chamber logo shows Change and Remove, and Remove clears it', (
+    tester,
+  ) async {
+    // Synchronous IO: a widget test runs on a fake clock, so a real async file
+    // call inside the body would never complete.
+    final dir = Directory.systemTemp.createTempSync('manage-logo');
+    addTearDown(() => dir.delete(recursive: true));
+    final logo = File('${dir.path}/firm_firm-1.png');
+    logo.writeAsBytesSync(_pngBytes);
+
+    await pumpManageAssociates(
+      tester,
+      preferences: <String, Object>{
+        firmLogoPathKey: logo.path,
+        'firm_logo_firm_id': 'firm-1',
+      },
+      seed: seedOwner,
+    );
+
+    expect(find.text(l.manageAssociates_changeLogo), findsOneWidget);
+    final avatar = tester.widget<CircleAvatar>(
+      find
+          .descendant(
+            of: find.byType(ManageAssociatesScreen),
+            matching: find.byType(CircleAvatar),
+          )
+          .first,
+    );
+    expect((avatar.backgroundImage! as FileImage).file.path, logo.path);
+
+    final remove = find.byKey(const ValueKey('firm-logo-remove'));
+    await tester.ensureVisible(remove);
+    await tester.pumpAndSettle();
+    await tester.tap(remove);
+    // The delete is real file IO; a widget test's fake clock needs a real
+    // event-loop turn for it to finish before the assertion.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(logo.existsSync(), isFalse);
+    expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
+    expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a lapsed owner is told a live plan is needed for a logo', (
+    tester,
+  ) async {
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedOwner(db, premium: false),
+    );
+
+    final change = find.byKey(const ValueKey('firm-logo-change'));
+    await tester.ensureVisible(change);
+    await tester.pumpAndSettle();
+    await tester.tap(change);
+    await tester.pumpAndSettle();
+
+    // No picker opens: the message is the whole answer.
+    expect(find.text(l.manageAssociates_logoNeedsPlan), findsOneWidget);
 
     await unmountApp(tester);
   });

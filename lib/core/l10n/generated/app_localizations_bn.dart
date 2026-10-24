@@ -1700,6 +1700,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedLabels_chamberMember => 'একজন চেম্বার সদস্য';
 
   @override
+  String get shared_avatarUnreadable =>
+      'এই ছবিটি ব্যবহার করা যায়নি। অনুগ্রহ করে একটি JPG বা PNG ছবি চেষ্টা করুন।';
+
+  @override
   String get appShell_exitTitle => 'অ্যাপ থেকে প্রস্থান?';
 
   @override
@@ -4730,6 +4734,19 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get manageAssociates_firmNameHint =>
       'আপনার চেম্বার বা ফার্মের নাম লিখুন';
+
+  @override
+  String get manageAssociates_addLogo => 'লোগো যোগ করুন';
+
+  @override
+  String get manageAssociates_changeLogo => 'লোগো পরিবর্তন করুন';
+
+  @override
+  String get manageAssociates_removeLogo => 'লোগো সরান';
+
+  @override
+  String get manageAssociates_logoNeedsPlan =>
+      'লোগো পরিবর্তন করতে সক্রিয় চেম্বার প্ল্যান প্রয়োজন।';
 
   @override
   String get manageAssociates_createFirm => 'ফার্ম তৈরি করুন';

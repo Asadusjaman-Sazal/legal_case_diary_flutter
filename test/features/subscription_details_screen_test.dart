@@ -1003,6 +1003,49 @@ void main() {
       expect(find.text(l.payments_goBack), findsOneWidget);
       expect(find.text(l.payments_confirmCancellation), findsOneWidget);
 
+      // 0.0.627 geometry (user request): the Exit App window's 8 px corner, a
+      // window ~10% wider, extra body room, and actions 10% taller (48 → 53).
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      expect(
+        (dialog.shape! as RoundedRectangleBorder).borderRadius,
+        BorderRadius.circular(AppSpacing.cardRadius * 2),
+      );
+      // The title is middle aligned, like the Exit App window's (0.0.628).
+      expect(
+        tester.widget<Text>(find.text(l.payments_cancelTitle)).textAlign,
+        TextAlign.center,
+      );
+      final window = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(Dialog),
+              matching: find.byWidgetPredicate(
+                (w) => w is Material && w.type == MaterialType.card,
+              ),
+            )
+            .first,
+      );
+      // The 24 px side insets on this 420 px surface.
+      expect(window.width, closeTo(420 - 48, 0.5));
+      expect(window.left, closeTo(24, 0.5));
+      // 448 before the change; the wider box re-wraps the test font's long
+      // sentence (~52 px shorter), while the new body room (+64) and taller
+      // actions (+10) still make the window taller than it was.
+      expect(window.height, closeTo(470, 2));
+      expect(window.height, greaterThan(448));
+
+      final goBackRect = tester.getRect(
+        find.byKey(const ValueKey('subscription-details-cancel-go-back')),
+      );
+      final confirmRect = tester.getRect(
+        find.byKey(const ValueKey('subscription-details-cancel-confirm')),
+      );
+      expect(goBackRect.height, 53);
+      expect(confirmRect.height, 53);
+      // Both actions span the window's inside width, as they always have.
+      expect(goBackRect.width, closeTo(window.width - 48, 0.5));
+      expect(confirmRect.width, closeTo(window.width - 48, 0.5));
+
       // The way out is black, the destructive choice is red, both with white
       // text — the two colours the request names.
       Color? background(String key) => tester

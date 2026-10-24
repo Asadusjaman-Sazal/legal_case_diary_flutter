@@ -1,5 +1,18 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — Subscription becomes a section, history its own screen — COMPLETE (0.0.624)
+
+- **What was asked.** In Account & Profile: a new **Subscription** section after Account with **Manage Plan** (renamed from Subscription Details), **Subscription Plans** and **Subscription History** in that order; the history moves to its own sub-menu whose header is its only title; the side menu label follows; and the side menu/checkout links keep working.
+- **What changed.**
+  - **Account & Profile**: the old Subscription card left the Account section. A four-section layout now reads Profile → Account → Subscription → Firm; the Subscription rows are Manage Plan (details route), Subscription Plans (paywall, hidden for a chamber member) and Subscription History, each with a short subtitle. `firmMemberProvider` drives the member rule.
+  - **Manage Plan**: `subscription_details_screen.dart` keeps the summary, free/lapsed blocks and the cancel action/dialog; its header, the menu row and the drawer child now use the new `settingsSubscription_managePlanTitle` ("Manage Plan" / "প্ল্যান পরিচালনা"). The history section and its widgets moved out.
+  - **Subscription History**: new `subscription_history_screen.dart` and `/settings/subscription/history` (top-level, like Manage Plan), `SafeArea` + header only, body via `SubscriptionHistorySection(showHeading: false)`. Shared `subscription_widgets.dart` now holds `SubscriptionCard` and `formatSubscriptionDateTime`, used by both screens.
+  - **Deleted**: `subscription_screen.dart`, its route and its test file.
+  - **Navigation**: the drawer's first plan child says Manage Plan; checkout after a successful submission pushes Subscription History (the pending purchase is first; the plan changes only after approval); the pre-expiry reminder still opens the paywall.
+  - **Strings**: removed `settingsManageAccount_subscriptionDetails` and `settingsAccountProfile_subscriptionSubtitle`; added `settingsSubscription_managePlanTitle` and three row subtitles (EN + BN).
+- **Tests**: menu layout/order/destinations/member rule (11); Manage Plan suite trimmed to 19; a new 7-test history suite (cards, newest-first, Bengali digits, rejected stamp, reviewer note, empty, purchases + cancellations, one header); drawer labels; checkout landing on History; Manage Account absences; ARB parity; reminder route. `flutter analyze` clean; full `flutter test` **2020 passed**; version **0.0.624**.
+- **Docs and mockup**: plan §8, Task 12 and Task 21 updated; `settings_accountProfile` mockup now draws the Subscription section and its three rows. No server change.
+
 ### 2026-10-23 — The Profile header uses the name as saved — COMPLETE (0.0.623)
 
 - **What was asked.** Only on Settings → Account & Profile → Profile: stop putting **Adv.** before the lawyer's name under the picture; show the Full Name exactly.

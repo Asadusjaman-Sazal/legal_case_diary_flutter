@@ -1142,7 +1142,7 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
         if (_expanded) ...[
           _DrawerNavTile(
             icon: Icons.star_outline,
-            label: l.settingsManageAccount_subscriptionDetails,
+            label: l.settingsSubscription_managePlanTitle,
             active:
                 widget.currentRoute == AppRoutes.settingsSubscriptionDetails,
             indent: _planSubIndent,

@@ -1,8 +1,8 @@
 /// Accounts profile menu screen: main sub-menu for Accounts & Profile.
 /// UI shell (Task 12 Phase 2); full account wiring in Part B / Task 17.
 ///
-/// The body is grouped into three labelled sections — **Profile**, **Account**
-/// and **Firm** — using the shared [SettingsSectionLabel] the other sectioned
+/// The body is grouped into four labelled sections — **Profile**, **Account**,
+/// **Subscription** and **Firm** — using the shared [SettingsSectionLabel] the other sectioned
 /// Settings screens use, so the menu reads as a set of account-level groups
 /// rather than one flat list. Every entry still renders through
 /// [SettingsMenuCard], the shared card the other sub-menus use, which is what
@@ -56,6 +56,10 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
     // one device: Free has no sync and Starter holds one, so it starts at Pro.
     final showDevices =
         ref.watch(currentTierProvider).rank > SubscriptionTier.starter.rank;
+    // A chamber member's plans are the owner's to buy, so the plans row is
+    // hidden for them — the same rule the drawer and the old Subscription
+    // screen kept.
+    final isMember = ref.watch(firmMemberProvider);
 
     return SettingsSubPageModal(
       title: l.settingsScreen_accountAndProfile,
@@ -99,16 +103,33 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.settingsDevices),
             ),
           ],
+          const SizedBox(height: AppSpacing.lg),
+          // Subscription: the plan, the store and the ledger, together
+          // (0.0.624, user request).
+          SettingsSectionLabel(l.settingsSubscription_title),
           const SizedBox(height: AppSpacing.sm),
-          // Billing, moved here from the main Settings list, so the account and
-          // the way to pay for it sit together.
           SettingsMenuCard(
-            icon: Icons.workspace_premium_outlined,
-            title: l.settingsSubscription_title,
-            subtitle: l.settingsAccountProfile_subscriptionSubtitle,
-            onTap: () => context.push(AppRoutes.settingsSubscription),
+            icon: Icons.star_outline,
+            title: l.settingsSubscription_managePlanTitle,
+            subtitle: l.settingsAccountProfile_managePlanSubtitle,
+            onTap: () => context.push(AppRoutes.settingsSubscriptionDetails),
           ),
+          if (!isMember) ...[
+            const SizedBox(height: AppSpacing.sm),
+            SettingsMenuCard(
+              icon: Icons.add_shopping_cart_outlined,
+              title: l.settingsManageAccount_purchaseNewSubscription,
+              subtitle: l.settingsAccountProfile_subscriptionPlansSubtitle,
+              onTap: () => context.push(AppRoutes.paywall),
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
+          SettingsMenuCard(
+            icon: Icons.history,
+            title: l.payments_historyTitle,
+            subtitle: l.settingsAccountProfile_subscriptionHistorySubtitle,
+            onTap: () => context.push(AppRoutes.settingsSubscriptionHistory),
+          ),
           if (showManageAssociates) ...[
             const SizedBox(height: AppSpacing.lg),
             // Firm: only meaningful with the row below it.

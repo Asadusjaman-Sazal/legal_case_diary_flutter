@@ -403,7 +403,7 @@ void main() {
 
     // Collapsed, neither destination is offered yet.
     expect(
-      drawerText(l.settingsManageAccount_subscriptionDetails),
+      drawerText(l.settingsSubscription_managePlanTitle),
       findsNothing,
     );
     expect(drawerText(l.paywall_title), findsNothing);
@@ -415,7 +415,7 @@ void main() {
     // was opened from.
     expect(router.state.matchedLocation, AppRoutes.dailyCauseList);
     expect(
-      drawerText(l.settingsManageAccount_subscriptionDetails),
+      drawerText(l.settingsSubscription_managePlanTitle),
       findsOneWidget,
     );
     expect(drawerText(l.paywall_title), findsOneWidget);
@@ -470,7 +470,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      drawerText(l.settingsManageAccount_subscriptionDetails),
+      drawerText(l.settingsSubscription_managePlanTitle),
       findsOneWidget,
     );
     expect(drawerText(l.paywall_title), findsNothing);
@@ -484,7 +484,7 @@ void main() {
 
     await tester.tap(drawerText(l.settingsManageAccount_planFree));
     await tester.pumpAndSettle();
-    await tester.tap(drawerText(l.settingsManageAccount_subscriptionDetails));
+    await tester.tap(drawerText(l.settingsSubscription_managePlanTitle));
     await tester.pumpAndSettle();
 
     expect(find.text(subscriptionDetailsMarker), findsOneWidget);
@@ -518,7 +518,7 @@ void main() {
     );
 
     expect(
-      drawerText(l.settingsManageAccount_subscriptionDetails),
+      drawerText(l.settingsSubscription_managePlanTitle),
       findsOneWidget,
     );
     final blackTiles = find.descendant(

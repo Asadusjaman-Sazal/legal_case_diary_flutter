@@ -28,7 +28,6 @@ import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
-import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
@@ -245,6 +244,38 @@ void main() {
     );
   }
 
+  /// A paid individual whose period is over but whose tier is kept: Pro's 250
+  /// is what Limited Access still allows.
+  Future<void> seedIndividualEnded(AppDatabase db) => ProfilesDao(db).upsert(
+    ProfilesCompanion(
+      id: const Value('user-1'),
+      fullName: const Value('Adv. Rahim Uddin'),
+      role: const Value(AccountRole.individual),
+      tier: const Value('pro'),
+      subscriptionStatus: const Value('expired'),
+      subscriptionExpiry: Value(
+        DateTime.utc(2026, 10, 1, 17, 30).millisecondsSinceEpoch,
+      ),
+      createdAt: const Value(1),
+    ),
+  );
+
+  /// Payments that bought the Pro quarter a cancellation later ended.
+  List<Override> paidProOverrides() => <Override>[
+    myPaymentSubmissionsProvider.overrideWith(
+      (ref) async => [
+        submission(
+          id: 'p1',
+          planType: paymentPlanProQuarterly,
+          amount: 360,
+          status: 'approved',
+          submittedAt: DateTime.utc(2026, 10, 1, 10),
+          approvedAt: DateTime.utc(2026, 10, 1, 12),
+        ),
+      ],
+    ),
+  ];
+
   testWidgets('a firm owner sees role, firm, plan and an expiry to the minute', (
     tester,
   ) async {
@@ -315,11 +346,8 @@ void main() {
 
       // The chamber's subscription is the one running (Phase 9): the member's
       // own approved Starter row is ignored, so the plan reads Premium rather
-      // than naming a plan that is not in force on this account. The one
-      // remaining Starter label is the purchase in Payment History, not the plan
-      // label — the ledger is a record of what was bought, not what is running.
+      // than naming a plan that is not in force on this account.
       expect(find.text(l.settingsManageAccount_planPremium), findsWidgets);
-      expect(find.text(l.paywall_planStarterQuarterly), findsOneWidget);
 
       // The expiry is the chamber's, not the member's own (01/06/2027).
       expect(find.text('01/12/2026, 11:30 PM'), findsOneWidget);
@@ -372,16 +400,6 @@ void main() {
       find.text(l.settingsSubscription_freeLimitRecovery),
       findsOneWidget,
     );
-    // The section sits above Payment History.
-    expect(
-      tester.getTopLeft(find.text(l.settingsSubscription_freePlanLimitations)).dy,
-      lessThan(
-        tester
-            .getTopLeft(find.text(l.payments_historyTitle))
-            .dy,
-      ),
-    );
-
     await unmountApp(tester);
   });
 
@@ -403,181 +421,6 @@ void main() {
       find.text(l.settingsSubscription_freePlanLimitations),
       findsNothing,
     );
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('the history is a card per purchase, carrying all five facts', (
-    tester,
-  ) async {
-    await pumpDetails(
-      tester,
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-                submission(
-                  id: 'older',
-                  planType: paymentPlanStarterMonthly,
-                  amount: 60,
-                  status: 'approved',
-                  submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
-                  approvedAt: DateTime.utc(2026, 10, 2, 18, 45),
-                ),
-                submission(
-                  id: 'newer',
-                  planType: paymentPlanStarterQuarterly,
-                  amount: 180,
-                  status: 'pending',
-                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                ),
-          ],
-        ),
-      ],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    // Newest first, numbered from 1: the purchase a user came about is first.
-    // English, so the numbers are Latin digits here; the Bengali rendering is
-    // pinned by its own test below.
-    expect(find.text('1'), findsOneWidget);
-    expect(find.text('2'), findsOneWidget);
-
-    // Each card states its plan, what was paid, when, and the verdict.
-    expect(find.text(l.paywall_planStarterQuarterly), findsWidgets);
-    expect(find.text(l.paywall_planStarterMonthly), findsWidgets);
-    expect(find.text(l.payments_amountValue('180')), findsOneWidget);
-    expect(find.text(l.payments_amountValue('60')), findsOneWidget);
-    expect(find.text(l.payments_statusPending), findsOneWidget);
-    expect(find.text(l.payments_statusApproved), findsOneWidget);
-
-    // The captions are the field names, so nothing from the old table's columns
-    // is lost: each card still says which figure is the payment and which is the
-    // moment.
-    expect(find.text(l.settingsSubscription_paid), findsNWidgets(2));
-    expect(find.text(l.settingsSubscription_dateTime), findsNWidgets(2));
-
-    // The moment each purchase happened: the approved one stamps its
-    // *approval* (18:45 UTC → 00:45 on 03/10 Bangladesh time — a different
-    // date than its submission, which proves the stamp is not the submission),
-    // and the pending one has no approval, so it falls back to its submission.
-    expect(find.text('03/10/2026, 12:45 AM'), findsOneWidget);
-    expect(find.text('02/11/2026, 11:30 PM'), findsOneWidget);
-
-    // A reviewer's note is shown rather than swallowed: a rejection always
-    // carries a reason, and a ledger that hid it leaves the user guessing.
-    expect(find.text(l.payments_notesLabel), findsNothing);
-
-    // The card's two figures are not an equal split: Paid takes its natural
-    // width and Date & Time takes everything left, because two Expanded halves
-    // boxed the timestamp into the narrower column and it wrapped its AM/PM.
-    // The test font is too wide to measure wrapping itself, so the contract is
-    // what is pinned: the timestamp's column is the wider one.
-    final paidWidth = tester.getSize(find.text(l.payments_amountValue('180'))).width;
-    final stampWidth =
-        tester.getSize(find.text('02/11/2026, 11:30 PM')).width;
-    expect(paidWidth, lessThan(stampWidth));
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('the card numbers use the locale\'s digits', (tester) async {
-    // Regression: the number was a raw interpolation (`'$number'`), which is
-    // always ASCII, so বাংলা read "1" and "2" beside Bengali amounts and
-    // dates — the same defect the calendars and the case serials each got a
-    // `formatDigits` call to fix.
-    await pumpDetails(
-      tester,
-      locale: const Locale('bn'),
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-                submission(
-                  id: 'older',
-                  planType: paymentPlanProMonthly,
-                  amount: 100,
-                  status: 'approved',
-                  submittedAt: DateTime.utc(2026, 10, 2, 17, 30),
-                ),
-                submission(
-                  id: 'newer',
-                  planType: paymentPlanProQuarterly,
-                  amount: 285,
-                  status: 'pending',
-                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                ),
-          ],
-        ),
-      ],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    // বাংলা reads ১ and ২, through the same helper the amounts already use.
-    expect(
-      find.text(AppDateUtils.formatDigits(1, 'bn', grouping: false)),
-      findsOneWidget,
-    );
-    expect(
-      find.text(AppDateUtils.formatDigits(2, 'bn', grouping: false)),
-      findsOneWidget,
-    );
-    expect(find.text('1'), findsNothing);
-    expect(find.text('2'), findsNothing);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('a rejected purchase stamps its submission, never a phantom approval', (
-    tester,
-  ) async {
-    // The regression this pins: an approved purchase shows the approval, but a
-    // rejected one has no approval to show — falling back to the submission is
-    // the only honest moment it has, and a stale server-approved_at must not
-    // resurrect on a card the verdict says never became a subscription.
-    await pumpDetails(
-      tester,
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-                submission(
-                  id: 'p1',
-                  planType: paymentPlanProMonthly,
-                  amount: 100,
-                  status: 'rejected',
-                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                  approvedAt: DateTime.utc(2026, 11, 2, 18, 45),
-                ),
-          ],
-        ),
-      ],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    expect(find.text('02/11/2026, 11:30 PM'), findsOneWidget);
-    expect(find.text('03/11/2026, 12:45 AM'), findsNothing);
 
     await unmountApp(tester);
   });
@@ -607,46 +450,6 @@ void main() {
     // Half the row would be `row / 2`; the label must take strictly less, so
     // the value owns more than half — the space the wrap used to steal.
     expect(labelWidth, lessThan(row / 2));
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('a rejection shows the reviewer\'s note on its card', (
-    tester,
-  ) async {
-    await pumpDetails(
-      tester,
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-                PaymentSubmission(
-                  id: 'p1',
-                  planType: paymentPlanProMonthly,
-                  amount: 100,
-                  mfsProvider: 'bkash',
-                  senderNumber: '01700000000',
-                  transactionId: 'TX1',
-                  status: 'rejected',
-                  adminNotes: 'TrxID not found',
-                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                ),
-          ],
-        ),
-      ],
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    expect(find.text(l.payments_statusRejected), findsOneWidget);
-    expect(find.text(l.payments_notesLabel), findsOneWidget);
-    expect(find.text('TrxID not found'), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -689,29 +492,6 @@ void main() {
     // A free plan hides the expiry row entirely: no Expiry label, no dash.
     expect(find.text(l.settingsManageAccount_expiry), findsNothing);
     expect(find.text('—'), findsNothing);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('an account with no purchases says so instead of a table', (
-    tester,
-  ) async {
-    await pumpDetails(
-      tester,
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    expect(find.text(l.payments_noSubmissions), findsOneWidget);
-    expect(find.text(l.settingsSubscription_paid), findsNothing);
-    expect(find.text('1'), findsNothing);
 
     await unmountApp(tester);
   });
@@ -939,7 +719,7 @@ void main() {
   );
 
   testWidgets(
-    'a confirmed cancellation ends the plan and lands in the ledger',
+    'a confirmed cancellation ends the plan',
     (tester) async {
       var refreshes = 0;
       final repo = _FakePaymentsRepository()
@@ -1015,21 +795,10 @@ void main() {
         findsOneWidget,
       );
 
-      // The cancellation is an entry of its own: plan and amount repeated, a
-      // red verdict, and the moment it happened rather than the purchase's.
-      // Twice: the card's own Cancelled row, and the ledger pill. The pill is
-      // the later of the two in the tree and keeps its red.
-      expect(find.text(l.payments_statusCancelled), findsNWidgets(2));
-      expect(
-        tester
-            .widgetList<Text>(find.text(l.payments_statusCancelled))
-            .last
-            .style
-            ?.color,
-        AppColors.error,
-      );
-      // The cancellation's moment, on the card and on its ledger entry.
-      expect(find.text('02/12/2026, 11:30 PM'), findsNWidgets(2));
+      // The cancellation shows in the card's own Cancelled row; its ledger
+      // entry now lives on Subscription History.
+      expect(find.text(l.payments_statusCancelled), findsOneWidget);
+      expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
 
       // Nothing is left to cancel, so the action is gone with the live plan.
       expect(find.byKey(cancelKey), findsNothing);
@@ -1072,87 +841,6 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('cancellations and purchases share one newest-first ledger', (
-    tester,
-  ) async {
-    await pumpDetails(
-      tester,
-      overrides: [
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-            submission(
-              id: 'p1',
-              planType: paymentPlanProQuarterly,
-              amount: 285,
-              status: 'approved',
-              submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-            ),
-          ],
-        ),
-        mySubscriptionCancellationsProvider.overrideWith(
-          (ref) async => [
-            SubscriptionCancellation(
-              id: 'c1',
-              planType: paymentPlanProQuarterly,
-              amount: 285,
-              cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
-            ),
-          ],
-        ),
-      ],
-      seed: seedIndividualPaid,
-    );
-
-    // Both moments are drawn, newest first: the cancellation is card 1 and the
-    // purchase it ended is card 2.
-    final cancelled = find.text('02/12/2026, 11:30 PM');
-    final purchased = find.text('02/11/2026, 11:30 PM');
-    expect(cancelled, findsOneWidget);
-    expect(purchased, findsOneWidget);
-    expect(
-      tester.getTopLeft(cancelled).dy,
-      lessThan(tester.getTopLeft(purchased).dy),
-    );
-    expect(find.text('1'), findsOneWidget);
-    expect(find.text('2'), findsOneWidget);
-    expect(find.text(l.payments_statusCancelled), findsOneWidget);
-    expect(find.text(l.payments_statusApproved), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  /// A paid individual whose period is over but whose tier is kept: Pro's 250
-  /// is what Limited Access still allows.
-  Future<void> seedIndividualEnded(AppDatabase db) => ProfilesDao(db).upsert(
-        ProfilesCompanion(
-          id: const Value('user-1'),
-          fullName: const Value('Adv. Rahim Uddin'),
-          role: const Value(AccountRole.individual),
-          tier: const Value('pro'),
-          subscriptionStatus: const Value('expired'),
-          subscriptionExpiry: Value(
-            DateTime.utc(2026, 10, 1, 17, 30).millisecondsSinceEpoch,
-          ),
-          createdAt: const Value(1),
-        ),
-      );
-
-  /// Payments that bought the Pro quarter a cancellation later ended.
-  List<Override> paidProOverrides() => <Override>[
-        myPaymentSubmissionsProvider.overrideWith(
-          (ref) async => [
-            submission(
-              id: 'p1',
-              planType: paymentPlanProQuarterly,
-              amount: 360,
-              status: 'approved',
-              submittedAt: DateTime.utc(2026, 10, 1, 10),
-              approvedAt: DateTime.utc(2026, 10, 1, 12),
-            ),
-          ],
-        ),
-      ];
-
   testWidgets('a cancelled plan says Cancelled, with the moment it happened', (
     tester,
   ) async {
@@ -1176,10 +864,10 @@ void main() {
 
     // The row is the cancellation, not the expiry the server backdated behind
     // the grace window: the moment it happened is what the user came for. It
-    // appears twice — the card's row and the ledger's own entry for it.
-    expect(find.text(l.payments_statusCancelled), findsNWidgets(2));
+    // appears once here; the ledger's own entry is on Subscription History.
+    expect(find.text(l.payments_statusCancelled), findsOneWidget);
     expect(find.text(l.settingsManageAccount_expiry), findsNothing);
-    expect(find.text('02/12/2026, 11:30 PM'), findsNWidgets(2));
+    expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
 
     // And the block says why the access is limited, in the cancelled words.
     expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);

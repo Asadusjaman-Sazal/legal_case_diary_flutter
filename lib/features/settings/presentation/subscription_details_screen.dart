@@ -1,9 +1,10 @@
-/// Subscription Details — the sub-page behind the Subscription screen's first row.
+/// Manage Plan — the plan itself, its expiry, and the cancel action.
 ///
-/// This was a bottom sheet once, and a sheet was the wrong shape for it: it
-/// holds a plan, an expiry and a purchase history, which is reference material a
-/// user reads rather than a choice they make, so it is a sub-page like every
-/// other Settings destination — same header, same back button, room to scroll.
+/// It was Subscription Details until 0.0.624, when the owner split the purchase
+/// ledger out into Subscription History and moved both onto the Account &
+/// Profile menu's Subscription section. It is still a sub-page like every other
+/// Settings destination — same header, same back button, room to scroll — and a
+/// top-level route because the checkout can open it.
 ///
 /// **What it states.** **Role** (and the firm, in firm mode) is the account's
 /// standing, **Current Plan** is what is actually running — a plan name or *Free*
@@ -16,19 +17,13 @@
 /// flight must never be told they have nothing (plan §6, the entitlement
 /// bullet).
 ///
-/// **Subscription History** is one card per purchase — plan, what was paid,
-/// when, and the reviewer's verdict — because it is a ledger a user reconciles
-/// against a bank or MFS statement, and a five-column grid on a phone either
-/// wraps its dates or pushes the verdict off the edge. A card gives each entry
-/// its own block, so it can be read, and re-read, without counting columns.
-///
 /// **Cancelling.** While a paid plan is running, and only while the plan is the
 /// account's own, the summary card carries a **Cancel** action at its right. It
 /// opens a window saying the plan cannot be restored, and a confirmed
 /// cancellation calls the server's `cancel_subscription()` RPC — the only writer
 /// of `subscription_cancellations` — then pulls the profile so the plan reads
-/// its lapsed state. The cancellation appears in the same ledger as a new entry
-/// with a red *Cancelled* label and the moment it happened.
+/// its lapsed state. The cancellation appears in Subscription History as a new
+/// entry with a red *Cancelled* label and the moment it happened.
 library;
 
 import 'package:flutter/material.dart';
@@ -46,10 +41,10 @@ import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../payments/data/payment_plans.dart';
 import '../../payments/data/payment_repository.dart';
 import '../../payments/presentation/current_plan.dart';
-import '../../payments/presentation/payment_plan_labels.dart';
 import 'settings_sub_page_modal.dart';
+import 'subscription_widgets.dart';
 
-/// The Subscription Details sub-page.
+/// The Manage Plan sub-page.
 class SubscriptionDetailsScreen extends ConsumerWidget {
   /// Creates the screen.
   const SubscriptionDetailsScreen({super.key});
@@ -81,7 +76,7 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
       top: true,
       bottom: false,
       child: SettingsSubPageModal(
-        title: l.settingsManageAccount_subscriptionDetails,
+        title: l.settingsSubscription_managePlanTitle,
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.edgeMargin,
@@ -104,8 +99,6 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
                   cancelled: cancelledAt != null,
                 ),
               ],
-              const SizedBox(height: AppSpacing.lg),
-              _SubscriptionHistorySection(l: l),
             ],
           ),
         ),
@@ -147,7 +140,7 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     final endedByCancellation =
         plan.known && !plan.premium && !isFree && cancelledAt != null;
 
-    return _Card(
+    return SubscriptionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -225,10 +218,10 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
               // To the minute, like the history below: a renewal is tracked by
               // the hour it was approved, not by a bare date.
               value: endedByCancellation
-                  ? _dateAndTime(l, cancelledAt.millisecondsSinceEpoch)
+                  ? formatSubscriptionDateTime(l, cancelledAt.millisecondsSinceEpoch)
                   : expiryMs == null
                   ? '—'
-                  : _dateAndTime(l, expiryMs),
+                  : formatSubscriptionDateTime(l, expiryMs),
               last: true,
             ),
         ],
@@ -273,7 +266,7 @@ class _LapsedAllowance extends StatelessWidget {
           style: AppTypography.titleMd,
         ),
         const SizedBox(height: AppSpacing.sm),
-        _Card(
+        SubscriptionCard(
           child: Text(
             cancelled
                 ? l.settingsSubscription_lapsedBodyCancelled(count)
@@ -321,7 +314,7 @@ class _FreePlanLimitations extends StatelessWidget {
           style: AppTypography.titleMd,
         ),
         const SizedBox(height: AppSpacing.sm),
-        _Card(
+        SubscriptionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -370,32 +363,6 @@ class _LimitationRow extends StatelessWidget {
   );
 }
 
-/// Subscription History: purchases and cancellations as one ledger.
-///
-/// The section was **Payment History** until cancellation existed; both tables
-/// are now read together so a plan that was ended is an entry in the same list
-/// as the payment that bought it, rather than a fact the page omits.
-class _SubscriptionHistorySection extends ConsumerWidget {
-  const _SubscriptionHistorySection({required this.l});
-
-  final AppLocalizations l;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l.payments_historyTitle, style: AppTypography.titleMd),
-        const SizedBox(height: AppSpacing.sm),
-        _SubscriptionHistoryCards(
-          l: l,
-          submissions: ref.watch(myPaymentSubmissionsProvider),
-          cancellations: ref.watch(mySubscriptionCancellationsProvider),
-        ),
-      ],
-    );
-  }
-}
 
 /// The Cancel action at the right of the plan card.
 ///
@@ -539,326 +506,12 @@ String _cancelFailureText(AppLocalizations l, PaymentCancelFailure kind) =>
       _ => l.payments_cancelFailed,
     };
 
-/// The verdict on one ledger entry, as a pill.
-///
-/// A pill rather than bare text so a card can be scanned for the one still
-/// waiting, which is the purchase a user actually wants to find. A cancellation
-/// is a verdict of its own — red, like a rejection, because the plan is no longer
-/// running.
-class _PaymentStatusPill extends StatelessWidget {
-  const _PaymentStatusPill({required this.status});
 
-  /// `pending`, `approved`, `rejected` or `cancelled`.
-  final String status;
 
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final (label, color) = switch (status) {
-      'approved' => (l.payments_statusApproved, AppColors.success),
-      'rejected' => (l.payments_statusRejected, AppColors.error),
-      'cancelled' => (l.payments_statusCancelled, AppColors.error),
-      _ => (l.payments_statusPending, AppColors.secondary),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.labelMd.copyWith(color: color),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-}
 
-/// The ledger: one card per entry, purchases and cancellations together,
-/// newest first.
-class _SubscriptionHistoryCards extends StatelessWidget {
-  const _SubscriptionHistoryCards({
-    required this.l,
-    required this.submissions,
-    required this.cancellations,
-  });
 
-  final AppLocalizations l;
-  final AsyncValue<List<PaymentSubmission>> submissions;
-  final AsyncValue<List<SubscriptionCancellation>> cancellations;
 
-  @override
-  Widget build(BuildContext context) {
-    if (submissions.isLoading || cancellations.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-        child: Center(
-          child: SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
-    }
 
-    // What loaded is what is shown: a cancellations read that failed must not
-    // hide the purchases, so the ledger draws whichever half it could read.
-    final rows = <_HistoryRow>[
-      ...?submissions.value?.map(_HistoryRow.purchase),
-      ...?cancellations.value?.map(_HistoryRow.cancellation),
-    ]..sort((a, b) => b.at.compareTo(a.at));
-
-    if (rows.isEmpty) return _Empty(l.payments_noSubmissions);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < rows.length; i++)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: _HistoryCard(number: i + 1, row: rows[i]),
-          ),
-      ],
-    );
-  }
-}
-
-/// One entry in the ledger, whichever table it came from.
-///
-/// A purchase and a cancellation are drawn by the same card, so their facts are
-/// flattened to one shape. [at] is the moment the card prints — an approval for
-/// an approved purchase, the submission otherwise, the cancellation for a
-/// cancellation — so the list's order is the order the user reads.
-class _HistoryRow {
-  const _HistoryRow({
-    required this.at,
-    required this.planType,
-    required this.amount,
-    required this.status,
-    this.note,
-  });
-
-  factory _HistoryRow.purchase(PaymentSubmission submission) => _HistoryRow(
-    at: _purchaseAtMillis(submission),
-    planType: submission.planType,
-    amount: submission.amount,
-    status: submission.status,
-    note: submission.adminNotes,
-  );
-
-  factory _HistoryRow.cancellation(SubscriptionCancellation cancellation) =>
-      _HistoryRow(
-        at: cancellation.cancelledAt?.millisecondsSinceEpoch ?? 0,
-        planType: cancellation.planType ?? '',
-        amount: cancellation.amount,
-        status: 'cancelled',
-      );
-
-  /// Epoch millis of the moment the card prints, or 0 when it has none.
-  final int at;
-
-  /// The plan key, empty when the server could not name one.
-  final String planType;
-
-  /// What was paid, or null when the server could not name it.
-  final int? amount;
-
-  /// `pending`, `approved`, `rejected` or `cancelled`.
-  final String status;
-
-  /// The reviewer's note, on a purchase that carries one.
-  final String? note;
-}
-
-/// One entry: its number and plan across the top, the verdict beside them, and
-/// what was paid and when beneath.
-///
-/// The number is part of the data a user reconciles against ("that was my
-/// second one"), so it is kept even though a card makes it obvious which is
-/// which. The reviewer's note is shown when there is one — a rejection always
-/// carries a reason, and a ledger that hid it would leave the user guessing why
-/// money did not become a subscription. A cancellation carries the plan and the
-/// amount that were running, so its card repeats those facts with the moment it
-/// ended.
-class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.number, required this.row});
-
-  /// Position in the list, newest first.
-  final int number;
-
-  /// The entry itself.
-  final _HistoryRow row;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return _Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              // The number as a small tinted circle, so a purchase is a thing
-              // rather than a line.
-              Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  // Bengali reads ১: a card number is a number like the
-                  // amount beside it, so it takes the active language's
-                  // digits.
-                  AppDateUtils.formatDigits(
-                    number,
-                    l.localeName,
-                    grouping: false,
-                  ),
-                  style: AppTypography.labelMd.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.gutter),
-              Expanded(
-                child: Text(
-                  // An unnamed plan is a dash, never the plan label's default —
-                  // a cancellation the server could not attribute must not read
-                  // as a 1 Month purchase.
-                  row.planType.isEmpty
-                      ? '—'
-                      : paymentPlanLabel(l, row.planType),
-                  style: AppTypography.titleMd,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              _PaymentStatusPill(status: row.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.gutter),
-          const Divider(height: 1, color: AppColors.outlineVariant),
-          const SizedBox(height: AppSpacing.gutter),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Paid takes its natural width and the timestamp takes everything
-              // that is left: two equal Expanded halves made the timestamp the
-              // card's narrower column, and it wrapped its AM/PM while the
-              // short Paid value sat on unused space.
-              _LabelledValue(
-                label: l.settingsSubscription_paid,
-                value: row.amount == null
-                    ? '—'
-                    : l.payments_amountValue(
-                        AppDateUtils.formatDigits(
-                          row.amount!,
-                          l.localeName,
-                        ),
-                      ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: _LabelledValue(
-                  label: l.settingsSubscription_dateTime,
-                  value: _historyAtLabel(l, row.at),
-                  trailing: true,
-                ),
-              ),
-            ],
-          ),
-          if ((row.note ?? '').isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.gutter),
-            _LabelledValue(
-              label: l.payments_notesLabel,
-              value: row.note!,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// A small caption over its value, right-aligned where the card's second
-/// column sits.
-class _LabelledValue extends StatelessWidget {
-  const _LabelledValue({
-    required this.label,
-    required this.value,
-    this.trailing = false,
-  });
-
-  final String label;
-  final String value;
-
-  /// Whether this sits in the card's right-hand column.
-  final bool trailing;
-
-  @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: trailing
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTypography.labelMd.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            value,
-            textAlign: trailing ? TextAlign.right : TextAlign.left,
-            style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
-          ),
-        ],
-      );
-}
-
-/// The empty state, which says what is missing rather than showing a bare table.
-class _Empty extends StatelessWidget {
-  const _Empty(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-        child: Text(
-          text,
-          style: AppTypography.bodySm.copyWith(color: AppColors.onSurfaceVariant),
-        ),
-      );
-}
-
-/// A card in the Settings surface: the shared border, radius and padding.
-class _Card extends StatelessWidget {
-  const _Card({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          border: Border.all(color: AppColors.outlineVariant),
-        ),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: child,
-      );
-}
 
 /// A labelled value row: label left, value right, hairline beneath.
 ///
@@ -935,32 +588,5 @@ String _roleLabel(AppLocalizations l, String role) => switch (role) {
   _ => role,
 };
 
-/// The moment a purchase happened: the approval for one that was approved, the
-/// submission otherwise — a pending or rejected purchase never happened, so its
-/// card shows the only moment it has. A cancellation's moment is its own.
-int _purchaseAtMillis(PaymentSubmission submission) =>
-    (submission.status == 'approved'
-            ? submission.approvedAt ?? submission.submittedAt
-            : submission.submittedAt)
-        ?.millisecondsSinceEpoch ??
-    0;
 
-/// The moment a ledger entry prints, or a dash when it carries none: an entry
-/// with no time sorts last rather than first, because an unknown moment is not
-/// the newest one.
-String _historyAtLabel(AppLocalizations l, int epochMs) =>
-    epochMs == 0 ? '—' : _dateAndTime(l, epochMs);
 
-/// `DD/MM/YYYY, hh:mm a` in Bangladesh civil time.
-///
-/// Every timestamp a Bengali lawyer reads has to be the local one, so both
-/// halves go through [AppDateUtils], which shifts to Bangladesh civil time
-/// before formatting: `formatDateDDMMYYYY` does that for the date, and the
-/// clock time is derived from the same shifted value rather than from the raw
-/// instant, which would otherwise disagree with the date beside it by six hours.
-String _dateAndTime(AppLocalizations l, int epochMs) {
-  final civil = AppDateUtils.bangladeshDateTime(epochMs);
-  final minutes = civil.hour * 60 + civil.minute;
-  return '${AppDateUtils.formatDateDDMMYYYY(epochMs, locale: l.localeName)}, '
-      '${AppDateUtils.formatClockTime(minutes, locale: l.localeName)}';
-}

@@ -13,6 +13,8 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart'
+    show PointerDownEvent, PointerUpEvent, kTouchSlop;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -687,15 +689,22 @@ const double _authEmailWindowRadius = 16.0;
 ///   something to clear, which empties the box and puts the keyboard away;
 /// * the **domain window** — the six [emailDomainSuggestions] under the box as a
 ///   floating panel, offered once at least one letter has been typed, so an
-///   address can be finished with one tap instead of the keyboard's `@` row. The
+///   address can be finished with one tap instead of the keyboard's `@` row. Each
+///   row reads as the whole address the tap would produce (`john@gmail.com`), the
 ///   window narrows to the domains matching what was typed after the `@`
 ///   (`@g` leaves `@gmail.com`), and a chosen domain replaces whatever part of a
 ///   domain was typed, so one address can never end up with two of them.
 ///
+/// The window always hangs under the box. When the keyboard leaves too little
+/// room below it, the page is scrolled up by the shortfall, so the list is never
+/// flipped above the box or cut off by the keyboard.
+///
 /// The window stays up for as long as the user is working in the box, and closes
-/// on an outside tap, on an emptied box, and once a whole domain is in place. A
-/// tap in the window is not an outside tap (both share one tap-region group), so
-/// the keyboard stays up while the domain is chosen; the window is drawn in an
+/// on a tap outside, on an emptied box, and once a whole domain is in place —
+/// but not while the finger is holding and scrolling: an outside gesture
+/// dismisses only when it lifts without travelling past the touch slop. A tap in
+/// the window is not an outside tap (both share one tap-region group), so the
+/// keyboard stays up while the domain is chosen; the window is drawn in an
 /// [OverlayPortal] rather than pushed as a route for the same reason — a route
 /// would take the keyboard with it.
 class AuthEmailField extends StatefulWidget {
@@ -763,6 +772,14 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
   /// window back — so a dismissed window is a pause, not a setting.
   bool _dismissed = false;
 
+  /// The outside gesture in progress, if any: its pointer and where it landed.
+  ///
+  /// A press outside is not yet a tap — it may become a scroll of the page — so
+  /// the window waits for the finger to lift and closes only if it did not
+  /// travel past [kTouchSlop].
+  int? _outsidePointer;
+  Offset? _outsideStart;
+
   /// The text the last change was answered for, so a selection change (which
   /// also notifies the controller) is not mistaken for a keystroke.
   String _lastText = '';
@@ -814,12 +831,52 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
     if (!mounted) return;
     setState(() {});
     final shows = _windowShown;
+    if (shows) _ensureRoomForWindow();
     if (shows == _portal.isShowing) return;
     if (shows) {
       _portal.show();
     } else {
       _portal.hide();
     }
+  }
+
+  /// Scrolls the page up while the window would not fit under the box.
+  ///
+  /// The window always hangs below the box now, so a keyboard that leaves too
+  /// little room is answered by moving the box up by the shortfall instead of
+  /// flipping the list above it. Runs after the frame, because the box's
+  /// position is what the window measures.
+  void _ensureRoomForWindow() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_portal.isShowing || !_windowShown) return;
+      final box = _boxKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return;
+      final offers = _offersFor(widget.controller.text);
+      if (offers == null) return;
+      final rect = box.localToGlobal(Offset.zero) & box.size;
+      // The window is built in the app overlay, outside the Scaffold body, so it
+      // sees the raw keyboard inset; the body's own MediaQuery has that inset
+      // removed already. Read the view here so both agree on the floor.
+      final media = MediaQueryData.fromView(View.of(context));
+      final floor = media.size.height - media.viewInsets.bottom;
+      final needed =
+          offers.length * _authEmailRowHeight + _authEmailWindowPadding * 2;
+      final room = floor - rect.bottom - _authEmailPopoverGap;
+      if (room >= needed) return;
+      final scrollable = Scrollable.maybeOf(context);
+      if (scrollable == null || !scrollable.position.hasContentDimensions) {
+        return;
+      }
+      final position = scrollable.position;
+      final target = (position.pixels + (needed - room)).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      );
+      if (target == position.pixels) return;
+      position.jumpTo(target);
+      // The window measured its height against the old box position.
+      if (mounted) setState(() {});
+    });
   }
 
   /// Whether the window belongs on screen now: a focused box holding at least one
@@ -855,6 +912,24 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
     if (_portal.isShowing) _portal.hide();
   }
 
+  /// Records a press outside the box and window; the lift decides whether it
+  /// was a tap or the start of a scroll.
+  void _onOutsideDown(PointerDownEvent event) {
+    _outsidePointer = event.pointer;
+    _outsideStart = event.position;
+  }
+
+  /// A lift outside closes the window only when it did not travel — holding and
+  /// scrolling keeps the window up (user request).
+  void _onOutsideUp(PointerUpEvent event) {
+    if (event.pointer != _outsidePointer) return;
+    final start = _outsideStart;
+    _outsidePointer = null;
+    _outsideStart = null;
+    if (start == null) return;
+    if ((event.position - start).distance <= kTouchSlop) _dismiss();
+  }
+
   /// Puts [domain] on the address: the name the user typed, then this domain,
   /// with no space between them.
   ///
@@ -882,7 +957,9 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final offers = _offersFor(widget.controller.text);
+    final text = widget.controller.text;
+    final at = text.indexOf('@');
+    final offers = _offersFor(text);
     return TapRegion(
       groupId: _groupId,
       child: CompositedTransformTarget(
@@ -893,9 +970,12 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
             link: _link,
             boxKey: _boxKey,
             groupId: _groupId,
+            // The rows read as the whole address a tap would produce.
+            localPart: at < 0 ? text : text.substring(0, at),
             domains: offers ?? const <String>[],
             onPicked: _pick,
-            onDismissed: _dismiss,
+            onOutsideDown: _onOutsideDown,
+            onOutsideUp: _onOutsideUp,
           ),
           child: AuthTextField(
             key: _boxKey,
@@ -931,26 +1011,31 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
   }
 }
 
-/// The domain window itself: the app's pop-over shape, hung under (or above, when
-/// the keyboard leaves no room below) the Email box.
+/// The domain window itself: the app's pop-over shape, always hung under the
+/// Email box.
 class _DomainWindow extends StatelessWidget {
   const _DomainWindow({
     required this.link,
     required this.boxKey,
     required this.groupId,
+    required this.localPart,
     required this.domains,
     required this.onPicked,
-    required this.onDismissed,
+    required this.onOutsideDown,
+    required this.onOutsideUp,
   });
 
   /// Links the window to the box it belongs to.
   final LayerLink link;
 
-  /// The box, measured to choose the window's side and height.
+  /// The box, measured to choose the window's height.
   final GlobalKey boxKey;
 
   /// The tap-region group the box shares, so taps in here are not outside taps.
   final Object groupId;
+
+  /// What the user has typed before the `@`: each row shows it, then a domain.
+  final String localPart;
 
   /// The domains to offer, in order.
   final List<String> domains;
@@ -958,8 +1043,11 @@ class _DomainWindow extends StatelessWidget {
   /// Called with the tapped domain.
   final ValueChanged<String> onPicked;
 
-  /// Called when a tap lands outside the box and the window.
-  final VoidCallback onDismissed;
+  /// Called on the press of an outside gesture.
+  final ValueChanged<PointerDownEvent> onOutsideDown;
+
+  /// Called when that gesture lifts; it decides whether it was a tap.
+  final ValueChanged<PointerUpEvent> onOutsideUp;
 
   @override
   Widget build(BuildContext context) {
@@ -973,12 +1061,12 @@ class _DomainWindow extends StatelessWidget {
     final floor = media.size.height - media.viewInsets.bottom;
     final needed =
         domains.length * _authEmailRowHeight + _authEmailWindowPadding * 2;
-    final roomBelow = floor - rect.bottom - _authEmailPopoverGap;
-    // Above the box when the keyboard leaves no room under it and there is more
-    // room above — the list is never cut off by the keyboard.
-    final above = roomBelow < needed && rect.top > roomBelow;
-    final available = above ? rect.top - _authEmailPopoverGap : roomBelow;
-    final maxHeight = available.clamp(0.0, needed);
+    // Always under the box; the page has already been scrolled up when the room
+    // was short, and the list scrolls itself if the page could not give enough.
+    final maxHeight = (floor - rect.bottom - _authEmailPopoverGap).clamp(
+      0.0,
+      needed,
+    );
 
     // The overlay sizes its children to the whole screen; the follower must be
     // sized to the window itself instead, or it would anchor the screen's foot
@@ -989,9 +1077,9 @@ class _DomainWindow extends StatelessWidget {
       child: CompositedTransformFollower(
         link: link,
         showWhenUnlinked: false,
-        targetAnchor: above ? Alignment.topLeft : Alignment.bottomLeft,
-        followerAnchor: above ? Alignment.bottomLeft : Alignment.topLeft,
-        offset: Offset(0, above ? -_authEmailPopoverGap : _authEmailPopoverGap),
+        targetAnchor: Alignment.bottomLeft,
+        followerAnchor: Alignment.topLeft,
+        offset: const Offset(0, _authEmailPopoverGap),
         child: SizedBox(
           // The box's own width: the window is a list under the Email field, not a
           // panel over the screen.
@@ -999,10 +1087,12 @@ class _DomainWindow extends StatelessWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxHeight),
             // A tap outside both the box and this window closes it — the app's own
-            // dismiss rule for its pop-overs, with no dimming behind it.
+            // dismiss rule for its pop-overs, with no dimming behind it. The press
+            // is only recorded; holding and scrolling must not close it.
             child: TapRegion(
               groupId: groupId,
-              onTapOutside: (_) => onDismissed(),
+              onTapOutside: onOutsideDown,
+              onTapUpOutside: onOutsideUp,
               child: Material(
                 key: const ValueKey('auth-email-domains'),
                 color: AppColors.surfaceContainerLowest,
@@ -1034,7 +1124,7 @@ class _DomainWindow extends StatelessWidget {
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  domain,
+                                  '$localPart$domain',
                                   style: AppTypography.bodyMd,
                                 ),
                               ),

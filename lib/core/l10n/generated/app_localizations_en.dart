@@ -1861,6 +1861,108 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String clientNotification_long(
+    String clientName,
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+    String lawyerName,
+    String contactLine,
+  ) {
+    return '$clientName,\nyour case, $caseLine, is scheduled for hearing on $nextDate$stepsClause at $court.\nBest regards,\n$lawyerName$contactLine';
+  }
+
+  @override
+  String clientNotification_short(
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+  ) {
+    return '$caseLine is scheduled on $nextDate$stepsClause at $court';
+  }
+
+  @override
+  String clientNotification_longStepsClause(String steps) {
+    return ' for $steps';
+  }
+
+  @override
+  String clientNotification_shortStepsClause(String steps) {
+    return ' for $steps';
+  }
+
+  @override
+  String clientNotification_contactLine(String contact) {
+    return '\nContact: $contact';
+  }
+
+  @override
+  String get clientNotification_title => 'Client Notification';
+
+  @override
+  String get clientNotification_automatedLabel => 'Automated Notification';
+
+  @override
+  String get clientNotification_channelLabel =>
+      'Send Automated Notification Via';
+
+  @override
+  String get clientNotification_templateLabel =>
+      'Default Notification Template';
+
+  @override
+  String get clientNotification_longLabel => 'Long';
+
+  @override
+  String get clientNotification_shortLabel => 'Short';
+
+  @override
+  String get clientNotification_sms => 'SMS';
+
+  @override
+  String get clientNotification_askLabel =>
+      'Ask Before Sending Automated Message?';
+
+  @override
+  String get clientNotification_contactLabel => 'Contact Number';
+
+  @override
+  String get clientNotification_contactNotSet => 'Not set';
+
+  @override
+  String get clientNotification_contactDialogHelper =>
+      'The number your client will see in the message.';
+
+  @override
+  String get clientNotification_promptTitle =>
+      'Send Automated Message to Client?';
+
+  @override
+  String get clientNotification_promptBody =>
+      'Would you like to send your client an automated message notifying them of the next court date?';
+
+  @override
+  String get clientNotification_rememberChoice => 'Remember my choice';
+
+  @override
+  String get clientNotification_previewClient => 'Ali Hayder';
+
+  @override
+  String get clientNotification_previewCase => 'Civil-123/26';
+
+  @override
+  String get clientNotification_previewCourt =>
+      'Senior Civil Judge Court, Sonargaon, Narayanganj';
+
+  @override
+  String get clientNotification_previewSteps => 'WS/WO';
+
+  @override
+  String get clientNotification_previewLawyer => 'Adv. Shafiullah Sourov';
+
+  @override
   String get settingsScreen_title => 'Settings';
 
   @override

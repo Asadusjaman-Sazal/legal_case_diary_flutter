@@ -32,6 +32,7 @@ import '../../features/settings/presentation/settings_notifications/notification
 import '../../features/accounts_and_profile/data/local/firm_members_dao.dart';
 import '../../features/accounts_and_profile/data/local/profiles_dao.dart';
 import '../../features/cases/data/case_form_repository.dart';
+import '../../features/cases/presentation/client_notification_flow.dart';
 import '../../features/payments/presentation/lapse_allowance_ui.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
@@ -1789,6 +1790,30 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       // Re-arm the alert alarms: this case may add a time slot or move one.
       await ref.read(notificationSchedulerProvider).syncSchedule();
       if (!mounted) return;
+      // An edited hearing date offers the client a prepared message. Add mode
+      // has no previous date, and the flow itself skips an unchanged day.
+      final initialCase = widget.initialCase;
+      if (initialCase != null) {
+        await maybeSendAutomatedClientNotification(
+          context,
+          ref: ref,
+          updatedCase: initialCase.copyWith(
+            courtId: _selectedCourt!.id,
+            caseType: _selectedCaseType!.name,
+            caseNumber: _composeCaseNumber(),
+            onBehalfId: onBehalf.id,
+            partyPhone: Value(_completePartyPhone()),
+            nextDate: Value(_nextDate!.millisecondsSinceEpoch),
+            lastStep: Value(
+              _selectedSteps.isEmpty
+                  ? null
+                  : _selectedSteps.map((item) => item.stepName).join(','),
+            ),
+          ),
+          previousNextDateMs: initialCase.nextDate,
+        );
+      }
+      if (!mounted) return;
       widget.onSave?.call();
       Navigator.of(context).pop(id);
     } catch (error) {
@@ -2298,6 +2323,24 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
       ref.read(pushPreferencesProvider)();
       // Re-arm the alert alarms: this update may add a time slot or move one.
       await ref.read(notificationSchedulerProvider).syncSchedule();
+      if (!mounted) return;
+      // A moved hearing date offers the client a prepared message; the date is
+      // compared with the row's own value, and the message never blocks a save.
+      await maybeSendAutomatedClientNotification(
+        context,
+        ref: ref,
+        updatedCase: widget.currentCase.copyWith(
+          nextDate: Value(
+            _date?.millisecondsSinceEpoch ?? widget.currentCase.nextDate,
+          ),
+          lastStep: Value(
+            _selectedSteps.isEmpty
+                ? null
+                : _selectedSteps.map((item) => item.stepName).join(','),
+          ),
+        ),
+        previousNextDateMs: widget.currentCase.nextDate,
+      );
       if (mounted) Navigator.of(context).pop();
     } catch (error) {
       if (!mounted) return;

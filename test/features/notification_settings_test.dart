@@ -53,9 +53,16 @@ void main() {
 
     expect(find.text('Notifications'), findsOneWidget);
     expect(find.text('Default Notification Status'), findsOneWidget);
-    // Every label on this screen is title-cased.
-    expect(find.text('On'), findsOneWidget);
-    expect(find.text('Off'), findsOneWidget);
+    // Every label on this screen is title-cased. The pairs are found by key,
+    // because the Client Notification section below adds further On/Off pairs.
+    expect(
+      find.byKey(const ValueKey('settings-notifications-status-on')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('settings-notifications-status-off')),
+      findsOneWidget,
+    );
     expect(find.text('Notification Day Offset'), findsOneWidget);
     // Default offset is one day before, like the mockup.
     expect(find.text('The Day Before'), findsOneWidget);
@@ -67,11 +74,15 @@ void main() {
   testWidgets('the ON/OFF pair stores the notification status', (tester) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.text('On'));
+    await tester.tap(
+      find.byKey(const ValueKey('settings-notifications-status-on')),
+    );
     await tester.pumpAndSettle();
     expect(repo.settings.notificationEnabled, isTrue);
 
-    await tester.tap(find.text('Off'));
+    await tester.tap(
+      find.byKey(const ValueKey('settings-notifications-status-off')),
+    );
     await tester.pumpAndSettle();
     expect(repo.settings.notificationEnabled, isFalse);
   });
@@ -334,11 +345,15 @@ void main() {
       overrides: [notificationSchedulerProvider.overrideWithValue(scheduler)],
     );
 
-    await tester.tap(find.text('On'));
+    await tester.tap(
+      find.byKey(const ValueKey('settings-notifications-status-on')),
+    );
     await tester.pumpAndSettle();
     expect(scheduler.syncScheduleCalls, 1);
 
-    await tester.tap(find.text('Off'));
+    await tester.tap(
+      find.byKey(const ValueKey('settings-notifications-status-off')),
+    );
     await tester.pumpAndSettle();
     expect(scheduler.syncScheduleCalls, 2);
 
@@ -385,8 +400,19 @@ void main() {
     // The panel is invisible to a non-admin, and so is every control of it: the
     // switch would only ever write a preference nothing reads.
     expect(find.text('Admin Panel Notification'), findsNothing);
-    expect(find.text('On'), findsOneWidget);
-    expect(find.text('Off'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('settings-notifications-payment-alerts-on')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const ValueKey('settings-notifications-payment-alerts-off')),
+      findsNothing,
+    );
+    // The ordinary pair is still there.
+    expect(
+      find.byKey(const ValueKey('settings-notifications-status-on')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -410,7 +436,9 @@ void main() {
       expect(find.text('Admin Panel Notification'), findsOneWidget);
       // Two pairs now, the administrator's last — the switch defaults to on, so
       // OFF here is the stored value rather than the default.
-      await tester.tap(find.text('On').at(1));
+      await tester.tap(
+        find.byKey(const ValueKey('settings-notifications-payment-alerts-on')),
+      );
       await tester.pumpAndSettle();
 
       expect(repo.settings.paymentAlertsEnabled, isTrue);
@@ -440,7 +468,9 @@ void main() {
       ],
     );
 
-    await tester.tap(find.text('On').at(1));
+    await tester.tap(
+      find.byKey(const ValueKey('settings-notifications-payment-alerts-on')),
+    );
     await tester.pumpAndSettle();
 
     // Android 13+ drops what an app may not post, so a switch turned on without

@@ -1867,6 +1867,106 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String clientNotification_long(
+    String clientName,
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+    String lawyerName,
+    String contactLine,
+  ) {
+    return '$clientName,\nআপনার মামলা, $caseLine, $court কোর্টে আগামী $nextDate ইং তারিখ$stepsClause দিন ধার্য্য আছে।\nশুভেচ্ছান্তে,\n$lawyerName$contactLine';
+  }
+
+  @override
+  String clientNotification_short(
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+  ) {
+    return '$caseLine এর পরবর্তী তাং $nextDate ইং$stepsClause';
+  }
+
+  @override
+  String clientNotification_longStepsClause(String steps) {
+    return ' $steps এর জন্য';
+  }
+
+  @override
+  String clientNotification_shortStepsClause(String steps) {
+    return ' ($steps)';
+  }
+
+  @override
+  String clientNotification_contactLine(String contact) {
+    return '\nযোগাযোগ: $contact';
+  }
+
+  @override
+  String get clientNotification_title => 'ক্লায়েন্ট নোটিফিকেশন';
+
+  @override
+  String get clientNotification_automatedLabel => 'স্বয়ংক্রিয় নোটিফিকেশন';
+
+  @override
+  String get clientNotification_channelLabel => 'স্বয়ংক্রিয় নোটিফিকেশন পাঠান';
+
+  @override
+  String get clientNotification_templateLabel => 'ডিফল্ট নোটিফিকেশন টেমপ্লেট';
+
+  @override
+  String get clientNotification_longLabel => 'দীর্ঘ';
+
+  @override
+  String get clientNotification_shortLabel => 'সংক্ষিপ্ত';
+
+  @override
+  String get clientNotification_sms => 'এসএমএস';
+
+  @override
+  String get clientNotification_askLabel =>
+      'স্বয়ংক্রিয় বার্তা পাঠানোর আগে জিজ্ঞাসা করবেন?';
+
+  @override
+  String get clientNotification_contactLabel => 'যোগাযোগের নম্বর';
+
+  @override
+  String get clientNotification_contactNotSet => 'সেট করা হয়নি';
+
+  @override
+  String get clientNotification_contactDialogHelper =>
+      'ক্লায়েন্ট বার্তায় যে নম্বরটি দেখবে।';
+
+  @override
+  String get clientNotification_promptTitle =>
+      'ক্লায়েন্টকে স্বয়ংক্রিয় বার্তা পাঠাবেন?';
+
+  @override
+  String get clientNotification_promptBody =>
+      'আপনি কি ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে স্বয়ংক্রিয় বার্তা পাঠাতে চান?';
+
+  @override
+  String get clientNotification_rememberChoice => 'আমার পছন্দ মনে রাখুন';
+
+  @override
+  String get clientNotification_previewClient => 'জনাব আলী হায়দার';
+
+  @override
+  String get clientNotification_previewCase => 'দেওয়ানি-১২৩/২৬';
+
+  @override
+  String get clientNotification_previewCourt =>
+      'সিনিয়র সিভিল জজ আদালত, সোনারগাঁও, নারায়ণগঞ্জ';
+
+  @override
+  String get clientNotification_previewSteps => 'জবাব/আপত্তি';
+
+  @override
+  String get clientNotification_previewLawyer => 'অ্যাডঃ শফিউল্লাহ সৌরভ';
+
+  @override
   String get settingsScreen_title => 'সেটিংস';
 
   @override

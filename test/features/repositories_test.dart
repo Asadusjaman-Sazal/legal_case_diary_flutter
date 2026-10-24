@@ -329,6 +329,107 @@ void main() {
       );
     });
 
+    test('UserSettings carries the client-notification choices', () {
+      const defaults = UserSettings();
+      expect(defaults.automatedNotificationEnabled, isFalse);
+      expect(defaults.automatedNotificationAskBeforeSending, isTrue);
+      expect(
+        defaults.automatedNotificationChannel,
+        clientNotificationChannelWhatsApp,
+      );
+      expect(defaults.automatedNotificationRememberedAnswer, isEmpty);
+      expect(
+        defaults.automatedNotificationWhatsAppTemplate,
+        clientNotificationTemplateLong,
+      );
+      expect(
+        defaults.automatedNotificationSmsTemplate,
+        clientNotificationTemplateShort,
+      );
+      expect(defaults.notificationContactNumber, isEmpty);
+
+      const saved = UserSettings(
+        automatedNotificationEnabled: true,
+        automatedNotificationAskBeforeSending: false,
+        automatedNotificationChannel: clientNotificationChannelSms,
+        automatedNotificationRememberedAnswer: clientNotificationRememberedYes,
+        automatedNotificationWhatsAppTemplate: clientNotificationTemplateShort,
+        automatedNotificationSmsTemplate: clientNotificationTemplateLong,
+        notificationContactNumber: '01800000000',
+      );
+      final restored = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          paymentAlertsEnabled: true,
+          viewSettingsJson: jsonEncode(saved.toJson()),
+          updatedAt: 1,
+        ),
+      );
+      expect(restored.automatedNotificationEnabled, isTrue);
+      expect(restored.automatedNotificationAskBeforeSending, isFalse);
+      expect(
+        restored.automatedNotificationChannel,
+        clientNotificationChannelSms,
+      );
+      expect(
+        restored.automatedNotificationRememberedAnswer,
+        clientNotificationRememberedYes,
+      );
+      expect(
+        restored.automatedNotificationWhatsAppTemplate,
+        clientNotificationTemplateShort,
+      );
+      expect(
+        restored.automatedNotificationSmsTemplate,
+        clientNotificationTemplateLong,
+      );
+      expect(restored.notificationContactNumber, '01800000000');
+
+      // Add Case's own save rebuilds every field by hand, so it must carry these.
+      final afterAdd = saved.copyWithLastAddCaseSelection(
+        higherLowerCourt: 'lower_courts',
+        division: null,
+        district: null,
+      );
+      expect(afterAdd.automatedNotificationEnabled, isTrue);
+      expect(
+        afterAdd.automatedNotificationChannel,
+        clientNotificationChannelSms,
+      );
+      expect(
+        afterAdd.automatedNotificationRememberedAnswer,
+        clientNotificationRememberedYes,
+      );
+      expect(afterAdd.notificationContactNumber, '01800000000');
+
+      // An unknown or hand-edited blob reads as the safe defaults.
+      final odd = UserSettings.fromRow(
+        UserPreference(
+          userId: 'user-1',
+          notificationEnabled: false,
+          paymentAlertsEnabled: true,
+          viewSettingsJson: jsonEncode(<String, Object?>{
+            'automated_notification_channel': 'telegraph',
+            'automated_notification_whatsapp_template': 'epic',
+            'automated_notification_remembered_answer': 'maybe',
+            'notification_contact_number': '018-0000 0000',
+          }),
+          updatedAt: 1,
+        ),
+      );
+      expect(
+        odd.automatedNotificationChannel,
+        clientNotificationChannelWhatsApp,
+      );
+      expect(
+        odd.automatedNotificationWhatsAppTemplate,
+        clientNotificationTemplateLong,
+      );
+      expect(odd.automatedNotificationRememberedAnswer, isEmpty);
+      expect(odd.notificationContactNumber, '01800000000');
+    });
+
     test('UserSettings round-trips the Bottom Navigation screen order', () {
       const saved = UserSettings(
         bottomNavTabs: <String>['active', 'all_cases'],

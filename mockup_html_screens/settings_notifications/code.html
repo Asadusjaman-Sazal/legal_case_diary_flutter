@@ -211,6 +211,73 @@
     </div>
     <span class="material-symbols-outlined text-tertiary">chevron_right</span>
   </button>
+
+  <!-- Client Notification (0.0.614): the automated message offered when a
+       hearing date changes. Every account sees it. The master and Ask pairs use
+       the same filled-black active half; each channel's Long / Short pair sits
+       above its own justified quotation. -->
+  <div class="mt-lg bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+    <p class="font-label-md text-label-md text-on-surface-variant">Client Notification</p>
+
+    <p class="mt-md font-label-md text-label-md text-on-surface-variant">Automated Notification</p>
+    <div class="mt-md flex gap-md">
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg active:opacity-80">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+        On
+      </button>
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg">
+        <span class="material-symbols-outlined text-[20px]">notifications_off</span>
+        Off
+      </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Send Automated Notification Via</p>
+    <div class="mt-md flex gap-md">
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary flex items-center justify-center gap-sm font-label-lg text-label-lg">
+        <span class="material-symbols-outlined text-[20px]">chat</span>
+        WhatsApp
+      </button>
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg active:opacity-80">
+        <span class="material-symbols-outlined text-[20px]">sms</span>
+        SMS
+      </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Default Notification Template</p>
+    <p class="mt-md font-body-lg text-body-lg text-on-surface">WhatsApp</p>
+    <div class="mt-sm flex items-center gap-xs">
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Long</button>
+      <span class="font-label-lg text-label-lg text-on-surface-variant">/</span>
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">Short</button>
+    </div>
+    <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
+      <p class="font-body-sm text-body-sm text-on-surface text-justify">Ali Hayder,<br>your case, Civil-123/26, is scheduled for hearing on 17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, Narayanganj.<br>Best regards,<br>Adv. Shafiullah Sourov<br>Contact: 01800000000</p>
+    </div>
+
+    <p class="mt-lg font-body-lg text-body-lg text-on-surface">SMS</p>
+    <div class="mt-sm flex items-center gap-xs">
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">Long</button>
+      <span class="font-label-lg text-label-lg text-on-surface-variant">/</span>
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Short</button>
+    </div>
+    <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
+      <p class="font-body-sm text-body-sm text-on-surface text-justify">Civil-123/26 is scheduled on 17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, Narayanganj</p>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Ask Before Sending Automated Message?</p>
+    <div class="mt-md flex gap-md">
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Yes</button>
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">No</button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Contact Number</p>
+    <div class="mt-md h-12 rounded-sm border border-outline-variant bg-surface-container-lowest flex items-center pl-md">
+      <span class="flex-1 font-body-md text-body-md text-on-surface">01800000000</span>
+      <button aria-label="Edit" class="w-12 h-12 flex items-center justify-center text-on-surface-variant active:opacity-70">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+    </div>
+  </div>
 </main>
 
 <!-- Day-offset picker: dark header over one check row per offset. Several

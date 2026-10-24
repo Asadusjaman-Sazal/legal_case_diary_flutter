@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.613 - The Subscription screen's purchase row is now labelled Subscription Plans.
+Version: 0.0.614 - A changed hearing date now offers a pre-filled WhatsApp or SMS message to the client, with templates, a contact number and an ask/remember prompt in Notifications.
 --------------------------------------
 
 ## Version History Log:
@@ -627,3 +627,4 @@ Version: 0.0.610 - A drag on the Email domain window now scrolls the page under 
 Version: 0.0.611 - App Lock and Devices now sit in the Account & Profile menu, and Devices is hidden for Free and Starter accounts, which hold one device.
 Version: 0.0.612 - The Case Types, Steps etc category cards are now spaced like the sub-menu cards and carry no expand icon.
 Version: 0.0.613 - The Subscription screen's purchase row is now labelled Subscription Plans.
+Version: 0.0.614 - A changed hearing date now offers a pre-filled WhatsApp or SMS message to the client, with templates, a contact number and an ask/remember prompt in Notifications.

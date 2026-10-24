@@ -933,6 +933,98 @@
           }
       }
   },
+  "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
+  "clientNotification_long": "{clientName},\nআপনার মামলা, {caseLine}, {court} কোর্টে আগামী {nextDate} ইং তারিখ{stepsClause} দিন ধার্য্য আছে।\nশুভেচ্ছান্তে,\n{lawyerName}{contactLine}",
+  "@clientNotification_long": {
+      "description": "দীর্ঘ স্বয়ংক্রিয় ক্লায়েন্ট বার্তা, দীর্ঘ টেমপ্লেট নির্বাচিত হলে ব্যবহৃত হয়।",
+      "placeholders": {
+          "clientName": {
+              "type": "String"
+          },
+          "caseLine": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          },
+          "stepsClause": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
+              "type": "String"
+          },
+          "contactLine": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_short": "{caseLine} এর পরবর্তী তাং {nextDate} ইং{stepsClause}",
+  "@clientNotification_short": {
+      "description": "সংক্ষিপ্ত স্বয়ংক্রিয় ক্লায়েন্ট বার্তা, সংক্ষিপ্ত টেমপ্লেট নির্বাচিত হলে ব্যবহৃত হয়।",
+      "placeholders": {
+          "caseLine": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          },
+          "stepsClause": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_longStepsClause": " {steps} এর জন্য",
+  "@clientNotification_longStepsClause": {
+      "description": "দীর্ঘ বার্তার ধাপ অংশ; মামলায় ধাপ না থাকলে খালি।",
+      "placeholders": {
+          "steps": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_shortStepsClause": " ({steps})",
+  "@clientNotification_shortStepsClause": {
+      "description": "সংক্ষিপ্ত বার্তার ধাপ অংশ; মামলায় ধাপ না থাকলে খালি।",
+      "placeholders": {
+          "steps": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_contactLine": "\nযোগাযোগ: {contact}",
+  "@clientNotification_contactLine": {
+      "description": "দীর্ঘ বার্তার যোগাযোগের লাইন; কোনো নম্বর না থাকলে অনুপস্থিত।",
+      "placeholders": {
+          "contact": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_title": "ক্লায়েন্ট নোটিফিকেশন",
+  "clientNotification_automatedLabel": "স্বয়ংক্রিয় নোটিফিকেশন",
+  "clientNotification_channelLabel": "স্বয়ংক্রিয় নোটিফিকেশন পাঠান",
+  "clientNotification_templateLabel": "ডিফল্ট নোটিফিকেশন টেমপ্লেট",
+  "clientNotification_longLabel": "দীর্ঘ",
+  "clientNotification_shortLabel": "সংক্ষিপ্ত",
+  "clientNotification_sms": "এসএমএস",
+  "clientNotification_askLabel": "স্বয়ংক্রিয় বার্তা পাঠানোর আগে জিজ্ঞাসা করবেন?",
+  "clientNotification_contactLabel": "যোগাযোগের নম্বর",
+  "clientNotification_contactNotSet": "সেট করা হয়নি",
+  "clientNotification_contactDialogHelper": "ক্লায়েন্ট বার্তায় যে নম্বরটি দেখবে।",
+  "clientNotification_promptTitle": "ক্লায়েন্টকে স্বয়ংক্রিয় বার্তা পাঠাবেন?",
+  "clientNotification_promptBody": "আপনি কি ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে স্বয়ংক্রিয় বার্তা পাঠাতে চান?",
+  "clientNotification_rememberChoice": "আমার পছন্দ মনে রাখুন",
+  "clientNotification_previewClient": "জনাব আলী হায়দার",
+  "clientNotification_previewCase": "দেওয়ানি-১২৩/২৬",
+  "clientNotification_previewCourt": "সিনিয়র সিভিল জজ আদালত, সোনারগাঁও, নারায়ণগঞ্জ",
+  "clientNotification_previewSteps": "জবাব/আপত্তি",
+  "clientNotification_previewLawyer": "অ্যাডঃ শফিউল্লাহ সৌরভ",
   "@@_section_settingsMain": "SETTINGS - MAIN LIST  |  lib/features/settings/presentation/settings_main_screen.dart",
   "settingsScreen_title": "সেটিংস",
   "settingsScreen_accountAndProfile": "অ্যাকাউন্ট ও প্রোফাইল",

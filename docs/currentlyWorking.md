@@ -1,5 +1,20 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-24 — The Cancel Subscription title is centred — COMPLETE (0.0.628)
+
+- **What was asked.** Only the **Cancel Subscription?** window: make its title middle aligned.
+- **What changed.** The dialog's title `Text` now carries `textAlign: TextAlign.center`, the same as the Exit App window's title. Nothing else in the window changed.
+- **Tests.** The warning test now reads the title's alignment alongside the corner, size and action heights. `flutter analyze` clean; `subscription_details_screen_test.dart` **23 passed**; full `flutter test` green; version **0.0.628**.
+- **Docs.** Plan §8 and Tasks 12/21 updated. No mockup exists for this window (rule 9). No SQL.
+
+### 2026-10-24 — The Cancel Subscription window matches the Exit App corner and is larger — COMPLETE (0.0.627)
+
+- **What was asked.** Only in the Cancel Subscription window: the **Exit App?** window's corner size, the window 20% taller and 10% wider, and its buttons 10% taller.
+- **What changed.** The dialog's shape is `RoundedRectangleBorder` at `AppSpacing.cardRadius * 2` (8 px, the Exit window's). Its `insetPadding` drops from the 40 px default to 24 px (372 px instead of 340 px on a 420 px surface, about +10%). The body gains 64 px of room (24 above, 40 below) instead of a fixed height, which would clip a longer Bengali line or a larger font. Both actions rise from 48 to 53 px. The confirmation, refusal, RPC and failure snackbar are unchanged.
+- **Tests.** The warning test now measures the window's shape, its 372 px width at a 24 px left inset, both 53 px actions and a 470 px height (the test font re-wraps the longer line when the box widens, so the measured height sits below the added 64 px + 10 px; the window is still taller than its previous 448 px). `flutter analyze` clean; full `flutter test` green; version **0.0.627**.
+- **Docs.** Plan §8 and Tasks 12/21 updated. No mockup exists for this window (rule 9). No SQL and no other string or behaviour changed.
+- **Resume point.** Nothing unfinished in this change; the previous entry (0.0.626) carries the plan-revamp resume note.
+
 ### 2026-10-24 — Premium usage, full-size actions, read-only plans for a member — COMPLETE (0.0.626)
 
 - **What was asked.** On Manage Plan for premium accounts: show how many cases and devices are left under the purchased plan's ceiling, and offer proper **Renew Subscription** and **Cancel Subscription** buttons. Then: a firm associate may view Subscription Plans with disabled Subscribe buttons and an explanatory toast, and may not be shown Subscription History.

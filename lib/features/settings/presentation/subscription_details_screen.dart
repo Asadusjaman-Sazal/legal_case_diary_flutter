@@ -603,19 +603,50 @@ class _CancelSubscriptionActionState
   }
 }
 
+/// The Cancel window's action height: the 48 px the window always used, 10%
+/// taller (user request, 0.0.627).
+const double _cancelActionHeight = 53;
+
 /// Asks before the plan is ended for good.
 ///
 /// Returns true only on **Confirm Cancellation**; **Go Back** and a dismissal
 /// both return false and send nothing. The two actions are stacked full-width,
 /// the shape the app's other irreversible windows use, with the way out in
 /// black above the destructive red.
+///
+/// **Geometry (0.0.627, user request).** The corner is the Exit App window's
+/// 8 px. The window is a little wider and noticeably taller: a 24 px side inset
+/// (the default dialog's 40 px inset gave 340 px on a 420 px screen, so this is
+/// about 10% wider) and 64 px of extra room around the body, split above and
+/// below so the window grows without crowding the title or the actions. The
+/// two buttons are 10% taller. The extra height is a concrete amount rather
+/// than a fraction: the body wraps to more lines in Bengali or at a larger
+/// font, and a percentage would either clip it or shrink on a short window.
 Future<bool> _showCancelSubscriptionDialog(BuildContext context) async {
   final l = AppLocalizations.of(context);
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(l.payments_cancelTitle),
-      content: Text(l.payments_cancelWarning, style: AppTypography.bodyMd),
+      // The Exit App window's 8 px corner (user request).
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
+      // 10% wider than the default 40 px inset on the app's phones.
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 24,
+      ),
+      title: Text(l.payments_cancelTitle, textAlign: TextAlign.center),
+      content: Padding(
+        // 20% taller, as breathing room around the sentence rather than a
+        // fixed window height, which a long Bengali line or a larger font
+        // would otherwise clip.
+        padding: const EdgeInsets.only(
+          top: AppSpacing.lg,
+          bottom: AppSpacing.xl + AppSpacing.sm,
+        ),
+        child: Text(l.payments_cancelWarning, style: AppTypography.bodyMd),
+      ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         Column(
@@ -624,7 +655,7 @@ Future<bool> _showCancelSubscriptionDialog(BuildContext context) async {
             TextButton(
               key: const ValueKey('subscription-details-cancel-go-back'),
               style: TextButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
+                minimumSize: const Size.fromHeight(_cancelActionHeight),
                 backgroundColor: AppColors.secondary,
                 foregroundColor: AppColors.onSecondary,
                 textStyle: const TextStyle(fontSize: 16),
@@ -636,7 +667,7 @@ Future<bool> _showCancelSubscriptionDialog(BuildContext context) async {
             TextButton(
               key: const ValueKey('subscription-details-cancel-confirm'),
               style: TextButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
+                minimumSize: const Size.fromHeight(_cancelActionHeight),
                 backgroundColor: AppColors.error,
                 foregroundColor: AppColors.onError,
                 textStyle: const TextStyle(fontSize: 16),

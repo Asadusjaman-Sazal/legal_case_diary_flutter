@@ -1,5 +1,11 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The Profile header uses the name as saved — COMPLETE (0.0.623)
+
+- **What was asked.** Only on Settings → Account & Profile → Profile: stop putting **Adv.** before the lawyer's name under the picture; show the Full Name exactly.
+- **What changed.** The header now renders `fullName` directly; the `settingsProfile_displayName` ("Adv. {name}" / "অ্যাড. {name}") key was removed from both ARBs and the generated localizations, and the `settings_profile` mockup's header follows the app.
+- **Tests.** The save-and-reopen test now expects the saved name in both the header and the Full Name row (two matching texts). `flutter analyze` clean; full `flutter test` **2020 passed**; version **0.0.623** recorded.
+
 ### 2026-10-23 — The Message button speaks the same template — COMPLETE (0.0.622)
 
 - **What was asked.** The case card's Message button should use the Default Notification Template from Settings → Notifications, and the old pre-filled message should be removed everywhere it still exists.

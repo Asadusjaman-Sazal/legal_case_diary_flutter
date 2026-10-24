@@ -2080,11 +2080,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsProfile_yourName => 'Your Name';
 
   @override
-  String settingsProfile_displayName(String name) {
-    return 'Adv. $name';
-  }
-
-  @override
   String get settingsProfile_editTitle => 'Edit Profile';
 
   @override

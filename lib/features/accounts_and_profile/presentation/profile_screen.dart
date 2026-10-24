@@ -324,10 +324,10 @@ class _ProfileHeader extends StatelessWidget {
           ),
         SizedBox(height: AppSpacing.md),
         Text(
+          // The name exactly as the lawyer saved it; no honorific is added
+          // (user request, 0.0.623).
           fullName.isNotEmpty
-              ? AppLocalizations.of(
-                  context,
-                ).settingsProfile_displayName(fullName)
+              ? fullName
               : AppLocalizations.of(context).settingsProfile_yourName,
           style: AppTypography.titleLg.copyWith(color: AppColors.onBackground),
         ),

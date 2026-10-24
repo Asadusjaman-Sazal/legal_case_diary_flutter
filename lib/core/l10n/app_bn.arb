@@ -1030,15 +1030,6 @@
   "settingsProfile_officeAddress": "অফিসের ঠিকানা",
   "settingsProfile_mobileNo": "মোবাইল নম্বর",
   "settingsProfile_yourName": "আপনার নাম",
-  "settingsProfile_displayName": "অ্যাড. {name}",
-  "@settingsProfile_displayName": {
-      "description": "PROFILE",
-      "placeholders": {
-          "name": {
-              "type": "String"
-          }
-      }
-  },
   "settingsProfile_editTitle": "প্রোফাইল সম্পাদনা",
   "settingsProfile_fullNameHint": "আপনার পূর্ণ নাম লিখুন",
   "settingsProfile_barAssociationHint": "বার অ্যাসোসিয়েশনের নাম লিখুন",

@@ -188,7 +188,9 @@ void main() {
     expect(stored.barAssociation, 'Dhaka Bar Association');
     expect(stored.membershipNo, '1557');
     expect(stored.mobile, '01812332721');
-    expect(find.text('Adv. Rahim Uddin'), findsOneWidget);
+    // The header shows the saved name exactly, with no honorific added; the
+    // Full Name row below shows the same text.
+    expect(find.text('Rahim Uddin'), findsNWidgets(2));
     expect(find.text('Dhaka Bar Association'), findsOneWidget);
     // The read view wears the same `+88` country code the editor's fixed box
     // carries, with the local number (leading 0) the user typed beside it.

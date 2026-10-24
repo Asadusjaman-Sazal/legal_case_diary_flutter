@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.617 - Notifications now titles its device and client cards in bold, and Ask Before Sending sits directly under the Automated Notification switch.
+Version: 0.0.618 - The client prompt is now 'Send Message to Client?', with a red No, a 16 px gap to Yes, and Remember my choice under the buttons.
 --------------------------------------
 
 ## Version History Log:
@@ -631,3 +631,4 @@ Version: 0.0.614 - A changed hearing date now offers a pre-filled WhatsApp or SM
 Version: 0.0.615 - Client Notification now sits above the battery guide, the long message has a blank line before its sign-off, Long/Short carry no slash, and Remember writes the two switches.
 Version: 0.0.616 - The client-message prompt and the Open With window use the Update window's corners, and the prompt's No/Yes matches the Exit App buttons' size.
 Version: 0.0.617 - Notifications now titles its device and client cards in bold, and Ask Before Sending sits directly under the Automated Notification switch.
+Version: 0.0.618 - The client prompt is now 'Send Message to Client?', with a red No, a 16 px gap to Yes, and Remember my choice under the buttons.

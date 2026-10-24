@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The client prompt reads as a message, not automation — COMPLETE (0.0.618)
+
+- **What was asked.** In the confirmation only: drop "Automated" from the title and body, double the gap between No and Yes, make No red with white text, and move **Remember my choice** under the two buttons.
+- **What changed.** The ARB title is **Send Message to Client?** and the body reads "Would you like to send your client a message notifying them of the next court date?" (Bengali likewise). The buttons are now both filled — No in `AppColors.error` with white ink, Yes in the theme's fill — separated by 16 px (double the actions' default 8), and the remember row sits below them inside the action area ([client_notification_flow.dart](file:///C:/Users/Asadusjaman/Documents/GitHub/legal_case_diary_flutter/lib/features/cases/presentation/client_notification_flow.dart)).
+- **Tests.** The flow test asserts the red No, the 16 px gap, the button sizes and the remember row below the buttons; the wording is asserted through the ARB keys. `flutter analyze` clean; full `flutter test` **2021 passed**; version **0.0.618** recorded.
+- **Docs.** Plan §10 and Task 13 now name **Send Message to Client?** and record the red No, gap and remember placement.
+
 ### 2026-10-23 — The Notifications screen names its two cards — COMPLETE (0.0.617)
 
 - **What was asked.** Only on Settings → Notifications: a bold **Device Notification Settings** title before the first card and a bold **Client Notification Settings** before the client card, with the old in-card "Client Notification" title removed; and **Ask Before Sending Automated Message?** moved directly after the Automated Notification switch.

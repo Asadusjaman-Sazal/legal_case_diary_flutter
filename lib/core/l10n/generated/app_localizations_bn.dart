@@ -1944,12 +1944,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'ক্লায়েন্ট বার্তায় যে নম্বরটি দেখবে।';
 
   @override
-  String get clientNotification_promptTitle =>
-      'ক্লায়েন্টকে স্বয়ংক্রিয় বার্তা পাঠাবেন?';
+  String get clientNotification_promptTitle => 'ক্লায়েন্টকে বার্তা পাঠাবেন?';
 
   @override
   String get clientNotification_promptBody =>
-      'আপনি কি ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে স্বয়ংক্রিয় বার্তা পাঠাতে চান?';
+      'আপনি কি ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে বার্তা পাঠাতে চান?';
 
   @override
   String get clientNotification_rememberChoice => 'আমার পছন্দ মনে রাখুন';

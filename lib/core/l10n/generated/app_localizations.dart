@@ -3358,11 +3358,17 @@ abstract class AppLocalizations {
   /// **'\nContact: {contact}'**
   String clientNotification_contactLine(String contact);
 
-  /// No description provided for @clientNotification_title.
+  /// No description provided for @clientNotification_settingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Client Notification'**
-  String get clientNotification_title;
+  /// **'Client Notification Settings'**
+  String get clientNotification_settingsTitle;
+
+  /// No description provided for @settingsNotifications_deviceSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Notification Settings'**
+  String get settingsNotifications_deviceSettingsTitle;
 
   /// No description provided for @clientNotification_automatedLabel.
   ///

@@ -60,6 +60,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final isAdmin = ref.watch(adminStatusProvider).value ?? false;
     final timeMinutes = settings.notificationTime ?? defaultNotificationMinutes;
     final dayOffsets = _tickedDayOffsets(settings);
+    // The two section titles above the cards (user request, 0.0.617).
+    final sectionTitle = AppTypography.titleMd.copyWith(
+      fontWeight: FontWeight.w700,
+    );
 
     return SettingsSubPageModal(
       title: l.settingsNotifications_title,
@@ -71,6 +75,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
           AppSpacing.xl,
         ),
         children: [
+          Text(
+            l.settingsNotifications_deviceSettingsTitle,
+            style: sectionTitle,
+          ),
+          const SizedBox(height: AppSpacing.sm),
           Container(
             decoration: settingsCardDecoration(),
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -162,9 +171,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           // The client-facing automated message, for every account, sits above
           // the OEM/battery guidance (user request, 0.0.615).
+          Text(l.clientNotification_settingsTitle, style: sectionTitle),
+          const SizedBox(height: AppSpacing.sm),
           const ClientNotificationSection(),
           const SizedBox(height: AppSpacing.lg),
           // OEM battery-killer reminder: the plan keeps this on the screen until

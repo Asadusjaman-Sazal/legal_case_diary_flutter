@@ -1905,7 +1905,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get clientNotification_title => 'ক্লায়েন্ট নোটিফিকেশন';
+  String get clientNotification_settingsTitle => 'ক্লায়েন্ট নোটিফিকেশন সেটিংস';
+
+  @override
+  String get settingsNotifications_deviceSettingsTitle =>
+      'ডিভাইস নোটিফিকেশন সেটিংস';
 
   @override
   String get clientNotification_automatedLabel => 'স্বয়ংক্রিয় নোটিফিকেশন';

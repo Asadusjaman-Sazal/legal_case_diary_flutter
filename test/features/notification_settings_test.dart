@@ -481,6 +481,21 @@ void main() {
     expect(repo.settings.paymentAlertsEnabled, isTrue);
   });
 
+  testWidgets('titles the device and client sections in bold', (tester) async {
+    useTallViewport(tester);
+    await pumpScreen(tester);
+
+    for (final title in <String>[
+      'Device Notification Settings',
+      'Client Notification Settings',
+    ]) {
+      final text = tester.widget<Text>(find.text(title));
+      expect(text.style?.fontWeight, FontWeight.w700, reason: title);
+    }
+    // The old in-card title is gone; the screen names the card above it.
+    expect(find.text('Client Notification'), findsNothing);
+  });
+
   testWidgets('shows the OEM reminder banner and setup-guide entry', (
     tester,
   ) async {

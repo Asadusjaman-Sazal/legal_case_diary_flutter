@@ -1051,7 +1051,8 @@
           }
       }
   },
-  "clientNotification_title": "Client Notification",
+  "clientNotification_settingsTitle": "Client Notification Settings",
+  "settingsNotifications_deviceSettingsTitle": "Device Notification Settings",
   "clientNotification_automatedLabel": "Automated Notification",
   "clientNotification_channelLabel": "Send Automated Notification Via",
   "clientNotification_templateLabel": "Default Notification Template",

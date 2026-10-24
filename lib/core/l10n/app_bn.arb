@@ -1006,7 +1006,8 @@
           }
       }
   },
-  "clientNotification_title": "ক্লায়েন্ট নোটিফিকেশন",
+  "clientNotification_settingsTitle": "ক্লায়েন্ট নোটিফিকেশন সেটিংস",
+  "settingsNotifications_deviceSettingsTitle": "ডিভাইস নোটিফিকেশন সেটিংস",
   "clientNotification_automatedLabel": "স্বয়ংক্রিয় নোটিফিকেশন",
   "clientNotification_channelLabel": "স্বয়ংক্রিয় নোটিফিকেশন পাঠান",
   "clientNotification_templateLabel": "ডিফল্ট নোটিফিকেশন টেমপ্লেট",

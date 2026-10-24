@@ -21,6 +21,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/services/contact_launcher.dart';
@@ -209,6 +210,10 @@ class _ContactDialog extends StatelessWidget {
 
     return AlertDialog(
       key: const ValueKey('case-contact-dialog'),
+      // The Update window's 8 px corner (user request, 0.0.616).
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       title: Text(
         l.casesContact_openWith,
         key: ValueKey('$prefix-title'),

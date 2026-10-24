@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The client prompt matches the app's windows — COMPLETE (0.0.616)
+
+- **What was asked.** The **Send Automated Message to Client?** window and the case card's **Open With** window should use the **Update** window's corner size, and the prompt's No / Yes should be the size of the **Exit App** window's buttons.
+- **What changed.** Both `AlertDialog`s now carry the Update window's 8 px corner (`AppSpacing.cardRadius * 2`); the prompt's No and Yes use the Exit App action size (112 × 48 at 16 pt), No keeping the text style and Yes its filled style ([client_notification_flow.dart](file:///C:/Users/Asadusjaman/Documents/GitHub/legal_case_diary_flutter/lib/features/cases/presentation/client_notification_flow.dart), [case_contact_actions.dart](file:///C:/Users/Asadusjaman/Documents/GitHub/legal_case_diary_flutter/lib/features/cases/presentation/case_contact_actions.dart)).
+- **Tests.** The flow test asserts the prompt's corner and button sizes while it is open; the chooser test asserts the Open With corner. `flutter analyze` clean; full `flutter test` **2020 passed**; version **0.0.616** recorded.
+- **Docs.** Plan §10's client-notification bullet records the shared corner and action size.
+
 ### 2026-10-23 — The client message's final wording and switches — COMPLETE (0.0.615)
 
 - **What was asked.** Four refinements: put Client Notification above the Battery & Auto-Start Setup Guide; keep a blank line before the sign-off in the long message; remove the slash between Long and Short; and make Remember write the two settings rather than a hidden answer.

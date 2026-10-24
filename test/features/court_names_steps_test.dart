@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -96,6 +97,14 @@ void main() {
         .map((label) => tester.getTopLeft(find.text(label)).dy)
         .toList();
     expect(tops, orderedEquals(<double>[...tops]..sort()));
+
+    // The same 8 px between cards as the Edit Court/Steps sub-menu keeps
+    // between its cards, and no icon on any card (user request, 0.0.612).
+    final firstBottom = tester.getBottomLeft(find.byType(Card).at(0)).dy;
+    final secondTop = tester.getTopLeft(find.byType(Card).at(1)).dy;
+    expect(secondTop - firstBottom, AppSpacing.sm);
+    expect(find.byIcon(Icons.expand_more), findsNothing);
+    expect(find.byIcon(Icons.expand_less), findsNothing);
 
     expect(find.text('Case Types'), findsNothing);
     expect(find.text('Steps'), findsNothing);

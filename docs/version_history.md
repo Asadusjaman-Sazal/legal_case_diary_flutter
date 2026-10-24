@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.611 - App Lock and Devices now sit in the Account & Profile menu, and Devices is hidden for Free and Starter accounts, which hold one device.
+Version: 0.0.612 - The Case Types, Steps etc category cards are now spaced like the sub-menu cards and carry no expand icon.
 --------------------------------------
 
 ## Version History Log:
@@ -625,3 +625,4 @@ Version: 0.0.608 - The Login and Sign Up Email boxes gained a clear cross and a 
 Version: 0.0.609 - The Email domain window now stays under the box, scrolls the page up when the keyboard leaves no room, closes only on a real tap, and shows the typed name before each domain.
 Version: 0.0.610 - A drag on the Email domain window now scrolls the page under it instead of being swallowed by the window.
 Version: 0.0.611 - App Lock and Devices now sit in the Account & Profile menu, and Devices is hidden for Free and Starter accounts, which hold one device.
+Version: 0.0.612 - The Case Types, Steps etc category cards are now spaced like the sub-menu cards and carry no expand icon.

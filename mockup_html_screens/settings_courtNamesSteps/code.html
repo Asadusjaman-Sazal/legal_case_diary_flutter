@@ -138,14 +138,13 @@
      At most one card is open at a time; the open card grows three 44 px
      action buttons below its name row. -->
 <main class="max-w-lg mx-auto w-full">
-  <div class="p-md flex flex-col gap-xs">
+  <div class="p-md flex flex-col gap-sm">
 
     <!-- Open card: name row plus its management buttons. The higher-court
          divisions have no Steps: their cases use the plain Result text box. -->
     <div class="bg-surface border border-surface-container rounded-xl p-md">
       <div class="flex items-center min-h-[44px]">
         <p class="flex-1 font-body-lg text-body-lg text-on-surface">Appellate Division</p>
-        <span class="material-symbols-outlined text-tertiary">expand_less</span>
       </div>
       <div class="mt-sm flex gap-sm">
         <button class="flex-1 h-11 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg truncate active:opacity-80">Case Types</button>
@@ -156,37 +155,30 @@
     <!-- Collapsed cards: the name row alone. -->
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">High Court Division</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">District Courts (Civil)</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">Sessions Courts (Criminal)</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">Metropolitan Sessions (Criminal)</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">Chief Judicial Magistrate</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">Chief Metropolitan Magistrate</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
 
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <p class="flex-1 font-body-lg text-body-lg text-on-surface">Executive Magistrate</p>
-      <span class="material-symbols-outlined text-tertiary">expand_more</span>
     </button>
   </div>
 </main>

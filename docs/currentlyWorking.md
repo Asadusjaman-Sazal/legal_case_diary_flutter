@@ -1,5 +1,17 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — App Lock and Devices sit with the account — COMPLETE (0.0.611)
+
+- **What was asked.** Move App Lock and Devices out of Manage Account and into the Account & Profile menu, and hide Devices for Free and Starter accounts because they hold one device.
+- **What changed.**
+  - `accounts_profile_menu_screen.dart`: the Account section now reads **Manage Account, App Lock, Devices, Subscription**. App Lock is offered to every plan; Devices is drawn only when `currentTierProvider` ranks above Starter (Pro, Firm, Firm Plus, Enterprise). `currentTierProvider` is the same stored-tier derivation the subscription screens use, and it matches how the server's `device_cap()` chooses 1 or 2.
+  - `manage_account_screen.dart`: both rows removed (with a comment saying where they went). Change Password, Logout, Delete Data and Delete Account keep their order.
+  - New ARB key `settingsAccountProfile_appLockSubtitle` in English and Bengali, and the generated localizations.
+  - Mockups follow the app (rule 9): `settings_accountProfile` draws both new cards with a note that Devices is Pro-and-above; `settings_manageProfileAccount` loses its Devices block.
+- **Reading of the rule.** Only Free and Starter are hidden. A chamber account therefore still sees Devices even though the server gives each member one device, because the instruction named those two plans only.
+- **Tests.** `accounts_profile_menu_test.dart` (8): six rows for Pro with their order pinned, five for Starter (no Devices), four for Free (no Devices and no Firm section), App Lock and Devices each open their screen, Subscription still opens, no Security row. `manage_account_test.dart` asserts both rows are gone from Manage Account. `flutter analyze` clean; full `flutter test` **1990 passed**; version **0.0.611** recorded.
+- **Docs.** Plan (the App Lock bullet and the device-limit bullet), Task 12 and Task 22 updated in place. No server or schema change.
+
 ### 2026-10-23 — The domain window hands its drag to the page — COMPLETE (0.0.610)
 
 - **What was asked.** Holding the domain window and moving the finger should scroll the screen rather than leave the window fixed. Everything else from 0.0.609 was confirmed correct.

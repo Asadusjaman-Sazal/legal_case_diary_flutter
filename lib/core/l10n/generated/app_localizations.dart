@@ -3495,6 +3495,12 @@ abstract class AppLocalizations {
   /// **'Your name, bar association, and membership details'**
   String get settingsAccountProfile_profileSubtitle;
 
+  /// No description provided for @settingsAccountProfile_appLockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect the app with a PIN or fingerprint'**
+  String get settingsAccountProfile_appLockSubtitle;
+
   /// No description provided for @settingsAccountProfile_manageAccountSubtitle.
   ///
   /// In en, this message translates to:

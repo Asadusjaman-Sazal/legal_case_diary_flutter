@@ -184,20 +184,9 @@
     </button>
   </div>
 
-  <!-- Devices (0.0.565): the plan's device slots. It sits with the account's
-       security actions, under App Lock and above the Danger Zone, and opens the
-       Devices list (devices_screen.dart). -->
-  <div class="mt-sm">
-    <button class="w-full flex items-center bg-surface-container-lowest border border-outline-variant rounded-2xl p-md hover:bg-secondary-hover transition-colors text-left">
-      <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary mr-md">
-        <span class="material-symbols-outlined">devices</span>
-      </div>
-      <div class="flex-1 min-h-[44px] flex items-center">
-        <span class="block font-title-md text-title-md text-on-surface">Devices</span>
-      </div>
-      <span class="material-symbols-outlined text-outline-variant">chevron_right</span>
-    </button>
-  </div>
+  <!-- App Lock and Devices moved to the Account & Profile menu (0.0.611, user
+       request), where an account's own settings sit; Devices is offered there
+       only to plans that hold more than one device. -->
 
   <!-- Danger Zone: the red bold section label the user asked for, introducing
        the one irreversible action on this screen. It follows label-md in the

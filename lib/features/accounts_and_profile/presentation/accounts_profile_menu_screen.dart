@@ -30,6 +30,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../payments/data/payment_plans.dart';
 import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
@@ -50,6 +51,11 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
         ref.watch(canOpenManageAssociatesProvider) &&
         (ref.watch(firmModeProvider) ||
             ref.watch(premiumAccessProvider).value == true);
+    // App Lock and Devices live here with the account they belong to (0.0.611,
+    // user request). Devices is only worth a row where the plan holds more than
+    // one device: Free has no sync and Starter holds one, so it starts at Pro.
+    final showDevices =
+        ref.watch(currentTierProvider).rank > SubscriptionTier.starter.rank;
 
     return SettingsSubPageModal(
       title: l.settingsScreen_accountAndProfile,
@@ -75,6 +81,24 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
             subtitle: l.settingsAccountProfile_manageAccountSubtitle,
             onTap: () => context.push(AppRoutes.settingsManageAccount),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          // The app's own lock, and the plan's device slots. Both moved here from
+          // Manage Account (0.0.611, user request).
+          SettingsMenuCard(
+            icon: Icons.key_outlined,
+            title: l.settingsAppLock_title,
+            subtitle: l.settingsAccountProfile_appLockSubtitle,
+            onTap: () => context.push(AppRoutes.settingsAppLock),
+          ),
+          if (showDevices) ...[
+            const SizedBox(height: AppSpacing.sm),
+            SettingsMenuCard(
+              icon: Icons.devices_outlined,
+              title: l.devices_title,
+              subtitle: l.devices_subtitle,
+              onTap: () => context.push(AppRoutes.settingsDevices),
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           // Billing, moved here from the main Settings list, so the account and
           // the way to pay for it sit together.

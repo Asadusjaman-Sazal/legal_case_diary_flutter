@@ -1960,6 +1960,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য';
 
   @override
+  String get settingsAccountProfile_appLockSubtitle =>
+      'পিন বা ফিঙ্গারপ্রিন্ট দিয়ে অ্যাপটি সুরক্ষিত রাখুন';
+
+  @override
   String get settingsAccountProfile_manageAccountSubtitle =>
       'আপনার অ্যাকাউন্টের তথ্য, পাসওয়ার্ড ও সাইন-আউট';
 

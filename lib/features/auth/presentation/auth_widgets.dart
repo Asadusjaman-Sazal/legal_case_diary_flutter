@@ -840,6 +840,23 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
     }
   }
 
+  /// Scrolls the page under the window: a drag that starts on the window moves
+  /// the screen rather than being swallowed by the pop-over (user request).
+  ///
+  /// [ScrollPosition.pointerScroll] takes the offset's own sign, so a finger
+  /// moving down (positive dy) moves the content down.
+  void _scrollPageBy(double dy) {
+    final scrollable = Scrollable.maybeOf(context);
+    if (scrollable == null) return;
+    scrollable.position.pointerScroll(-dy);
+  }
+
+  /// Re-measures the window after a drag moved the box, so it can never keep a
+  /// height that now reaches under the keyboard.
+  void _onWindowDragEnded() {
+    if (mounted) setState(() {});
+  }
+
   /// Scrolls the page up while the window would not fit under the box.
   ///
   /// The window always hangs below the box now, so a keyboard that leaves too
@@ -974,6 +991,8 @@ class _AuthEmailFieldState extends State<AuthEmailField> {
             localPart: at < 0 ? text : text.substring(0, at),
             domains: offers ?? const <String>[],
             onPicked: _pick,
+            onScrollBy: _scrollPageBy,
+            onScrollEnded: _onWindowDragEnded,
             onOutsideDown: _onOutsideDown,
             onOutsideUp: _onOutsideUp,
           ),
@@ -1021,6 +1040,8 @@ class _DomainWindow extends StatelessWidget {
     required this.localPart,
     required this.domains,
     required this.onPicked,
+    required this.onScrollBy,
+    required this.onScrollEnded,
     required this.onOutsideDown,
     required this.onOutsideUp,
   });
@@ -1043,6 +1064,12 @@ class _DomainWindow extends StatelessWidget {
   /// Called with the tapped domain.
   final ValueChanged<String> onPicked;
 
+  /// Called with the finger's travel so a drag on the window scrolls the page.
+  final ValueChanged<double> onScrollBy;
+
+  /// Called when that drag ends, to re-measure the window.
+  final VoidCallback onScrollEnded;
+
   /// Called on the press of an outside gesture.
   final ValueChanged<PointerDownEvent> onOutsideDown;
 
@@ -1062,7 +1089,8 @@ class _DomainWindow extends StatelessWidget {
     final needed =
         domains.length * _authEmailRowHeight + _authEmailWindowPadding * 2;
     // Always under the box; the page has already been scrolled up when the room
-    // was short, and the list scrolls itself if the page could not give enough.
+    // was short, and a page that still cannot give enough clips the list rather
+    // than scrolling it — the drag belongs to the page.
     final maxHeight = (floor - rect.bottom - _authEmailPopoverGap).clamp(
       0.0,
       needed,
@@ -1093,45 +1121,56 @@ class _DomainWindow extends StatelessWidget {
               groupId: groupId,
               onTapOutside: onOutsideDown,
               onTapUpOutside: onOutsideUp,
-              child: Material(
-                key: const ValueKey('auth-email-domains'),
-                color: AppColors.surfaceContainerLowest,
-                elevation: 8,
-                // The rounded window the account popover uses, with its thin grey
-                // edge: a white panel over a white card still needs an outline.
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(_authEmailWindowRadius),
-                  side: const BorderSide(color: AppColors.outlineVariant),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: _authEmailWindowPadding,
+              // A drag that starts on the window belongs to the page behind it:
+              // the window has no scroll of its own, so holding it and moving
+              // scrolls the screen, with the window staying on the box.
+              child: GestureDetector(
+                onVerticalDragUpdate: (details) =>
+                    onScrollBy(details.delta.dy),
+                onVerticalDragEnd: (_) => onScrollEnded(),
+                child: Material(
+                  key: const ValueKey('auth-email-domains'),
+                  color: AppColors.surfaceContainerLowest,
+                  elevation: 8,
+                  // The rounded window the account popover uses, with its thin grey
+                  // edge: a white panel over a white card still needs an outline.
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(_authEmailWindowRadius),
+                    side: const BorderSide(color: AppColors.outlineVariant),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final domain in domains)
-                        InkWell(
-                          key: ValueKey('auth-email-domain-$domain'),
-                          onTap: () => onPicked(domain),
-                          child: SizedBox(
-                            height: _authEmailRowHeight,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.gutter,
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  '$localPart$domain',
-                                  style: AppTypography.bodyMd,
+                  clipBehavior: Clip.antiAlias,
+                  child: SingleChildScrollView(
+                    // The window does not scroll itself; its gesture scrolls the
+                    // page. It still clips the rows if the page cannot give room.
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: _authEmailWindowPadding,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final domain in domains)
+                          InkWell(
+                            key: ValueKey('auth-email-domain-$domain'),
+                            onTap: () => onPicked(domain),
+                            child: SizedBox(
+                              height: _authEmailRowHeight,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.gutter,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '$localPart$domain',
+                                    style: AppTypography.bodyMd,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

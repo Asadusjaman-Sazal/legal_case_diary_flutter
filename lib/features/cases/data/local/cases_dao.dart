@@ -301,12 +301,20 @@ class CasesDao {
     return query.map((row) => row.read(db.cases.id)!).get();
   }
 
-  /// Reactive stream of the non-deleted case count.
-  Stream<int> watchNonDeletedCaseCount() {
+  /// Reactive stream of the non-deleted case count for the diary the tier
+  /// limits: the chamber's cases when [firmId] is given, the account's own
+  /// (`firm_id IS NULL`) otherwise — the same scope `enforce_case_ceiling`
+  /// counts at the server.
+  Stream<int> watchNonDeletedCaseCount({String? firmId}) {
     final countExp = db.cases.id.count();
     final query = db.selectOnly(db.cases)
       ..addColumns([countExp])
-      ..where(db.cases.isDeleted.equals(false));
+      ..where(
+        db.cases.isDeleted.equals(false) &
+            (firmId == null
+                ? db.cases.firmId.isNull()
+                : db.cases.firmId.equals(firmId)),
+      );
     return query.map((row) => row.read(countExp)!).watchSingle();
   }
 

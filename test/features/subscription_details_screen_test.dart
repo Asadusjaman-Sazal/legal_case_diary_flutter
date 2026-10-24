@@ -14,7 +14,7 @@
 /// a left-aligned column.
 library;
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show InsertMode, Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -26,6 +26,7 @@ import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/constants/free_tier.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -34,9 +35,11 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
 import 'package:legal_case_diary/features/payments/presentation/current_plan.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/features/settings/presentation/subscription_details_screen.dart';
 
 import 'auth_test_support.dart';
@@ -83,6 +86,32 @@ class _FakePaymentsRepository implements PaymentRepository {
     required String transactionId,
   }) async {}
 }
+
+/// A device gate whose answer the test fixes.
+class _ActiveGate extends DeviceGateController {
+  _ActiveGate(this.currentState);
+
+  /// The state this gate builds with.
+  final DeviceGateState currentState;
+
+  @override
+  Future<DeviceGateState> build() async => currentState;
+}
+
+/// An admitted device list: [count] active devices under a [cap]-device plan.
+DeviceGateState activeGate({int cap = 2, int count = 1}) => DeviceGateState(
+  status: DeviceGateStatus.active,
+  cap: cap,
+  devices: [
+    for (var i = 0; i < count; i++)
+      RegisteredDevice(
+        id: 'device-$i',
+        label: 'Device $i',
+        platform: 'android',
+        isCurrent: i == 0,
+      ),
+  ],
+);
 
 void main() {
   late AuthTestHarness harness;
@@ -143,6 +172,10 @@ void main() {
           path: AppRoutes.settingsSubscriptionDetails,
           builder: (_, _) => const SubscriptionDetailsScreen(),
         ),
+        GoRoute(
+          path: AppRoutes.paywall,
+          builder: (_, _) => const Scaffold(body: Text('Plans-Landed')),
+        ),
       ],
     );
     l = await AppLocalizations.delegate.load(locale);
@@ -157,6 +190,9 @@ void main() {
       await tester.pumpAndSettle();
     }
   }
+
+  const cancelKey = ValueKey('subscription-details-cancel');
+  final renewKey = const ValueKey('manage-plan-renew');
 
   /// A submission the harness hands to the page's provider.
   PaymentSubmission submission({
@@ -385,21 +421,91 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(l.settingsManageAccount_expiry), findsNothing);
-    // Every limitation is listed, the case ceiling named from the one constant.
+    // Every limitation is listed; the case ceiling comes from the one constant
+    // and is the bold phrase in its row.
     expect(
-      find.text(
-        l.settingsSubscription_freeLimitCases('$freeTierCaseLimit'),
+      find.textContaining(
+        l.settingsSubscription_freeLimitCasesBold('$freeTierCaseLimit'),
+        findRichText: true,
       ),
       findsOneWidget,
     );
     expect(
-      find.text(l.settingsSubscription_freeLimitCloud),
+      find.textContaining(
+        l.settingsSubscription_freeLimitCloud,
+        findRichText: true,
+      ),
       findsOneWidget,
     );
     expect(
-      find.text(l.settingsSubscription_freeLimitRecovery),
+      find.textContaining(
+        l.settingsSubscription_freeLimitRecoveryBold,
+        findRichText: true,
+      ),
       findsOneWidget,
     );
+
+    // The upgrade offer follows the limitations: the three per-month rates
+    // (3-month ৳60, 6-month ৳50, 1-year ৳45 — the last is why it says
+    // "starting at"), the hint and the centred button.
+    expect(find.text(l.settingsSubscription_upgradeTitle), findsOneWidget);
+    expect(find.text(l.settingsSubscription_upgradeBody), findsOneWidget);
+    expect(
+      find.textContaining(
+        l.settingsSubscription_upgradeRate('60'),
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        l.settingsSubscription_upgradeRate('50'),
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        l.settingsSubscription_upgradeRate('45'),
+        findRichText: true,
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsSubscription_upgradeHint), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('manage-plan-upgrade')),
+      findsOneWidget,
+    );
+    // Usage and the subscription actions belong to a live paid plan only.
+    expect(find.text(l.settingsSubscription_planUsage), findsNothing);
+    expect(find.byKey(renewKey), findsNothing);
+    expect(find.byKey(cancelKey), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the upgrade button opens Subscription Plans', (tester) async {
+    await pumpDetails(
+      tester,
+      seed: (db) => ProfilesDao(db).upsert(
+        const ProfilesCompanion(
+          id: Value('user-1'),
+          fullName: Value('Adv. Rahim Uddin'),
+          role: Value(AccountRole.individual),
+          subscriptionStatus: Value('free'),
+          createdAt: Value(1),
+        ),
+      ),
+    );
+
+    final button = find.byKey(const ValueKey('manage-plan-upgrade'));
+    await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Plans-Landed'), findsOneWidget);
+
     await unmountApp(tester);
   });
 
@@ -512,8 +618,9 @@ void main() {
       ),
     );
 
-    // The three limitation dots are black; the heading carries no dot at all,
-    // so exactly three 6 px circles remain and none of them is the error red.
+    // The three limitation dots and the three rate dots are black; the heading
+    // carries no dot at all, so exactly six 6 px circles remain and none of
+    // them is the error red.
     Color? dotColor(Widget w) =>
         ((w as Container).decoration as BoxDecoration).color;
     final dots = tester
@@ -527,7 +634,11 @@ void main() {
           ),
         )
         .toList();
-    expect(dots, hasLength(3), reason: 'one bullet per limitation, no heading bullet');
+    expect(
+      dots,
+      hasLength(6),
+      reason: 'three limitations and three rates, no heading bullet',
+    );
     for (final dot in dots) {
       expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
     }
@@ -551,34 +662,246 @@ void main() {
         ),
       );
 
-  const cancelKey = ValueKey('subscription-details-cancel');
+  /// [count] live cases in the diary the tier limits, [firmId] for a chamber.
+  ///
+  /// The reference rows a case points at are seeded once: this harness's
+  /// database enforces the foreign keys, which the case-count query itself
+  /// never touches.
+  Future<void> seedCases(
+    AppDatabase db,
+    int count, {
+    String? firmId,
+  }) async {
+    await db.into(db.courtCategories).insert(
+      const CourtCategoriesCompanion(
+        id: Value('cat-1'),
+        nameKey: Value('catKey'),
+        courtLevel: Value('lower'),
+        orderIndex: Value(0),
+        updatedAt: Value(1),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+    await db.into(db.courts).insert(
+      const CourtsCompanion(
+        id: Value('court-1'),
+        courtName: Value('Court'),
+        higherLowerCourts: Value('lower_courts'),
+        courtCategoryId: Value('cat-1'),
+        updatedAt: Value(1),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+    await db.into(db.onBehalfs).insert(
+      const OnBehalfsCompanion(
+        id: Value('role-1'),
+        courtCategoryId: Value('cat-1'),
+        name: Value('Plaintiff'),
+        orderIndex: Value(0),
+        updatedAt: Value(1),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
+    for (var i = 0; i < count; i++) {
+      await db.into(db.cases).insert(
+        CasesCompanion(
+          id: Value('case-$firmId-$i'),
+          userId: const Value('user-1'),
+          firmId: Value(firmId),
+          courtId: const Value('court-1'),
+          caseType: const Value('Civil'),
+          caseNumber: Value('N$i'),
+          petitioner: const Value('Petitioner'),
+          respondent: const Value('Respondent'),
+          onBehalfId: const Value('role-1'),
+          createdAt: Value(i + 1),
+          updatedAt: Value(i + 1),
+          isDeleted: const Value(false),
+        ),
+      );
+    }
+  }
 
-  testWidgets('a paid plan carries Cancel at the right of the plan card', (
+  testWidgets('a paid plan shows its usage and both full-width actions', (
     tester,
   ) async {
-    await pumpDetails(tester, seed: seedIndividualPaid);
+    await pumpDetails(
+      tester,
+      overrides: [
+        deviceGateProvider.overrideWith(
+          () => _ActiveGate(activeGate(cap: 2, count: 1)),
+        ),
+      ],
+      seed: (db) async {
+        await seedIndividualPaid(db);
+        await seedCases(db, 3);
+      },
+    );
 
-    expect(find.byKey(cancelKey), findsOneWidget);
-    expect(find.text(l.payments_cancelPlan), findsOneWidget);
-
-    // A filled red action with white text (user request).
-    final button = tester.widget<TextButton>(find.byKey(cancelKey));
+    expect(find.text(l.settingsSubscription_planUsage), findsOneWidget);
     expect(
-      button.style?.backgroundColor?.resolve(<WidgetState>{}),
+      find.text(l.settingsSubscription_manageSubscription),
+      findsOneWidget,
+    );
+
+    // Pro holds 1,000 cases: three live rows leave 997.
+    expect(
+      find.text(l.settingsSubscription_usageOfLimit('3', '1,000')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_usageRemaining('997')),
+      findsOneWidget,
+    );
+    // Pro holds two devices, one of which is signed in.
+    expect(
+      find.text(l.settingsSubscription_usageOfLimit('1', '2')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_usageRemaining('1')),
+      findsOneWidget,
+    );
+
+    // Both actions are the page's primary size and span its full width, so the
+    // old header Cancel is gone rather than restyled.
+    for (final action in [renewKey, cancelKey]) {
+      final rect = tester.getRect(find.byKey(action));
+      expect(rect.left, closeTo(AppSpacing.edgeMargin, 1.0));
+      expect(rect.right, closeTo(420 - AppSpacing.edgeMargin, 1.0));
+      expect(rect.height, closeTo(settingsPrimaryButtonHeight, 1.0));
+    }
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(renewKey))
+          .style
+          ?.backgroundColor
+          ?.resolve(<WidgetState>{}),
+      AppColors.primary,
+    );
+    // A filled red action with white text (user request).
+    final cancel = tester.widget<FilledButton>(find.byKey(cancelKey));
+    expect(
+      cancel.style?.backgroundColor?.resolve(<WidgetState>{}),
       AppColors.error,
     );
     expect(
-      button.style?.foregroundColor?.resolve(<WidgetState>{}),
+      cancel.style?.foregroundColor?.resolve(<WidgetState>{}),
       AppColors.onError,
     );
 
-    // It sits at the card's content edge, not beside the plan's name: the same
-    // edge every right-aligned value on this page finishes at.
-    final edge = 420 - AppSpacing.edgeMargin - AppSpacing.md;
-    expect(
-      tester.getTopRight(find.byKey(cancelKey)).dx,
-      closeTo(edge, 1.0),
+    await unmountApp(tester);
+  });
+
+  testWidgets('Renew opens Subscription Plans', (tester) async {
+    await pumpDetails(tester, seed: seedIndividualPaid);
+
+    await tester.ensureVisible(find.byKey(renewKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(renewKey));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Plans-Landed'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a chamber member sees usage and the owner note, no actions', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        firmMemberProvider.overrideWithValue(true),
+        deviceGateProvider.overrideWith(
+          () => _ActiveGate(activeGate(cap: 1, count: 1)),
+        ),
+      ],
+      seed: (db) async {
+        await seedMember(db);
+        // The chamber's own tier, which the member's ceiling comes from.
+        await FirmsDao(db).upsert(
+          FirmsCompanion(
+            id: const Value('firm-1'),
+            name: const Value('Rahman & Associates'),
+            ownerId: const Value('user-2'),
+            tier: const Value('firm'),
+            subscriptionStatus: const Value('active'),
+            subscriptionExpiry: Value(
+              DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
+            ),
+            createdAt: const Value(1),
+          ),
+        );
+        await seedCases(db, 2, firmId: 'firm-1');
+      },
     );
+
+    expect(find.text(l.settingsSubscription_planUsage), findsOneWidget);
+    // The chamber's Firm tier: 2,500 cases, counted across the chamber.
+    expect(
+      find.text(l.settingsSubscription_usageOfLimit('2', '2,500')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_usageRemaining('2,498')),
+      findsOneWidget,
+    );
+    // A chamber always holds one device, and it is this one.
+    expect(find.text(l.settingsSubscription_usageRemaining('0')), findsOneWidget);
+    expect(find.text(l.settingsSubscription_usageFirmNote), findsOneWidget);
+
+    // The owner buys for the chamber: the note replaces both actions.
+    expect(find.text(l.paywall_memberPlanBody), findsOneWidget);
+    expect(find.byKey(renewKey), findsNothing);
+    expect(find.byKey(cancelKey), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a chamber owner counts the chamber\'s cases only', (
+    tester,
+  ) async {
+    await pumpDetails(
+      tester,
+      overrides: [
+        deviceGateProvider.overrideWith(
+          () => _ActiveGate(activeGate(cap: 1, count: 1)),
+        ),
+      ],
+      seed: (db) async {
+        await seedOwner(db);
+        await FirmsDao(db).upsert(
+          FirmsCompanion(
+            id: const Value('firm-1'),
+            name: const Value('Rahman & Associates'),
+            ownerId: const Value('user-1'),
+            tier: const Value('firm'),
+            subscriptionStatus: const Value('active'),
+            subscriptionExpiry: Value(
+              DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
+            ),
+            createdAt: const Value(1),
+          ),
+        );
+        await seedCases(db, 2, firmId: 'firm-1');
+        await seedCases(db, 1);
+      },
+    );
+
+    // The server counts a chamber's ceiling by `firm_id`, so the private row
+    // is not part of the number.
+    expect(
+      find.text(l.settingsSubscription_usageOfLimit('2', '2,500')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(l.settingsSubscription_usageRemaining('2,498')),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsSubscription_usageFirmNote), findsOneWidget);
+    expect(find.byKey(renewKey), findsOneWidget);
+    expect(find.byKey(cancelKey), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -670,6 +993,8 @@ void main() {
         seed: seedIndividualPaid,
       );
 
+      await tester.ensureVisible(find.byKey(cancelKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(cancelKey));
       await tester.pumpAndSettle();
 
@@ -770,6 +1095,8 @@ void main() {
       );
 
       expect(find.text(l.payments_statusCancelled), findsNothing);
+      await tester.ensureVisible(find.byKey(cancelKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(cancelKey));
       await tester.pumpAndSettle();
       await tester.tap(find.text(l.payments_confirmCancellation));
@@ -826,6 +1153,8 @@ void main() {
       seed: seedIndividualPaid,
     );
 
+    await tester.ensureVisible(find.byKey(cancelKey));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(cancelKey));
     await tester.pumpAndSettle();
     await tester.tap(find.text(l.payments_confirmCancellation));
@@ -898,6 +1227,10 @@ void main() {
       find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
       findsNothing,
     );
+    // A lapsed plan has no live usage to report and nothing to cancel.
+    expect(find.text(l.settingsSubscription_planUsage), findsNothing);
+    expect(find.byKey(renewKey), findsNothing);
+    expect(find.byKey(cancelKey), findsNothing);
 
     await unmountApp(tester);
   });

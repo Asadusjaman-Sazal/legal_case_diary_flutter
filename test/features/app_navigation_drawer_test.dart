@@ -457,13 +457,13 @@ void main() {
     expect(spans[1].style?.color, AppColors.error);
   });
 
-  testWidgets('a chamber member expands to Subscription Details alone', (
+  testWidgets('a chamber member expands to both subscription pages', (
     tester,
   ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    // The member has no plan to buy (Phase 9); the details page stays, because
-    // that is where the chamber's plan and expiry are read. The owner's plans
-    // row is the test above, which still expects both children.
+    // A member reads the chamber's plan and expiry on Details, and the plans
+    // themselves on Subscription Plans (read-only, 0.0.626), so both children
+    // are offered.
     await pumpDrawerOnRouter(tester, firmMember: true);
 
     await tester.tap(drawerText(l.settingsSubscription_currentPlan));
@@ -473,7 +473,7 @@ void main() {
       drawerText(l.settingsSubscription_managePlanTitle),
       findsOneWidget,
     );
-    expect(drawerText(l.paywall_title), findsNothing);
+    expect(drawerText(l.paywall_title), findsOneWidget);
   });
 
   testWidgets('Subscription Details opens the details sub-page', (

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -98,20 +99,74 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a chamber member sees the chamber notice instead of cards', (
+  testWidgets('a chamber member reads the full ladder but cannot buy', (
     tester,
   ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
     await pumpPaywall(tester, firmMember: true, showLimit: true);
 
+    // The notice says the chamber covers the account, and the ladder is there
+    // to read — both tabs and their cards.
     expect(find.text('Chamber Plan'), findsOneWidget);
     expect(
       find.textContaining("covered by the chamber's subscription"),
       findsOneWidget,
     );
-    expect(find.text('Individual'), findsNothing);
-    expect(find.text('Starter'), findsNothing);
-    expect(find.text('Subscribe'), findsNothing);
+    expect(find.text('Individual'), findsOneWidget);
+    // The intro invites a choice the member cannot make, so it is not shown.
+    expect(
+      find.text('Choose the plan that fits your practice.'),
+      findsNothing,
+    );
+    expect(find.text('Starter'), findsOneWidget);
+    // The free wall is not a chamber's rule, even when a gate sent the member
+    // here.
     expect(find.text('Free Plan Limit Reached'), findsNothing);
+
+    Color? background(String key) => tester
+        .widget<FilledButton>(find.byKey(ValueKey('paywall-subscribe-$key')))
+        .style
+        ?.backgroundColor
+        ?.resolve(<WidgetState>{});
+    Color? foreground(String key) => tester
+        .widget<FilledButton>(find.byKey(ValueKey('paywall-subscribe-$key')))
+        .style
+        ?.foregroundColor
+        ?.resolve(<WidgetState>{});
+    VoidCallback? action(String key) => tester
+        .widget<FilledButton>(find.byKey(ValueKey('paywall-subscribe-$key')))
+        .onPressed;
+
+    // Every sellable action is greyed but still answers a tap.
+    for (final key in ['starter', 'pro']) {
+      expect(action(key), isNotNull, reason: key);
+      expect(background(key), AppColors.surfaceContainerHigh, reason: key);
+      expect(foreground(key), AppColors.onSurfaceVariant, reason: key);
+    }
+    expect(find.textContaining('Subscribe —'), findsNWidgets(2));
+
+    await tester.tap(
+      find.byKey(const ValueKey('paywall-subscribe-starter')),
+    );
+    await tester.pumpAndSettle();
+
+    // The tap explains the rule instead of opening checkout.
+    expect(find.text(l.paywall_memberLockedToast), findsOneWidget);
+    expect(find.byType(PaywallScreen), findsOneWidget);
+
+    // The other tab's cards are locked the same way.
+    await tester.tap(find.byKey(const ValueKey('paywall-audience-firm')));
+    await tester.pumpAndSettle();
+    expect(find.text('Firm Plus'), findsOneWidget);
+    expect(find.text('Enterprise'), findsOneWidget);
+    for (final key in ['firm', 'firm_plus', 'enterprise']) {
+      expect(action(key), isNotNull, reason: key);
+      expect(background(key), AppColors.surfaceContainerHigh, reason: key);
+    }
+
+    // Let the toast's own timer finish, so the test leaves no timer behind.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('the Individual tab shows Free, Starter and Pro as cards', (

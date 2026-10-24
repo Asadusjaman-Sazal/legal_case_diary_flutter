@@ -1084,6 +1084,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায়। প্ল্যানটি চেম্বারের মালিক কেনেন ও নবায়ন করেন।';
 
   @override
+  String get paywall_memberLockedToast =>
+      'ফার্মের সাবস্ক্রিপশন কেবল ফার্মের মালিকই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের মালিকের সাথে যোগাযোগ করুন।';
+
+  @override
   String get paywall_limitTitle => 'ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে';
 
   @override
@@ -2310,17 +2314,52 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String settingsSubscription_freeLimitCases(String limit) {
-    return 'একসাথে সর্বোচ্চ $limitটি মামলা। একটি মামলা মুছে ফেললে জায়গা খালি হয়।';
+  String get settingsSubscription_freeLimitCasesPrefix => 'একসাথে সর্বোচ্চ ';
+
+  @override
+  String settingsSubscription_freeLimitCasesBold(String count) {
+    return '$countটি মামলা';
   }
 
   @override
-  String get settingsSubscription_freeLimitCloud =>
-      'ক্লাউড সুবিধাগুলো — রিয়েল-টাইম ব্যাকআপ, অন্য ডিভাইস থেকে কাজ করা, এবং সহযোগীদের সঙ্গে ডায়েরি ভাগ করা — পেইড প্ল্যানে পাওয়া যায়।';
+  String get settingsSubscription_freeLimitCasesSuffix => ' পরিচালনা করুন।';
 
   @override
-  String get settingsSubscription_freeLimitRecovery =>
-      'ফোন হারিয়ে গেলে বা নষ্ট হলে, ফ্রি অ্যাকাউন্টের ডায়েরির কোনো ক্লাউড কপি থাকে না যেখান থেকে পুনরুদ্ধার করা যাবে।';
+  String get settingsSubscription_freeLimitCloud =>
+      'ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং সর্বোচ্চ ২০ জন সহযোগীর সঙ্গে কাজ—এর জন্য সাবস্ক্রিপশন প্রয়োজন।';
+
+  @override
+  String get settingsSubscription_freeLimitRecoveryBold =>
+      'ক্লাউড ব্যাকআপ নেই:';
+
+  @override
+  String get settingsSubscription_freeLimitRecoverySuffix =>
+      ' ফোন হারিয়ে গেলে বা নষ্ট হলে, ক্লাউড ব্যাকআপ থেকে আপনার ডায়েরি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get settingsSubscription_upgradeTitle => 'আপগ্রেড করতে চান?';
+
+  @override
+  String get settingsSubscription_upgradeBody =>
+      'সাবস্ক্রিপশন নিলে আরও বেশি মামলার সীমা ও ক্লাউড সুবিধা পাবেন, শুরু মাত্র:';
+
+  @override
+  String settingsSubscription_upgradeRate(String rate) {
+    return '৳$rate/মাস';
+  }
+
+  @override
+  String get settingsSubscription_upgradeQuarterly => ' ৩ মাসের প্ল্যানে';
+
+  @override
+  String get settingsSubscription_upgradeHalfYearly => ' ৬ মাসের প্ল্যানে';
+
+  @override
+  String get settingsSubscription_upgradeAnnual => ' ১ বছরের প্ল্যানে';
+
+  @override
+  String get settingsSubscription_upgradeHint =>
+      'নিচের বোতামে চাপ দিয়ে উপলব্ধ সাবস্ক্রিপশন প্ল্যান দেখুন এবং আরও জানুন।';
 
   @override
   String get settingsSubscription_currentPlan => 'বর্তমান প্ল্যান';
@@ -2336,6 +2375,35 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_managePlanTitle => 'প্ল্যান পরিচালনা';
+
+  @override
+  String get settingsSubscription_planUsage => 'প্ল্যান ব্যবহার';
+
+  @override
+  String get settingsSubscription_usageCases => 'কেস';
+
+  @override
+  String settingsSubscription_usageRemaining(String count) {
+    return '$countটি বাকি';
+  }
+
+  @override
+  String settingsSubscription_usageOfLimit(String used, String limit) {
+    return '$limitটির মধ্যে $usedটি ব্যবহৃত';
+  }
+
+  @override
+  String get settingsSubscription_usageFirmNote =>
+      'কেস সংখ্যা পুরো চেম্বারের হিসাবে ধরা হয়।';
+
+  @override
+  String get settingsSubscription_manageSubscription => 'সাবস্ক্রিপশন পরিচালনা';
+
+  @override
+  String get settingsSubscription_renewSubscription => 'সাবস্ক্রিপশন নবায়ন';
+
+  @override
+  String get settingsSubscription_cancelSubscription => 'সাবস্ক্রিপশন বাতিল';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

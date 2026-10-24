@@ -283,9 +283,6 @@ class AppTranslations {
           _loc.lowerCourtCategory_executiveMagistrate,
       AppStrings.lowerCourtCategoryTribunals: _loc.lowerCourtCategory_tribunals,
     },
-    // messageTemplate: Intentionally omitted from the grouped map because
-    // the message templates are parameterized and must be accessed through
-    // the typed helpers on [raw] (e.g. _loc.messageTemplate_clientSms(...)).
     AppStrings.notesScreenGroup: <String, String>{
       AppStrings.notesScreenDelete: _loc.notesScreen_delete,
       AppStrings.notesScreenModified: _loc.notesScreen_modified,

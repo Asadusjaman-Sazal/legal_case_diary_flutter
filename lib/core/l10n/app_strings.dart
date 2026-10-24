@@ -214,12 +214,6 @@ abstract class AppStrings {
   static const String lowerCourtCategoryTribunals =
       "lowerCourtCategory_tribunals";
 
-  // messageTemplate
-  static const String messageTemplateGroup = "messageTemplate";
-  static const String messageTemplateClientsms = "messageTemplate_clientSms";
-  static const String messageTemplateClientwhatsapp =
-      "messageTemplate_clientWhatsApp";
-
   // notesScreen
   static const String notesScreenGroup = "notesScreen";
   static const String notesScreenDelete = "notesScreen_delete";

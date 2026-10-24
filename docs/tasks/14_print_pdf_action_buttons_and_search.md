@@ -59,7 +59,7 @@
 3. **Message button:** use the same explicit party/number selection, then offer:
    1. **Standard SMS:** launch `sms:` with the selected number and pre-populated template.
    2. **WhatsApp Message:** launch `https://wa.me/<normalized-number>?text=<urlencoded_message>`.
-4. **Translation template:** the pre-filled message (e.g., *"Dear Client, your case [No] is scheduled for [Date] at [Court]. - [Lawyer Name]"*) lives in `app_translations.dart` (Bengali + English). Substitute case number, formatted next date, court name, and lawyer name.
+4. **Translation template (superseded 0.0.622):** the message now uses the **Client Notification** template chosen in Settings (WhatsApp and SMS each Long or Short), composed by `buildClientNotificationMessage`: the represented client, localized case type + number, next date, steps, court, lawyer and the call-back number. The old `messageTemplate_clientSms`/`messageTemplate_clientWhatsApp` keys and `buildContactMessage` were removed; they are not used anywhere.
 5. Validate and normalize each number before launching. Disable unavailable party actions and show a localized friendly message; never silently switch to the other party's number.
 
 **Phase 4 completion:** `flutter analyze` clean; manual test of all four launch paths on emulator/device. Update `docs/version_history.md`.

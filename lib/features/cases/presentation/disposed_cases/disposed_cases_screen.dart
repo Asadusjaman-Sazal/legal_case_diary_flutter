@@ -154,6 +154,7 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
   Future<void> _contactParty(Case currentCase, {required bool message}) async {
     await showCaseContactActions(
       context,
+      ref: ref,
       currentCase: currentCase,
       court: _courtsById[currentCase.courtId],
       onBehalf: _onBehalfsById[currentCase.onBehalfId],

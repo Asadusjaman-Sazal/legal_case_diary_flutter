@@ -33,8 +33,8 @@ class ClientMessageFacts {
   /// Localized case type and the case number, e.g. `দেওয়ানি-১২৩/২৬`.
   final String caseLine;
 
-  /// The next hearing date, epoch milliseconds.
-  final int nextDateMs;
+  /// The next hearing date, epoch milliseconds; null when the case has none.
+  final int? nextDateMs;
 
   /// Localized step names; empty for a higher-court case, which has no steps.
   final List<String> steps;
@@ -61,7 +61,7 @@ ClientMessageFacts buildClientMessageFacts({
   required Case currentCase,
   required Court? court,
   required OnBehalf? onBehalf,
-  required int nextDateMs,
+  required int? nextDateMs,
   required String lawyerName,
   String? contactNumber,
 }) {
@@ -117,10 +117,12 @@ String buildClientNotificationMessage({
       : long
       ? l.clientNotification_longStepsClause(stepsText)
       : l.clientNotification_shortStepsClause(stepsText);
-  final nextDate = AppDateUtils.formatDateDDMMYYYY(
-    facts.nextDateMs,
-    locale: l.localeName,
-  );
+  final nextDate = facts.nextDateMs == null
+      ? ''
+      : AppDateUtils.formatDateDDMMYYYY(
+          facts.nextDateMs!,
+          locale: l.localeName,
+        );
   final contact = facts.contactNumber;
   final contactLine = long && contact != null
       ? l.clientNotification_contactLine(contact)

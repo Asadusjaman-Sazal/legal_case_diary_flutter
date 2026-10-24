@@ -3960,7 +3960,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_purchaseNewSubscription.
   ///
   /// In en, this message translates to:
-  /// **'Purchase New Subscription'**
+  /// **'Subscription Plans'**
   String get settingsManageAccount_purchaseNewSubscription;
 
   /// No description provided for @settingsManageAccount_logout.

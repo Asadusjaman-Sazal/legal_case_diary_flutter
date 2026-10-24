@@ -2252,7 +2252,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>
-      'নতুন সাবস্ক্রিপশন ক্রয়';
+      'সাবস্ক্রিপশন প্ল্যান';
 
   @override
   String get settingsManageAccount_logout => 'লগআউট';

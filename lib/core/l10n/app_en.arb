@@ -1129,7 +1129,7 @@
   "settingsSubscription_dateTime": "Date & Time",
   "settingsSubscription_title": "Subscription",
   "settingsManageAccount_subscriptionDetails": "Subscription Details",
-  "settingsManageAccount_purchaseNewSubscription": "Purchase New Subscription",
+  "settingsManageAccount_purchaseNewSubscription": "Subscription Plans",
   "settingsManageAccount_logout": "Logout",
   "settingsManageAccount_deleteAccount": "Delete Account",
   "settingsManageAccount_deleteCannotBeUndone": "This action cannot be undone",

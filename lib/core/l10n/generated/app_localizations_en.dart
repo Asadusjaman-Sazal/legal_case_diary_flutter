@@ -2245,7 +2245,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>
-      'Purchase New Subscription';
+      'Subscription Plans';
 
   @override
   String get settingsManageAccount_logout => 'Logout';

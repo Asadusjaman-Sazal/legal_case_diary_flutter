@@ -1075,15 +1075,6 @@
   "settingsProfile_officeAddress": "Office Address",
   "settingsProfile_mobileNo": "Mobile No.",
   "settingsProfile_yourName": "Your Name",
-  "settingsProfile_displayName": "Adv. {name}",
-  "@settingsProfile_displayName": {
-      "description": "PROFILE",
-      "placeholders": {
-          "name": {
-              "type": "String"
-          }
-      }
-  },
   "settingsProfile_editTitle": "Edit Profile",
   "settingsProfile_fullNameHint": "Enter your full name",
   "settingsProfile_barAssociationHint": "Enter bar association name",

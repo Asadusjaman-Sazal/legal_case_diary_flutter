@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.622 - The case card's Message button now uses the Client Notification templates from Settings; the old client templates and their builder are removed.
+Version: 0.0.623 - The Profile header shows the saved Full Name exactly, with no 'Adv.' prefix.
 --------------------------------------
 
 ## Version History Log:
@@ -636,3 +636,4 @@ Version: 0.0.619 - The Contact Number window matches the Update corner and Exit 
 Version: 0.0.620 - The Exit App? window uses the Update window's corner, and its Cancel/Exit buttons are 50% further apart.
 Version: 0.0.621 - The Exit App? window's title is now centred.
 Version: 0.0.622 - The case card's Message button now uses the Client Notification templates from Settings; the old client templates and their builder are removed.
+Version: 0.0.623 - The Profile header shows the saved Full Name exactly, with no 'Adv.' prefix.

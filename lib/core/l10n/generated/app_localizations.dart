@@ -3712,12 +3712,6 @@ abstract class AppLocalizations {
   /// **'Your Name'**
   String get settingsProfile_yourName;
 
-  /// PROFILE
-  ///
-  /// In en, this message translates to:
-  /// **'Adv. {name}'**
-  String settingsProfile_displayName(String name);
-
   /// No description provided for @settingsProfile_editTitle.
   ///
   /// In en, this message translates to:

@@ -2084,11 +2084,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsProfile_yourName => 'আপনার নাম';
 
   @override
-  String settingsProfile_displayName(String name) {
-    return 'অ্যাড. $name';
-  }
-
-  @override
   String get settingsProfile_editTitle => 'প্রোফাইল সম্পাদনা';
 
   @override

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The category cards are spaced and icon-free — COMPLETE (0.0.612)
+
+- **What was asked.** On Settings → Edit Court/Steps → Case Types, Steps etc, the court-category cards sat flush against each other and each carried an expand/collapse chevron. They should have the same space between them as the Edit Court/Steps sub-menu's cards, and no icon.
+- **What changed** (only `court_names_steps_screen.dart`): the list is now a `ListView.separated` with an 8 px `AppSpacing.sm` gap between cards — the same gap the sub-menu's `SettingsMenuCard`s keep — and the `expand_more`/`expand_less` chevron is removed. The whole card is still the tap target, and opening a card still closes the one that was open.
+- **Tests.** The existing `court_names_steps_test.dart` gains two assertions: the gap between the first two cards is exactly `AppSpacing.sm`, and neither expand icon is drawn. All 7 tests pass. `flutter analyze` clean; full `flutter test` **1990 passed**; version **0.0.612** recorded.
+- **Docs and mockup.** Task 12's card bullet updated in place; `settings_courtNamesSteps` now draws 8 px gaps and no chevrons. No other screen, no server change.
+
 ### 2026-10-23 — App Lock and Devices sit with the account — COMPLETE (0.0.611)
 
 - **What was asked.** Move App Lock and Devices out of Manage Account and into the Account & Profile menu, and hide Devices for Free and Starter accounts because they hold one device.

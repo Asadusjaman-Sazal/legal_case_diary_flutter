@@ -86,9 +86,12 @@ class _CourtNamesStepsScreenState extends State<CourtNamesStepsScreen> {
     final labels = _courtCategoryLabels(AppLocalizations.of(context));
     return SettingsSubPageModal(
       title: AppLocalizations.of(context).settingsCourtNamesSteps_title,
-      child: ListView.builder(
+      child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: labels.length,
+        // The same 8 px between cards the Edit Court/Steps sub-menu keeps
+        // between its SettingsMenuCards (user request, 0.0.612).
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
         itemBuilder: (context, index) {
           final entry = labels.entries.elementAt(index);
           return _CategoryCard(
@@ -158,11 +161,9 @@ class _CategoryCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    // No chevron: the user asked the cards to carry no icon
+                    // (0.0.612); the whole card is still the tap target.
                     Expanded(child: Text(label, style: AppTypography.bodyLg)),
-                    Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                      color: AppColors.tertiary,
-                    ),
                   ],
                 ),
               ),

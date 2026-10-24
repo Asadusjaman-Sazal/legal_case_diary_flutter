@@ -534,6 +534,7 @@
   "paywall_title": "সাবস্ক্রিপশন প্ল্যান",
   "paywall_memberPlanTitle": "চেম্বারের প্ল্যান",
   "paywall_memberPlanBody": "এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায়। প্ল্যানটি চেম্বারের মালিক কেনেন ও নবায়ন করেন।",
+  "paywall_memberLockedToast": "ফার্মের সাবস্ক্রিপশন কেবল ফার্মের মালিকই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের মালিকের সাথে যোগাযোগ করুন।",
   "paywall_limitTitle": "ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে",
   "paywall_limitBody": "ফ্রি প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকবে।",
   "@paywall_limitBody": {
@@ -1111,22 +1112,48 @@
       }
     }
   },
-  "settingsSubscription_freeLimitCases": "একসাথে সর্বোচ্চ {limit}টি মামলা। একটি মামলা মুছে ফেললে জায়গা খালি হয়।",
-  "@settingsSubscription_freeLimitCases": {
-      "description": "Free-plan limitation: the case ceiling from freeTierCaseLimit.",
+  "settingsSubscription_freeLimitCasesPrefix": "একসাথে সর্বোচ্চ ",
+  "settingsSubscription_freeLimitCasesBold": "{count}টি মামলা",
+  "@settingsSubscription_freeLimitCasesBold": {
+      "description": "ফ্রি প্ল্যানের মামলার সীমার বোল্ড অংশ।",
       "placeholders": {
-          "limit": {
+          "count": {
               "type": "String"
           }
       }
   },
-  "settingsSubscription_freeLimitCloud": "ক্লাউড সুবিধাগুলো — রিয়েল-টাইম ব্যাকআপ, অন্য ডিভাইস থেকে কাজ করা, এবং সহযোগীদের সঙ্গে ডায়েরি ভাগ করা — পেইড প্ল্যানে পাওয়া যায়।",
-  "settingsSubscription_freeLimitRecovery": "ফোন হারিয়ে গেলে বা নষ্ট হলে, ফ্রি অ্যাকাউন্টের ডায়েরির কোনো ক্লাউড কপি থাকে না যেখান থেকে পুনরুদ্ধার করা যাবে।",
+  "settingsSubscription_freeLimitCasesSuffix": " পরিচালনা করুন।",
+  "settingsSubscription_freeLimitCloud": "ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং সর্বোচ্চ ২০ জন সহযোগীর সঙ্গে কাজ—এর জন্য সাবস্ক্রিপশন প্রয়োজন।",
+  "settingsSubscription_freeLimitRecoveryBold": "ক্লাউড ব্যাকআপ নেই:",
+  "settingsSubscription_freeLimitRecoverySuffix": " ফোন হারিয়ে গেলে বা নষ্ট হলে, ক্লাউড ব্যাকআপ থেকে আপনার ডায়েরি ফিরিয়ে আনা যাবে না।",
+  "settingsSubscription_upgradeTitle": "আপগ্রেড করতে চান?",
+  "settingsSubscription_upgradeBody": "সাবস্ক্রিপশন নিলে আরও বেশি মামলার সীমা ও ক্লাউড সুবিধা পাবেন, শুরু মাত্র:",
+  "settingsSubscription_upgradeRate": "৳{rate}/মাস",
+  "@settingsSubscription_upgradeRate": {
+      "description": "আপগ্রেড ব্লকের বোল্ড মাসিক হার।",
+      "placeholders": {
+          "rate": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsSubscription_upgradeQuarterly": " ৩ মাসের প্ল্যানে",
+  "settingsSubscription_upgradeHalfYearly": " ৬ মাসের প্ল্যানে",
+  "settingsSubscription_upgradeAnnual": " ১ বছরের প্ল্যানে",
+  "settingsSubscription_upgradeHint": "নিচের বোতামে চাপ দিয়ে উপলব্ধ সাবস্ক্রিপশন প্ল্যান দেখুন এবং আরও জানুন।",
   "settingsSubscription_currentPlan": "বর্তমান প্ল্যান",
   "settingsSubscription_paid": "পরিশোধিত",
   "settingsSubscription_dateTime": "তারিখ ও সময়",
   "settingsSubscription_title": "সাবস্ক্রিপশন",
   "settingsSubscription_managePlanTitle": "প্ল্যান পরিচালনা",
+  "settingsSubscription_planUsage": "প্ল্যান ব্যবহার",
+  "settingsSubscription_usageCases": "কেস",
+  "settingsSubscription_usageRemaining": "{count}টি বাকি",
+  "settingsSubscription_usageOfLimit": "{limit}টির মধ্যে {used}টি ব্যবহৃত",
+  "settingsSubscription_usageFirmNote": "কেস সংখ্যা পুরো চেম্বারের হিসাবে ধরা হয়।",
+  "settingsSubscription_manageSubscription": "সাবস্ক্রিপশন পরিচালনা",
+  "settingsSubscription_renewSubscription": "সাবস্ক্রিপশন নবায়ন",
+  "settingsSubscription_cancelSubscription": "সাবস্ক্রিপশন বাতিল",
   "settingsManageAccount_purchaseNewSubscription": "সাবস্ক্রিপশন প্ল্যান",
   "settingsManageAccount_logout": "লগআউট",
   "settingsManageAccount_deleteAccount": "অ্যাকাউন্ট মুছুন",

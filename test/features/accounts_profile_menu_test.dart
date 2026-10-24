@@ -5,7 +5,8 @@
 /// Plan, Subscription Plans, Subscription History) and **Firm** (Manage
 /// Associates, shown only when that entry is offered). The Subscription section
 /// replaced the one intermediate Subscription screen at 0.0.624; a chamber
-/// member sees Manage Plan and History but not the plans. Devices is offered
+/// member sees Manage Plan and the read-only plans but not History (0.0.626).
+/// Devices is offered
 /// only where the plan holds more than one device — Pro and the chamber tiers —
 /// so Free and Starter never see it. These tests pin that structure: section
 /// labels, rows, their order, the Devices rule, the member rule and each row's
@@ -288,23 +289,33 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a chamber member is not offered Subscription Plans', (
-    tester,
-  ) async {
-    await pumpMenu(
-      tester,
-      extra: [firmMemberProvider.overrideWithValue(true)],
-    );
+  testWidgets(
+    'a chamber member is offered Manage Plan and Plans but not History',
+    (tester) async {
+      await pumpMenu(
+        tester,
+        extra: [firmMemberProvider.overrideWithValue(true)],
+      );
 
-    expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
-    expect(find.text(l.payments_historyTitle), findsOneWidget);
-    expect(
-      find.text(l.settingsManageAccount_purchaseNewSubscription),
-      findsNothing,
-    );
+      expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
+      expect(
+        find.text(l.settingsManageAccount_purchaseNewSubscription),
+        findsOneWidget,
+      );
+      // The ledger is the account's own, and a chamber member is not offered it
+      // (0.0.626, owner request).
+      expect(find.text(l.payments_historyTitle), findsNothing);
 
-    await unmountApp(tester);
-  });
+      // The row opens the read-only plans screen.
+      await tester.tap(
+        find.text(l.settingsManageAccount_purchaseNewSubscription),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(plansMarker), findsOneWidget);
+
+      await unmountApp(tester);
+    },
+  );
 
   testWidgets('hides the Firm section when Manage Associates is hidden', (
     tester,

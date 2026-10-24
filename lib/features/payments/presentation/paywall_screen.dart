@@ -29,6 +29,13 @@
 /// renewal; a lapsed or free account starts at once. One change may be queued:
 /// a third tier's action is disabled until the queued one starts.
 ///
+/// **A chamber member reads, but cannot buy** (0.0.626, user request): the
+/// notice says the chamber covers the account, the whole ladder and the
+/// Individual/Firm switch stay visible, and every sellable action is greyed
+/// while still explaining, on tap, that only the firm owner buys for the firm.
+/// The free-limit card never appears for them: its numbers are the free wall,
+/// which a chamber does not hold.
+///
 /// No entitlement logic lives here: whether premium is *live* is
 /// `resolvePremiumAccess`'s answer, and which tier is *held* is
 /// `allowanceTierProvider`'s.
@@ -296,18 +303,21 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         ),
         body: CustomScrollView(
           slivers: [
-            if (!isMember)
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.edgeMargin,
-                  AppSpacing.md,
-                  AppSpacing.edgeMargin,
-                  0,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.edgeMargin,
+                AppSpacing.md,
+                AppSpacing.edgeMargin,
+                0,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // A member cannot buy either audience, so the intro's
+                    // invitation to choose would be a promise the greyed
+                    // actions cannot keep; the notice below says why.
+                    if (!isMember) ...[
                       Text(
                         l.paywall_intro,
                         style: AppTypography.bodyMd.copyWith(
@@ -315,19 +325,20 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      // The toggle scrolls with the page: it is a one-time
-                      // choice, not a control to keep on screen.
-                      Center(
-                        child: _AudienceToggle(
-                          selected: audience,
-                          onChanged: (value) =>
-                              setState(() => _audience = value),
-                        ),
-                      ),
                     ],
-                  ),
+                    // The toggle scrolls with the page: it is a one-time
+                    // choice, not a control to keep on screen.
+                    Center(
+                      child: _AudienceToggle(
+                        selected: audience,
+                        onChanged: (value) =>
+                            setState(() => _audience = value),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.edgeMargin,
@@ -337,7 +348,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               ),
               sliver: SliverList.list(
                 children: [
-                  if (isMember) ..._memberNotice(l) else ..._offer(
+                  if (isMember) ...[
+                    ..._memberNotice(l),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+                  ..._offer(
                     l: l,
                     audience: audience,
                     effectiveTier: effectiveTier,
@@ -346,6 +361,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     hasScheduled: hasScheduled,
                     isActive: isActive,
                     expiryMs: expiryMs,
+                    member: isMember,
                   ),
                 ],
               ),
@@ -356,7 +372,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     );
   }
 
-  /// A chamber member has nothing to buy here (Phase 9).
+  /// The notice above a chamber member's ladder: the chamber covers the
+  /// account, and its owner is the one who buys and renews.
   List<Widget> _memberNotice(AppLocalizations l) => <Widget>[
     Text(
       l.paywall_memberPlanTitle,
@@ -387,10 +404,14 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required bool hasScheduled,
     required bool isActive,
     required int? expiryMs,
+    required bool member,
   }) {
     final tiers = tiersForAudience(audience);
     return <Widget>[
-      if (widget.showLimit || widget.showLapsed) ...<Widget>[
+      // The gate cards state the free wall and the lapse allowance of an
+      // account's own plan; neither is a chamber's rule, so a member never
+      // sees one even when a gate sent them here.
+      if (!member && (widget.showLimit || widget.showLapsed)) ...<Widget>[
         _LimitCard(lapsed: widget.showLapsed),
         const SizedBox(height: AppSpacing.lg),
       ],
@@ -418,6 +439,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           hasScheduled: hasScheduled,
           isActive: isActive,
           expiryMs: expiryMs,
+          member: member,
         ),
       ],
     ];
@@ -433,6 +455,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required bool hasScheduled,
     required bool isActive,
     required int? expiryMs,
+    required bool member,
   }) {
     final isCurrent = tier == effectiveTier;
     final isScheduled = hasScheduled && tier == pendingTier;
@@ -467,6 +490,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       isCurrent: isCurrent,
       isScheduled: isScheduled,
       plan: basePlan,
+      member: member,
     );
 
     return _PlanCardFrame(
@@ -632,22 +656,32 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           const SizedBox(height: AppSpacing.md),
           FilledButton(
             key: ValueKey('paywall-subscribe-${tier.key}'),
-            onPressed: tier.isSellable && !isBlocked
-                ? () => _onCta(
-                    l: l,
-                    tier: tier,
-                    planKey: basePlan!.key,
-                    isCurrent: isCurrent,
-                    isScheduled: isScheduled,
-                    hasScheduled: hasScheduled,
-                    isActive: isActive,
-                    expiryMs: expiryMs,
-                    pendingTier: pendingTier,
-                  )
+            // A member's action is greyed but still answers a tap: the answer
+            // is who may buy, not a checkout.
+            onPressed: tier.isSellable
+                ? (member
+                      ? () => _showMemberLocked(l)
+                      : isBlocked
+                      ? null
+                      : () => _onCta(
+                          l: l,
+                          tier: tier,
+                          planKey: basePlan!.key,
+                          isCurrent: isCurrent,
+                          isScheduled: isScheduled,
+                          hasScheduled: hasScheduled,
+                          isActive: isActive,
+                          expiryMs: expiryMs,
+                          pendingTier: pendingTier,
+                        ))
                 : null,
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
+              backgroundColor: member
+                  ? AppColors.surfaceContainerHigh
+                  : AppColors.primary,
+              foregroundColor: member
+                  ? AppColors.onSurfaceVariant
+                  : AppColors.onPrimary,
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
               disabledForegroundColor: AppColors.onSurfaceVariant,
               textStyle: AppTypography.titleMd,
@@ -695,14 +729,28 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required bool isCurrent,
     required bool isScheduled,
     required SubscriptionPlan? plan,
+    required bool member,
   }) {
     if (tier == SubscriptionTier.free) {
       return isCurrent ? l.paywall_currentPlanBadge : l.paywall_included;
     }
     final price = _actionPrice(l, plan!);
+    // A member never renews: *Renew* would promise an action the server
+    // refuses, so every one of their sellable cards offers *Subscribe* instead.
+    if (member) return l.paywall_subscribePlan(price);
     if (isScheduled) return l.paywall_renewScheduledPlan(price);
     if (isCurrent) return l.paywall_renewPlan(price);
     return l.paywall_subscribePlan(price);
+  }
+
+  /// Answers a chamber member's tap on a Subscribe action.
+  ///
+  /// A toast rather than a dialog: the plan stays visible behind it, and the
+  /// sentence names the one account that can buy.
+  void _showMemberLocked(AppLocalizations l) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l.paywall_memberLockedToast)),
+    );
   }
 
   /// The start instant a scheduled plan shows. The server stores it as the

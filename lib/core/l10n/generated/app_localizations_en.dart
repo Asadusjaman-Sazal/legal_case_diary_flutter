@@ -1082,6 +1082,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This account is covered by the chamber\'s subscription. The chamber owner buys and renews it.';
 
   @override
+  String get paywall_memberLockedToast =>
+      'Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.';
+
+  @override
   String get paywall_limitTitle => 'Free Plan Limit Reached';
 
   @override
@@ -2304,17 +2308,51 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String settingsSubscription_freeLimitCases(String limit) {
-    return 'Up to $limit cases at a time. Deleting a case frees a slot.';
+  String get settingsSubscription_freeLimitCasesPrefix => 'Manage up to ';
+
+  @override
+  String settingsSubscription_freeLimitCasesBold(String count) {
+    return '$count cases';
   }
 
   @override
-  String get settingsSubscription_freeLimitCloud =>
-      'The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.';
+  String get settingsSubscription_freeLimitCasesSuffix => ' at a time.';
 
   @override
-  String get settingsSubscription_freeLimitRecovery =>
-      'If the phone is lost or broken, a free account\'s diary has no cloud copy to restore from.';
+  String get settingsSubscription_freeLimitCloud =>
+      'Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.';
+
+  @override
+  String get settingsSubscription_freeLimitRecoveryBold => 'No cloud backup:';
+
+  @override
+  String get settingsSubscription_freeLimitRecoverySuffix =>
+      ' If your phone is lost or damaged, you won\'t be able to restore your diary from a cloud backup.';
+
+  @override
+  String get settingsSubscription_upgradeTitle => 'Want to Upgrade?';
+
+  @override
+  String get settingsSubscription_upgradeBody =>
+      'Enjoy higher case limits and more cloud features with a subscription starting at:';
+
+  @override
+  String settingsSubscription_upgradeRate(String rate) {
+    return '৳$rate/month';
+  }
+
+  @override
+  String get settingsSubscription_upgradeQuarterly => ' with the 3-month plan';
+
+  @override
+  String get settingsSubscription_upgradeHalfYearly => ' with the 6-month plan';
+
+  @override
+  String get settingsSubscription_upgradeAnnual => ' with the 1-year plan';
+
+  @override
+  String get settingsSubscription_upgradeHint =>
+      'Tap the button below to explore the available subscription plans and learn more.';
 
   @override
   String get settingsSubscription_currentPlan => 'Current Plan';
@@ -2330,6 +2368,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSubscription_managePlanTitle => 'Manage Plan';
+
+  @override
+  String get settingsSubscription_planUsage => 'Plan Usage';
+
+  @override
+  String get settingsSubscription_usageCases => 'Cases';
+
+  @override
+  String settingsSubscription_usageRemaining(String count) {
+    return '$count left';
+  }
+
+  @override
+  String settingsSubscription_usageOfLimit(String used, String limit) {
+    return '$used of $limit used';
+  }
+
+  @override
+  String get settingsSubscription_usageFirmNote =>
+      'Cases are counted across the whole chamber.';
+
+  @override
+  String get settingsSubscription_manageSubscription => 'Manage Subscription';
+
+  @override
+  String get settingsSubscription_renewSubscription => 'Renew Subscription';
+
+  @override
+  String get settingsSubscription_cancelSubscription => 'Cancel Subscription';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

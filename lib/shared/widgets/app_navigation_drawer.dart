@@ -49,7 +49,6 @@ import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/logout_dialogs.dart';
-import '../../features/accounts_and_profile/data/account_mode.dart';
 import '../../features/payments/presentation/current_plan.dart';
 import '../../features/settings/data/update_metadata_store.dart';
 import '../../features/settings/presentation/settings_controls.dart';
@@ -1064,13 +1063,9 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // A chamber **member** has no plan of their own to buy (Phase 9): the
-    // chamber's subscription is the source of truth on every member's device, so
-    // the plans child is not offered to one. Subscription Details stays — it is
-    // where the member reads the chamber's plan and expiry. The owner keeps the
-    // plans child: this row is his only route to renewing the chamber, so
-    // hiding it for everyone holding a firm would strand him.
-    final sellsPlans = !ref.watch(firmMemberProvider);
+    // Both children are offered to every account: Manage Plan reads the plan
+    // and expiry, and Subscription Plans is where the owner renews the chamber
+    // and where a chamber member reads the ladder (read-only, 0.0.626).
     return Column(
       children: [
         // The header keeps the drawer's own row metrics; only the children
@@ -1148,14 +1143,13 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
             indent: _planSubIndent,
             onTap: () => _open(AppRoutes.settingsSubscriptionDetails),
           ),
-          if (sellsPlans)
-            _DrawerNavTile(
-              icon: Icons.add_shopping_cart_outlined,
-              label: l.paywall_title,
-              active: widget.currentRoute == AppRoutes.paywall,
-              indent: _planSubIndent,
-              onTap: () => _open(AppRoutes.paywall),
-            ),
+          _DrawerNavTile(
+            icon: Icons.add_shopping_cart_outlined,
+            label: l.paywall_title,
+            active: widget.currentRoute == AppRoutes.paywall,
+            indent: _planSubIndent,
+            onTap: () => _open(AppRoutes.paywall),
+          ),
         ],
       ],
     );

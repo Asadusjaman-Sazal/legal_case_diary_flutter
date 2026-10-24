@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.624 - Subscription is now its own Account & Profile section with Manage Plan and Plans, and a separate Subscription History screen that checkout opens.
+Version: 0.0.626 - Manage Plan shows premium usage with full-width Renew and Cancel; a chamber member reads the plans read-only and is not offered History.
 --------------------------------------
 
 ## Version History Log:
@@ -638,3 +638,5 @@ Version: 0.0.621 - The Exit App? window's title is now centred.
 Version: 0.0.622 - The case card's Message button now uses the Client Notification templates from Settings; the old client templates and their builder are removed.
 Version: 0.0.623 - The Profile header shows the saved Full Name exactly, with no 'Adv.' prefix.
 Version: 0.0.624 - Subscription is now its own Account & Profile section with Manage Plan and Plans, and a separate Subscription History screen that checkout opens.
+Version: 0.0.625 - Manage Plan's free limitations use the new wording, followed by a Want to Upgrade? block with the Starter rates and a Subscription Plans button.
+Version: 0.0.626 - Manage Plan shows premium usage with full-width Renew and Cancel; a chamber member reads the plans read-only and is not offered History.

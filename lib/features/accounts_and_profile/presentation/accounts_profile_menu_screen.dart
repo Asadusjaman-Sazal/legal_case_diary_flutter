@@ -56,9 +56,9 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
     // one device: Free has no sync and Starter holds one, so it starts at Pro.
     final showDevices =
         ref.watch(currentTierProvider).rank > SubscriptionTier.starter.rank;
-    // A chamber member's plans are the owner's to buy, so the plans row is
-    // hidden for them — the same rule the drawer and the old Subscription
-    // screen kept.
+    // A chamber member may read the plans but cannot buy (0.0.626, user
+    // request), and the ledger is the account's own, so History is the one
+    // Subscription row a member is not offered.
     final isMember = ref.watch(firmMemberProvider);
 
     return SettingsSubPageModal(
@@ -114,22 +114,22 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
             subtitle: l.settingsAccountProfile_managePlanSubtitle,
             onTap: () => context.push(AppRoutes.settingsSubscriptionDetails),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          SettingsMenuCard(
+            icon: Icons.add_shopping_cart_outlined,
+            title: l.settingsManageAccount_purchaseNewSubscription,
+            subtitle: l.settingsAccountProfile_subscriptionPlansSubtitle,
+            onTap: () => context.push(AppRoutes.paywall),
+          ),
           if (!isMember) ...[
             const SizedBox(height: AppSpacing.sm),
             SettingsMenuCard(
-              icon: Icons.add_shopping_cart_outlined,
-              title: l.settingsManageAccount_purchaseNewSubscription,
-              subtitle: l.settingsAccountProfile_subscriptionPlansSubtitle,
-              onTap: () => context.push(AppRoutes.paywall),
+              icon: Icons.history,
+              title: l.payments_historyTitle,
+              subtitle: l.settingsAccountProfile_subscriptionHistorySubtitle,
+              onTap: () => context.push(AppRoutes.settingsSubscriptionHistory),
             ),
           ],
-          const SizedBox(height: AppSpacing.sm),
-          SettingsMenuCard(
-            icon: Icons.history,
-            title: l.payments_historyTitle,
-            subtitle: l.settingsAccountProfile_subscriptionHistorySubtitle,
-            onTap: () => context.push(AppRoutes.settingsSubscriptionHistory),
-          ),
           if (showManageAssociates) ...[
             const SizedBox(height: AppSpacing.lg),
             // Firm: only meaningful with the row below it.

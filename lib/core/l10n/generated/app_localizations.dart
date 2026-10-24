@@ -1946,6 +1946,12 @@ abstract class AppLocalizations {
   /// **'This account is covered by the chamber\'s subscription. The chamber owner buys and renews it.'**
   String get paywall_memberPlanBody;
 
+  /// No description provided for @paywall_memberLockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.'**
+  String get paywall_memberLockedToast;
+
   /// No description provided for @paywall_limitTitle.
   ///
   /// In en, this message translates to:
@@ -4060,23 +4066,83 @@ abstract class AppLocalizations {
   /// **'You recently cancelled your subscription plan. You can still read everything. Up to {count} most recent cases, notes and case references stay editable until you renew.'**
   String settingsSubscription_lapsedBodyCancelled(String count);
 
-  /// Free-plan limitation: the case ceiling from freeTierCaseLimit.
+  /// No description provided for @settingsSubscription_freeLimitCasesPrefix.
   ///
   /// In en, this message translates to:
-  /// **'Up to {limit} cases at a time. Deleting a case frees a slot.'**
-  String settingsSubscription_freeLimitCases(String limit);
+  /// **'Manage up to '**
+  String get settingsSubscription_freeLimitCasesPrefix;
+
+  /// The bold part of the free-plan case limitation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cases'**
+  String settingsSubscription_freeLimitCasesBold(String count);
+
+  /// No description provided for @settingsSubscription_freeLimitCasesSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' at a time.'**
+  String get settingsSubscription_freeLimitCasesSuffix;
 
   /// No description provided for @settingsSubscription_freeLimitCloud.
   ///
   /// In en, this message translates to:
-  /// **'The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.'**
+  /// **'Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.'**
   String get settingsSubscription_freeLimitCloud;
 
-  /// No description provided for @settingsSubscription_freeLimitRecovery.
+  /// No description provided for @settingsSubscription_freeLimitRecoveryBold.
   ///
   /// In en, this message translates to:
-  /// **'If the phone is lost or broken, a free account\'s diary has no cloud copy to restore from.'**
-  String get settingsSubscription_freeLimitRecovery;
+  /// **'No cloud backup:'**
+  String get settingsSubscription_freeLimitRecoveryBold;
+
+  /// No description provided for @settingsSubscription_freeLimitRecoverySuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' If your phone is lost or damaged, you won\'t be able to restore your diary from a cloud backup.'**
+  String get settingsSubscription_freeLimitRecoverySuffix;
+
+  /// No description provided for @settingsSubscription_upgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Want to Upgrade?'**
+  String get settingsSubscription_upgradeTitle;
+
+  /// No description provided for @settingsSubscription_upgradeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy higher case limits and more cloud features with a subscription starting at:'**
+  String get settingsSubscription_upgradeBody;
+
+  /// The bold monthly rate in the upgrade block.
+  ///
+  /// In en, this message translates to:
+  /// **'৳{rate}/month'**
+  String settingsSubscription_upgradeRate(String rate);
+
+  /// No description provided for @settingsSubscription_upgradeQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **' with the 3-month plan'**
+  String get settingsSubscription_upgradeQuarterly;
+
+  /// No description provided for @settingsSubscription_upgradeHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **' with the 6-month plan'**
+  String get settingsSubscription_upgradeHalfYearly;
+
+  /// No description provided for @settingsSubscription_upgradeAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **' with the 1-year plan'**
+  String get settingsSubscription_upgradeAnnual;
+
+  /// No description provided for @settingsSubscription_upgradeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button below to explore the available subscription plans and learn more.'**
+  String get settingsSubscription_upgradeHint;
 
   /// No description provided for @settingsSubscription_currentPlan.
   ///
@@ -4107,6 +4173,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage Plan'**
   String get settingsSubscription_managePlanTitle;
+
+  /// No description provided for @settingsSubscription_planUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Usage'**
+  String get settingsSubscription_planUsage;
+
+  /// No description provided for @settingsSubscription_usageCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases'**
+  String get settingsSubscription_usageCases;
+
+  /// No description provided for @settingsSubscription_usageRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String settingsSubscription_usageRemaining(String count);
+
+  /// No description provided for @settingsSubscription_usageOfLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} used'**
+  String settingsSubscription_usageOfLimit(String used, String limit);
+
+  /// No description provided for @settingsSubscription_usageFirmNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases are counted across the whole chamber.'**
+  String get settingsSubscription_usageFirmNote;
+
+  /// No description provided for @settingsSubscription_manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Subscription'**
+  String get settingsSubscription_manageSubscription;
+
+  /// No description provided for @settingsSubscription_renewSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew Subscription'**
+  String get settingsSubscription_renewSubscription;
+
+  /// No description provided for @settingsSubscription_cancelSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Subscription'**
+  String get settingsSubscription_cancelSubscription;
 
   /// No description provided for @settingsManageAccount_purchaseNewSubscription.
   ///

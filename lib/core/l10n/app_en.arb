@@ -541,6 +541,7 @@
   "paywall_title": "Subscription Plans",
   "paywall_memberPlanTitle": "Chamber Plan",
   "paywall_memberPlanBody": "This account is covered by the chamber's subscription. The chamber owner buys and renews it.",
+  "paywall_memberLockedToast": "Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",
   "@paywall_limitBody": {
@@ -1157,22 +1158,50 @@
       }
     }
   },
-  "settingsSubscription_freeLimitCases": "Up to {limit} cases at a time. Deleting a case frees a slot.",
-  "@settingsSubscription_freeLimitCases": {
-      "description": "Free-plan limitation: the case ceiling from freeTierCaseLimit.",
+  "settingsSubscription_freeLimitCasesPrefix": "Manage up to ",
+  "settingsSubscription_freeLimitCasesBold": "{count} cases",
+  "@settingsSubscription_freeLimitCasesBold": {
+      "description": "The bold part of the free-plan case limitation.",
       "placeholders": {
-          "limit": {
+          "count": {
               "type": "String"
           }
       }
   },
-  "settingsSubscription_freeLimitCloud": "The cloud features — real-time backup, working from another device, and sharing the diary with associates — need a paid plan.",
-  "settingsSubscription_freeLimitRecovery": "If the phone is lost or broken, a free account's diary has no cloud copy to restore from.",
+  "settingsSubscription_freeLimitCasesSuffix": " at a time.",
+  "settingsSubscription_freeLimitCloud": "Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.",
+  "settingsSubscription_freeLimitRecoveryBold": "No cloud backup:",
+  "settingsSubscription_freeLimitRecoverySuffix": " If your phone is lost or damaged, you won't be able to restore your diary from a cloud backup.",
+  "settingsSubscription_upgradeTitle": "Want to Upgrade?",
+  "settingsSubscription_upgradeBody": "Enjoy higher case limits and more cloud features with a subscription starting at:",
+  "settingsSubscription_upgradeRate": "৳{rate}/month",
+  "@settingsSubscription_upgradeRate": {
+      "description": "The bold monthly rate in the upgrade block.",
+      "placeholders": {
+          "rate": {
+              "type": "String"
+          }
+      }
+  },
+  "settingsSubscription_upgradeQuarterly": " with the 3-month plan",
+  "settingsSubscription_upgradeHalfYearly": " with the 6-month plan",
+  "settingsSubscription_upgradeAnnual": " with the 1-year plan",
+  "settingsSubscription_upgradeHint": "Tap the button below to explore the available subscription plans and learn more.",
   "settingsSubscription_currentPlan": "Current Plan",
   "settingsSubscription_paid": "Paid",
   "settingsSubscription_dateTime": "Date & Time",
   "settingsSubscription_title": "Subscription",
   "settingsSubscription_managePlanTitle": "Manage Plan",
+  "settingsSubscription_planUsage": "Plan Usage",
+  "settingsSubscription_usageCases": "Cases",
+  "settingsSubscription_usageRemaining": "{count} left",
+  "@settingsSubscription_usageRemaining": {"placeholders": {"count": {"type": "String"}}},
+  "settingsSubscription_usageOfLimit": "{used} of {limit} used",
+  "@settingsSubscription_usageOfLimit": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
+  "settingsSubscription_usageFirmNote": "Cases are counted across the whole chamber.",
+  "settingsSubscription_manageSubscription": "Manage Subscription",
+  "settingsSubscription_renewSubscription": "Renew Subscription",
+  "settingsSubscription_cancelSubscription": "Cancel Subscription",
   "settingsManageAccount_purchaseNewSubscription": "Subscription Plans",
   "settingsManageAccount_logout": "Logout",
   "settingsManageAccount_deleteAccount": "Delete Account",

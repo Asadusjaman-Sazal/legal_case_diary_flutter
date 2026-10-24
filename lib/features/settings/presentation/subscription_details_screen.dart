@@ -1,4 +1,4 @@
-/// Manage Plan — the plan itself, its expiry, and the cancel action.
+/// Manage Plan — the plan itself, its usage, and the subscription actions.
 ///
 /// It was Subscription Details until 0.0.624, when the owner split the purchase
 /// ledger out into Subscription History and moved both onto the Account &
@@ -17,17 +17,24 @@
 /// flight must never be told they have nothing (plan §6, the entitlement
 /// bullet).
 ///
-/// **Cancelling.** While a paid plan is running, and only while the plan is the
-/// account's own, the summary card carries a **Cancel** action at its right. It
-/// opens a window saying the plan cannot be restored, and a confirmed
-/// cancellation calls the server's `cancel_subscription()` RPC — the only writer
-/// of `subscription_cancellations` — then pulls the profile so the plan reads
-/// its lapsed state. The cancellation appears in Subscription History as a new
-/// entry with a red *Cancelled* label and the moment it happened.
+/// **While the plan is live** the page adds two blocks below the summary
+/// (0.0.626, user request): **Plan Usage** — the cases and devices left under
+/// the tier's ceiling — and **Manage Subscription**, a full-width **Renew
+/// Subscription** and **Cancel Subscription** pair. A chamber **member** reads
+/// the usage and a note that the owner buys and renews instead; the server
+/// refuses their renewal and cancellation, so neither action is offered.
+///
+/// **Cancelling.** The Cancel action opens a window saying the plan cannot be
+/// restored, and a confirmed cancellation calls the server's
+/// `cancel_subscription()` RPC — the only writer of `subscription_cancellations`
+/// — then pulls the profile so the plan reads its lapsed state. The
+/// cancellation appears in Subscription History as a new entry with a red
+/// *Cancelled* label and the moment it happened.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -35,12 +42,15 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/free_tier.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../payments/data/payment_plans.dart';
 import '../../payments/data/payment_repository.dart';
 import '../../payments/presentation/current_plan.dart';
+import 'plan_usage_section.dart';
+import 'settings_menu_card.dart';
 import 'settings_sub_page_modal.dart';
 import 'subscription_widgets.dart';
 
@@ -56,6 +66,10 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
     // flight reads a dash, which is neither Free nor premium.
     final plan = ref.watch(currentPlanProvider);
     final tier = ref.watch(allowanceTierProvider);
+    // Usage and the two actions belong to a **live** paid plan only. A granted
+    // period with no expired tier is still premium here; the tier itself is
+    // read by the usage block.
+    final isPremium = plan.known && plan.premium;
     // A paid tier with no entitlement is **lapsed**, not free: its 50-case block
     // would contradict the allowance it still holds (Phase 10).
     final isLapsed =
@@ -88,7 +102,12 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const _SubscriptionSummaryCard(),
-              if (isFree) ...[
+              if (isPremium) ...[
+                const SizedBox(height: AppSpacing.lg),
+                const PlanUsageSection(),
+                const SizedBox(height: AppSpacing.lg),
+                const _ManageSubscriptionSection(),
+              ] else if (isFree) ...[
                 const SizedBox(height: AppSpacing.lg),
                 _FreePlanLimitations(l: l),
               ] else if (isLapsed) ...[
@@ -169,15 +188,6 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
                   showTag: false,
                 ),
               ),
-              // Cancel is offered only while a paid period is running and only
-              // for the account's own plan: a free or lapsed plan has nothing
-              // to end, and a chamber member's entitlement is the chamber's (the
-              // server refuses that case with `firm_member`).
-              if (plan.known && plan.premium && !ref.watch(firmMemberProvider))
-                const Padding(
-                  padding: EdgeInsets.only(left: AppSpacing.sm),
-                  child: _CancelSubscriptionAction(),
-                ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -292,16 +302,51 @@ class _FreePlanLimitations extends StatelessWidget {
 
   final AppLocalizations l;
 
+  /// The bold phrase inside a limitation: the weight only, so the row's ink
+  /// and size still come from its parent.
+  static const TextStyle _bold = TextStyle(fontWeight: FontWeight.w700);
+
   @override
   Widget build(BuildContext context) {
     final limit = AppDateUtils.formatDigits(
       freeTierCaseLimit,
       l.localeName,
     );
-    final limitations = <String>[
-      l.settingsSubscription_freeLimitCases(limit),
-      l.settingsSubscription_freeLimitCloud,
-      l.settingsSubscription_freeLimitRecovery,
+    // The three monthly rates the ladder sells on Starter: the yearly plan is
+    // the cheapest per month, which is why the block says "starting at".
+    String rate(int total, int months) =>
+        AppDateUtils.formatDigits(total ~/ months, l.localeName);
+    final limitations = <List<InlineSpan>>[
+      [
+        TextSpan(text: l.settingsSubscription_freeLimitCasesPrefix),
+        TextSpan(
+          text: l.settingsSubscription_freeLimitCasesBold(limit),
+          style: _bold,
+        ),
+        TextSpan(text: l.settingsSubscription_freeLimitCasesSuffix),
+      ],
+      [TextSpan(text: l.settingsSubscription_freeLimitCloud)],
+      [
+        TextSpan(
+          text: l.settingsSubscription_freeLimitRecoveryBold,
+          style: _bold,
+        ),
+        TextSpan(text: l.settingsSubscription_freeLimitRecoverySuffix),
+      ],
+    ];
+    final offers = <(String, String)>[
+      (
+        rate(paymentStarterQuarterlyPrice, 3),
+        l.settingsSubscription_upgradeQuarterly,
+      ),
+      (
+        rate(paymentStarterHalfYearlyPrice, 6),
+        l.settingsSubscription_upgradeHalfYearly,
+      ),
+      (
+        rate(paymentStarterAnnualPrice, 12),
+        l.settingsSubscription_upgradeAnnual,
+      ),
     ];
 
     return Column(
@@ -320,9 +365,65 @@ class _FreePlanLimitations extends StatelessWidget {
             children: [
               for (var i = 0; i < limitations.length; i++) ...[
                 if (i > 0) const SizedBox(height: AppSpacing.md),
-                _LimitationRow(text: limitations[i]),
+                _LimitationRow(spans: limitations[i]),
               ],
             ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        // The upgrade offer (user request): the same three limitation bullets
+        // above, then what a paid plan would add and the cheapest entry.
+        Text(
+          l.settingsSubscription_upgradeTitle,
+          style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l.settingsSubscription_upgradeBody,
+          style: AppTypography.bodyMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        SubscriptionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < offers.length; i++) ...[
+                if (i > 0) const SizedBox(height: AppSpacing.md),
+                _LimitationRow(
+                  spans: [
+                    TextSpan(
+                      text: l.settingsSubscription_upgradeRate(offers[i].$1),
+                      style: _bold,
+                    ),
+                    TextSpan(text: offers[i].$2),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          l.settingsSubscription_upgradeHint,
+          style: AppTypography.bodySm.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Center(
+          child: FilledButton(
+            key: const ValueKey('manage-plan-upgrade'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              textStyle: AppTypography.labelLg,
+            ),
+            onPressed: () => context.push(AppRoutes.paywall),
+            child: Text(l.paywall_title),
           ),
         ),
       ],
@@ -332,9 +433,10 @@ class _FreePlanLimitations extends StatelessWidget {
 
 /// One limitation: a red bullet, then its sentence.
 class _LimitationRow extends StatelessWidget {
-  const _LimitationRow({required this.text});
+  const _LimitationRow({required this.spans});
 
-  final String text;
+  /// The sentence as spans, so one phrase can carry the bold weight.
+  final List<InlineSpan> spans;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -352,8 +454,8 @@ class _LimitationRow extends StatelessWidget {
         ),
       ),
       Expanded(
-        child: Text(
-          text,
+        child: Text.rich(
+          TextSpan(children: spans),
           style: AppTypography.bodyMd.copyWith(
             color: AppColors.onSurfaceVariant,
           ),
@@ -364,13 +466,63 @@ class _LimitationRow extends StatelessWidget {
 }
 
 
-/// The Cancel action at the right of the plan card.
+/// Renew and Cancel at the size of the page's other primary actions.
+///
+/// A chamber **member** gets the owner sentence instead: their entitlement is
+/// the chamber's, and the server refuses both actions for them.
+class _ManageSubscriptionSection extends ConsumerWidget {
+  const _ManageSubscriptionSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l.settingsSubscription_manageSubscription,
+          style: AppTypography.titleMd,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (ref.watch(firmMemberProvider))
+          SubscriptionCard(
+            child: Text(l.paywall_memberPlanBody, style: AppTypography.bodyMd),
+          )
+        else ...[
+          SizedBox(
+            width: double.infinity,
+            height: settingsPrimaryButtonHeight,
+            child: FilledButton(
+              key: const ValueKey('manage-plan-renew'),
+              // The plans screen owns the term choice and the queued-change
+              // warning, so renewal starts there rather than at checkout.
+              onPressed: () => context.push(AppRoutes.paywall),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                textStyle: AppTypography.labelLg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                ),
+              ),
+              child: Text(l.settingsSubscription_renewSubscription),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.gutter),
+          const _CancelSubscriptionAction(),
+        ],
+      ],
+    );
+  }
+}
+
+/// The Cancel action, full width under Renew.
 ///
 /// The confirmation is a window of its own because the decision cannot be
 /// undone: the server keeps the tier but backdates the expiry behind the
 /// 48-hour grace, so the account lands on its lapse allowance until it buys
-/// again. The button is hidden by the summary card (see its comment), so this
-/// widget is only ever built when cancelling makes sense.
+/// again. Only the Manage Subscription block builds it, and only for a live
+/// plan the account owns.
 class _CancelSubscriptionAction extends ConsumerStatefulWidget {
   const _CancelSubscriptionAction();
 
@@ -415,32 +567,38 @@ class _CancelSubscriptionActionState
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return TextButton(
-      key: const ValueKey('subscription-details-cancel'),
-      onPressed: _busy ? null : _cancel,
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        // The default 48 px tap target is kept: the label is small, the target a
-        // thumb hits is not.
-        minimumSize: const Size(0, 40),
-        // A filled destructive action (user request): the red the confirmation
-        // window's own button carries, so the two read as one decision.
-        backgroundColor: AppColors.error,
-        foregroundColor: AppColors.onError,
-        textStyle: AppTypography.labelMd,
+    return SizedBox(
+      width: double.infinity,
+      height: settingsPrimaryButtonHeight,
+      child: FilledButton(
+        key: const ValueKey('subscription-details-cancel'),
+        onPressed: _busy ? null : _cancel,
+        style: FilledButton.styleFrom(
+          // A filled destructive action: the red the confirmation window's own
+          // button carries, so the two read as one decision.
+          backgroundColor: AppColors.error,
+          foregroundColor: AppColors.onError,
+          // While the RPC runs only the spinner shows; a greyed button behind a
+          // white spinner would look broken.
+          disabledBackgroundColor: AppColors.error.withValues(alpha: 0.6),
+          textStyle: AppTypography.labelLg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+          ),
+        ),
+        child: _busy
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                // White like the label: a spinner inherits no button colour of
+                // its own, so the default primary would vanish into the red.
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.onError,
+                ),
+              )
+            : Text(l.settingsSubscription_cancelSubscription),
       ),
-      child: _busy
-          ? const SizedBox(
-              width: 14,
-              height: 14,
-              // White like the label: a spinner inherits no button colour of its
-              // own, so the default primary would vanish into the red.
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.onError,
-              ),
-            )
-          : Text(l.payments_cancelPlan),
     );
   }
 }

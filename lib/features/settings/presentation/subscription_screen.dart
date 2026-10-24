@@ -1,13 +1,14 @@
 /// Subscription screen: what this account's subscription is, and where to buy
 /// another.
 ///
-/// Both rows were Manage Account's **Subscription Details** and **Purchase New
-/// Subscription**, moved here unchanged -- the same icons, the same wording, the
-/// same destinations -- because an account's billing does not belong under its
-/// profile, and the Settings list has a place for it after Online Sync.
+/// Both rows were Manage Account's **Subscription Details** and **Subscription
+/// Plans**, moved here unchanged -- the same icons, the same destinations --
+/// because an account's billing does not belong under its profile, and the
+/// Settings list has a place for it after Online Sync.
 /// **Subscription Details** is now a sub-page of its own
-/// ([SubscriptionDetailsScreen]); **Purchase New Subscription** still opens the
-/// paywall directly.
+/// ([SubscriptionDetailsScreen]); **Subscription Plans** (the row formerly
+/// labelled *Purchase New Subscription*, renamed 0.0.613 at the user's
+/// request) still opens the paywall directly.
 ///
 /// **A chamber member sees Subscription Details alone (Phase 9).** The chamber's
 /// plan is the one running, the plans are the owner's to buy, and the server

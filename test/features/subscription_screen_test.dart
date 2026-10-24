@@ -154,7 +154,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Purchase New Subscription opens the paywall', (tester) async {
+  testWidgets('Subscription Plans opens the paywall', (tester) async {
     await pumpSubscription(tester);
 
     await tester.tap(

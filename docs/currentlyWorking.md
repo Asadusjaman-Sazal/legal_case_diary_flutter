@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The purchase row reads Subscription Plans — COMPLETE (0.0.613)
+
+- **What was asked.** On Settings → Account & Profile → Subscription, the row labelled **Purchase New Subscription** should read **Subscription Plans**. Nothing else on the screen changes.
+- **What changed.** The ARB value behind `settingsManageAccount_purchaseNewSubscription` is now **Subscription Plans** in English and **সাবস্ক্রিপশন প্ল্যান** in Bengali; the generated localizations were rebuilt. The key keeps its old name, so every reference (the Subscription screen, the Manage Account absence test) still resolves. The row's icon, route (the paywall) and the chamber-member rule are untouched.
+- **Tests.** `subscription_screen_test.dart` still asserts the row through the ARB key; its one test name now says *Subscription Plans opens the paywall*. `flutter analyze` clean; full `flutter test` **1990 passed**; version **0.0.613** recorded.
+- **Docs.** The plan's Subscription bullet, Task 12's Subscription note and Manage Account's mockup comment now name the new label. No other screen, no server change.
+
 ### 2026-10-23 — The category cards are spaced and icon-free — COMPLETE (0.0.612)
 
 - **What was asked.** On Settings → Edit Court/Steps → Case Types, Steps etc, the court-category cards sat flush against each other and each carried an expand/collapse chevron. They should have the same space between them as the Edit Court/Steps sub-menu's cards, and no icon.

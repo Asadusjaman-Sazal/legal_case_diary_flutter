@@ -59,8 +59,9 @@ void main() {
 
       expect(
         versions,
-        hasLength(67),
+        hasLength(68),
         reason:
+            'The chamber logo bucket (2026-10-25) added one file. '
             'The user_devices retention pruner (2026-10-23) added one file. '
             'The device revocation broadcast (2026-10-23) added one file. '
             'The device identity columns and collision guard (2026-10-23) '
@@ -143,7 +144,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(67),
+        hasLength(68),
         reason: 'versions must be unique',
       );
       expect(
@@ -152,7 +153,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261023120000');
+      expect(versions.last, '20261025120000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

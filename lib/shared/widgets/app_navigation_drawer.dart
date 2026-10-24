@@ -45,8 +45,12 @@ import '../../core/router/app_router.dart';
 import '../../core/utils/date_utils.dart';
 import 'bottom_nav_bar.dart' show bottomNavTabDefs, bottomTabSerial;
 import '../../features/admin/presentation/admin_viewmodel.dart';
+import '../../features/accounts_and_profile/data/account_mode.dart';
+import '../../features/accounts_and_profile/data/firm_logo_store.dart';
 import '../../features/accounts_and_profile/data/profile_name_store.dart';
 import '../../features/accounts_and_profile/data/profile_picture_store.dart';
+import '../../features/accounts_and_profile/data/profile_repository.dart'
+    show AccountRole;
 import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/logout_dialogs.dart';
 import '../../features/payments/presentation/current_plan.dart';
@@ -315,13 +319,30 @@ class AppNavigationDrawer extends ConsumerWidget {
     // Shared profile state: the locally saved picture and the Full Name from
     // Settings > Account & Profile > Profile.
     final avatarFile = ref.watch(profilePictureProvider);
+    final firmLogoFile = ref.watch(firmLogoProvider);
     final savedName = ref.watch(profileNameProvider);
     final headerName = (displayName ?? savedName).trim();
-    // The header reads as a possessive phrase, so the app name and the lawyer's
-    // name swap places between the two languages ("Legal Case Diary of <name>"
+    // The header reads as a possessive phrase, so the app name and the diary's
+    // owner swap places between the two languages ("Legal Case Diary of <name>"
     // vs "<name> এর লিগ্যাল কেস ডায়েরি").
     final isBengali = l.localeName.startsWith('bn');
-    final nameLine = headerName.isNotEmpty ? headerName : '—';
+
+    // A chamber's diary belongs to the chamber: the possessive names it, and
+    // the signed-in member is named underneath with their role (0.0.629). The
+    // member's own picture fills the circle only while the chamber has no logo.
+    final firm = ref.watch(accountFirmProvider).value;
+    final isFirm = ref.watch(firmModeProvider);
+    final role = ref.watch(accountRoleProvider);
+    final cachedName =
+        ref.watch(accountProfileProvider).value?.fullName.trim() ?? '';
+    final memberName = headerName.isNotEmpty ? headerName : cachedName;
+    final firmName = (firm?.name ?? '').trim();
+    final firmHeader = isFirm && firmName.isNotEmpty;
+    final nameLine = firmHeader
+        ? firmName
+        : (memberName.isNotEmpty ? memberName : '—');
+    final roleLine = firmHeader ? _memberLine(l, memberName, role) : null;
+    final headerImage = firmHeader ? (firmLogoFile ?? avatarFile) : avatarFile;
     // Task 22: the Admin Panel row exists only for an account the server has
     // confirmed as an admin, and false while that answer is still loading.
     final isAdmin = ref.watch(adminStatusProvider).value ?? false;
@@ -353,10 +374,10 @@ class AppNavigationDrawer extends ConsumerWidget {
                     child: CircleAvatar(
                       radius: 24,
                       backgroundColor: AppColors.primaryContainer,
-                      backgroundImage: avatarFile != null
-                          ? FileImage(avatarFile)
+                      backgroundImage: headerImage != null
+                          ? FileImage(headerImage)
                           : null,
-                      child: avatarFile != null
+                      child: headerImage != null
                           ? null
                           : const Icon(
                               Icons.person_outline,
@@ -386,6 +407,18 @@ class AppNavigationDrawer extends ConsumerWidget {
                             nameLine,
                             AppTypography.titleLg.copyWith(
                               color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                        // The signed-in account, under the chamber's name. An
+                        // individual's header stays the three lines it has
+                        // always had.
+                        if (roleLine != null) ...[
+                          const SizedBox(height: 2),
+                          _headerLine(
+                            roleLine,
+                            AppTypography.bodySm.copyWith(
+                              color: AppColors.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -511,6 +544,23 @@ Widget _headerLine(String text, TextStyle style) => Padding(
     overflow: TextOverflow.ellipsis,
   ),
 );
+
+/// The signed-in member line under a chamber's name: "Zaid · Associate".
+///
+/// A role that has not landed yet is omitted rather than printed as
+/// *Individual* inside a chamber, which would be untrue; the name still shows.
+/// Null when there is neither a name nor a known role, so no empty line is
+/// drawn.
+String? _memberLine(AppLocalizations l, String name, String role) {
+  final label = switch (role) {
+    AccountRole.owner => l.settingsManageAccount_roleOwner,
+    AccountRole.associate => l.settingsManageAccount_roleAssociate,
+    AccountRole.viewer => l.settingsManageAccount_roleViewer,
+    _ => null,
+  };
+  if (label == null) return name.isEmpty ? null : name;
+  return name.isEmpty ? label : '$name · $label';
+}
 
 /// Style for the app-name line in the profile header.
 final TextStyle _appNameStyle = AppTypography.labelMd.copyWith(

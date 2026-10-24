@@ -894,6 +894,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'A guarded pg_cron job, prune-user-devices, runs daily at 03:45 after '
         'purge-tombstones.',
   ),
+  LedgerSection(
+    file: '20261025120000_firm_logo_storage.sql',
+    version: '0.0.629',
+    label:
+        'Chamber logo storage — a private, 50 KB, JPEG-only `firm-avatars` '
+        'bucket holding one flat `{firm_id}.jpg` per chamber. Any member of a '
+        'chamber may read its logo; only its owner, and only while the '
+        'chamber plan is live, may write it; the owner may always delete it. '
+        'public.can_write_firm_logo() carries both halves of the write rule '
+        'because has_sync_entitlement is revoked from clients. `firms` gains '
+        'the server-managed logo_path and logo_version, and a trigger on '
+        'storage.objects bumps them on every write or delete.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -944,6 +957,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.522':
       'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
       'Belong To The Server',
+  '0.0.629': 'Firm Identity — The Chamber Logo And The Side Menu',
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523':
       'Firm Mode Phase 3 — A Seat Must Be Empty, And The Chamber Must '

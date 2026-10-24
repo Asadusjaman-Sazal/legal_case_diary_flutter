@@ -33,6 +33,7 @@ import '../../settings/data/premium_access.dart';
 import '../../settings/data/write_allowance.dart';
 import 'local/firm_members_dao.dart';
 import 'local/profiles_dao.dart';
+import 'firm_logo_sync.dart';
 import 'profile_name_store.dart';
 import 'profile_repository.dart';
 
@@ -501,6 +502,11 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
     // goes up. Detached and entitlement-gated inside the provider, so a free
     // account, or one with no connection, simply leaves its row alone.
     ref.read(pushPreferencesProvider)();
+
+    // The chamber logo's copy follows the refreshed firm row: a changed logo is
+    // downloaded, a removed one cleared, and an owner's owed upload retried.
+    // Best-effort — the local picture is the offline truth (0.0.629).
+    await ref.read(firmLogoSyncProvider)();
 
     // The server's name fills a blank local record — a device that signed up
     // elsewhere, or an associate whose name came from the firm's invite. A name

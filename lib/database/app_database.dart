@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -74,7 +74,8 @@ class AppDatabase extends _$AppDatabase {
   /// to `notes`, then v9→v10 by adding `conflict_log.mergeable_conflict`, then
   /// v10→v11 by adding the admin payment-alert toggle, then v11→v12 by adding
   /// the stored subscription tier (`tier`, `tier_pending`, `tier_pending_from`)
-  /// to the cached `profiles` and `firms` rows.
+  /// to the cached `profiles` and `firms` rows, then v12→v13 by adding the
+  /// chamber logo's server-stamped path and version to the cached `firms` row.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -147,6 +148,13 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(firms, firms.tier);
         await m.addColumn(firms, firms.tierPending);
         await m.addColumn(firms, firms.tierPendingFrom);
+      }
+      if (from < 13) {
+        // The chamber logo's cache fields (0.0.629). Additive and defaulted:
+        // an older row reads "no logo, version 0", and the next profile pull
+        // fills the real values.
+        await m.addColumn(firms, firms.logoPath);
+        await m.addColumn(firms, firms.logoVersion);
       }
     },
     beforeOpen: (details) async {

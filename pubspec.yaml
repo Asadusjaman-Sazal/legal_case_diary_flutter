@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.628
+version: 0.0.629
 
 environment:
   sdk: ^3.12.2
@@ -91,6 +91,7 @@ dependencies:
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
   audioplayers: ^6.8.1
+  image: ^4.12.0
 
 dev_dependencies:
   flutter_test:

@@ -29,6 +29,7 @@ import '../../../core/push/push_gateway.dart';
 import '../../../core/services/local_identity_service.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../../shared/providers/locale_provider.dart';
+import '../../accounts_and_profile/data/firm_logo_store.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../accounts_and_profile/data/profile_picture_store.dart';
@@ -485,6 +486,8 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   Future<void> _clearPerUserCaches() async {
     await ref.read(profileFieldsProvider.notifier).clear();
     await ref.read(profilePictureProvider.notifier).clear();
+    // The chamber logo is the next account's to download, not this one's.
+    await ref.read(firmLogoProvider.notifier).reset();
     await ref.read(backupMetadataProvider.notifier).reset();
     // The next account must not inherit the previous holder's automatic-backup
     // schedule, so its daily alarm is dropped too. Fire-and-forget: cancelling an

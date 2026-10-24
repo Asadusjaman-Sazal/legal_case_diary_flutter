@@ -19,6 +19,17 @@ class Firms extends Table {
   /// Firm display name.
   TextColumn get name => text()();
 
+  /// Object name of the chamber logo in the `firm-avatars` bucket, or null.
+  ///
+  /// Server-written by the storage trigger, never by a device.
+  TextColumn get logoPath => text().nullable()();
+
+  /// Bumped by the server on every logo write or delete.
+  ///
+  /// A member's device compares it with the version it last downloaded, so a
+  /// changed or removed logo is noticed on the next profile refresh.
+  IntColumn get logoVersion => integer().withDefault(const Constant(0))();
+
   /// Firm owner UUID.
   TextColumn get ownerId => text()();
 

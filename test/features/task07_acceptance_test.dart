@@ -5,14 +5,17 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
+import 'package:legal_case_diary/core/providers/contact_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
+import 'package:legal_case_diary/core/services/contact_launcher.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/cases/data/case_repository.dart';
@@ -205,6 +208,7 @@ void main() {
     ),
     Locale locale = const Locale('en'),
     GoRouter? router,
+    List<Override> extra = const [],
   }) {
     assert(
       (child == null) != (router == null),
@@ -224,6 +228,7 @@ void main() {
           (_) async => settingsRepository(),
         ),
         caseWritePermissionsProvider.overrideWith((_) async => permissions),
+        ...extra,
       ],
       child: router == null
           ? MaterialApp(
@@ -1089,6 +1094,63 @@ void main() {
     expect(preference?.timeMinutes, 11 * 60 + 5);
   });
 
+  testWidgets('a changed Quick Update date opens the client message', (
+    WidgetTester tester,
+  ) async {
+    // Ask = No, so the update window opens the messaging app without a prompt;
+    // the launcher is the seam, so the URI is asserted without a device.
+    await settingsRepository().upsertSettings(
+      const UserSettings(
+        automatedNotificationEnabled: true,
+        automatedNotificationAskBeforeSending: false,
+      ),
+    );
+    final id = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('777/26'),
+        petitioner: const Value('Ali Hayder'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseType: const Value('Civil Suit'),
+        onBehalfId: Value(onBehalfId),
+        partyPhone: const Value('+8801800000000'),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+    final current = (await caseRepository.getById(id))!;
+    final launcher = _UriLauncher();
+
+    await tester.pumpWidget(
+      appScope(
+        QuickUpdateCaseDialog(currentCase: current),
+        extra: [contactLauncherProvider.overrideWithValue(launcher)],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('quick-update-next-date')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('plain-date-picker-surface')),
+        matching: find.text('12'),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'OK'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(launcher.opened, hasLength(1));
+    final body = launcher.opened.single.queryParameters['text']!;
+    expect(body, contains('Civil Suit 777/26'));
+    expect(body, contains('Ali Hayder'));
+    // The picker opens on the current month; the 12th is the picked day.
+    expect(body, matches(RegExp(r'12/\d{2}/\d{4}')));
+  });
+
   testWidgets('High Court fields persist and restore in edit mode', (
     WidgetTester tester,
   ) async {
@@ -1550,4 +1612,19 @@ Future<void> _pickNotificationTime(
   await tester.enterText(fields.at(count - 1), '$minute');
   await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
+}
+
+
+/// Records the URI the automated client message asks to open.
+class _UriLauncher implements ContactLauncher {
+  final List<Uri> opened = <Uri>[];
+
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return true;
+  }
+
+  @override
+  Future<bool> openMailApp() async => true;
 }

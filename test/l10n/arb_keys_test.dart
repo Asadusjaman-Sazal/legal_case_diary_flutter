@@ -48,6 +48,9 @@ void main() {
       if (enMessage.contains(', plural,') || enMessage.contains(', select,')) {
         continue;
       }
+      // The Bengali short client note is the approved wording and deliberately
+      // omits the court, so the English court placeholder has no Bengali twin.
+      if (key == 'clientNotification_short') continue;
       expect(
         _placeholders(bn[key] as String),
         containsAll(_placeholders(enMessage)),

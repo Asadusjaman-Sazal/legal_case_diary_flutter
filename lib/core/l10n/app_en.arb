@@ -978,6 +978,98 @@
           }
       }
   },
+  "@@_section_clientNotification": "CLIENT NOTIFICATION  |  Settings > Notifications and the automated date-change message",
+  "clientNotification_long": "{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\nBest regards,\n{lawyerName}{contactLine}",
+  "@clientNotification_long": {
+      "description": "The long automated client message, used when the long template is selected.",
+      "placeholders": {
+          "clientName": {
+              "type": "String"
+          },
+          "caseLine": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          },
+          "stepsClause": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          },
+          "lawyerName": {
+              "type": "String"
+          },
+          "contactLine": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_short": "{caseLine} is scheduled on {nextDate}{stepsClause} at {court}",
+  "@clientNotification_short": {
+      "description": "The short automated client message, used when the short template is selected.",
+      "placeholders": {
+          "caseLine": {
+              "type": "String"
+          },
+          "nextDate": {
+              "type": "String"
+          },
+          "stepsClause": {
+              "type": "String"
+          },
+          "court": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_longStepsClause": " for {steps}",
+  "@clientNotification_longStepsClause": {
+      "description": "The steps part of the long message; an empty string when the case has no steps.",
+      "placeholders": {
+          "steps": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_shortStepsClause": " for {steps}",
+  "@clientNotification_shortStepsClause": {
+      "description": "The steps part of the short message; an empty string when the case has no steps.",
+      "placeholders": {
+          "steps": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_contactLine": "\nContact: {contact}",
+  "@clientNotification_contactLine": {
+      "description": "The call-back line of the long message; absent when no number is available.",
+      "placeholders": {
+          "contact": {
+              "type": "String"
+          }
+      }
+  },
+  "clientNotification_title": "Client Notification",
+  "clientNotification_automatedLabel": "Automated Notification",
+  "clientNotification_channelLabel": "Send Automated Notification Via",
+  "clientNotification_templateLabel": "Default Notification Template",
+  "clientNotification_longLabel": "Long",
+  "clientNotification_shortLabel": "Short",
+  "clientNotification_sms": "SMS",
+  "clientNotification_askLabel": "Ask Before Sending Automated Message?",
+  "clientNotification_contactLabel": "Contact Number",
+  "clientNotification_contactNotSet": "Not set",
+  "clientNotification_contactDialogHelper": "The number your client will see in the message.",
+  "clientNotification_promptTitle": "Send Automated Message to Client?",
+  "clientNotification_promptBody": "Would you like to send your client an automated message notifying them of the next court date?",
+  "clientNotification_rememberChoice": "Remember my choice",
+  "clientNotification_previewClient": "Ali Hayder",
+  "clientNotification_previewCase": "Civil-123/26",
+  "clientNotification_previewCourt": "Senior Civil Judge Court, Sonargaon, Narayanganj",
+  "clientNotification_previewSteps": "WS/WO",
+  "clientNotification_previewLawyer": "Adv. Shafiullah Sourov",
   "@@_section_settingsMain": "SETTINGS - MAIN LIST  |  lib/features/settings/presentation/settings_main_screen.dart",
   "settingsScreen_title": "Settings",
   "settingsScreen_accountAndProfile": "Account & Profile",

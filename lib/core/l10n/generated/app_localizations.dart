@@ -3315,6 +3315,163 @@ abstract class AppLocalizations {
     String lawyerName,
   );
 
+  /// The long automated client message, used when the long template is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'{clientName},\nyour case, {caseLine}, is scheduled for hearing on {nextDate}{stepsClause} at {court}.\nBest regards,\n{lawyerName}{contactLine}'**
+  String clientNotification_long(
+    String clientName,
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+    String lawyerName,
+    String contactLine,
+  );
+
+  /// The short automated client message, used when the short template is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'{caseLine} is scheduled on {nextDate}{stepsClause} at {court}'**
+  String clientNotification_short(
+    String caseLine,
+    String nextDate,
+    String stepsClause,
+    String court,
+  );
+
+  /// The steps part of the long message; an empty string when the case has no steps.
+  ///
+  /// In en, this message translates to:
+  /// **' for {steps}'**
+  String clientNotification_longStepsClause(String steps);
+
+  /// The steps part of the short message; an empty string when the case has no steps.
+  ///
+  /// In en, this message translates to:
+  /// **' for {steps}'**
+  String clientNotification_shortStepsClause(String steps);
+
+  /// The call-back line of the long message; absent when no number is available.
+  ///
+  /// In en, this message translates to:
+  /// **'\nContact: {contact}'**
+  String clientNotification_contactLine(String contact);
+
+  /// No description provided for @clientNotification_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Notification'**
+  String get clientNotification_title;
+
+  /// No description provided for @clientNotification_automatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated Notification'**
+  String get clientNotification_automatedLabel;
+
+  /// No description provided for @clientNotification_channelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Automated Notification Via'**
+  String get clientNotification_channelLabel;
+
+  /// No description provided for @clientNotification_templateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Notification Template'**
+  String get clientNotification_templateLabel;
+
+  /// No description provided for @clientNotification_longLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get clientNotification_longLabel;
+
+  /// No description provided for @clientNotification_shortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get clientNotification_shortLabel;
+
+  /// No description provided for @clientNotification_sms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get clientNotification_sms;
+
+  /// No description provided for @clientNotification_askLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask Before Sending Automated Message?'**
+  String get clientNotification_askLabel;
+
+  /// No description provided for @clientNotification_contactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Number'**
+  String get clientNotification_contactLabel;
+
+  /// No description provided for @clientNotification_contactNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get clientNotification_contactNotSet;
+
+  /// No description provided for @clientNotification_contactDialogHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'The number your client will see in the message.'**
+  String get clientNotification_contactDialogHelper;
+
+  /// No description provided for @clientNotification_promptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Automated Message to Client?'**
+  String get clientNotification_promptTitle;
+
+  /// No description provided for @clientNotification_promptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to send your client an automated message notifying them of the next court date?'**
+  String get clientNotification_promptBody;
+
+  /// No description provided for @clientNotification_rememberChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember my choice'**
+  String get clientNotification_rememberChoice;
+
+  /// No description provided for @clientNotification_previewClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Ali Hayder'**
+  String get clientNotification_previewClient;
+
+  /// No description provided for @clientNotification_previewCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Civil-123/26'**
+  String get clientNotification_previewCase;
+
+  /// No description provided for @clientNotification_previewCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Senior Civil Judge Court, Sonargaon, Narayanganj'**
+  String get clientNotification_previewCourt;
+
+  /// No description provided for @clientNotification_previewSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'WS/WO'**
+  String get clientNotification_previewSteps;
+
+  /// No description provided for @clientNotification_previewLawyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Adv. Shafiullah Sourov'**
+  String get clientNotification_previewLawyer;
+
   /// No description provided for @settingsScreen_title.
   ///
   /// In en, this message translates to:

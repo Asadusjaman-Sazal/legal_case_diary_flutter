@@ -9,6 +9,10 @@
 /// Request Alerts, the per-user switch the push sender reads for itself so a
 /// silenced account is skipped server-side, while the app is closed.
 ///
+/// The foot of the screen carries the **Client Notification** section for every
+/// account: the automated WhatsApp/SMS message offered when a hearing date
+/// changes (0.0.614).
+///
 /// The day offsets are a multi-select list, so one hearing can alert several
 /// times (the same choice the case form offers per case), and the picker row
 /// shows every ticked offset. The time window stays Flutter's, with the Bengali
@@ -35,6 +39,7 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../admin/presentation/admin_viewmodel.dart';
 import '../../data/notification_day_offsets.dart';
+import 'client_notification_section.dart';
 import 'notification_time_picker.dart';
 import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
@@ -78,6 +83,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 Row(
                   children: [
                     SettingsChoiceButton(
+                      key: const ValueKey('settings-notifications-status-on'),
                       label: l.settingsNotifications_on,
                       icon: Icons.notifications_outlined,
                       selected: settings.notificationEnabled,
@@ -85,6 +91,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(width: AppSpacing.md),
                     SettingsChoiceButton(
+                      key: const ValueKey('settings-notifications-status-off'),
                       label: l.settingsNotifications_off,
                       icon: Icons.notifications_off_outlined,
                       selected: !settings.notificationEnabled,
@@ -131,6 +138,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   Row(
                     children: [
                       SettingsChoiceButton(
+                        key: const ValueKey(
+                          'settings-notifications-payment-alerts-on',
+                        ),
                         label: l.settingsNotifications_on,
                         icon: Icons.notifications_outlined,
                         selected: settings.paymentAlertsEnabled,
@@ -138,6 +148,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: AppSpacing.md),
                       SettingsChoiceButton(
+                        key: const ValueKey(
+                          'settings-notifications-payment-alerts-off',
+                        ),
                         label: l.settingsNotifications_off,
                         icon: Icons.notifications_off_outlined,
                         selected: !settings.paymentAlertsEnabled,
@@ -175,6 +188,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
             subtitle: l.settingsNotifications_sendTestSubtitle,
             onTap: () => _sendTestNotification(context, ref),
           ),
+          const SizedBox(height: AppSpacing.lg),
+          // The client-facing automated message, for every account.
+          const ClientNotificationSection(),
         ],
       ),
     );

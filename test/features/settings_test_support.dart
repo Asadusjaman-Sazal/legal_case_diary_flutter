@@ -111,11 +111,21 @@ Future<void> pumpSettingsScreen(
   Locale locale = const Locale('en'),
   List<Override> overrides = const <Override>[],
 }) async {
+  // The Client Notification section reads the lawyer's saved profile, which is
+  // SharedPreferences-backed; seed an empty store unless the suite supplies one.
+  final withPrefs = overrides.any(
+    (o) => o.origin == sharedPreferencesProvider,
+  )
+      ? overrides
+      : <Override>[
+          ...overrides,
+          sharedPreferencesProvider.overrideWithValue(await _emptyPrefs()),
+        ];
   await tester.pumpWidget(
     ProviderScope(
       overrides: withErrorLog(<Override>[
         settingsRepositoryProvider.overrideWith((ref) async => repo),
-        ...overrides,
+        ...withPrefs,
       ]),
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,

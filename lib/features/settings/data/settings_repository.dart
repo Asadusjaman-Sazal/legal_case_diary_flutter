@@ -23,6 +23,24 @@ const int fontSizeStepMax = 6;
 /// text past what the layouts were measured for.
 int clampFontSizeStep(int step) => step.clamp(fontSizeStepMin, fontSizeStepMax);
 
+/// Channel chosen for an automated client message.
+const String clientNotificationChannelWhatsApp = 'whatsapp';
+
+/// Channel chosen for an automated client message.
+const String clientNotificationChannelSms = 'sms';
+
+/// Template length chosen for an automated client message.
+const String clientNotificationTemplateLong = 'long';
+
+/// Template length chosen for an automated client message.
+const String clientNotificationTemplateShort = 'short';
+
+/// The remembered answer given when the lawyer ticks "Remember my choice".
+const String clientNotificationRememberedYes = 'yes';
+
+/// The remembered answer given when the lawyer ticks "Remember my choice".
+const String clientNotificationRememberedNo = 'no';
+
 /// Aggregated view of a user's settings.
 class UserSettings {
   /// Whether the user currently has premium access.
@@ -148,6 +166,43 @@ class UserSettings {
   /// Selected UI language code.
   final String language;
 
+  /// Whether a hearing-date change offers to notify the client automatically.
+  ///
+  /// Off by default: the feature opens another app, so it only runs once the
+  /// lawyer turns it on in Settings → Notifications.
+  final bool automatedNotificationEnabled;
+
+  /// Whether the client message waits for the confirmation dialog.
+  ///
+  /// When false, a changed date opens the chosen app without asking; a
+  /// remembered answer still wins (see [automatedNotificationRememberedAnswer]).
+  final bool automatedNotificationAskBeforeSending;
+
+  /// Channel for the automated client message: [clientNotificationChannelWhatsApp]
+  /// or [clientNotificationChannelSms].
+  final String automatedNotificationChannel;
+
+  /// The answer the lawyer asked the app to remember: empty (ask every time),
+  /// [clientNotificationRememberedYes] or [clientNotificationRememberedNo].
+  ///
+  /// Changing [automatedNotificationAskBeforeSending] clears it, so the new
+  /// setting is what applies.
+  final String automatedNotificationRememberedAnswer;
+
+  /// Template length for WhatsApp: [clientNotificationTemplateLong] or
+  /// [clientNotificationTemplateShort].
+  final String automatedNotificationWhatsAppTemplate;
+
+  /// Template length for SMS: [clientNotificationTemplateLong] or
+  /// [clientNotificationTemplateShort].
+  final String automatedNotificationSmsTemplate;
+
+  /// The call-back number printed in the long client message, digits only.
+  ///
+  /// Empty falls back to the Profile mobile; when that is empty too, the
+  /// Contact line is left out of the message.
+  final String notificationContactNumber;
+
   /// Backup-nudge and other per-user metadata.
   final Map<String, dynamic> backupNudge;
 
@@ -185,6 +240,13 @@ class UserSettings {
     this.notificationGuideShown = false,
     this.notificationAutoStartDone = false,
     this.language = 'en',
+    this.automatedNotificationEnabled = false,
+    this.automatedNotificationAskBeforeSending = true,
+    this.automatedNotificationChannel = clientNotificationChannelWhatsApp,
+    this.automatedNotificationRememberedAnswer = '',
+    this.automatedNotificationWhatsAppTemplate = clientNotificationTemplateLong,
+    this.automatedNotificationSmsTemplate = clientNotificationTemplateShort,
+    this.notificationContactNumber = '',
     this.backupNudge = const {},
     this.lastAddCaseHigherLowerCourt,
     this.lastAddCaseDivision,
@@ -218,6 +280,15 @@ class UserSettings {
     notificationGuideShown: notificationGuideShown,
     notificationAutoStartDone: notificationAutoStartDone,
     language: language,
+    automatedNotificationEnabled: automatedNotificationEnabled,
+    automatedNotificationAskBeforeSending: automatedNotificationAskBeforeSending,
+    automatedNotificationChannel: automatedNotificationChannel,
+    automatedNotificationRememberedAnswer:
+        automatedNotificationRememberedAnswer,
+    automatedNotificationWhatsAppTemplate:
+        automatedNotificationWhatsAppTemplate,
+    automatedNotificationSmsTemplate: automatedNotificationSmsTemplate,
+    notificationContactNumber: notificationContactNumber,
     backupNudge: backupNudge,
     adminRejectMessages: adminRejectMessages,
     lastAddCaseHigherLowerCourt: higherLowerCourt,
@@ -249,6 +320,13 @@ class UserSettings {
     bool? notificationGuideShown,
     bool? notificationAutoStartDone,
     String? language,
+    bool? automatedNotificationEnabled,
+    bool? automatedNotificationAskBeforeSending,
+    String? automatedNotificationChannel,
+    String? automatedNotificationRememberedAnswer,
+    String? automatedNotificationWhatsAppTemplate,
+    String? automatedNotificationSmsTemplate,
+    String? notificationContactNumber,
     Map<String, dynamic>? backupNudge,
   }) => UserSettings(
     isPremium: isPremium ?? this.isPremium,
@@ -277,6 +355,23 @@ class UserSettings {
     notificationAutoStartDone:
         notificationAutoStartDone ?? this.notificationAutoStartDone,
     language: language ?? this.language,
+    automatedNotificationEnabled:
+        automatedNotificationEnabled ?? this.automatedNotificationEnabled,
+    automatedNotificationAskBeforeSending:
+        automatedNotificationAskBeforeSending ??
+        this.automatedNotificationAskBeforeSending,
+    automatedNotificationChannel:
+        automatedNotificationChannel ?? this.automatedNotificationChannel,
+    automatedNotificationRememberedAnswer:
+        automatedNotificationRememberedAnswer ??
+        this.automatedNotificationRememberedAnswer,
+    automatedNotificationWhatsAppTemplate:
+        automatedNotificationWhatsAppTemplate ??
+        this.automatedNotificationWhatsAppTemplate,
+    automatedNotificationSmsTemplate:
+        automatedNotificationSmsTemplate ?? this.automatedNotificationSmsTemplate,
+    notificationContactNumber:
+        notificationContactNumber ?? this.notificationContactNumber,
     backupNudge: backupNudge ?? this.backupNudge,
     lastAddCaseHigherLowerCourt: lastAddCaseHigherLowerCourt,
     lastAddCaseDivision: lastAddCaseDivision,
@@ -304,6 +399,16 @@ class UserSettings {
     'notification_setup_done': notificationSetupDone,
     'notification_guide_shown': notificationGuideShown,
     'notification_auto_start_done': notificationAutoStartDone,
+    'automated_notification_enabled': automatedNotificationEnabled,
+    'automated_notification_ask_before_sending':
+        automatedNotificationAskBeforeSending,
+    'automated_notification_channel': automatedNotificationChannel,
+    'automated_notification_remembered_answer':
+        automatedNotificationRememberedAnswer,
+    'automated_notification_whatsapp_template':
+        automatedNotificationWhatsAppTemplate,
+    'automated_notification_sms_template': automatedNotificationSmsTemplate,
+    'notification_contact_number': notificationContactNumber,
     'backup_nudge': backupNudge,
     'last_add_case_higher_lower_court': lastAddCaseHigherLowerCourt,
     'last_add_case_division': lastAddCaseDivision,
@@ -412,6 +517,49 @@ class UserSettings {
           json['notification_guide_shown'] as bool? ?? false,
       notificationAutoStartDone:
           json['notification_auto_start_done'] as bool? ?? false,
+      automatedNotificationEnabled:
+          json['automated_notification_enabled'] as bool? ?? false,
+      automatedNotificationAskBeforeSending:
+          json['automated_notification_ask_before_sending'] as bool? ?? true,
+      automatedNotificationChannel: _readChoice(
+        json['automated_notification_channel'],
+        <String>{
+          clientNotificationChannelWhatsApp,
+          clientNotificationChannelSms,
+        },
+        clientNotificationChannelWhatsApp,
+      ),
+      automatedNotificationRememberedAnswer: _readChoice(
+        json['automated_notification_remembered_answer'],
+        <String>{
+          clientNotificationRememberedYes,
+          clientNotificationRememberedNo,
+          '',
+        },
+        '',
+      ),
+      automatedNotificationWhatsAppTemplate: _readChoice(
+        json['automated_notification_whatsapp_template'],
+        <String>{
+          clientNotificationTemplateLong,
+          clientNotificationTemplateShort,
+        },
+        clientNotificationTemplateLong,
+      ),
+      automatedNotificationSmsTemplate: _readChoice(
+        json['automated_notification_sms_template'],
+        <String>{
+          clientNotificationTemplateLong,
+          clientNotificationTemplateShort,
+        },
+        clientNotificationTemplateShort,
+      ),
+      notificationContactNumber: json['notification_contact_number'] is String
+          ? (json['notification_contact_number'] as String).replaceAll(
+              RegExp('[^0-9]'),
+              '',
+            )
+          : '',
       language: effectiveLanguage,
       backupNudge: json['backup_nudge'] is Map<String, dynamic>
           ? json['backup_nudge'] as Map<String, dynamic>
@@ -428,6 +576,17 @@ class UserSettings {
           : null,
     );
   }
+
+  /// One of [allowed], or [fallback] for a missing, old or hand-edited value.
+  ///
+  /// The client-notification choices are stored as strings in the synced blob,
+  /// so an unknown value must read as the safe default rather than reach a
+  /// builder that has no case for it.
+  static String _readChoice(
+    Object? raw,
+    Set<String> allowed,
+    String fallback,
+  ) => raw is String && allowed.contains(raw) ? raw : fallback;
 
   static List<int> _readOffsets(Object? raw, {required int fallback}) {
     final decoded = raw is String ? _tryDecode(raw) : raw;

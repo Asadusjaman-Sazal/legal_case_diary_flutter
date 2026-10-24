@@ -47,8 +47,6 @@ class ClientNotificationSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SettingsSectionLabel(l.clientNotification_title),
-          const SizedBox(height: AppSpacing.md),
           // Automated Notification: the master switch, shaped like the admin
           // payment-alert pair above.
           SettingsSectionLabel(l.clientNotification_automatedLabel),
@@ -82,6 +80,40 @@ class ClientNotificationSection extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.xl),
+          // Ask first, or open the app straight away. Remembering an answer in
+          // the prompt writes these two switches: Yes keeps the feature on and
+          // turns Ask off; No turns both off.
+          SettingsSectionLabel(l.clientNotification_askLabel),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              SettingsChoiceButton(
+                key: const ValueKey('client-notification-ask-yes'),
+                label: l.sharedActions_yes,
+                selected: settings.automatedNotificationAskBeforeSending,
+                onTap: () => _change(
+                  ref,
+                  (current) => current.copyWith(
+                    automatedNotificationAskBeforeSending: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              SettingsChoiceButton(
+                key: const ValueKey('client-notification-ask-no'),
+                label: l.sharedActions_no,
+                selected: !settings.automatedNotificationAskBeforeSending,
+                onTap: () => _change(
+                  ref,
+                  (current) => current.copyWith(
+                    automatedNotificationAskBeforeSending: false,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
           const SizedBox(height: AppSpacing.xl),
           // Which app opens. One at a time, so the client never gets the same
           // update twice.
@@ -177,39 +209,6 @@ class ClientNotificationSection extends ConsumerWidget {
                   settings.automatedNotificationSmsTemplate ==
                   clientNotificationTemplateLong,
             ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          // Ask first, or open the app straight away. Remembering an answer in
-          // the prompt writes these two switches: Yes keeps the feature on and
-          // turns Ask off; No turns both off.
-          SettingsSectionLabel(l.clientNotification_askLabel),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              SettingsChoiceButton(
-                key: const ValueKey('client-notification-ask-yes'),
-                label: l.sharedActions_yes,
-                selected: settings.automatedNotificationAskBeforeSending,
-                onTap: () => _change(
-                  ref,
-                  (current) => current.copyWith(
-                    automatedNotificationAskBeforeSending: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              SettingsChoiceButton(
-                key: const ValueKey('client-notification-ask-no'),
-                label: l.sharedActions_no,
-                selected: !settings.automatedNotificationAskBeforeSending,
-                onTap: () => _change(
-                  ref,
-                  (current) => current.copyWith(
-                    automatedNotificationAskBeforeSending: false,
-                  ),
-                ),
-              ),
-            ],
           ),
           const SizedBox(height: AppSpacing.xl),
           // The call-back number printed in the long message.

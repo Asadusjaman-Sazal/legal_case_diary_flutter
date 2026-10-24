@@ -1899,7 +1899,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get clientNotification_title => 'Client Notification';
+  String get clientNotification_settingsTitle => 'Client Notification Settings';
+
+  @override
+  String get settingsNotifications_deviceSettingsTitle =>
+      'Device Notification Settings';
 
   @override
   String get clientNotification_automatedLabel => 'Automated Notification';

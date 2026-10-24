@@ -137,6 +137,8 @@
 
 <main class="max-w-lg mx-auto w-full px-edge-margin py-md flex flex-col">
 
+  <p class="font-title-md text-title-md font-bold text-primary">Device Notification Settings</p>
+
   <!-- Preferences card: status pair, day offsets and time, all in one card, then
        the admin payment-alert pair — the one preference the server reads for itself.
        That pair is drawn only to a **confirmed administrator**: the screen asks the
@@ -190,10 +192,10 @@
        hearing date changes. Every account sees it. The master and Ask pairs use
        the same filled-black active half; each channel's Long / Short pair sits
        above its own justified quotation. -->
-  <div class="mt-lg bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
-    <p class="font-label-md text-label-md text-on-surface-variant">Client Notification</p>
+  <p class="mt-xl font-title-md text-title-md font-bold text-primary">Client Notification Settings</p>
 
-    <p class="mt-md font-label-md text-label-md text-on-surface-variant">Automated Notification</p>
+  <div class="mt-sm bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+    <p class="font-label-md text-label-md text-on-surface-variant">Automated Notification</p>
     <div class="mt-md flex gap-md">
       <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant flex items-center justify-center gap-sm font-label-lg text-label-lg active:opacity-80">
         <span class="material-symbols-outlined text-[20px]">notifications</span>
@@ -203,6 +205,12 @@
         <span class="material-symbols-outlined text-[20px]">notifications_off</span>
         Off
       </button>
+    </div>
+
+    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Ask Before Sending Automated Message?</p>
+    <div class="mt-md flex gap-md">
+      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Yes</button>
+      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">No</button>
     </div>
 
     <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Send Automated Notification Via</p>
@@ -224,7 +232,7 @@
       <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">Short</button>
     </div>
     <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
-      <p class="font-body-sm text-body-sm text-on-surface text-justify">Ali Hayder,<br>your case, Civil-123/26, is scheduled for hearing on 17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, Narayanganj.<br>Best regards,<br>Adv. Shafiullah Sourov<br>Contact: 01800000000</p>
+      <p class="font-body-sm text-body-sm text-on-surface text-justify">Ali Hayder,<br>your case, Civil-123/26, is scheduled for hearing on 17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, Narayanganj.<br><br>Best regards,<br>Adv. Shafiullah Sourov<br>Contact: 01800000000</p>
     </div>
 
     <p class="mt-lg font-body-lg text-body-lg text-on-surface">SMS</p>
@@ -234,12 +242,6 @@
     </div>
     <div class="mt-sm p-md rounded-xl bg-surface-container-low border-l-4 border-secondary">
       <p class="font-body-sm text-body-sm text-on-surface text-justify">Civil-123/26 is scheduled on 17/11/2026 for WS/WO at Senior Civil Judge Court, Sonargaon, Narayanganj</p>
-    </div>
-
-    <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Ask Before Sending Automated Message?</p>
-    <div class="mt-md flex gap-md">
-      <button class="flex-1 h-12 rounded-sm border border-secondary bg-secondary text-on-primary font-label-lg text-label-lg">Yes</button>
-      <button class="flex-1 h-12 rounded-sm border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg active:opacity-80">No</button>
     </div>
 
     <p class="mt-xl font-label-md text-label-md text-on-surface-variant">Contact Number</p>

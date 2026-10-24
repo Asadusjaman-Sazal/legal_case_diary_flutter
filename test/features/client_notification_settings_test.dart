@@ -64,6 +64,15 @@ void main() {
     expect(selected(tester, 'client-notification-whatsapp-long'), isTrue);
     expect(selected(tester, 'client-notification-sms-short'), isTrue);
     expect(find.text('Not set'), findsOneWidget);
+
+    // Ask sits directly after the Automated Notification switch (user request).
+    final askY = tester
+        .getTopLeft(find.text('Ask Before Sending Automated Message?'))
+        .dy;
+    final channelY = tester
+        .getTopLeft(find.text('Send Automated Notification Via'))
+        .dy;
+    expect(askY, lessThan(channelY));
   });
 
   testWidgets('turning automation on and off stores the answer', (

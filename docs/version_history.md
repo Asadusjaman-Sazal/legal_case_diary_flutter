@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.619 - The Contact Number window matches the Update corner and Exit App button size with a 50% wider gap; examples are labelled Example: with no stripe.
+Version: 0.0.621 - The Exit App? window's title is now centred.
 --------------------------------------
 
 ## Version History Log:
@@ -633,3 +633,5 @@ Version: 0.0.616 - The client-message prompt and the Open With window use the Up
 Version: 0.0.617 - Notifications now titles its device and client cards in bold, and Ask Before Sending sits directly under the Automated Notification switch.
 Version: 0.0.618 - The client prompt is now 'Send Message to Client?', with a red No, a 16 px gap to Yes, and Remember my choice under the buttons.
 Version: 0.0.619 - The Contact Number window matches the Update corner and Exit App button size with a 50% wider gap; examples are labelled Example: with no stripe.
+Version: 0.0.620 - The Exit App? window uses the Update window's corner, and its Cancel/Exit buttons are 50% further apart.
+Version: 0.0.621 - The Exit App? window's title is now centred.

@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -277,6 +278,38 @@ void main() {
 
       await pressBack(tester);
       expect(find.text('Exit App?'), findsOneWidget);
+    });
+  });
+
+  testWidgets('the exit window uses the Update corner and a wider gap', (
+    tester,
+  ) async {
+    await withScreens(tester, () async {
+      final router = _router();
+      await pumpShell(tester, router);
+      await pressBack(tester);
+      expect(find.text('Exit App?'), findsOneWidget);
+
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      expect(
+        tester.widget<Text>(find.text('Exit App?')).textAlign,
+        TextAlign.center,
+      );
+      expect(
+        (dialog.shape! as RoundedRectangleBorder).borderRadius,
+        BorderRadius.circular(AppSpacing.cardRadius * 2),
+      );
+      final actions = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextButton),
+      );
+      final cancel = tester.getRect(actions.at(0));
+      final exit = tester.getRect(actions.at(1));
+      // 8 px default doubled by 2 px on each side.
+      expect(exit.left - cancel.right, 12);
+
+      await tester.tap(find.text('Cancel'));
+      await settle(tester);
     });
   });
 

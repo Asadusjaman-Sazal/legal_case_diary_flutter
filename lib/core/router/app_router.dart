@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../constants/app_spacing.dart';
 import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/admin/presentation/admin_payment_requests_screen.dart';
 import '../../features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
@@ -811,19 +812,31 @@ class AppShellRoot extends StatelessWidget {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.appShell_exitTitle),
+        title: Text(l.appShell_exitTitle, textAlign: TextAlign.center),
+        // The Update window's 8 px corner (user request, 0.0.620).
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+        ),
         content: Text(l.appShell_exitMessage),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            style: _exitButtonStyle,
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.sharedActions_cancel),
+          // 2 px on each side lifts the actions' 8 px gap to 12 (50% more,
+          // user request).
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: TextButton(
+              style: _exitButtonStyle,
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l.sharedActions_cancel),
+            ),
           ),
-          TextButton(
-            style: _exitButtonStyle,
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l.appShell_exit),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: TextButton(
+              style: _exitButtonStyle,
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l.appShell_exit),
+            ),
           ),
         ],
       ),

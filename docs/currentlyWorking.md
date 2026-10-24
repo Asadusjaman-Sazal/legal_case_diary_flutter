@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-23 — The Exit App title is centred — COMPLETE (0.0.621)
+
+- **What was asked.** The **Exit App?** title should be middle aligned.
+- **What changed.** `_confirmExit` sets `textAlign: TextAlign.center` on the title; nothing else in the window changed.
+- **Tests.** The exit-window test asserts the title's alignment alongside the corner and 12 px gap. `flutter analyze` clean; full `flutter test` **2022 passed**; version **0.0.621** recorded.
+- **Docs.** Plan §10's close bullet and Task 06's exit item note the centred title.
+
+### 2026-10-23 — The Exit App? window matches the Update window — COMPLETE (0.0.620)
+
+- **What was asked.** Only the Exit App? window: the Update window's corner, and the buttons 50% further apart.
+- **What changed.** `_confirmExit` sets the Update window's 8 px corner (`AppSpacing.cardRadius * 2`), and 2 px around each action lifts the actions' default 8 px gap to 12. The buttons keep the same 112 × 48 size and wording.
+- **Tests.** A new test opens the window through the real shell, asserts the corner and the 12 px gap, then cancels. `flutter analyze` clean; full `flutter test` **2022 passed**; version **0.0.620** recorded.
+- **Docs.** Plan §10's close bullet and Task 06's exit item record the corner and gap.
+
 ### 2026-10-23 — The contact window and template examples match the app — COMPLETE (0.0.619)
 
 - **What was asked.** In Settings → Notifications → Client Notification Settings: the Contact Number window should use the Update window's corner and the Exit App window's button size, with the button gap 50% wider; the black stripe should leave the template examples, and each should read **Example:** first.

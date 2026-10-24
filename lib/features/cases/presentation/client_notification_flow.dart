@@ -211,6 +211,10 @@ class _AutomatedMessagePromptDialogState
     final l = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('client-notification-prompt'),
+      // The Update window's 8 px corner (user request, 0.0.616).
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       title: Text(
         l.clientNotification_promptTitle,
         textAlign: TextAlign.center,
@@ -242,13 +246,22 @@ class _AutomatedMessagePromptDialogState
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
+        // The Exit App window's action size: 112 x 48 at 16 pt (user request).
         TextButton(
           key: const ValueKey('client-notification-no'),
+          style: TextButton.styleFrom(
+            minimumSize: const Size(112, 48),
+            textStyle: const TextStyle(fontSize: 16),
+          ),
           onPressed: () => _close(send: false),
           child: Text(l.sharedActions_no),
         ),
         FilledButton(
           key: const ValueKey('client-notification-yes'),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(112, 48),
+            textStyle: const TextStyle(fontSize: 16),
+          ),
           onPressed: () => _close(send: true),
           child: Text(l.sharedActions_yes),
         ),

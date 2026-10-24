@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -198,6 +199,21 @@ void main() {
 
     await run(tester);
     expect(prompt, findsOneWidget);
+
+    // The Update window's corner and the Exit App window's action size.
+    final dialog = tester.widget<AlertDialog>(prompt);
+    expect(
+      (dialog.shape! as RoundedRectangleBorder).borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('client-notification-no'))).height,
+      48,
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('client-notification-yes'))).width,
+      greaterThanOrEqualTo(112),
+    );
 
     await tester.tap(find.byKey(const ValueKey('client-notification-no')));
     await tester.pumpAndSettle();

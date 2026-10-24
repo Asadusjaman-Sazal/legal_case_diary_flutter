@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/services/contact_launcher.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
@@ -301,6 +302,14 @@ void main() {
 
       expect(find.byKey(const ValueKey('case-contact-dialog')), findsOneWidget);
       expect(find.text(l.casesContact_openWith), findsOneWidget);
+      // The same 8 px corner as the Update window (user request, 0.0.616).
+      final dialog = tester.widget<AlertDialog>(
+        find.byKey(const ValueKey('case-contact-dialog')),
+      );
+      expect(
+        (dialog.shape! as RoundedRectangleBorder).borderRadius,
+        BorderRadius.circular(AppSpacing.cardRadius * 2),
+      );
 
       // No undocumented call scheme: WhatsApp is offered as the chat, with the
       // standard dialer beside it — and with no subtitle under it.

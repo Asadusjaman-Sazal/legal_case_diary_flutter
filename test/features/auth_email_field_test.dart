@@ -3,10 +3,12 @@
 ///
 /// The box itself is the shared auth field, so what is pinned here is only what
 /// was asked for: the cross empties the box and puts the keyboard away, the six
-/// domains appear in order once a letter has been typed, they narrow to what has
-/// been typed after the `@`, a chosen domain is attached with no space, and the
-/// window closes on an outside tap or an empty box but not on a keystroke or a
-/// tap inside it.
+/// domains appear in order once a letter has been typed, each row reads as the
+/// whole address the tap would produce, they narrow to what has been typed after
+/// the `@`, a chosen domain is attached with no space, the window always hangs
+/// under the box (scrolling the page up when the keyboard leaves too little
+/// room), and it closes on a tap outside or an empty box — but not on a keystroke,
+/// a tap inside it, or a press that travels (a scroll).
 library;
 
 import 'package:flutter/material.dart';
@@ -238,5 +240,91 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(window, findsNothing);
+  });
+
+  testWidgets('each row shows the address the tap would produce', (
+    tester,
+  ) async {
+    await pumpBox(tester);
+
+    await tester.enterText(find.byType(TextFormField), 'john');
+    await tester.pumpAndSettle();
+
+    // The typed name, then the domain — the whole address, not just the tail.
+    expect(find.text('john@gmail.com'), findsOneWidget);
+    expect(find.text('john@yahoo.com'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField), 'john@g');
+    await tester.pumpAndSettle();
+
+    expect(find.text('john@gmail.com'), findsOneWidget);
+    expect(find.text('john@yahoo.com'), findsNothing);
+  });
+
+  testWidgets('holding and scrolling outside keeps the window; a tap closes it', (
+    tester,
+  ) async {
+    await pumpBox(tester);
+
+    await tester.enterText(find.byType(TextFormField), 'john');
+    await tester.pumpAndSettle();
+    expect(window, findsOneWidget);
+
+    // A press outside that travels: a scroll of the page, not a tap.
+    await tester.dragFrom(const Offset(8, 400), const Offset(0, 200));
+    await tester.pumpAndSettle();
+    expect(window, findsOneWidget);
+
+    // The same place, tapped without travelling, closes it.
+    await tester.tapAt(const Offset(8, 8));
+    await tester.pumpAndSettle();
+    expect(window, findsNothing);
+  });
+
+  testWidgets('the page scrolls up to keep the window under the box', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(420, 640);
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    addTearDown(tester.view.reset);
+    addTearDown(tester.view.resetViewInsets);
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 200),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: AuthEmailField(
+                    controller: controller,
+                    label: 'Email',
+                    hint: 'example@gmail.com',
+                  ),
+                ),
+                const SizedBox(height: 600),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextFormField), 'john');
+    await tester.pumpAndSettle();
+
+    final box = tester.getRect(find.byType(TextFormField));
+    final panel = tester.getRect(window);
+    // Under the box as always, and inside the room the keyboard leaves: the
+    // box moved up to give it that room.
+    expect(panel.top, greaterThan(box.bottom));
+    expect(panel.bottom, lessThanOrEqualTo(341));
+    expect(box.top, lessThan(200));
   });
 }

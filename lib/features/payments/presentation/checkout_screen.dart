@@ -162,12 +162,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         );
     if (!mounted) return;
     if (ok) {
-      // Keep the confirmation, then take the user to their purchase ledger, so
-      // the pending row they just created is shown rather than left behind in
-      // Settings. The ledger sits at the top of the page, so no scroll is
-      // needed; the route is a top-level one so this push works from here.
+      // Keep the confirmation, then take the user to Subscription History, so
+      // the pending row they just created is the first entry they see. The plan
+      // itself has not changed yet — an admin approves the payment first — so
+      // Manage Plan would still show the old plan. The route is a top-level one
+      // so this push works from the root checkout.
       _showMessage(l.payments_submitSuccess);
-      GoRouter.maybeOf(context)?.push(AppRoutes.settingsSubscriptionDetails);
+      GoRouter.maybeOf(context)?.push(AppRoutes.settingsSubscriptionHistory);
     } else {
       _showMessage(
         _failureMessage(l, ref.read(paymentViewModelProvider).value),

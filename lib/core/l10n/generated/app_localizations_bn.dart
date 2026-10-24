@@ -2052,8 +2052,16 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার অ্যাকাউন্টের তথ্য, পাসওয়ার্ড ও সাইন-আউট';
 
   @override
-  String get settingsAccountProfile_subscriptionSubtitle =>
-      'আপনার প্ল্যান, মেয়াদ ও ক্রয়ের ইতিহাস';
+  String get settingsAccountProfile_managePlanSubtitle =>
+      'আপনার প্ল্যান, মেয়াদ ও বাতিল';
+
+  @override
+  String get settingsAccountProfile_subscriptionPlansSubtitle =>
+      'প্ল্যান তুলনা করে নতুন প্ল্যান কিনুন';
+
+  @override
+  String get settingsAccountProfile_subscriptionHistorySubtitle =>
+      'প্রতিটি ক্রয়, অনুমোদন ও বাতিল';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -2327,7 +2335,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSubscription_title => 'সাবস্ক্রিপশন';
 
   @override
-  String get settingsManageAccount_subscriptionDetails => 'সাবস্ক্রিপশন বিবরণ';
+  String get settingsSubscription_managePlanTitle => 'প্ল্যান পরিচালনা';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

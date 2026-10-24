@@ -202,7 +202,7 @@ void main() {
 
     expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
     expect(
-      find.text(l.settingsManageAccount_subscriptionDetails),
+      find.text(l.settingsSubscription_managePlanTitle),
       findsNothing,
     );
     expect(

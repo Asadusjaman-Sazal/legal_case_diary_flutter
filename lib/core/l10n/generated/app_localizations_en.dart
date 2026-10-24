@@ -2048,8 +2048,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account details, password, and sign-out';
 
   @override
-  String get settingsAccountProfile_subscriptionSubtitle =>
-      'Your plan, expiry, and purchase history';
+  String get settingsAccountProfile_managePlanSubtitle =>
+      'Your plan, expiry, and cancellation';
+
+  @override
+  String get settingsAccountProfile_subscriptionPlansSubtitle =>
+      'Compare plans and buy a new one';
+
+  @override
+  String get settingsAccountProfile_subscriptionHistorySubtitle =>
+      'Every purchase, approval, and cancellation';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
@@ -2321,8 +2329,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSubscription_title => 'Subscription';
 
   @override
-  String get settingsManageAccount_subscriptionDetails =>
-      'Subscription Details';
+  String get settingsSubscription_managePlanTitle => 'Manage Plan';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

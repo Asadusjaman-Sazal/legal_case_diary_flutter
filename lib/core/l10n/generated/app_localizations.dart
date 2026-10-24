@@ -3652,11 +3652,23 @@ abstract class AppLocalizations {
   /// **'Your account details, password, and sign-out'**
   String get settingsAccountProfile_manageAccountSubtitle;
 
-  /// No description provided for @settingsAccountProfile_subscriptionSubtitle.
+  /// No description provided for @settingsAccountProfile_managePlanSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Your plan, expiry, and purchase history'**
-  String get settingsAccountProfile_subscriptionSubtitle;
+  /// **'Your plan, expiry, and cancellation'**
+  String get settingsAccountProfile_managePlanSubtitle;
+
+  /// No description provided for @settingsAccountProfile_subscriptionPlansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare plans and buy a new one'**
+  String get settingsAccountProfile_subscriptionPlansSubtitle;
+
+  /// No description provided for @settingsAccountProfile_subscriptionHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every purchase, approval, and cancellation'**
+  String get settingsAccountProfile_subscriptionHistorySubtitle;
 
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
@@ -4090,11 +4102,11 @@ abstract class AppLocalizations {
   /// **'Subscription'**
   String get settingsSubscription_title;
 
-  /// No description provided for @settingsManageAccount_subscriptionDetails.
+  /// No description provided for @settingsSubscription_managePlanTitle.
   ///
   /// In en, this message translates to:
-  /// **'Subscription Details'**
-  String get settingsManageAccount_subscriptionDetails;
+  /// **'Manage Plan'**
+  String get settingsSubscription_managePlanTitle;
 
   /// No description provided for @settingsManageAccount_purchaseNewSubscription.
   ///

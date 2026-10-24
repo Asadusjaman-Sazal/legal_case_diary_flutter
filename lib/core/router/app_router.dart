@@ -53,7 +53,7 @@ import '../../features/settings/presentation/edit_court_steps/edit_court_steps_m
 import '../../features/settings/presentation/edit_court_steps/lower_court_category_list_screen.dart';
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
-import '../../features/settings/presentation/subscription_screen.dart';
+import '../../features/settings/presentation/subscription_history_screen.dart';
 import '../../features/settings/presentation/subscription_details_screen.dart';
 import '../../features/sync/presentation/sync_status_screen.dart';
 import '../../features/sync/presentation/review_conflict_screen.dart';
@@ -144,7 +144,8 @@ class AppRoutes {
   /// One delete request's review screen, opened from the queue above.
   static const String settingsReviewDeleteRequest =
       '/settings/delete-requests/review/:requestId';
-  static const String settingsSubscription = '/settings/subscription';
+  static const String settingsSubscriptionHistory =
+      '/settings/subscription/history';
   static const String settingsSubscriptionDetails =
       '/settings/subscription/details';
   static const String settingsOnlineSync = '/settings/online-sync';
@@ -474,15 +475,20 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
         builder: (context, state) =>
             const LegalDocumentScreen(document: LegalDocument.termsOfService),
       ),
-      // Subscription Details is opened from two different trees — Settings >
-      // Subscription pushes it from inside the shell, and the checkout opens it
-      // after a confirmed submit from the root navigator — so it lives on the
-      // root navigator too. A shell route pushed from the checkout raised a
-      // duplicated-page-key error (the shell page was already in the stack), and
-      // here back pops GoRouter's history from either entry point.
+      // Manage Plan and Subscription History are opened from two different
+      // trees — the Account & Profile menu pushes them from inside the shell,
+      // and the checkout opens History after a confirmed submit from the root
+      // navigator — so both live on the root navigator. A shell route pushed
+      // from the checkout raised a duplicated-page-key error (the shell page was
+      // already in the stack), and here back pops GoRouter's history from either
+      // entry point.
       GoRoute(
         path: AppRoutes.settingsSubscriptionDetails,
         builder: (context, state) => const SubscriptionDetailsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsSubscriptionHistory,
+        builder: (context, state) => const SubscriptionHistoryScreen(),
       ),
       GoRoute(
         path: AppRoutes.paywall,
@@ -646,10 +652,6 @@ final List<RouteBase> _shellRoutes = [
     builder: (context, state) => DeleteRequestReviewScreen(
       requestId: state.pathParameters['requestId'] ?? '',
     ),
-  ),
-  GoRoute(
-    path: AppRoutes.settingsSubscription,
-    builder: (context, state) => const SubscriptionScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsOnlineSync,

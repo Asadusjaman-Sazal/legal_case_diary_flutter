@@ -164,19 +164,19 @@ void main() {
     expect(find.textContaining('Submission Received'), findsOneWidget);
   });
 
-  testWidgets('a confirmed submit keeps the snackbar and opens payment history',
-      (tester) async {
+  testWidgets('a confirmed submit keeps the snackbar and opens Subscription '
+      'History', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     // A router that mirrors the app's nesting: the shell is already in the
-    // stack when the checkout pushes the ledger, which is what made a
+    // stack when the checkout pushes Subscription History, which is what made a
     // shell-route push throw a duplicated-page-key error (a black screen). The
-    // ledger is a top-level route here, exactly as it is in `app_router.dart`,
-    // so the real push is exercised and the confirmation survives it.
+    // history page is a top-level route here, exactly as it is in
+    // `app_router.dart`, so the real push is exercised.
     final router = GoRouter(
-      initialLocation: AppRoutes.settingsSubscription,
+      initialLocation: AppRoutes.settingsAccountProfile,
       routes: [
         GoRoute(
           path: AppRoutes.checkout,
@@ -188,16 +188,16 @@ void main() {
           builder: (context, state, child) => Scaffold(body: child),
           routes: [
             GoRoute(
-              path: AppRoutes.settingsSubscription,
+              path: AppRoutes.settingsAccountProfile,
               builder: (context, state) =>
                   const Scaffold(body: Text('Shell-Home')),
             ),
           ],
         ),
         GoRoute(
-          path: AppRoutes.settingsSubscriptionDetails,
+          path: AppRoutes.settingsSubscriptionHistory,
           builder: (context, state) =>
-              const Scaffold(body: Text('Details-Landed')),
+              const Scaffold(body: Text('History-Landed')),
         ),
       ],
     );
@@ -248,7 +248,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.submitted, ['TRX42']);
-    expect(find.text('Details-Landed'), findsOneWidget);
+    expect(find.text('History-Landed'), findsOneWidget);
     expect(find.textContaining('Submission Received'), findsOneWidget);
   });
 }

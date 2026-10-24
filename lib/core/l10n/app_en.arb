@@ -1011,6 +1011,7 @@
   "settingsAccountProfile_sectionAccount": "Account",
   "settingsAccountProfile_sectionFirm": "Firm",
   "settingsAccountProfile_profileSubtitle": "Your name, bar association, and membership details",
+  "settingsAccountProfile_appLockSubtitle": "Protect the app with a PIN or fingerprint",
   "settingsAccountProfile_manageAccountSubtitle": "Your account details, password, and sign-out",
   "settingsAccountProfile_subscriptionSubtitle": "Your plan, expiry, and purchase history",
   "settingsAccountProfile_manageAssociatesSubtitle": "Manage Associates, Invites, And Firm Permissions",

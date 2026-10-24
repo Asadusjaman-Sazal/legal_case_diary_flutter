@@ -966,6 +966,7 @@
   "settingsAccountProfile_sectionAccount": "অ্যাকাউন্ট",
   "settingsAccountProfile_sectionFirm": "ফার্ম",
   "settingsAccountProfile_profileSubtitle": "আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য",
+  "settingsAccountProfile_appLockSubtitle": "পিন বা ফিঙ্গারপ্রিন্ট দিয়ে অ্যাপটি সুরক্ষিত রাখুন",
   "settingsAccountProfile_manageAccountSubtitle": "আপনার অ্যাকাউন্টের তথ্য, পাসওয়ার্ড ও সাইন-আউট",
   "settingsAccountProfile_subscriptionSubtitle": "আপনার প্ল্যান, মেয়াদ ও ক্রয়ের ইতিহাস",
   "settingsAccountProfile_manageAssociatesSubtitle": "সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন",

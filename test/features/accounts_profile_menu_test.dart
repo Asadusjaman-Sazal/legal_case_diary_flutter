@@ -1,12 +1,14 @@
 /// Accounts & Profile menu — the sectioned layout.
 ///
 /// The menu is grouped under three labelled headers: **Profile** (Profile),
-/// **Account** (Manage Account, Subscription) and **Firm** (Manage Associates,
-/// shown only when that entry is offered). Subscription moved here from the
-/// main Settings list. The **Security** row that briefly held Change Password is
-/// gone (0.0.411): Change Password came back to Manage Account, so the menu must
-/// offer no row for it and no third Account entry. These tests pin that
-/// structure — the section labels, the rows, and their order; the Manage
+/// **Account** (Manage Account, App Lock, Devices, Subscription) and **Firm**
+/// (Manage Associates, shown only when that entry is offered). Subscription
+/// moved here from the main Settings list, and App Lock and Devices moved here
+/// from Manage Account (0.0.611, user request). Devices is offered only where
+/// the plan holds more than one device — Pro and the chamber tiers — so Free
+/// and Starter never see it. The **Security** row that briefly held Change
+/// Password is gone (0.0.411). These tests pin that structure — the section
+/// labels, the rows, their order, and the Devices visibility rule; the Manage
 /// Associates visibility rules stay in `manage_associates_test.dart`.
 library;
 
@@ -27,8 +29,10 @@ import 'package:legal_case_diary/features/settings/presentation/settings_menu_ca
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
-/// Marker rendered by the stand-in destination route.
+/// Markers rendered by the stand-in destination routes.
 const String subscriptionMarker = 'Subscription Route';
+const String appLockMarker = 'App Lock Route';
+const String devicesMarker = 'Devices Route';
 
 /// Epoch ms 30 days from now: an active premium entitlement for the caches.
 int get _premiumExpiryMs =>
@@ -75,6 +79,14 @@ void main() {
           path: AppRoutes.settingsSubscription,
           builder: (_, _) => const Scaffold(body: Text(subscriptionMarker)),
         ),
+        GoRoute(
+          path: AppRoutes.settingsAppLock,
+          builder: (_, _) => const Scaffold(body: Text(appLockMarker)),
+        ),
+        GoRoute(
+          path: AppRoutes.settingsDevices,
+          builder: (_, _) => const Scaffold(body: Text(devicesMarker)),
+        ),
       ],
     );
     l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -85,21 +97,28 @@ void main() {
     }
   }
 
-  /// An individual with the given entitlement.
-  Future<void> seedIndividual(AppDatabase db, {required bool premium}) =>
-      ProfilesDao(db).upsert(
-        ProfilesCompanion(
-          id: const Value('user-1'),
-          fullName: const Value('Adv. Rahim Uddin'),
-          role: const Value(AccountRole.individual),
-          subscriptionStatus: Value(premium ? 'active' : 'free'),
-          subscriptionExpiry: Value(premium ? _premiumExpiryMs : null),
-          createdAt: const Value(1),
-        ),
-      );
+  /// An individual with the given entitlement and stored tier.
+  Future<void> seedIndividual(
+    AppDatabase db, {
+    required bool premium,
+    String tier = 'free',
+  }) => ProfilesDao(db).upsert(
+    ProfilesCompanion(
+      id: const Value('user-1'),
+      fullName: const Value('Adv. Rahim Uddin'),
+      role: const Value(AccountRole.individual),
+      tier: Value(tier),
+      subscriptionStatus: Value(premium ? 'active' : 'free'),
+      subscriptionExpiry: Value(premium ? _premiumExpiryMs : null),
+      createdAt: const Value(1),
+    ),
+  );
 
   testWidgets('groups the rows under Profile, Account and Firm', (tester) async {
-    await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: true));
+    await pumpMenu(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
+    );
 
     // Section labels.
     // "Profile" is both the section label and its row title.
@@ -111,11 +130,13 @@ void main() {
     // title is the same word as its section label.
     expect(find.text(l.settingsAccountProfile_profileSubtitle), findsOneWidget);
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
+    expect(find.text(l.settingsAppLock_title), findsOneWidget);
+    expect(find.text(l.devices_title), findsOneWidget);
     expect(find.text(l.settingsSubscription_title), findsOneWidget);
     expect(find.text(l.manageAssociates_title), findsOneWidget);
-    // No fourth row, and Change Password is not offered from here: it lives on
-    // Manage Account again (0.0.411).
-    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
+    // Six rows in total, and Change Password is not offered from here: it lives
+    // on Manage Account again (0.0.411).
+    expect(find.byType(SettingsMenuCard), findsNWidgets(6));
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);
@@ -125,17 +146,70 @@ void main() {
     tester,
   ) async {
     // Ordering is asserted by geometry, so a reordering cannot pass unseen.
-    await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: true));
+    await pumpMenu(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
+    );
 
     final accountY =
         tester.getTopLeft(find.text(l.settingsAccountProfile_sectionAccount)).dy;
+    final manageY =
+        tester.getTopLeft(find.text(l.settingsScreen_manageAccount)).dy;
+    final lockY = tester.getTopLeft(find.text(l.settingsAppLock_title)).dy;
+    final devicesY = tester.getTopLeft(find.text(l.devices_title)).dy;
     final subscriptionY =
         tester.getTopLeft(find.text(l.settingsSubscription_title)).dy;
     final firmY =
         tester.getTopLeft(find.text(l.settingsAccountProfile_sectionFirm)).dy;
 
-    expect(subscriptionY, greaterThan(accountY));
+    expect(manageY, greaterThan(accountY));
+    expect(lockY, greaterThan(manageY));
+    expect(devicesY, greaterThan(lockY));
+    expect(subscriptionY, greaterThan(devicesY));
     expect(firmY, greaterThan(subscriptionY));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Devices is hidden on Starter, which holds one device', (
+    tester,
+  ) async {
+    await pumpMenu(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true, tier: 'starter'),
+    );
+
+    // App Lock is offered to every plan; Devices starts at Pro.
+    expect(find.text(l.settingsAppLock_title), findsOneWidget);
+    expect(find.text(l.devices_title), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('App Lock opens its screen', (tester) async {
+    await pumpMenu(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
+    );
+
+    await tester.tap(find.text(l.settingsAppLock_title));
+    await tester.pumpAndSettle();
+
+    expect(find.text(appLockMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Devices opens the Devices screen', (tester) async {
+    await pumpMenu(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
+    );
+
+    await tester.tap(find.text(l.devices_title));
+    await tester.pumpAndSettle();
+
+    expect(find.text(devicesMarker), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -148,6 +222,8 @@ void main() {
 
     expect(find.text(l.manageAssociates_title), findsNothing);
     expect(find.text(l.settingsAccountProfile_sectionFirm), findsNothing);
+    // A free individual has no multi-device support either.
+    expect(find.text(l.devices_title), findsNothing);
 
     await unmountApp(tester);
   });
@@ -164,13 +240,15 @@ void main() {
   });
 
   testWidgets('the Account section offers no Security row', (tester) async {
-    // The row and its sub-page are gone (0.0.411). A free individual sees three
-    // cards (Profile, Manage Account, Subscription) — so one is not a fourth
-    // Account entry that only lost its label.
+    // The row and its sub-page are gone (0.0.411). A free individual sees four
+    // cards (Profile, Manage Account, App Lock, Subscription) — so none is a
+    // Security entry that only lost its label, and Devices is not offered.
     await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
+    expect(find.text(l.settingsAppLock_title), findsOneWidget);
+    expect(find.text(l.devices_title), findsNothing);
     expect(find.text(l.settingsSubscription_title), findsOneWidget);
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 

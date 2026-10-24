@@ -236,10 +236,12 @@ void main() {
     // line rather than anything about the Logout button's size.)
     expect(
       tester.getSize(cards.at(0)).height,
-      // Change Password's row: the first one; App Lock joined below it (0.0.420)
-      // and is a second row of the same height.
+      // Change Password's row: the only sub-menu row left here — App Lock and
+      // Devices moved to the Account & Profile menu (0.0.611, user request).
       tester.getSize(find.byType(SettingsSubMenuRow).first).height,
     );
+    expect(find.byKey(const ValueKey('manage-account-app-lock')), findsNothing);
+    expect(find.byKey(const ValueKey('manage-account-devices')), findsNothing);
 
     // The section heading is the error colour, bold and 1px bigger than a label.
     final label = tester.widget<Text>(

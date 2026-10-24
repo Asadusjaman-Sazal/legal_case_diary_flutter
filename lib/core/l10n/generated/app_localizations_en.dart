@@ -1954,6 +1954,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your name, bar association, and membership details';
 
   @override
+  String get settingsAccountProfile_appLockSubtitle =>
+      'Protect the app with a PIN or fingerprint';
+
+  @override
   String get settingsAccountProfile_manageAccountSubtitle =>
       'Your account details, password, and sign-out';
 

@@ -3433,13 +3433,13 @@ abstract class AppLocalizations {
   /// No description provided for @clientNotification_promptTitle.
   ///
   /// In en, this message translates to:
-  /// **'Send Automated Message to Client?'**
+  /// **'Send Message to Client?'**
   String get clientNotification_promptTitle;
 
   /// No description provided for @clientNotification_promptBody.
   ///
   /// In en, this message translates to:
-  /// **'Would you like to send your client an automated message notifying them of the next court date?'**
+  /// **'Would you like to send your client a message notifying them of the next court date?'**
   String get clientNotification_promptBody;
 
   /// No description provided for @clientNotification_rememberChoice.

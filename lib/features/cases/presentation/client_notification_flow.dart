@@ -13,6 +13,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
@@ -219,51 +220,61 @@ class _AutomatedMessagePromptDialogState
         l.clientNotification_promptTitle,
         textAlign: TextAlign.center,
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.clientNotification_promptBody,
-            textAlign: TextAlign.justify,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          InkWell(
-            key: const ValueKey('client-notification-remember'),
-            onTap: () => setState(() => _remember = !_remember),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: _remember,
-                  onChanged: (value) =>
-                      setState(() => _remember = value ?? false),
-                ),
-                Expanded(child: Text(l.clientNotification_rememberChoice)),
-              ],
-            ),
-          ),
-        ],
+      content: Text(
+        l.clientNotification_promptBody,
+        textAlign: TextAlign.justify,
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        // The Exit App window's action size: 112 x 48 at 16 pt (user request).
-        TextButton(
-          key: const ValueKey('client-notification-no'),
-          style: TextButton.styleFrom(
-            minimumSize: const Size(112, 48),
-            textStyle: const TextStyle(fontSize: 16),
-          ),
-          onPressed: () => _close(send: false),
-          child: Text(l.sharedActions_no),
-        ),
-        FilledButton(
-          key: const ValueKey('client-notification-yes'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(112, 48),
-            textStyle: const TextStyle(fontSize: 16),
-          ),
-          onPressed: () => _close(send: true),
-          child: Text(l.sharedActions_yes),
+        // The buttons first, then the remember choice under them (user
+        // request, 0.0.618). 16 px is double the actions' default 8 px gap.
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // The Exit App window's action size; No is the red half.
+                FilledButton(
+                  key: const ValueKey('client-notification-no'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  onPressed: () => _close(send: false),
+                  child: Text(l.sharedActions_no),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                FilledButton(
+                  key: const ValueKey('client-notification-yes'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  onPressed: () => _close(send: true),
+                  child: Text(l.sharedActions_yes),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            InkWell(
+              key: const ValueKey('client-notification-remember'),
+              onTap: () => setState(() => _remember = !_remember),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: _remember,
+                    onChanged: (value) =>
+                        setState(() => _remember = value ?? false),
+                  ),
+                  Text(l.clientNotification_rememberChoice),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

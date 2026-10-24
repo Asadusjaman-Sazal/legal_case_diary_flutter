@@ -1940,12 +1940,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The number your client will see in the message.';
 
   @override
-  String get clientNotification_promptTitle =>
-      'Send Automated Message to Client?';
+  String get clientNotification_promptTitle => 'Send Message to Client?';
 
   @override
   String get clientNotification_promptBody =>
-      'Would you like to send your client an automated message notifying them of the next court date?';
+      'Would you like to send your client a message notifying them of the next court date?';
 
   @override
   String get clientNotification_rememberChoice => 'Remember my choice';

@@ -12,6 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
 import 'package:legal_case_diary/features/payments/presentation/payment_approval_watch.dart';
 
@@ -21,11 +23,16 @@ void main() {
     final refreshes = <int>[];
     final container = ProviderContainer(
       overrides: [
+        authIdentityProvider.overrideWithValue(
+          const AuthIdentity(userId: 'user-1'),
+        ),
         accountRefreshProvider.overrideWithValue(() async {
           refreshes.add(refreshes.length + 1);
           return true;
         }),
         premiumAccessProvider.overrideWith((ref) async => false),
+        // A fixed expiry: nothing the watch can mistake for an approval.
+        paymentApprovalExpiryProvider.overrideWithValue(() async => 1000),
         myPaymentSubmissionsProvider.overrideWith(
           (ref) async => const <PaymentSubmission>[],
         ),
@@ -108,6 +115,63 @@ void main() {
     await tester.pump(paymentApprovalWatchInterval);
     await tester.pump();
     expect(refreshes.length, firstRun + 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('stops on the first changed expiry, even when already premium', (
+    tester,
+  ) async {
+    var expiry = 1000;
+    var refreshes = 0;
+    final container = ProviderContainer(
+      overrides: [
+        authIdentityProvider.overrideWithValue(
+          const AuthIdentity(userId: 'user-1'),
+        ),
+        accountRefreshProvider.overrideWithValue(() async {
+          refreshes++;
+          // The renewal (or plan change) lands in this pull.
+          expiry = 2000;
+          return true;
+        }),
+        // Already premium: the old free → premium condition would not stop it.
+        premiumAccessProvider.overrideWith((ref) async => true),
+        paymentApprovalExpiryProvider.overrideWithValue(() async => expiry),
+        myPaymentSubmissionsProvider.overrideWith(
+          (ref) async => const <PaymentSubmission>[],
+        ),
+        mySubscriptionCancellationsProvider.overrideWith(
+          (ref) async => const <SubscriptionCancellation>[],
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: PaymentApprovalWatchScope(child: SizedBox.shrink()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    container.read(paymentApprovalWatchProvider.notifier).start();
+    await tester.pump();
+    await tester.pump();
+    await tester.pump(paymentApprovalWatchInterval);
+    await tester.pump();
+
+    expect(refreshes, 1);
+    expect(container.read(paymentApprovalWatchProvider), 0);
+
+    // The change ended the watch; the remaining beats never run.
+    await tester.pump(paymentApprovalWatchInterval * 3);
+    await tester.pump();
+    expect(refreshes, 1);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();

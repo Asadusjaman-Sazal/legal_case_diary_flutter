@@ -112,6 +112,7 @@ checks that roll back) and the read-only counts
 | 0.0.630 | 2026-10-25 | `20261025180000_profile_avatar_storage.sql` | Profile-picture storage — a private, 50 KB, JPEG-only `individual-avatars` bucket holding one flat `{user_id}.jpg` per account. The holder reads and deletes their own file; only a premium individual or a premium chamber owner may insert or replace it, through public.can_write_profile_avatar() because has_sync_entitlement is revoked from clients. `profiles` gains the server-managed avatar_path and avatar_version, and a trigger on storage.objects keeps them in step. Account deletion removes the object through the delete-account Edge Function, because Storage deletes must use the Storage API. |
 | 0.0.635 | 2026-10-26 | `20261026100000_payment_downgrade_after_grace.sql` | A queued downgrade now starts 48 hours after the paid period it replaces ends, so the old plan's capacity covers the whole grace. approve_payment gains the grace-aware start, applies a lower tier bought inside the grace as a pending pair, applies a higher tier after a started pending immediately, and refuses Starter/Pro for a chamber owner (tier_seat_cap is defined here and reused by the capacity migration). Existing queued downgrades are backfilled by 48h through profiles only, because the mirror trigger copies the value to firms. |
 | 0.0.635 | 2026-10-26 | `20261026110000_firm_shared_capacity.sql` | Chamber capacity is shared: associates plus the owner's own devices must fit the tier's slots (Firm 5, Firm Plus 10, Enterprise 20, owner included). Adds joined_at and capacity_signed_out_at to firm_members, closes its direct INSERT/UPDATE/DELETE bypass, adds the capacity helpers, makes device_cap dynamic for an owner and 0 for a signed-out associate, rebuilds join_firm/register_device/remove_firm_member under one firm lock order, adds owner sign-out/admit RPCs, and rebalances a chamber only after a started lower-tier shrink (owner devices first, then the newest associates), every 15 minutes by pg_cron. |
+| 0.0.645 | 2026-10-26 | `20261026130000_owner_designate_device_slots.sql` | A chamber-tier account with no chamber — a Firm, Firm Plus or Enterprise owner-designate — now keeps the tier's full seat cap for its own devices (5 / 10 / 20) instead of falling to the one-per-member cap. A chamber owner still reads the slots left after associates; a seated associate 1; a capacity-signed-out associate 0; a non-chamber tier its own cap. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -19243,6 +19244,86 @@ revoke all on function public.rebalance_firm_capacity(uuid, uuid)
   from public, anon, authenticated;
 revoke all on function public.rebalance_all_firm_capacities()
   from public, anon, authenticated;
+```
+
+## App Version 0.0.645 — Owner-Designate Seats — A Chamber-Tier Buyer Keeps The Slots Before The Firm Exists
+
+### 0.0.645 · `20261026130000_owner_designate_device_slots.sql`
+
+> **Created 2026-10-26.** A chamber-tier account with no chamber — a Firm, Firm Plus or Enterprise owner-designate — now keeps the tier's full seat cap for its own devices (5 / 10 / 20) instead of falling to the one-per-member cap. A chamber owner still reads the slots left after associates; a seated associate 1; a capacity-signed-out associate 0; a non-chamber tier its own cap.
+
+```sql
+-- 2026-10-26 — A chamber-tier buyer keeps the seats they paid for before the
+-- firm exists.
+--
+-- The paywall sells Firm / Firm Plus / Enterprise as "up to N devices
+-- simultaneously or up to N-1 associates". A buyer who has not created the
+-- chamber yet is still on their personal account, and `device_cap` fell through
+-- to `tier_device_cap`, which answers 1 for every chamber tier (the per-member
+-- rule). The buyer therefore saw "Devices 1 of 1" after paying for five.
+--
+-- An account with a chamber-tier plan and no firm is an **owner-designate**: it
+-- reads the tier's full seat cap (Firm 5, Firm Plus 10, Enterprise 20) for its
+-- own devices. Once it owns a firm the existing owner branch applies — the
+-- slots left after associates; a seated associate still reads 1, a
+-- capacity-signed-out associate 0, and non-chamber tiers keep their own caps.
+--
+-- Table class: `profiles`/`firms`/`firm_members` remain pull-only caches; this
+-- is a server-side cap function only. No table, column or grant changes.
+
+create or replace function public.device_cap(p_user_id uuid default auth.uid())
+returns integer
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select case
+           -- A chamber owner's devices share the chamber's remaining slots.
+           when p.firm_id is not null
+                and exists (
+                  select 1
+                    from public.firms f
+                   where f.id = p.firm_id
+                     and f.owner_id = p.id
+                )
+             then greatest(
+               1,
+               public.firm_seat_cap(p.firm_id) - public.firm_associate_count(p.firm_id)
+             )
+           -- A member signed out for capacity has no device until admitted.
+           when p.firm_id is not null
+                and exists (
+                  select 1
+                    from public.firm_members m
+                   where m.firm_id = p.firm_id
+                     and m.user_id = p.id
+                     and m.capacity_signed_out_at is not null
+                )
+             then 0
+           -- Every other chamber account: one device.
+           when p.firm_id is not null then 1
+           -- A chamber tier with no chamber yet is an owner-designate: it keeps
+           -- the seats it paid for until an associate takes one. A non-chamber
+           -- tier reads its own device cap.
+           else coalesce(
+             nullif(
+               public.tier_seat_cap(
+                 public.effective_tier(p.tier, p.tier_pending, p.tier_pending_from)
+               ),
+               0
+             ),
+             public.tier_device_cap(
+               public.effective_tier(p.tier, p.tier_pending, p.tier_pending_from)
+             )
+           )
+         end
+    from public.profiles p
+   where p.id = p_user_id;
+$$;
+
+comment on function public.device_cap(uuid) is
+  'The caller''s concurrent-device allowance: a chamber owner gets the slots left after associates (at least 1); a chamber-tier account with no chamber keeps the tier''s full seat cap (Firm 5, Firm Plus 10, Enterprise 20); a seated associate 1; a capacity-signed-out associate 0; a non-chamber tier its own cap.';
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

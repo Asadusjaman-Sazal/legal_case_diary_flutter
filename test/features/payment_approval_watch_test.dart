@@ -33,6 +33,9 @@ void main() {
         premiumAccessProvider.overrideWith((ref) async => false),
         // A fixed expiry: nothing the watch can mistake for an approval.
         paymentApprovalExpiryProvider.overrideWithValue(() async => 1000),
+        // The gate is re-registered only when the subscription moves; these
+        // cases never do, so this stays a no-op.
+        paymentApprovalDeviceRefreshProvider.overrideWithValue(() async {}),
         myPaymentSubmissionsProvider.overrideWith(
           (ref) async => const <PaymentSubmission>[],
         ),
@@ -125,6 +128,7 @@ void main() {
   ) async {
     var expiry = 1000;
     var refreshes = 0;
+    var deviceRefreshes = 0;
     final container = ProviderContainer(
       overrides: [
         authIdentityProvider.overrideWithValue(
@@ -139,6 +143,10 @@ void main() {
         // Already premium: the old free → premium condition would not stop it.
         premiumAccessProvider.overrideWith((ref) async => true),
         paymentApprovalExpiryProvider.overrideWithValue(() async => expiry),
+        // The new cap the plan just bought must reach the device gate.
+        paymentApprovalDeviceRefreshProvider.overrideWithValue(() async {
+          deviceRefreshes++;
+        }),
         myPaymentSubmissionsProvider.overrideWith(
           (ref) async => const <PaymentSubmission>[],
         ),
@@ -166,12 +174,14 @@ void main() {
     await tester.pump();
 
     expect(refreshes, 1);
+    expect(deviceRefreshes, 1, reason: 'the new cap must reach the gate');
     expect(container.read(paymentApprovalWatchProvider), 0);
 
     // The change ended the watch; the remaining beats never run.
     await tester.pump(paymentApprovalWatchInterval * 3);
     await tester.pump();
     expect(refreshes, 1);
+    expect(deviceRefreshes, 1);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();

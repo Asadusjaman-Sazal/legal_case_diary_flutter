@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        71,
+        72,
         reason:
+            'Owner-designate device slots (2026-10-26) added one file. '
             'Shared chamber capacity (2026-10-26) added two files: the '
             'grace-aware downgrade start and the capacity model. '
             'The profile-avatar bucket (2026-10-25) added one file. '

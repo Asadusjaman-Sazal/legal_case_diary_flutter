@@ -949,6 +949,17 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'chamber only after a started lower-tier shrink (owner devices first, '
         'then the newest associates), every 15 minutes by pg_cron.',
   ),
+  LedgerSection(
+    file: '20261026130000_owner_designate_device_slots.sql',
+    version: '0.0.645',
+    label:
+        'A chamber-tier account with no chamber — a Firm, Firm Plus or '
+        'Enterprise owner-designate — now keeps the tier\'s full seat cap for '
+        'its own devices (5 / 10 / 20) instead of falling to the one-per-member '
+        'cap. A chamber owner still reads the slots left after associates; a '
+        'seated associate 1; a capacity-signed-out associate 0; a non-chamber '
+        'tier its own cap.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1035,6 +1046,9 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.635':
       'Shared Chamber Capacity — Slots Cover Associates And The Owner\'s '
       'Devices, And A Shrink Waits For The Grace',
+  '0.0.645':
+      'Owner-Designate Seats — A Chamber-Tier Buyer Keeps The Slots Before The '
+      'Firm Exists',
   '0.0.629': 'Firm Identity — The Chamber Logo And The Side Menu',
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523':

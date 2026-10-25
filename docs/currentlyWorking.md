@@ -1,5 +1,15 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — A chamber buyer keeps the seats before the firm exists — COMPLETE (0.0.645)
+
+- **What was reported.** A free user bought **Firm — 1 Month**; after approval Manage Plan still showed **Devices 1 of 1**. The account had `tier = firm` but `firm_id = null`, so it fell to the one-per-member device cap.
+- **The ruling applied.** The owner pays for the seats, so a chamber-tier account with **no chamber** (an owner-designate) may use the tier's full slots for its own devices until an associate joins. Firm 5 / Firm Plus 10 / Enterprise 20.
+- **Server.** `20261026130000_owner_designate_device_slots.sql` re-issues `device_cap`: a chamber owner still reads `slots − associates`, a seated associate 1, a capacity-signed-out associate 0, a chamber-tier account with no chamber its **full tier seat cap**, and non-chamber tiers their own caps. **Applied live** — the project now records **72 versions**; `supabase/tests/firm_capacity_test.sql` prints **CAPACITY OK** with the new owner-designate cases (including Pro 2 / Starter 1 / Free 1 unchanged).
+- **Client.** The post-payment approval watch now **re-registers this device** when the subscription changes, so the device gate's cap (and Manage Plan's devices meter) picks up the new number without a relaunch. A cold start registers anyway. `device_cap_parity_test.dart` pins the new branch; the watch test asserts the gate refresh happens exactly once when the expiry changes.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,100 passed**; ledger regenerated to **72 migrations** and `--check` clean; the live account that reported the issue now reads `device_cap = 5`.
+- **Docs.** Plan, Task 22, the manual checklist (new **Scenario 16** and §12.11 SQL check), `supabase/README.md`, and the capacity/device memories updated.
+- **Remaining.** The physical check in Scenario 16 is outstanding. If the owner fills all five slots with their own devices, adding the first associate needs one device signed out first — the card's “5 devices **or** 4 associates”.
+
 ### 2026-10-26 — Renewals stop the post-payment watch too — COMPLETE (0.0.644)
 
 - **What was asked.** Follow-up to 0.0.643: an **already-premium** renewal or plan change kept the 30-second polling until the ten-minute window even after the plan appeared, because the early stop only recognised free → premium.

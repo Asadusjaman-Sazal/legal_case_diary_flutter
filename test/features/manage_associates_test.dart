@@ -612,7 +612,13 @@ void main() {
       ),
     ];
 
-    await pumpManageAssociates(tester, seed: seedOwner);
+    // A phone-width surface: the window has to be roomy enough that Copy and
+    // Share share a row at this width (user request 0.0.652).
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      surfaceSize: const Size(412, 800),
+    );
 
     await tester.tap(find.text(l.manageAssociates_addAssociate));
     await tester.pumpAndSettle();
@@ -638,6 +644,20 @@ void main() {
     expectExitAppSize(const ValueKey('invite-code-copy'));
     expectExitAppSize(const ValueKey('invite-code-share'));
     expectExitAppSize(const ValueKey('invite-code-close'));
+
+    // Copy and Share sit side by side, with Close beneath them: at the window's
+    // old margins these two could not share a row on any phone.
+    final copyY = tester
+        .getTopLeft(find.byKey(const ValueKey('invite-code-copy')))
+        .dy;
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('invite-code-share'))).dy,
+      copyY,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey('invite-code-close'))).dy,
+      greaterThan(copyY),
+    );
 
     // Copying confirms itself inside the window, where the user can see it.
     // The clipboard channel is answered so the copy settles like it does on a

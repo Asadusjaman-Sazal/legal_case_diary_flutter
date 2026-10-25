@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Invite Code window is widened for its buttons — COMPLETE (0.0.652)
+
+- **What was asked.** Make the Invite Code pop-over a bit bigger so its three buttons fit properly.
+- **Why it was cramped.** The buttons are as wide as their labels make them, not just the 112 px minimum: measured on a phone-width surface, **Copy Code is 192 px and Share 128 px**. The window's 40 px side margins left about 300 px of room on a 412 pt phone while the pair needs 332, so the buttons stacked one per line with barely any margin.
+- **What changed.** Side margins 40 → **16 px**, inner padding 24 → **16 px**. That leaves about 348 px of room, so **Copy Code and Share sit side by side with Close beneath them**, centred. Nothing inside changed; no other window or screen was touched.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,108 passed**. The pop-over case now runs on a 412 × 800 surface and asserts Copy and Share share a row with Close below — it fails at the old margins.
+- **Mockup.** None owed: Manage Associates has no mockup (rule 9).
+
 ### 2026-10-26 — The Invite Code becomes a centred pop-over that confirms a copy — COMPLETE (0.0.651)
 
 - **What was asked.** In Manage Associates > Invite Code: centre the title, make it a pop-over whose window and buttons match the Exit App? window, put the "Share this code…" line in sentence case, and make Copy Code show a confirmation.

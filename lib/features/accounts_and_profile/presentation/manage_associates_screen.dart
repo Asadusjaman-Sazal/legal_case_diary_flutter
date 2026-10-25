@@ -1540,16 +1540,23 @@ class _InviteCodeDialogState extends ConsumerState<_InviteCodeDialog> {
     final l = AppLocalizations.of(context);
 
     return Dialog(
-      // The Exit App window's own footprint: AlertDialog's insets, its 8 px
-      // corner and its white panel (0.0.651, user request).
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      // The Exit App window's shape and white panel, with its side margins
+      // pulled in from 40 to 16 (0.0.652, user request): the Exit-App-sized
+      // buttons are wide, and at the old margins they could not share a row on
+      // any phone.
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.lg,
+      ),
       backgroundColor: AppColors.surfaceContainerLowest,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        // 16 px inside rather than 24, so the buttons get the room the wider
+        // window bought them.
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

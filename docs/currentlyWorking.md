@@ -1,5 +1,11 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The side menu's Admin count stays current — COMPLETE (0.0.642)
+
+- **What was reported.** If the admin did not tap the payment notification, syncing from a case, notes or Settings screen still left the Admin Panel row in the side menu without a count, so a new payment request went unnoticed.
+- **What changed.** The drawer's body is wrapped in a small stateful refresh that invalidates both admin lists when the drawer mounts. The drawer is mounted once per open, so the badge re-reads from the server every time the side menu is looked at — with or without a sync, and without a tapped alert. Nothing else in the drawer changed; the badge still hides at zero, and non-admins are unaffected because the lists are not watched for them.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,096 passed**; the new case in `app_navigation_drawer_test.dart` opens the drawer, lets a payment arrive while it is closed, and expects the badge on the second open — it fails without the refresh.
+
 ### 2026-10-26 — Admin screens re-read the cloud on open — COMPLETE (0.0.641)
 
 - **What was reported.** Tapping an admin payment notification opened Payment Requests with data the app had cached earlier; only a pull-down showed the new payment. The same staleness affected the panel's two counts and the Non-verified Accounts list.

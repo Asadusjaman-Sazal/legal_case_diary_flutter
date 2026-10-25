@@ -346,191 +346,224 @@ class AppNavigationDrawer extends ConsumerWidget {
     // Task 22: the Admin Panel row exists only for an account the server has
     // confirmed as an admin, and false while that answer is still loading.
     final isAdmin = ref.watch(adminStatusProvider).value ?? false;
-    return Drawer(
-      backgroundColor: AppColors.surfaceContainerLowest,
-      shape: const RoundedRectangleBorder(),
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ----------------------------------------------------------------
-            // Profile header — avatar with three centre-aligned lines: the app
-            // name, the "of" / "এর" connector, and the lawyer's name.
-            // ----------------------------------------------------------------
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // The avatar is the account's entry point: its 48 px circle
-                  // is the whole tap target, and the popover is measured from
-                  // this box, so the panel grows out of the icon.
-                  _ProfileIconButton(
-                    // The drawer's own context goes along with the icon's: the
-                    // panel is as wide as the drawer and starts at its left
-                    // edge, and only the drawer can say what those are.
-                    onPressed: (iconContext) =>
-                        _openAccountSheet(iconContext, context, ref),
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: AppColors.primaryContainer,
-                      backgroundImage: headerImage != null
-                          ? FileImage(headerImage)
-                          : null,
-                      child: headerImage != null
-                          ? null
-                          : const Icon(
-                              Icons.person_outline,
-                              color: AppColors.onPrimaryContainer,
-                              size: 26,
-                            ),
+    return _AdminCountsRefresh(
+      child: Drawer(
+        backgroundColor: AppColors.surfaceContainerLowest,
+        shape: const RoundedRectangleBorder(),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ----------------------------------------------------------------
+              // Profile header — avatar with three centre-aligned lines: the app
+              // name, the "of" / "এর" connector, and the lawyer's name.
+              // ----------------------------------------------------------------
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // The avatar is the account's entry point: its 48 px circle
+                    // is the whole tap target, and the popover is measured from
+                    // this box, so the panel grows out of the icon.
+                    _ProfileIconButton(
+                      // The drawer's own context goes along with the icon's: the
+                      // panel is as wide as the drawer and starts at its left
+                      // edge, and only the drawer can say what those are.
+                      onPressed: (iconContext) =>
+                          _openAccountSheet(iconContext, context, ref),
+                      child: CircleAvatar(
+                        radius: 24,
+                        backgroundColor: AppColors.primaryContainer,
+                        backgroundImage: headerImage != null
+                            ? FileImage(headerImage)
+                            : null,
+                        child: headerImage != null
+                            ? null
+                            : const Icon(
+                                Icons.person_outline,
+                                color: AppColors.onPrimaryContainer,
+                                size: 26,
+                              ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (isBengali) ...[
-                          _headerLine(
-                            nameLine,
-                            AppTypography.titleLg.copyWith(
-                              color: AppColors.primary,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (isBengali) ...[
+                            _headerLine(
+                              nameLine,
+                              AppTypography.titleLg.copyWith(
+                                color: AppColors.primary,
+                              ),
                             ),
-                          ),
-                          _headerLine(l.drawerOf, _connectorStyle),
-                          _headerLine(l.appName, _appNameStyle),
-                        ] else ...[
-                          _headerLine(l.appName, _appNameStyle),
-                          _headerLine(l.drawerOf, _connectorStyle),
-                          _headerLine(
-                            nameLine,
-                            AppTypography.titleLg.copyWith(
-                              color: AppColors.primary,
+                            _headerLine(l.drawerOf, _connectorStyle),
+                            _headerLine(l.appName, _appNameStyle),
+                          ] else ...[
+                            _headerLine(l.appName, _appNameStyle),
+                            _headerLine(l.drawerOf, _connectorStyle),
+                            _headerLine(
+                              nameLine,
+                              AppTypography.titleLg.copyWith(
+                                color: AppColors.primary,
+                              ),
                             ),
-                          ),
+                          ],
+                          // The signed-in account, under the chamber's name. An
+                          // individual's header stays the three lines it has
+                          // always had.
+                          if (roleLine != null) ...[
+                            const SizedBox(height: 2),
+                            _headerLine(
+                              roleLine,
+                              AppTypography.bodySm.copyWith(
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ],
-                        // The signed-in account, under the chamber's name. An
-                        // individual's header stays the three lines it has
-                        // always had.
-                        if (roleLine != null) ...[
-                          const SizedBox(height: 2),
-                          _headerLine(
-                            roleLine,
-                            AppTypography.bodySm.copyWith(
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: AppColors.outlineVariant),
-            const SizedBox(height: 4),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                children: [
-                  _CaseDrawerGroup(
-                    currentRoute: currentRoute,
-                    isAdmin: isAdmin,
-                    sideNavOptions: sideNavOptions,
-                    bottomNavTabs: bottomNavTabs,
-                    bottomNavOrder: bottomNavOrder,
-                  ),
-                  const _DrawerDivider(),
-                  ..._toolItems.map(
-                    (item) => _buildItem(context, l, item, isAdmin: isAdmin),
-                  ),
-                  if (isAdmin) ...[
-                    const _DrawerDivider(),
-                    // The count of what is waiting inside the panel, over the
-                    // row, the way the Sync Status icon carries its own.
-                    _buildItem(
-                      context,
-                      l,
-                      _adminItem,
-                      isAdmin: true,
-                      badgeCount: ref.watch(adminPendingCountProvider),
+                      ),
                     ),
                   ],
-                  const _DrawerDivider(),
-                  // Settings leads the bottom group, directly above the plan
-                  // row (user request).
-                  _buildItem(context, l, _settingsItem, isAdmin: isAdmin),
-                  // The account's plan, above Print/Share (user request): the
-                  // bottom group is where a user looks for what the account is
-                  // and what it can do with it, and it names the plan rather
-                  // than hiding it behind a tap.
-                  _PlanDrawerTile(currentRoute: currentRoute),
-                  _DrawerNavTile(
-                    icon: Icons.print_outlined,
-                    label: l.nav_print,
-                    active: false,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      onPrint?.call();
-                    },
-                  ),
-                  _DrawerNavTile(
-                    icon: Icons.share_outlined,
-                    label: l.nav_share,
-                    active: false,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      onShare?.call();
-                    },
-                  ),
-                  // Rating the app, after Share (user request): the three
-                  // things a user does *with* the app — Print, Share, Rate —
-                  // sit together, above the updater.
-                  //
-                  // The listing does not exist yet, so the row says so rather
-                  // than opening a page that 404s. The URL is already written
-                  // (`appStoreUrl`, flagged as the single line to change at
-                  // launch), so wiring this is a one-line change the day the app
-                  // goes live. It is the one place in this drawer that offers an
-                  // action it cannot yet perform, which is deliberate.
-                  _DrawerNavTile(
-                    icon: Icons.star_outline,
-                    label: l.drawer_rateApp,
-                    active: false,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l.drawer_rateAppPending)),
-                      );
-                    },
-                  ),
-                  // The updater, below Share (user request). It does not close
-                  // the drawer when tapped — the whole point is the result it
-                  // cascades underneath — so it is the one row here that leaves
-                  // the menu open.
-                  const _UpdateDrawerTile(),
-                ],
-              ),
-            ),
-            // The bundled app version pinned to the very bottom of the drawer,
-            // below all nav items and Print/Share. Read from [appVersion] so it
-            // can never drift from the build.
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
-              child: Text(
-                l.drawer_version(appVersion),
-                textAlign: TextAlign.left,
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
                 ),
               ),
-            ),
-          ],
+              const Divider(height: 1, color: AppColors.outlineVariant),
+              const SizedBox(height: 4),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  children: [
+                    _CaseDrawerGroup(
+                      currentRoute: currentRoute,
+                      isAdmin: isAdmin,
+                      sideNavOptions: sideNavOptions,
+                      bottomNavTabs: bottomNavTabs,
+                      bottomNavOrder: bottomNavOrder,
+                    ),
+                    const _DrawerDivider(),
+                    ..._toolItems.map(
+                      (item) => _buildItem(context, l, item, isAdmin: isAdmin),
+                    ),
+                    if (isAdmin) ...[
+                      const _DrawerDivider(),
+                      // The count of what is waiting inside the panel, over the
+                      // row, the way the Sync Status icon carries its own.
+                      _buildItem(
+                        context,
+                        l,
+                        _adminItem,
+                        isAdmin: true,
+                        badgeCount: ref.watch(adminPendingCountProvider),
+                      ),
+                    ],
+                    const _DrawerDivider(),
+                    // Settings leads the bottom group, directly above the plan
+                    // row (user request).
+                    _buildItem(context, l, _settingsItem, isAdmin: isAdmin),
+                    // The account's plan, above Print/Share (user request): the
+                    // bottom group is where a user looks for what the account is
+                    // and what it can do with it, and it names the plan rather
+                    // than hiding it behind a tap.
+                    _PlanDrawerTile(currentRoute: currentRoute),
+                    _DrawerNavTile(
+                      icon: Icons.print_outlined,
+                      label: l.nav_print,
+                      active: false,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onPrint?.call();
+                      },
+                    ),
+                    _DrawerNavTile(
+                      icon: Icons.share_outlined,
+                      label: l.nav_share,
+                      active: false,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onShare?.call();
+                      },
+                    ),
+                    // Rating the app, after Share (user request): the three
+                    // things a user does *with* the app — Print, Share, Rate —
+                    // sit together, above the updater.
+                    //
+                    // The listing does not exist yet, so the row says so rather
+                    // than opening a page that 404s. The URL is already written
+                    // (`appStoreUrl`, flagged as the single line to change at
+                    // launch), so wiring this is a one-line change the day the app
+                    // goes live. It is the one place in this drawer that offers an
+                    // action it cannot yet perform, which is deliberate.
+                    _DrawerNavTile(
+                      icon: Icons.star_outline,
+                      label: l.drawer_rateApp,
+                      active: false,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l.drawer_rateAppPending)),
+                        );
+                      },
+                    ),
+                    // The updater, below Share (user request). It does not close
+                    // the drawer when tapped — the whole point is the result it
+                    // cascades underneath — so it is the one row here that leaves
+                    // the menu open.
+                    const _UpdateDrawerTile(),
+                  ],
+                ),
+              ),
+              // The bundled app version pinned to the very bottom of the drawer,
+              // below all nav items and Print/Share. Read from [appVersion] so it
+              // can never drift from the build.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+                child: Text(
+                  l.drawer_version(appVersion),
+                  textAlign: TextAlign.left,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+/// Re-reads the Admin Panel counts each time the drawer opens.
+///
+/// The drawer's subtree is mounted only while it is open, so this runs once per
+/// open. Its badge is the only place an admin learns a payment arrived without
+/// tapping the alert, and both lists behind it are cached server reads.
+class _AdminCountsRefresh extends ConsumerStatefulWidget {
+  final Widget child;
+
+  const _AdminCountsRefresh({required this.child});
+
+  @override
+  ConsumerState<_AdminCountsRefresh> createState() =>
+      _AdminCountsRefreshState();
+}
+
+class _AdminCountsRefreshState extends ConsumerState<_AdminCountsRefresh> {
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame, so the providers are not touched mid-build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.invalidate(adminPaymentRequestsProvider);
+      ref.invalidate(adminUnconfirmedAccountsProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// Centred single-line header text with an ellipsis guard.

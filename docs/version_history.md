@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.641 - Every admin screen now re-reads its cloud lists once when it opens, so a payment alert opens Payment Requests with the current data instead of a cached list.
+Version: 0.0.642 - The side menu's Admin count now re-reads both admin lists each time the drawer opens, so a new payment request shows after a sync without needing a notification tap.
 --------------------------------------
 
 ## Version History Log:
@@ -655,3 +655,4 @@ Version: 0.0.638 - Added the full manual verification checklist for the shared f
 Version: 0.0.639 - Manage Account's Delete Local Data window is now titled Delete Local Data?, while the premium cloud window keeps its own Delete Data? title.
 Version: 0.0.640 - After a submitted payment, Back from Subscription History now reaches Account & Profile, then Settings and the configured landing page, instead of reopening Checkout.
 Version: 0.0.641 - Every admin screen now re-reads its cloud lists once when it opens, so a payment alert opens Payment Requests with the current data instead of a cached list.
+Version: 0.0.642 - The side menu's Admin count now re-reads both admin lists each time the drawer opens, so a new payment request shows after a sync without needing a notification tap.

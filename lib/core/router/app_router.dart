@@ -224,6 +224,19 @@ class AppRoutes {
   /// The paywall as a lapsed allowance opens it.
   static const String paywallFromLapse =
       '$paywall?$paywallReasonParam=$paywallReasonLapsed';
+
+  /// The paywall query parameter naming the tab it opens on.
+  static const String paywallAudienceParam = 'audience';
+
+  /// The [paywallAudienceParam] value that opens the **Firm** tab.
+  static const String paywallAudienceFirm = 'firm';
+
+  /// The paywall as Manage Associates' firm overview opens it.
+  ///
+  /// An account with no firm buys a **firm** plan to create one, so this entry
+  /// lands on the chamber cards rather than on the individual ones.
+  static const String paywallFromFirmSetup =
+      '$paywall?$paywallAudienceParam=$paywallAudienceFirm';
   static const String checkout = '/checkout';
 
   /// Maps a [defaultLandingPage] preference key to its route path.
@@ -498,6 +511,7 @@ final appRouterProvider = FutureProvider<GoRouter>((ref) async {
         builder: (context, state) => PaywallScreen(
           showLimit: PaywallScreen.showLimitFor(state),
           showLapsed: PaywallScreen.showLapsedFor(state),
+          initialAudience: PaywallScreen.initialAudienceFor(state),
         ),
       ),
       GoRoute(

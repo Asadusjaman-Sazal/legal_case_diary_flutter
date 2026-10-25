@@ -25,6 +25,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
@@ -82,8 +83,12 @@ void main() {
     bool online = true,
     List<Override> overrides = const <Override>[],
     Map<String, Object> preferences = const <String, Object>{},
+    // Tall enough by default for the owner's roster; a test that reads the
+    // whole create-firm page at once (the overview above the form) passes a
+    // taller surface rather than scrolling, because it compares positions.
+    Size surfaceSize = const Size(420, 1000),
   }) async {
-    await tester.binding.setSurfaceSize(const Size(420, 1000));
+    await tester.binding.setSurfaceSize(surfaceSize);
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     final providerOverrides = await harness.setUp(
@@ -116,8 +121,20 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.paywall,
-          builder: (_, _) =>
-              const Scaffold(body: Text(manageAssociatesPaywallMarker)),
+          builder: (_, state) => Scaffold(
+            body: Column(
+              children: [
+                const Text(manageAssociatesPaywallMarker),
+                // The tab the paywall was asked to open on, so the overview's
+                // link can be proved to land on the chamber cards.
+                Text(
+                  '${AppRoutes.paywallAudienceParam}='
+                  '${state.uri.queryParameters[AppRoutes.paywallAudienceParam]}',
+                  key: const ValueKey('paywall-audience-query'),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -226,6 +243,14 @@ void main() {
       seed: (db) => seedIndividual(db, premium: false),
     );
 
+    // The overview pushes the form below the fold on a 1000pt surface.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('manage-associates-firm-name')),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
     // The card says why, and the action offers the Paywall rather than a form
     // whose submit the server would refuse.
     expect(find.text(l.auth_errorPremiumRequired), findsOneWidget);
@@ -257,6 +282,13 @@ void main() {
       seed: (db) => seedIndividual(db, premium: true),
     );
 
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('manage-associates-firm-name')),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
     await tester.enterText(
       find.byKey(const ValueKey('manage-associates-firm-name')),
       'Rahman & Associates',
@@ -282,6 +314,86 @@ void main() {
       findsOneWidget,
       reason: 'the plaintext is shown once, here',
     );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an individual reads what a firm is, above the create-firm form', (
+    tester,
+  ) async {
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true),
+      // The whole page at once: the assertion is about order.
+      surfaceSize: const Size(420, 1700),
+    );
+
+    expect(find.text(l.manageAssociates_firmOverviewTitle), findsOneWidget);
+    // Each point is a bold label running into its sentence, so it is looked for
+    // as a run of the paragraph rather than as a Text of its own.
+    for (final title in [
+      l.manageAssociates_firmOverviewCollaborateTitle,
+      l.manageAssociates_firmOverviewDevicesTitle,
+      l.manageAssociates_firmOverviewBackupTitle,
+    ]) {
+      expect(find.textContaining(title), findsOneWidget);
+    }
+    expect(
+      find.textContaining(l.manageAssociates_firmOverviewReadyTitle),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(l.manageAssociates_firmOverviewReadySuffix),
+      findsOneWidget,
+    );
+    // The link is what the request asked for rather than one flat paragraph:
+    // bold, underlined, and a step larger than the sentence it sits in.
+    final link = tester.widget<Text>(
+      find.descendant(
+        of: find.byKey(const ValueKey('manage-associates-plans-link')),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(link.style?.fontWeight, FontWeight.w700);
+    expect(link.style?.decoration, TextDecoration.underline);
+    expect(link.style!.fontSize!, greaterThan(AppTypography.bodyMd.fontSize!));
+
+    // The form still follows the explainer: the overview is above the name
+    // field, not instead of it.
+    expect(
+      tester.getTopLeft(find.text(l.manageAssociates_firmOverviewTitle)).dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.byKey(const ValueKey('manage-associates-firm-name')),
+            )
+            .dy,
+      ),
+    );
+    expect(find.text(l.manageAssociates_createFirm), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the overview\'s plans link opens Subscription Plans on Firm', (
+    tester,
+  ) async {
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true),
+    );
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('manage-associates-plans-link')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-plans-link')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(manageAssociatesPaywallMarker), findsOneWidget);
+    // It lands on the chamber cards, because a firm is created by a firm plan.
+    expect(find.text('audience=firm'), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -373,53 +485,54 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('a saved chamber logo shows Change and Remove, and Remove clears it', (
-    tester,
-  ) async {
-    // Synchronous IO: a widget test runs on a fake clock, so a real async file
-    // call inside the body would never complete.
-    final dir = Directory.systemTemp.createTempSync('manage-logo');
-    addTearDown(() => dir.delete(recursive: true));
-    final logo = File('${dir.path}/firm_firm-1.png');
-    logo.writeAsBytesSync(_pngBytes);
+  testWidgets(
+    'a saved chamber logo shows Change and Remove, and Remove clears it',
+    (tester) async {
+      // Synchronous IO: a widget test runs on a fake clock, so a real async file
+      // call inside the body would never complete.
+      final dir = Directory.systemTemp.createTempSync('manage-logo');
+      addTearDown(() => dir.delete(recursive: true));
+      final logo = File('${dir.path}/firm_firm-1.png');
+      logo.writeAsBytesSync(_pngBytes);
 
-    await pumpManageAssociates(
-      tester,
-      preferences: <String, Object>{
-        firmLogoPathKey: logo.path,
-        'firm_logo_firm_id': 'firm-1',
-      },
-      seed: seedOwner,
-    );
+      await pumpManageAssociates(
+        tester,
+        preferences: <String, Object>{
+          firmLogoPathKey: logo.path,
+          'firm_logo_firm_id': 'firm-1',
+        },
+        seed: seedOwner,
+      );
 
-    expect(find.text(l.manageAssociates_changeLogo), findsOneWidget);
-    final avatar = tester.widget<CircleAvatar>(
-      find
-          .descendant(
-            of: find.byType(ManageAssociatesScreen),
-            matching: find.byType(CircleAvatar),
-          )
-          .first,
-    );
-    expect((avatar.backgroundImage! as FileImage).file.path, logo.path);
+      expect(find.text(l.manageAssociates_changeLogo), findsOneWidget);
+      final avatar = tester.widget<CircleAvatar>(
+        find
+            .descendant(
+              of: find.byType(ManageAssociatesScreen),
+              matching: find.byType(CircleAvatar),
+            )
+            .first,
+      );
+      expect((avatar.backgroundImage! as FileImage).file.path, logo.path);
 
-    final remove = find.byKey(const ValueKey('firm-logo-remove'));
-    await tester.ensureVisible(remove);
-    await tester.pumpAndSettle();
-    await tester.tap(remove);
-    // The delete is real file IO; a widget test's fake clock needs a real
-    // event-loop turn for it to finish before the assertion.
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 20)),
-    );
-    await tester.pumpAndSettle();
+      final remove = find.byKey(const ValueKey('firm-logo-remove'));
+      await tester.ensureVisible(remove);
+      await tester.pumpAndSettle();
+      await tester.tap(remove);
+      // The delete is real file IO; a widget test's fake clock needs a real
+      // event-loop turn for it to finish before the assertion.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pumpAndSettle();
 
-    expect(logo.existsSync(), isFalse);
-    expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
-    expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
+      expect(logo.existsSync(), isFalse);
+      expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
+      expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
 
-    await unmountApp(tester);
-  });
+      await unmountApp(tester);
+    },
+  );
 
   testWidgets('a lapsed owner is told a live plan is needed for a logo', (
     tester,
@@ -441,7 +554,9 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the owner invites without creating a second firm', (tester) async {
+  testWidgets('the owner invites without creating a second firm', (
+    tester,
+  ) async {
     harness.firm.members = const [
       FirmMemberSummary(
         userId: 'user-1',
@@ -472,7 +587,9 @@ void main() {
   testWidgets('a roster read that fails is reported, never swallowed', (
     tester,
   ) async {
-    harness.firm.membersError = const FirmFailure(FirmFailureKind.firmAdminOffline);
+    harness.firm.membersError = const FirmFailure(
+      FirmFailureKind.firmAdminOffline,
+    );
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
@@ -542,7 +659,9 @@ void main() {
       reason: 'there is one outstanding invite',
     );
 
-    await tester.tap(find.byKey(const ValueKey('manage-associates-revoke-invite-9')));
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+    );
     await tester.pumpAndSettle();
 
     // Revoking is confirmed first: the code stops working at once and cannot be
@@ -762,7 +881,9 @@ void main() {
     // The banner above is what the user reads; this is what they hand over. A
     // firm refusal recorded as anything but a firm refusal sends whoever reads
     // the report looking in the wrong domain.
-    expect(_lines(harness.log), <String>['firm.action FirmFailure(firmAdminOffline)']);
+    expect(_lines(harness.log), <String>[
+      'firm.action FirmFailure(firmAdminOffline)',
+    ]);
 
     await unmountApp(tester);
   });
@@ -837,7 +958,10 @@ void main() {
 
     // Disabled rather than hidden, with the count: the owner is told what
     // stands in the way, not left guessing why there is no action.
-    expect(find.text(l.manageAssociates_dissolveBlockedMembers(1)), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_dissolveBlockedMembers(1)),
+      findsOneWidget,
+    );
     final button = tester.widget<OutlinedButton>(
       find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
     );
@@ -885,7 +1009,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l.manageAssociates_dissolveBlockedMembers(2)), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_dissolveBlockedMembers(2)),
+      findsOneWidget,
+    );
     expect(find.text(l.manageAssociates_dissolveDone), findsNothing);
 
     await unmountApp(tester);
@@ -902,25 +1029,30 @@ void main() {
       tester,
       seed: (db) async {
         await seedOwner(db);
-        await db.into(db.syncQueue).insert(
-          SyncQueueCompanion.insert(
-            entityType: 'case',
-            entityId: 'case-1',
-            operation: 'update',
-            mutationId: 'mutation-1',
-            basePayload: '{}',
-            changedFields: '[]',
-            payload: '{}',
-            preMutationPayload: '{}',
-            createdAt: 1,
-            state: 'pending',
-          ),
-        );
+        await db
+            .into(db.syncQueue)
+            .insert(
+              SyncQueueCompanion.insert(
+                entityType: 'case',
+                entityId: 'case-1',
+                operation: 'update',
+                mutationId: 'mutation-1',
+                basePayload: '{}',
+                changedFields: '[]',
+                payload: '{}',
+                preMutationPayload: '{}',
+                createdAt: 1,
+                state: 'pending',
+              ),
+            );
       },
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l.manageAssociates_dissolveBlockedPending), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_dissolveBlockedPending),
+      findsOneWidget,
+    );
     final button = tester.widget<OutlinedButton>(
       find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
     );

@@ -74,7 +74,8 @@ class ManageAssociatesScreen extends ConsumerStatefulWidget {
       _ManageAssociatesScreenState();
 }
 
-class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen> {
+class _ManageAssociatesScreenState
+    extends ConsumerState<ManageAssociatesScreen> {
   /// The firm name typed while this account is still an individual.
   final TextEditingController _firmNameController = TextEditingController();
 
@@ -288,7 +289,7 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     );
   }
 
-  /// The individual's view: the firm has not been created yet.
+  /// The individual's view: what a firm is, then the form that creates one.
   Widget _firmSetupBody(AppLocalizations l) {
     final premium = ref.watch(premiumAccessProvider);
     final free = premium.value == false;
@@ -309,6 +310,10 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           AuthErrorBanner(text: _failureText(l)),
           const SizedBox(height: AppSpacing.md),
         ],
+        // The explainer comes first: the form below it assumes the reader has
+        // already decided a firm is worth creating.
+        const _FirmOverview(),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           l.manageAssociates_createFirmIntro,
           style: AppTypography.bodyMd.copyWith(
@@ -356,7 +361,9 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           const SizedBox(height: AppSpacing.sm),
         ],
         _PrimaryButton(
-          icon: free ? Icons.workspace_premium_outlined : Icons.apartment_outlined,
+          icon: free
+              ? Icons.workspace_premium_outlined
+              : Icons.apartment_outlined,
           label: free
               ? l.manageAssociates_goPremium
               : l.manageAssociates_createFirm,
@@ -548,11 +555,12 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
   String _failureText(AppLocalizations l) =>
       failureText(l, _failure) ?? l.auth_errorUnknown;
 
-  Future<void> _showInviteCode(GeneratedInvite invite) => showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    builder: (_) => _InviteCodeSheet(invite: invite),
-  );
+  Future<void> _showInviteCode(GeneratedInvite invite) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => _InviteCodeSheet(invite: invite),
+      );
 }
 
 /// Centred single-message body (offline, or no account).
@@ -568,6 +576,151 @@ class _MessageBody extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: AuthErrorBanner(text: text),
     ),
+  );
+}
+
+/// What a firm is, shown while the account has none, above the create-firm
+/// form (user request).
+///
+/// The form used to arrive with nothing explaining why an individual would want
+/// a firm, and the plan that pays for one is bought on another screen — so the
+/// last paragraph names **Subscription Plans**, which is a link into the paywall
+/// opened on its **Firm** cards. The body is written as prose sentences (the
+/// descriptions) under bold labels, per the app's casing rule.
+class _FirmOverview extends StatelessWidget {
+  const _FirmOverview();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Container(
+      decoration: settingsCardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.manageAssociates_firmOverviewTitle,
+            style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _OverviewPoint(
+            icon: Icons.groups_outlined,
+            title: l.manageAssociates_firmOverviewCollaborateTitle,
+            body: l.manageAssociates_firmOverviewCollaborateBody,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _OverviewPoint(
+            icon: Icons.devices_outlined,
+            title: l.manageAssociates_firmOverviewDevicesTitle,
+            body: l.manageAssociates_firmOverviewDevicesBody,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _OverviewPoint(
+            icon: Icons.cloud_upload_outlined,
+            title: l.manageAssociates_firmOverviewBackupTitle,
+            body: l.manageAssociates_firmOverviewBackupBody,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          // A rule, because the paragraph under it changes subject: from what a
+          // firm is to how to get one.
+          const Divider(height: 1, color: AppColors.outlineVariant),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l.manageAssociates_firmOverviewReadyTitle,
+            style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text.rich(
+            TextSpan(
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+              children: [
+                TextSpan(
+                  text: '${l.manageAssociates_firmOverviewReadyPrefix} ',
+                ),
+                // A widget span rather than a tap recognizer: the recognizer
+                // needs disposing and the link needs a target size, and this is
+                // how the Sign Up card's two document links are built.
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: GestureDetector(
+                    key: const ValueKey('manage-associates-plans-link'),
+                    onTap: () => context.push(AppRoutes.paywallFromFirmSetup),
+                    child: Text(
+                      l.paywall_title,
+                      style: AppTypography.bodyLg.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: ' ${l.manageAssociates_firmOverviewReadySuffix}',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One bold label and its sentence, with the icon that names the point.
+class _OverviewPoint extends StatelessWidget {
+  const _OverviewPoint({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  /// The point's own icon.
+  final IconData icon;
+
+  /// Bold lead-in, read as the point's label.
+  final String title;
+
+  /// The sentence that explains it.
+  final String body;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Nudged down to sit on the first line of the sentence beside it rather
+      // than on the top of the paragraph's box.
+      Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Icon(icon, size: 20, color: AppColors.primary),
+      ),
+      const SizedBox(width: AppSpacing.md),
+      Expanded(
+        child: Text.rich(
+          TextSpan(
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+            children: [
+              // The label and its sentence are one paragraph, so the bold run
+              // ends in the colon the sentence carries on from.
+              TextSpan(
+                text: '$title: ',
+                style: AppTypography.bodyMd.copyWith(
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              TextSpan(text: body),
+            ],
+          ),
+        ),
+      ),
+    ],
   );
 }
 
@@ -645,9 +798,7 @@ class _FirmCard extends ConsumerWidget {
               children: [
                 TextButton(
                   key: const ValueKey('firm-logo-change'),
-                  style: TextButton.styleFrom(
-                    textStyle: AppTypography.labelLg,
-                  ),
+                  style: TextButton.styleFrom(textStyle: AppTypography.labelLg),
                   onPressed: onChange,
                   child: Text(
                     hasLogo
@@ -950,7 +1101,8 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
     final l = AppLocalizations.of(context);
     final capacity = ref.watch(firmCapacityViewProvider);
     final flagged = widget.member.capacitySignedOutAt != null;
-    final showSignOut = !flagged &&
+    final showSignOut =
+        !flagged &&
         capacity != null &&
         (capacity.shrinkPending || capacity.overRoster || capacity.overDevices);
 
@@ -1134,7 +1286,9 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
     );
     if (!confirmed) return;
     await _run(() async {
-      await ref.read(firmRepositoryProvider).signOutMember(widget.member.userId);
+      await ref
+          .read(firmRepositoryProvider)
+          .signOutMember(widget.member.userId);
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
       Navigator.of(context).maybePop();
@@ -1478,5 +1632,6 @@ class _InviteCodeSheet extends ConsumerWidget {
 }
 
 /// Shows [message] over the current screen.
-void _say(BuildContext context, String message) =>
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+void _say(BuildContext context, String message) => ScaffoldMessenger.of(
+  context,
+).showSnackBar(SnackBar(content: Text(message)));

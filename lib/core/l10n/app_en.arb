@@ -2564,6 +2564,14 @@
       }
   },
   "subscription_bannerGrace": "Your subscription expired. Renew to avoid losing sync access.",
+  "subscription_bannerGraceCountdown": "Sync stops in {time}.",
+  "@subscription_bannerGraceCountdown": {
+      "placeholders": {
+          "time": {
+              "type": "String"
+          }
+      }
+  },
   "subscription_bannerExpiredOwner": "Your premium subscription has ended. Renew your subscription to restore sync.",
   "subscription_bannerExpiredAssociate": "Your firm's premium subscription has ended. Contact your firm owner to renew.",
   "settingsManageAccount_plan": "Plan",

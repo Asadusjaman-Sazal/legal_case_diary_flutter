@@ -5334,6 +5334,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your subscription expired. Renew to avoid losing sync access.';
 
   @override
+  String subscription_bannerGraceCountdown(String time) {
+    return 'Sync stops in $time.';
+  }
+
+  @override
   String get subscription_bannerExpiredOwner =>
       'Your premium subscription has ended. Renew your subscription to restore sync.';
 

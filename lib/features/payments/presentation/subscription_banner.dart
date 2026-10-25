@@ -16,7 +16,8 @@
 ///   * **endingSoonAssociate** — the same week, as a member sees it: the plan is
 ///     the chamber's, so they are told to ask the owner to renew;
 ///   * **grace** — the expiry has passed but the 48h buffer has not, so sync is
-///     still fully active and the banner asks the user to renew;
+///     still fully active; the banner asks the user to renew and shows the live
+///     `HH:MM:SS` remaining in the grace;
 ///   * **expiredOwner** — past grace, the owner (and any individual) is told to
 ///     renew to restore sync;
 ///   * **expiredAssociate** — past grace, an associate is told to contact their
@@ -26,6 +27,8 @@
 /// learns before losing sync, and a dismissed renewal warning is a warning the
 /// user did not get.
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -120,14 +123,20 @@ class SubscriptionBannerInfo {
   /// the two ending-soon states.
   final int? daysLeft;
 
-  /// The cached end date, so the message can name it; null when unknown.
+  /// The cached end date, so the message can name it; set for the two
+  /// ending-soon states and for the grace countdown.
   final int? expiry;
+
+  /// The recorded `server - device` offset, so the countdown runs on the same
+  /// corrected clock as the banner state.
+  final int clockOffsetMs;
 
   /// Creates the info.
   const SubscriptionBannerInfo({
     required this.state,
     this.daysLeft,
     this.expiry,
+    this.clockOffsetMs = 0,
   });
 
   /// The unbounded state, used when nothing is shown.
@@ -153,10 +162,19 @@ SubscriptionBannerInfo resolveSubscriptionBannerInfo({
     firmMember: firmMember,
     role: role,
   );
-  if (expiry == null ||
-      (state != SubscriptionBannerState.endingSoon &&
-          state != SubscriptionBannerState.endingSoonAssociate)) {
-    return SubscriptionBannerInfo(state: state);
+  if (expiry == null) {
+    return SubscriptionBannerInfo(
+      state: state,
+      clockOffsetMs: clockOffsetMs,
+    );
+  }
+  if (state != SubscriptionBannerState.endingSoon &&
+      state != SubscriptionBannerState.endingSoonAssociate) {
+    return SubscriptionBannerInfo(
+      state: state,
+      expiry: state == SubscriptionBannerState.grace ? expiry : null,
+      clockOffsetMs: clockOffsetMs,
+    );
   }
   final serverNow = now.toUtc().add(Duration(milliseconds: clockOffsetMs));
   return SubscriptionBannerInfo(
@@ -166,7 +184,28 @@ SubscriptionBannerInfo resolveSubscriptionBannerInfo({
       nowEpochMs: serverNow.millisecondsSinceEpoch,
     ),
     expiry: expiry,
+    clockOffsetMs: clockOffsetMs,
   );
+}
+
+/// Formats the remaining grace as `HH:MM:SS` in the locale's own digits.
+///
+/// The countdown is capped at the full 48-hour window, so a stale cached expiry
+/// can never print a longer window than the grace actually has.
+String formatGraceCountdown(Duration remaining, String locale) {
+  final raw = remaining.isNegative ? 0 : remaining.inSeconds;
+  final seconds = raw > 48 * 60 * 60 ? 48 * 60 * 60 : raw;
+  final hours = seconds ~/ 3600;
+  final minutes = (seconds % 3600) ~/ 60;
+  final second = seconds % 60;
+  final zero = AppDateUtils.formatDigits(0, locale, grouping: false);
+
+  String two(int value) {
+    final text = AppDateUtils.formatDigits(value, locale, grouping: false);
+    return value < 10 ? '$zero$text' : text;
+  }
+
+  return '${two(hours)}:${two(minutes)}:${two(second)}';
 }
 
 /// The recorded clock offset (`server - device`), 0 before the first sync.
@@ -251,9 +290,24 @@ class SubscriptionBanner extends ConsumerWidget {
           Icon(icon, size: 18, color: foreground),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(
-              message,
-              style: AppTypography.bodySm.copyWith(color: foreground),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  message,
+                  style: AppTypography.bodySm.copyWith(color: foreground),
+                ),
+                if (info.state == SubscriptionBannerState.grace &&
+                    info.expiry != null) ...[
+                  const SizedBox(height: 2),
+                  _GraceCountdown(
+                    expiryEpochMs: info.expiry!,
+                    clockOffsetMs: info.clockOffsetMs,
+                    color: foreground,
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -281,5 +335,89 @@ class SubscriptionBanner extends ConsumerWidget {
     return associate
         ? l.subscription_bannerEndingAssociate(days, date)
         : l.subscription_bannerEnding(days, date);
+  }
+}
+
+/// The live `HH:MM:SS` remaining in the 48-hour grace.
+///
+/// It ticks once a second, uses the same corrected clock as the banner, and at
+/// zero invalidates the banner's info so the state turns into the red expired
+/// message. It is mounted only inside the grace state, so an account that is
+/// not in the grace runs no timer at all.
+class _GraceCountdown extends ConsumerStatefulWidget {
+  const _GraceCountdown({
+    required this.expiryEpochMs,
+    required this.clockOffsetMs,
+    required this.color,
+  });
+
+  /// The paid period's end, in epoch milliseconds.
+  final int expiryEpochMs;
+
+  /// The recorded `server - device` offset.
+  final int clockOffsetMs;
+
+  /// The banner's foreground, so the countdown matches the message.
+  final Color color;
+
+  @override
+  ConsumerState<_GraceCountdown> createState() => _GraceCountdownState();
+}
+
+class _GraceCountdownState extends ConsumerState<_GraceCountdown> {
+  Timer? _timer;
+  late Duration _remaining;
+
+  @override
+  void initState() {
+    super.initState();
+    _remaining = _compute();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    if (_remaining <= Duration.zero) {
+      // A stale banner can mount this at the boundary; flip it after the frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.invalidate(subscriptionBannerInfoProvider);
+      });
+    }
+  }
+
+  Duration _compute() {
+    final serverNow = DateTime.now()
+        .toUtc()
+        .add(Duration(milliseconds: widget.clockOffsetMs));
+    final graceEnd = DateTime.fromMillisecondsSinceEpoch(
+      widget.expiryEpochMs,
+      isUtc: true,
+    ).add(const Duration(hours: 48));
+    return graceEnd.difference(serverNow);
+  }
+
+  void _tick() {
+    if (!mounted) return;
+    final remaining = _compute();
+    if (remaining <= Duration.zero) {
+      _timer?.cancel();
+      ref.invalidate(subscriptionBannerInfoProvider);
+      return;
+    }
+    setState(() => _remaining = remaining);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Text(
+      l.subscription_bannerGraceCountdown(
+        formatGraceCountdown(_remaining, l.localeName),
+      ),
+      key: const ValueKey('subscription-grace-countdown'),
+      style: AppTypography.titleMd.copyWith(color: widget.color),
+    );
   }
 }

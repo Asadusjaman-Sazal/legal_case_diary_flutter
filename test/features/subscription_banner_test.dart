@@ -234,6 +234,38 @@ void main() {
     });
   });
 
+  group('grace countdown', () {
+    test('formats the window in the locale digits', () {
+      expect(
+        formatGraceCountdown(
+          const Duration(hours: 47, minutes: 59, seconds: 58),
+          'en',
+        ),
+        '47:59:58',
+      );
+      expect(
+        formatGraceCountdown(
+          const Duration(hours: 47, minutes: 59, seconds: 58),
+          'bn',
+        ),
+        '৪৭:৫৯:৫৮',
+      );
+      expect(
+        formatGraceCountdown(const Duration(minutes: 5, seconds: 3), 'en'),
+        '00:05:03',
+      );
+      expect(formatGraceCountdown(Duration.zero, 'en'), '00:00:00');
+      expect(
+        formatGraceCountdown(const Duration(seconds: -5), 'en'),
+        '00:00:00',
+      );
+      expect(
+        formatGraceCountdown(const Duration(hours: 49), 'en'),
+        '48:00:00',
+      );
+    });
+  });
+
   group('widget', () {
     Future<void> pump(WidgetTester tester, SubscriptionBannerInfo info) async {
       await tester.pumpWidget(
@@ -320,6 +352,32 @@ void main() {
         find.textContaining('Renew to avoid losing sync access'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('renders the live countdown inside the grace window', (
+      tester,
+    ) async {
+      final expiry = DateTime.now()
+          .toUtc()
+          .add(const Duration(hours: 1))
+          .millisecondsSinceEpoch;
+      await pump(
+        tester,
+        SubscriptionBannerInfo(
+          state: SubscriptionBannerState.grace,
+          expiry: expiry,
+        ),
+      );
+
+      expect(
+        find.byKey(const ValueKey('subscription-grace-countdown')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Sync stops in'), findsOneWidget);
+
+      // Dispose the banner so its one-second timer is cancelled with the test.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpWidget(const SizedBox.shrink());
     });
 
     testWidgets('renders the owner message', (tester) async {

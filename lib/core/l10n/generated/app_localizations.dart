@@ -9136,6 +9136,12 @@ abstract class AppLocalizations {
   /// **'Your subscription expired. Renew to avoid losing sync access.'**
   String get subscription_bannerGrace;
 
+  /// No description provided for @subscription_bannerGraceCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync stops in {time}.'**
+  String subscription_bannerGraceCountdown(String time);
+
   /// No description provided for @subscription_bannerExpiredOwner.
   ///
   /// In en, this message translates to:

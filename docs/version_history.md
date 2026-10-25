@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.635 - Chamber slots are shared between associates and the owner's devices; a downgrade shrinks only after the 48-hour grace, with an owner-chosen or automatic trim and plan cards that state the slots.
+Version: 0.0.636 - The 48-hour grace banner now shows a live HH:MM:SS countdown to sync stopping, in the locale's digits and on the corrected server clock.
 --------------------------------------
 
 ## Version History Log:
@@ -649,3 +649,4 @@ Version: 0.0.632 - Storage policies move to a manual SQL file because the migrat
 Version: 0.0.633 - The two avatar migrations are applied and delete-account is deployed; the eight storage policies await the dashboard step.
 Version: 0.0.634 - The eight storage policies are live and both storage proofs pass; the avatar and logo setup is complete.
 Version: 0.0.635 - Chamber slots are shared between associates and the owner's devices; a downgrade shrinks only after the 48-hour grace, with an owner-chosen or automatic trim and plan cards that state the slots.
+Version: 0.0.636 - The 48-hour grace banner now shows a live HH:MM:SS countdown to sync stopping, in the locale's digits and on the corrected server clock.

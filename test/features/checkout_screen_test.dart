@@ -164,40 +164,50 @@ void main() {
     expect(find.textContaining('Submission Received'), findsOneWidget);
   });
 
-  testWidgets('a confirmed submit keeps the snackbar and opens Subscription '
-      'History', (tester) async {
+  testWidgets('a confirmed submit keeps the snackbar, opens Subscription '
+      'History, and Back walks back through Account & Profile and Settings', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    // A router that mirrors the app's nesting: the shell is already in the
-    // stack when the checkout pushes Subscription History, which is what made a
-    // shell-route push throw a duplicated-page-key error (a black screen). The
-    // history page is a top-level route here, exactly as it is in
-    // `app_router.dart`, so the real push is exercised.
+    // A router that mirrors the app's nesting: the shell holds the landing,
+    // Settings and Account & Profile pages, while Subscription History is a
+    // top-level route, exactly as it is in `app_router.dart`.
+    Widget page(String label) => Scaffold(
+      appBar: AppBar(leading: const BackButton()),
+      body: Text(label),
+    );
     final router = GoRouter(
-      initialLocation: AppRoutes.settingsAccountProfile,
+      initialLocation: AppRoutes.dailyCauseList,
       routes: [
+        ShellRoute(
+          builder: (context, state, child) => Scaffold(body: child),
+          routes: [
+            GoRoute(
+              path: AppRoutes.dailyCauseList,
+              builder: (context, state) => page('Landing-Page'),
+            ),
+            GoRoute(
+              path: AppRoutes.settings,
+              builder: (context, state) => page('Settings-Page'),
+            ),
+            GoRoute(
+              path: AppRoutes.settingsAccountProfile,
+              builder: (context, state) => page('Account-Profile-Page'),
+            ),
+          ],
+        ),
         GoRoute(
           path: AppRoutes.checkout,
           builder: (context, state) => CheckoutScreen(
             planKey: paymentPlanProMonthly,
           ),
         ),
-        ShellRoute(
-          builder: (context, state, child) => Scaffold(body: child),
-          routes: [
-            GoRoute(
-              path: AppRoutes.settingsAccountProfile,
-              builder: (context, state) =>
-                  const Scaffold(body: Text('Shell-Home')),
-            ),
-          ],
-        ),
         GoRoute(
           path: AppRoutes.settingsSubscriptionHistory,
-          builder: (context, state) =>
-              const Scaffold(body: Text('History-Landed')),
+          builder: (context, state) => page('History-Landed'),
         ),
       ],
     );
@@ -218,6 +228,11 @@ void main() {
               buildDefaults: const <String, String>{},
             ),
           ),
+          // The post-submit stack reuses the configured landing page, which the
+          // real router has already resolved before any screen is built.
+          defaultLandingRouteProvider.overrideWith(
+            (ref) async => AppRoutes.dailyCauseList,
+          ),
         ],
         child: MaterialApp.router(
           routerConfig: router,
@@ -229,11 +244,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Reach the checkout from the shell, so the shell page sits beneath it —
-    // the stack shape that broke a shell-route push.
+    // Reach the checkout from Account & Profile, the app's normal purchase
+    // path, so the pages it now has to replace are really in the stack.
+    router.push(AppRoutes.settings);
+    router.push(AppRoutes.settingsAccountProfile);
     router.push(AppRoutes.checkout);
     await tester.pumpAndSettle();
-    expect(find.text('Shell-Home'), findsNothing);
+    expect(find.text('Account-Profile-Page'), findsNothing);
 
     await tester.enterText(
       find.byKey(const ValueKey('checkout-phone')),
@@ -250,5 +267,19 @@ void main() {
     expect(repo.submitted, ['TRX42']);
     expect(find.text('History-Landed'), findsOneWidget);
     expect(find.textContaining('Submission Received'), findsOneWidget);
+
+    // Back from History reaches Account & Profile, never the completed checkout.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Account-Profile-Page'), findsOneWidget);
+    expect(find.text('History-Landed'), findsNothing);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Settings-Page'), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Landing-Page'), findsOneWidget);
   });
 }

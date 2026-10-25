@@ -165,10 +165,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       // Keep the confirmation, then take the user to Subscription History, so
       // the pending row they just created is the first entry they see. The plan
       // itself has not changed yet — an admin approves the payment first — so
-      // Manage Plan would still show the old plan. The route is a top-level one
-      // so this push works from the root checkout.
+      // Manage Plan would still show the old plan.
+      //
+      // The stack is rebuilt rather than pushed onto: the checkout is finished,
+      // and leaving it under the history made Back reopen it (user request).
+      // The chain the user asked for is History → Account & Profile → Settings
+      // → the configured landing page, so all three sit beneath the history.
       _showMessage(l.payments_submitSuccess);
-      GoRouter.maybeOf(context)?.push(AppRoutes.settingsSubscriptionHistory);
+      final router = GoRouter.maybeOf(context);
+      if (router != null) {
+        final landing =
+            ref.read(defaultLandingRouteProvider).value ??
+            AppRoutes.dailyCauseList;
+        router.go(landing);
+        router.push(AppRoutes.settings);
+        router.push(AppRoutes.settingsAccountProfile);
+        router.push(AppRoutes.settingsSubscriptionHistory);
+      }
     } else {
       _showMessage(
         _failureMessage(l, ref.read(paymentViewModelProvider).value),

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.639 - Manage Account's Delete Local Data window is now titled Delete Local Data?, while the premium cloud window keeps its own Delete Data? title.
+Version: 0.0.640 - After a submitted payment, Back from Subscription History now reaches Account & Profile, then Settings and the configured landing page, instead of reopening Checkout.
 --------------------------------------
 
 ## Version History Log:
@@ -653,3 +653,4 @@ Version: 0.0.636 - The 48-hour grace banner now shows a live HH:MM:SS countdown 
 Version: 0.0.637 - Settings search now finds sub-settings three or four levels deep by label, shows their breadcrumb, and opens the screen that holds them.
 Version: 0.0.638 - Added the full manual verification checklist for the shared firm capacity and device limits, with test data, the 48-hour SQL shortcut, cleanup and a results log.
 Version: 0.0.639 - Manage Account's Delete Local Data window is now titled Delete Local Data?, while the premium cloud window keeps its own Delete Data? title.
+Version: 0.0.640 - After a submitted payment, Back from Subscription History now reaches Account & Profile, then Settings and the configured landing page, instead of reopening Checkout.

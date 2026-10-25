@@ -1,5 +1,11 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Back from Subscription History goes through the account — COMPLETE (0.0.640)
+
+- **What was asked.** After submitting a payment from Checkout, Back on Subscription History reopened Checkout. It should instead go to **Account & Profile**, then **Settings**, then the default landing page.
+- **What changed.** The successful submit no longer pushes History onto the checkout. It rebuilds the stack as the configured landing page → **Settings** → **Account & Profile** → **Subscription History** (the landing comes from `defaultLandingRouteProvider`). The checkout is gone from the stack, so both the header back button and the system back reach Account & Profile; its own back reaches Settings, and Settings' back reaches the landing page. No screen body or copy changed.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,093 passed**; `checkout_screen_test.dart` now mirrors the shell nesting and walks all three backs (History → Account & Profile → Settings → landing) while still pinning the *Submission Received* notice.
+
 ### 2026-10-26 — The Delete Local Data window names itself — COMPLETE (0.0.639)
 
 - **What was asked.** Only in Manage Account → Delete Local Data, the tick-list pop-over's title should read **Delete Local Data?**.

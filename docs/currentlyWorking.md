@@ -1,5 +1,27 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Delete Requests moves into the Firm section — COMPLETE (0.0.649)
+
+- **What was asked.** Move the **Delete Requests** sub-menu out of Settings and into Accounts & Profile > **Firm**, after **Manage Associates**.
+- **What changed.** The row is gone from the main Settings list and now sits in the Firm section directly after Manage Associates, opening the same screen on the same route. It keeps its rule (firm mode only) and its **badge** — the count of what is waiting on this account — now drawn as a pill on the card with the chevron beside it. The Firm section is drawn when **either** row shows, so an associate, who is never offered Manage Associates, still reaches their requests; the label never dangles above nothing. The Settings list's now-unused badge code (`_SettingsItem.badgeCount`, `_CountPill`, its import) was deleted with the row rather than left behind.
+- **Checks.** `flutter analyze` clean; `flutter test test/features/accounts_profile_menu_test.dart` **15 passed**, including four new cases (the row after Manage Associates, an associate seeing it alone, the pill's count, and the tap opening the screen). Full `flutter test` **2,107 passed** on the re-run — the first run failed `a saved chamber logo…` once, which passed alone and in the re-run, so it is a timing-sensitive logo decode rather than this change.
+- **Mockup.** None owed: the Accounts & Profile menu has no mockup of its own (rule 9).
+
+### 2026-10-26 — The device point is renamed Multi-device Access — COMPLETE (0.0.648)
+
+- **What was asked.** Rename the overview card's second point from *Flexible Device Access* to *Multi-device Access*.
+- **What changed.** `manageAssociates_firmOverviewDevicesTitle` in both ARBs — **Multi-device Access** / **একাধিক ডিভাইস অ্যাক্সেস** (the plans screen's own words for the feature) — and the regenerated localisations. Nothing else on the screen moved.
+- **Checks.** `flutter analyze` clean; `flutter test test/features/manage_associates_test.dart` **29 passed** (the case reads the label from the ARB, so no literal needed changing).
+- **Mockup.** None owed: Manage Associates has no mockup (rule 9).
+
+### 2026-10-26 — The plans link drops to body size, and the form gets a title — COMPLETE (0.0.647)
+
+- **What was asked.** Three fixes on Manage Associates: the **Subscription Plans** link should be the same size as the body text (still bold and underlined); the *Add your first associate…* sentence should go, replaced by a **Create a Firm** title above the Firm Name box; and the name box's placeholder should be sentence case.
+- **What changed.** The link is `bodyMd` (was `bodyLg`) with its bold and underline kept. `manageAssociates_createFirmIntro` is deleted from both ARBs and a new `manageAssociates_createFirmTitle` — *Create a Firm* / *ফার্ম তৈরি করুন* — is drawn in the explainer's title size above the Firm Name card. The hint is now *Enter your chamber or firm name*; Bengali unchanged (no letter case).
+- **Checks.** `flutter analyze` clean; `flutter test test/features/manage_associates_test.dart` **29 passed**, including the cases that pin the link's `bodyMd` size and the new title's position above the name box.
+- **Note for the next session.** The test file already carried those expectations as uncommitted edits when this session started, so the change was made to match them rather than the other way round; nothing in them was rewritten.
+- **Mockup.** None owed: Manage Associates has no mockup (rule 9).
+
 ### 2026-10-26 — The create-firm page explains what a firm is — COMPLETE (0.0.646)
 
 - **What was asked.** In Accounts & Profile > Firms, while no firm exists, show an overview of what a firm offers above the existing Create Firm section, with the last paragraph naming **Subscription Plans** as a link that opens that screen with the firm plans already open.

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.646 - Manage Associates explains what a firm is above the create-firm form, and its Subscription Plans link opens the paywall on the Firm cards.
+Version: 0.0.649 - Delete Requests moved from Settings to Accounts & Profile > Firm, after Manage Associates, keeping its waiting-count badge.
 --------------------------------------
 
 ## Version History Log:
@@ -660,3 +660,6 @@ Version: 0.0.643 - After a confirmed payment, the app re-reads the account every
 Version: 0.0.644 - The post-payment watch now stops on the first change to the account's governing expiry, so renewals and plan changes end without waiting out the ten-minute window.
 Version: 0.0.645 - A Firm, Firm Plus or Enterprise buyer with no chamber now keeps the tier's full device slots (5/10/20) for their own devices, and the app re-reads the cap after an approval.
 Version: 0.0.646 - Manage Associates explains what a firm is above the create-firm form, and its Subscription Plans link opens the paywall on the Firm cards.
+Version: 0.0.647 - The Manage Associates plans link drops to body size, the create-firm sentence becomes a Create a Firm title, and the name hint is sentence case.
+Version: 0.0.648 - The firm overview's device point is renamed Multi-device Access in both languages.
+Version: 0.0.649 - Delete Requests moved from Settings to Accounts & Profile > Firm, after Manage Associates, keeping its waiting-count badge.

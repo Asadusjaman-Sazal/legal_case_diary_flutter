@@ -4802,14 +4802,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_unnamedMember => 'Unnamed Member';
 
   @override
-  String get manageAssociates_createFirmIntro =>
-      'Add Your First Associate To Create Your Firm And Work Together.';
+  String get manageAssociates_createFirmTitle => 'Create a Firm';
 
   @override
   String get manageAssociates_firmNameLabel => 'Firm Name';
 
   @override
-  String get manageAssociates_firmNameHint => 'Enter Your Chamber Or Firm Name';
+  String get manageAssociates_firmNameHint => 'Enter your chamber or firm name';
 
   @override
   String get manageAssociates_addLogo => 'Add Logo';
@@ -4960,8 +4959,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Share your diary with your associates so they can add cases, update court dates, and maintain your diary on your behalf — allowing you to focus on more pressing matters.';
 
   @override
-  String get manageAssociates_firmOverviewDevicesTitle =>
-      'Flexible Device Access';
+  String get manageAssociates_firmOverviewDevicesTitle => 'Multi-device Access';
 
   @override
   String get manageAssociates_firmOverviewDevicesBody =>

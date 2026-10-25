@@ -28,6 +28,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/profil
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/sync/delete_requests_dao.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 
 import 'auth_test_support.dart';
@@ -39,6 +40,7 @@ const String plansMarker = 'Subscription Plans Route';
 const String historyMarker = 'Subscription History Route';
 const String appLockMarker = 'App Lock Route';
 const String devicesMarker = 'Devices Route';
+const String deleteRequestsMarker = 'Delete Requests Route';
 
 /// Epoch ms 30 days from now: an active premium entitlement for the caches.
 int get _premiumExpiryMs =>
@@ -102,6 +104,10 @@ void main() {
           path: AppRoutes.settingsDevices,
           builder: (_, _) => const Scaffold(body: Text(devicesMarker)),
         ),
+        GoRoute(
+          path: AppRoutes.settingsDeleteRequests,
+          builder: (_, _) => const Scaffold(body: Text(deleteRequestsMarker)),
+        ),
       ],
     );
     l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -129,6 +135,104 @@ void main() {
     ),
   );
 
+  /// A cached profile that belongs to a chamber, which is what firm mode reads.
+  Future<void> seedFirmMember(
+    AppDatabase db, {
+    String role = AccountRole.owner,
+  }) => ProfilesDao(db).upsert(
+    ProfilesCompanion(
+      id: const Value('user-1'),
+      fullName: const Value('Adv. Rahim Uddin'),
+      role: Value(role),
+      firmId: const Value('firm-1'),
+      tier: const Value('firm'),
+      subscriptionStatus: const Value('active'),
+      subscriptionExpiry: Value(_premiumExpiryMs),
+      createdAt: const Value(1),
+    ),
+  );
+
+  testWidgets(
+    'Delete Requests sits in the Firm section after Manage Associates',
+    (tester) async {
+      await pumpMenu(tester, seed: (db) => seedFirmMember(db));
+
+      expect(find.text(l.manageAssociates_title), findsOneWidget);
+      expect(find.text(l.deleteRequests_title), findsOneWidget);
+      expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+      // Directly after Manage Associates, inside the same section.
+      expect(
+        tester.getTopLeft(find.text(l.deleteRequests_title)).dy,
+        greaterThan(tester.getTopLeft(find.text(l.manageAssociates_title)).dy),
+      );
+
+      await unmountApp(tester);
+    },
+  );
+
+  testWidgets(
+    'an associate is offered Delete Requests but not Manage Associates',
+    (tester) async {
+      await pumpMenu(
+        tester,
+        seed: (db) => seedFirmMember(db, role: AccountRole.associate),
+      );
+
+      // The queue is every member's; firm administration is the owner's alone.
+      expect(find.text(l.deleteRequests_title), findsOneWidget);
+      expect(find.text(l.manageAssociates_title), findsNothing);
+      expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+
+      await unmountApp(tester);
+    },
+  );
+
+  testWidgets('the row carries the count of what is waiting on the account', (
+    tester,
+  ) async {
+    await pumpMenu(
+      tester,
+      seed: (db) async {
+        await seedFirmMember(db);
+        // A colleague's pending request, which is the reviewer's queue: the
+        // owner holds delete permission, so this is what is waiting on them.
+        await DeleteRequestsDao(db).insert(
+          DeleteRequestsCompanion(
+            id: const Value('req-1'),
+            firmId: const Value('firm-1'),
+            entityType: const Value('note'),
+            entityId: const Value('note-1'),
+            entitySnapshot: const Value('{}'),
+            targetBaseVersion: const Value(2),
+            requestedBy: const Value('user-2'),
+            status: const Value('pending'),
+            createdAt: const Value(1000),
+            updatedAt: const Value(2000),
+            version: const Value(4),
+            lastModifiedBy: const Value('user-2'),
+            isDeleted: const Value(false),
+          ),
+        );
+      },
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('1'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Delete Requests opens its own screen', (tester) async {
+    await pumpMenu(tester, seed: (db) => seedFirmMember(db));
+
+    await tester.tap(find.text(l.deleteRequests_title));
+    await tester.pumpAndSettle();
+
+    expect(find.text(deleteRequestsMarker), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
   testWidgets('groups the rows under Profile, Account, Subscription and Firm', (
     tester,
   ) async {
@@ -138,7 +242,10 @@ void main() {
     );
 
     // Section labels. "Profile" is both the section label and its row title.
-    expect(find.text(l.settingsAccountProfile_sectionProfile), findsNWidgets(2));
+    expect(
+      find.text(l.settingsAccountProfile_sectionProfile),
+      findsNWidgets(2),
+    );
     expect(find.text(l.settingsAccountProfile_sectionAccount), findsOneWidget);
     expect(find.text(l.settingsSubscription_title), findsOneWidget);
     expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
@@ -156,7 +263,10 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(l.payments_historyTitle), findsOneWidget);
-    expect(find.text(l.settingsAccountProfile_managePlanSubtitle), findsOneWidget);
+    expect(
+      find.text(l.settingsAccountProfile_managePlanSubtitle),
+      findsOneWidget,
+    );
     expect(
       find.text(l.settingsAccountProfile_subscriptionPlansSubtitle),
       findsOneWidget,
@@ -181,23 +291,27 @@ void main() {
       seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
     );
 
-    final accountY =
-        tester.getTopLeft(find.text(l.settingsAccountProfile_sectionAccount)).dy;
-    final manageY =
-        tester.getTopLeft(find.text(l.settingsScreen_manageAccount)).dy;
+    final accountY = tester
+        .getTopLeft(find.text(l.settingsAccountProfile_sectionAccount))
+        .dy;
+    final manageY = tester
+        .getTopLeft(find.text(l.settingsScreen_manageAccount))
+        .dy;
     final lockY = tester.getTopLeft(find.text(l.settingsAppLock_title)).dy;
     final devicesY = tester.getTopLeft(find.text(l.devices_title)).dy;
-    final subscriptionY =
-        tester.getTopLeft(find.text(l.settingsSubscription_title)).dy;
-    final planY =
-        tester.getTopLeft(find.text(l.settingsSubscription_managePlanTitle)).dy;
-    final plansY =
-        tester.getTopLeft(
-          find.text(l.settingsManageAccount_purchaseNewSubscription),
-        ).dy;
+    final subscriptionY = tester
+        .getTopLeft(find.text(l.settingsSubscription_title))
+        .dy;
+    final planY = tester
+        .getTopLeft(find.text(l.settingsSubscription_managePlanTitle))
+        .dy;
+    final plansY = tester
+        .getTopLeft(find.text(l.settingsManageAccount_purchaseNewSubscription))
+        .dy;
     final historyY = tester.getTopLeft(find.text(l.payments_historyTitle)).dy;
-    final firmY =
-        tester.getTopLeft(find.text(l.settingsAccountProfile_sectionFirm)).dy;
+    final firmY = tester
+        .getTopLeft(find.text(l.settingsAccountProfile_sectionFirm))
+        .dy;
 
     expect(manageY, greaterThan(accountY));
     expect(lockY, greaterThan(manageY));

@@ -2188,6 +2188,8 @@
   "manageAssociates_dissolveConfirmTitle": "এই ফার্ম বিলুপ্ত করবেন?",
   "manageAssociates_dissolveConfirmBody": "ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হয়ে যাবে, আর যাঁরা সেগুলো লিখেছেন সেই সহকারীরা আর সেগুলো দেখতে পাবেন না। আপনার প্ল্যান বাতিল হবে না, আর প্রতিটি রেকর্ডে লেখকের নাম অপরিবর্তিত থাকবে। এটি ফিরিয়ে আনা যাবে না।",
   "manageAssociates_dissolveDone": "ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।",
+  "manageAssociates_capacityTitle": "ডিভাইস ব্যবহার",
+  "manageAssociates_inviteCodeUnavailable": "এই ডিভাইসে কোডটি নেই।",
   "manageAssociates_firmOverviewTitle": "ফার্ম কী?",
   "manageAssociates_firmOverviewCollaborateTitle": "সহকারীদের সাথে একসাথে কাজ করুন",
   "manageAssociates_firmOverviewCollaborateBody": "আপনার ডায়েরি সহকারীদের সাথে শেয়ার করুন, যাতে তারা মামলা যোগ করতে, আদালতের তারিখ হালনাগাদ করতে এবং আপনার পক্ষে ডায়েরি দেখাশোনা করতে পারেন — এতে আপনি আরও জরুরি কাজে মন দিতে পারবেন।",

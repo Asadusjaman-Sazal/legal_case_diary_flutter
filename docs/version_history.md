@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.652 - The Invite Code pop-over is wider so Copy Code and Share sit on one row with Close beneath them.
+Version: 0.0.653 - Manage Associates: firm logo frame with Profile-style edit and delete, Device Usage title, invite codes shown and tappable to copy, and red Revoke and Dissolve actions.
 --------------------------------------
 
 ## Version History Log:
@@ -666,3 +666,4 @@ Version: 0.0.649 - Delete Requests moved from Settings to Accounts & Profile > F
 Version: 0.0.650 - The Delete Requests card gains the supporting line every other card on Accounts & Profile already has.
 Version: 0.0.651 - The Invite Code is a centred pop-over with Exit App button sizes, sentence-case copy, and a copy confirmation shown inside the window.
 Version: 0.0.652 - The Invite Code pop-over is wider so Copy Code and Share sit on one row with Close beneath them.
+Version: 0.0.653 - Manage Associates: firm logo frame with Profile-style edit and delete, Device Usage title, invite codes shown and tappable to copy, and red Revoke and Dissolve actions.

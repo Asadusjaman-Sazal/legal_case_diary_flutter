@@ -4975,6 +4975,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।';
 
   @override
+  String get manageAssociates_capacityTitle => 'ডিভাইস ব্যবহার';
+
+  @override
+  String get manageAssociates_inviteCodeUnavailable => 'এই ডিভাইসে কোডটি নেই।';
+
+  @override
   String get manageAssociates_firmOverviewTitle => 'ফার্ম কী?';
 
   @override

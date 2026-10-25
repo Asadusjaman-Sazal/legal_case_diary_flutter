@@ -8,6 +8,14 @@
 /// enough for the plan label, the gates and the ledger to update without a
 /// sign-out. It is deliberately bounded — a payment left undecided longer than
 /// the window falls back to the ordinary launch/resume refresh.
+///
+/// **It stops as soon as the subscription itself moves.** The governing expiry
+/// (the profile's for an individual, the firm's for a chamber account) is
+/// captured at the start and compared after every successful refresh. Every
+/// approval changes it — a renewal extends it, an upgrade or a queued downgrade
+/// writes the new period — so a payment applied to an account that was already
+/// premium ends the watch as quickly as a free → premium one does. A refresh
+/// that fails compares nothing, and the tick limit remains the backstop.
 library;
 
 import 'dart:async';
@@ -16,7 +24,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/repository_providers.dart';
+import '../../../shared/providers/database_provider.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../auth/presentation/auth_viewmodel.dart';
+import '../../settings/data/premium_access.dart';
 
 /// How long a freshly submitted payment is watched for a decision.
 const Duration paymentApprovalWatchWindow = Duration(minutes: 10);
@@ -48,6 +59,22 @@ class PaymentApprovalWatch extends Notifier<int> {
 final paymentApprovalWatchProvider =
     NotifierProvider<PaymentApprovalWatch, int>(PaymentApprovalWatch.new);
 
+/// Reads the expiry that governs this account's entitlement from the cache.
+///
+/// The profile's expiry for an individual and the firm's for a chamber
+/// account — the same value `resolveSubscriptionExpiry` gives the entitlement,
+/// so a comparison cannot use a different date from the one the app acts on.
+/// A function rather than a cached future: every beat needs the value the last
+/// refresh just wrote, not what the provider first saw.
+final paymentApprovalExpiryProvider = Provider<Future<int?> Function()>((ref) {
+  return () async {
+    final userId = ref.read(authIdentityProvider)?.userId;
+    if (userId == null) return null;
+    final db = await ref.read(databaseProvider.future);
+    return resolveSubscriptionExpiry(db, userId);
+  };
+});
+
 /// Runs the bounded refresh while a submitted payment waits for a decision.
 class PaymentApprovalWatchScope extends ConsumerStatefulWidget {
   /// Creates the scope around [child].
@@ -69,8 +96,15 @@ class _PaymentApprovalWatchScopeState
   /// Refreshes left in the current watch.
   int _ticksLeft = 0;
 
-  /// Whether the account was already premium when the watch started, so a
-  /// free → premium approval can end it early while a renewal cannot.
+  /// The governing expiry when the watch started, and whether it could be read.
+  ///
+  /// A captured start is the primary stop signal; when the read fails, the
+  /// free → premium check below is the fallback.
+  int? _startExpiry;
+  bool _startExpiryCaptured = false;
+
+  /// Whether the account was already premium when the watch started, used only
+  /// when the start expiry could not be read.
   bool _wasPremium = false;
 
   /// One refresh at a time: a slow pull must not stack up ticks.
@@ -103,8 +137,29 @@ class _PaymentApprovalWatchScopeState
 
   /// Starts a fresh window.
   void _start() {
+    _timer?.cancel();
+    _timer = null;
     _ticksLeft = paymentApprovalWatchTicks;
     _wasPremium = ref.read(premiumAccessProvider).value == true;
+    _startExpiry = null;
+    _startExpiryCaptured = false;
+    // Guard the asynchronous read against a newer start or a stop arriving
+    // while it is in flight.
+    unawaited(_captureStart(ref.read(paymentApprovalWatchProvider)));
+  }
+
+  Future<void> _captureStart(int epoch) async {
+    int? expiry;
+    var captured = false;
+    try {
+      expiry = await ref.read(paymentApprovalExpiryProvider)();
+      captured = true;
+    } on Object {
+      // No cached expiry to compare against; the premium fallback still applies.
+    }
+    if (!mounted || ref.read(paymentApprovalWatchProvider) != epoch) return;
+    _startExpiry = expiry;
+    _startExpiryCaptured = captured;
     _startTimer();
   }
 
@@ -127,18 +182,39 @@ class _PaymentApprovalWatchScopeState
     if (_working) return;
     _working = true;
     try {
-      await ref.read(accountRefreshProvider)();
+      if (ref.read(authIdentityProvider) == null) {
+        _finish();
+        return;
+      }
+      final refreshed = await ref.read(accountRefreshProvider)();
       // An open Subscription History re-reads its two ledgers on the same beat,
       // so the pending card becomes Approved (or Rejected) with the plan.
       ref.invalidate(myPaymentSubmissionsProvider);
       ref.invalidate(mySubscriptionCancellationsProvider);
-      final premium = await ref.read(premiumAccessProvider.future);
-      if (!_wasPremium && premium) {
-        // The approval landed: the cache now says premium, so watching is done.
-        _finish();
-      } else if (_ticksLeft <= 0) {
-        _finish();
+      if (!refreshed) {
+        // Nothing was written, so there is nothing to compare this beat.
+        if (_ticksLeft <= 0) _finish();
+        return;
       }
+      if (_startExpiryCaptured) {
+        // Any approval moves the governing expiry: a renewal extends it, an
+        // upgrade or a queued downgrade writes the new period. Equal means the
+        // decision has not landed yet (or this beat's read failed).
+        final expiry = await ref.read(paymentApprovalExpiryProvider)();
+        if (expiry != _startExpiry) {
+          _finish();
+          return;
+        }
+      } else {
+        // The start could not be read; a free → premium rise is the only
+        // signal left, and it still ends the watch for the reported case.
+        final premium = await ref.read(premiumAccessProvider.future);
+        if (!_wasPremium && premium) {
+          _finish();
+          return;
+        }
+      }
+      if (_ticksLeft <= 0) _finish();
     } on Object {
       // A refresh that cannot run leaves the cache untouched; the next tick, a
       // resume or the next launch tries again.

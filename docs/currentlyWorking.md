@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Renewals stop the post-payment watch too — COMPLETE (0.0.644)
+
+- **What was asked.** Follow-up to 0.0.643: an **already-premium** renewal or plan change kept the 30-second polling until the ten-minute window even after the plan appeared, because the early stop only recognised free → premium.
+- **What changed.** The watch now captures the account's **governing expiry** when it starts — the profile's for an individual, the firm's for a chamber account, through the same `resolveSubscriptionExpiry` the entitlement uses — and re-reads it after every **successful** refresh. Any change ends the watch on that beat, so renewals, upgrades and queued downgrades stop as quickly as a free → premium approval. The free → premium check remains only as the fallback when the start expiry could not be read; a failed refresh compares nothing. A rejection moves no expiry, so it still runs to the window. No server change.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,100 passed**; the new case starts with the account already premium and moves the expiry on the first beat — one refresh, then the watch is stopped and later beats do nothing (the old behaviour would have kept polling).
+- **Remaining.** A rejected payment still polls to the ten-minute limit; stopping on the ledger's resolution (one extra read per tick) was considered and not added.
+
 ### 2026-10-26 — An approval applies itself without a sign-out — COMPLETE (0.0.643)
 
 - **What was reported.** After a free user bought a plan and an admin approved it, the app kept showing **Free** for minutes; only signing out and back in applied the plan.

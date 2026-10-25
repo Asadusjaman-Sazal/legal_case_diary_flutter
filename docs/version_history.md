@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.643 - After a confirmed payment, the app re-reads the account every 30 seconds for 10 minutes, so an admin approval applies the plan without signing out.
+Version: 0.0.644 - The post-payment watch now stops on the first change to the account's governing expiry, so renewals and plan changes end without waiting out the ten-minute window.
 --------------------------------------
 
 ## Version History Log:
@@ -657,3 +657,4 @@ Version: 0.0.640 - After a submitted payment, Back from Subscription History now
 Version: 0.0.641 - Every admin screen now re-reads its cloud lists once when it opens, so a payment alert opens Payment Requests with the current data instead of a cached list.
 Version: 0.0.642 - The side menu's Admin count now re-reads both admin lists each time the drawer opens, so a new payment request shows after a sync without needing a notification tap.
 Version: 0.0.643 - After a confirmed payment, the app re-reads the account every 30 seconds for 10 minutes, so an admin approval applies the plan without signing out.
+Version: 0.0.644 - The post-payment watch now stops on the first change to the account's governing expiry, so renewals and plan changes end without waiting out the ten-minute window.

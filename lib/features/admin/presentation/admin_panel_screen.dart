@@ -39,11 +39,29 @@ import '../../settings/presentation/settings_viewmodel.dart';
 import 'admin_viewmodel.dart';
 
 /// The administrator's menu: the two sets of work the panel holds.
-class AdminPanelScreen extends ConsumerWidget {
+class AdminPanelScreen extends ConsumerStatefulWidget {
   const AdminPanelScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminPanelScreen> createState() => _AdminPanelScreenState();
+}
+
+class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fresh counts on every open (user request): both lists are cached server
+    // reads, so without this the panel could show what it saw at the last pull.
+    // After the first frame, so the providers are not touched mid-build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.invalidate(adminPaymentRequestsProvider);
+      ref.invalidate(adminUnconfirmedAccountsProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
     /// A row's waiting count, in the language's own digits.

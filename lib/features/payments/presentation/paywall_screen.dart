@@ -77,11 +77,20 @@ class PaywallScreen extends ConsumerStatefulWidget {
   /// Whether the **lapsed allowance** card is shown (`?reason=lapsed`).
   final bool showLapsed;
 
+  /// The tab this entry opens on, or null for the tab the held tier sits on.
+  ///
+  /// One entry needs it: Manage Associates' firm overview sends an individual
+  /// here to buy the plan that creates a **firm**, and the chamber cards are
+  /// what that sentence promised — opening on Individual would answer the tap
+  /// with the wrong half of the ladder.
+  final SubscriptionAudience? initialAudience;
+
   /// Creates the paywall, hiding the gate cards unless their flag is set.
   const PaywallScreen({
     super.key,
     this.showLimit = false,
     this.showLapsed = false,
+    this.initialAudience,
   });
 
   /// Whether this entry shows the free-limit card.
@@ -92,14 +101,22 @@ class PaywallScreen extends ConsumerStatefulWidget {
   static bool showLapsedFor(GoRouterState state) =>
       state.uri.queryParameters['reason'] == 'lapsed';
 
+  /// The tab this entry opens on, from `?audience=firm` (`null` otherwise).
+  static SubscriptionAudience? initialAudienceFor(GoRouterState state) =>
+      state.uri.queryParameters[AppRoutes.paywallAudienceParam] ==
+          AppRoutes.paywallAudienceFirm
+      ? SubscriptionAudience.firm
+      : null;
+
   @override
   ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
 }
 
 class _PaywallScreenState extends ConsumerState<PaywallScreen> {
-  /// The tab the user chose, or null before the first tap (the effective
-  /// tier's own audience is used until then).
-  SubscriptionAudience? _audience;
+  /// The tab in hand: the tab this entry opened on, then whatever the user
+  /// chose. Null only when neither exists, and then the effective tier's own
+  /// audience is used.
+  late SubscriptionAudience? _audience = widget.initialAudience;
 
   /// Each tier's chosen term, or null after the selected term is tapped again.
   /// A tier with no entry defaults to its annual plan.
@@ -166,18 +183,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       ],
       SubscriptionTier.starter => <_PlanFeature>[
         _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
-        _PlanFeature(
-          Icons.cloud_upload_outlined,
-          l.paywall_featureCloudBackup,
-        ),
+        _PlanFeature(Icons.cloud_upload_outlined, l.paywall_featureCloudBackup),
         _PlanFeature(
           Icons.cloud_done_outlined,
           l.paywall_featureDisasterRecovery,
         ),
-        _PlanFeature(
-          Icons.smartphone_outlined,
-          l.paywall_featureSingleDevice,
-        ),
+        _PlanFeature(Icons.smartphone_outlined, l.paywall_featureSingleDevice),
       ],
       SubscriptionTier.pro => <_PlanFeature>[
         _PlanFeature(Icons.folder_outlined, cases(tier.caseCeiling!)),
@@ -272,9 +283,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final expiryMs = isFirmAccount
         ? firm?.subscriptionExpiry
         : profile?.subscriptionExpiry;
-    final pendingKey = isFirmAccount
-        ? firm?.tierPending
-        : profile?.tierPending;
+    final pendingKey = isFirmAccount ? firm?.tierPending : profile?.tierPending;
     final pendingFrom = isFirmAccount
         ? firm?.tierPendingFrom
         : profile?.tierPendingFrom;
@@ -295,8 +304,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         expiryMs != null &&
         expiryMs > DateTime.now().millisecondsSinceEpoch;
 
-    final audience =
-        _audience ?? effectiveTier.audience;
+    final audience = _audience ?? effectiveTier.audience;
 
     return SafeArea(
       top: true,
@@ -339,8 +347,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     Center(
                       child: _AudienceToggle(
                         selected: audience,
-                        onChanged: (value) =>
-                            setState(() => _audience = value),
+                        onChanged: (value) => setState(() => _audience = value),
                       ),
                     ),
                   ],
@@ -429,9 +436,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         _ScheduledBanner(
           key: const ValueKey('paywall-scheduled-banner'),
           label: l.paywall_scheduledBadge,
-          body: l.paywall_startsOn(
-            _dateText(l, pendingFrom!),
-          ),
+          body: l.paywall_startsOn(_dateText(l, pendingFrom!)),
           tier: subscriptionTierLabel(l, pendingTier!),
         ),
       ],
@@ -471,22 +476,20 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   }) {
     final isCurrent = tier == effectiveTier;
     final isScheduled = hasScheduled && tier == pendingTier;
-    final isBlocked =
-        hasScheduled && !isCurrent && !isScheduled;
+    final isBlocked = hasScheduled && !isCurrent && !isScheduled;
     // An individual plan (Starter or Pro) sells no chamber seat; a chamber
     // owner must dissolve first. The card stays readable but its action answers
     // with that reason.
-    final individualPlanLocked =
-        chamberOwner && (tier.seatCap ?? 0) == 0;
+    final individualPlanLocked = chamberOwner && (tier.seatCap ?? 0) == 0;
     final locked = member || individualPlanLocked;
     // Most Popular marks the tier the ladder is built around: Starter among
     // individuals and **Firm Plus** among chambers (user ruling 2026-10-21 — it
     // was Firm, which is the entry chamber rung rather than the recommended
     // one).
     final isPopular =
-        !isCurrent && !isScheduled &&
-        (tier == SubscriptionTier.starter ||
-            tier == SubscriptionTier.firmPlus);
+        !isCurrent &&
+        !isScheduled &&
+        (tier == SubscriptionTier.starter || tier == SubscriptionTier.firmPlus);
 
     final selectedKey = tier.isSellable ? _selectedKey(tier) : null;
     final selectedPlan = selectedKey == null
@@ -585,9 +588,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               l.paywall_startsOn(
                 _dateText(l, _pendingStart(pendingFrom, expiryMs)),
               ),
-              style: AppTypography.labelLg.copyWith(
-                color: AppColors.primary,
-              ),
+              style: AppTypography.labelLg.copyWith(color: AppColors.primary),
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -599,9 +600,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // whole allowance, so their heading stands alone.
             _inheritsFromLowerTier(tier)
                 ? '${l.paywall_includes} '
-                      '${l.paywall_everythingIn(
-                        subscriptionTierLabel(l, _previousTier(tier)),
-                      )}'
+                      '${l.paywall_everythingIn(subscriptionTierLabel(l, _previousTier(tier)))}'
                 : l.paywall_includes,
             style: AppTypography.titleMd,
           ),
@@ -612,11 +611,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    feature.icon,
-                    size: 20,
-                    color: AppColors.primary,
-                  ),
+                  Icon(feature.icon, size: 20, color: AppColors.primary),
                   // One gutter (12px) between the icon and the sentence, so
                   // the glyph's own padding does not read as the whole gap.
                   const SizedBox(width: AppSpacing.gutter),
@@ -768,16 +763,16 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// A toast rather than a dialog: the plan stays visible behind it, and the
   /// sentence names the one account that can buy.
   void _showMemberLocked(AppLocalizations l) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l.paywall_memberLockedToast)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.paywall_memberLockedToast)));
   }
 
   /// Answers a chamber owner's tap on an individual plan.
   void _showChamberPlanLocked(AppLocalizations l) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l.paywall_chamberPlanLockedToast)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.paywall_chamberPlanLockedToast)));
   }
 
   /// The start instant a scheduled plan shows. The server's
@@ -830,8 +825,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// The effective tier for the warning's "your current plan" sentence.
   ///
   /// Kept as a helper so the dialog and the cards read the same state.
-  SubscriptionTier _currentTierForLabel() =>
-      ref.read(allowanceTierProvider);
+  SubscriptionTier _currentTierForLabel() => ref.read(allowanceTierProvider);
 
   /// Adds [months] to an epoch-ms instant, in UTC, the way the server does.
   ///
@@ -918,11 +912,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         key: const ValueKey('paywall-renew-shift-dialog'),
         title: Text(l.paywall_renewShiftTitle),
         content: Text(
-          l.paywall_renewShiftBody(
-            current,
-            _dateText(l, endMs),
-            next,
-          ),
+          l.paywall_renewShiftBody(current, _dateText(l, endMs), next),
           style: AppTypography.bodyMd,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -1016,10 +1006,7 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: 3,
-    ),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
     decoration: BoxDecoration(
       color: AppColors.primary,
       borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
@@ -1268,7 +1255,9 @@ class _TermRow extends StatelessWidget {
                 // The app's one "chosen" mark is the ink outline (the same 2px
                 // used by the pressed card and the app's selected pills). Green
                 // belongs to savings and success, not to a selection.
-                color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.outlineVariant,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -1367,11 +1356,7 @@ class _ScheduledBanner extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(
-          Icons.schedule_outlined,
-          size: 18,
-          color: AppColors.primary,
-        ),
+        const Icon(Icons.schedule_outlined, size: 18, color: AppColors.primary),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(

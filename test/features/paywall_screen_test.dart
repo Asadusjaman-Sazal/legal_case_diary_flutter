@@ -40,6 +40,7 @@ void main() {
     int? pendingFrom,
     String? planKey,
     bool firmMember = false,
+    SubscriptionAudience? initialAudience,
   }) async {
     tester.view.physicalSize = const Size(1200, 4200);
     tester.view.devicePixelRatio = 1.0;
@@ -86,6 +87,7 @@ void main() {
                     builder: (_) => PaywallScreen(
                       showLimit: showLimit,
                       showLapsed: showLapsed,
+                      initialAudience: initialAudience,
                     ),
                   ),
                 ),
@@ -99,6 +101,22 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('open-paywall')));
     await tester.pumpAndSettle();
   }
+
+  testWidgets('an entry that asks for the Firm tab opens on the chamber cards', (
+    tester,
+  ) async {
+    // Manage Associates' firm overview sends a firm-less individual here, and a
+    // free individual's own tab is Individual: only the entry's own request can
+    // put the chamber cards in front of them.
+    await pumpPaywall(tester, initialAudience: SubscriptionAudience.firm);
+
+    expect(find.byKey(const ValueKey('paywall-plan-firm')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('paywall-plan-firm_plus')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('paywall-plan-starter')), findsNothing);
+  });
 
   testWidgets('a chamber member reads the full ladder but cannot buy', (
     tester,
@@ -115,10 +133,7 @@ void main() {
     );
     expect(find.text('Individual'), findsOneWidget);
     // The intro invites a choice the member cannot make, so it is not shown.
-    expect(
-      find.text('Choose the plan that fits your practice.'),
-      findsNothing,
-    );
+    expect(find.text('Choose the plan that fits your practice.'), findsNothing);
     expect(find.text('Starter'), findsOneWidget);
     // The free wall is not a chamber's rule, even when a gate sent the member
     // here.
@@ -146,9 +161,7 @@ void main() {
     }
     expect(find.textContaining('Subscribe —'), findsNWidgets(2));
 
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-subscribe-starter')),
-    );
+    await tester.tap(find.byKey(const ValueKey('paywall-subscribe-starter')));
     await tester.pumpAndSettle();
 
     // The tap explains the rule instead of opening checkout.
@@ -175,7 +188,10 @@ void main() {
   ) async {
     await pumpPaywall(tester, showLimit: true);
 
-    expect(find.text('Choose the plan that fits your practice.'), findsOneWidget);
+    expect(
+      find.text('Choose the plan that fits your practice.'),
+      findsOneWidget,
+    );
     expect(find.text('Free'), findsOneWidget);
     expect(find.text('Starter'), findsOneWidget);
     expect(find.text('Pro'), findsOneWidget);
@@ -187,7 +203,10 @@ void main() {
     expect(find.text('Up to 50 cases'), findsOneWidget);
     expect(find.text('Offline use only'), findsOneWidget);
     expect(find.text('Offline backup and restoration'), findsOneWidget);
-    expect(find.text('Data customization: court names, steps and case types'), findsOneWidget);
+    expect(
+      find.text('Data customization: court names, steps and case types'),
+      findsOneWidget,
+    );
 
     // Starter's own features and its inherited header.
     expect(find.text('Most Popular'), findsOneWidget);
@@ -408,9 +427,7 @@ void main() {
       planKey: paymentPlanProAnnual,
     );
 
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-subscribe-starter')),
-    );
+    await tester.tap(find.byKey(const ValueKey('paywall-subscribe-starter')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('paywall-change-dialog')), findsOneWidget);
@@ -453,10 +470,7 @@ void main() {
       find.descendant(of: firmCard, matching: find.text('Scheduled')),
       findsOneWidget,
     );
-    expect(
-      find.text('Renew Scheduled Plan — 6 Months/৳1,350'),
-      findsOneWidget,
-    );
+    expect(find.text('Renew Scheduled Plan — 6 Months/৳1,350'), findsOneWidget);
 
     // A third tier cannot be bought while the Firm change waits.
     final enterprise = tester.widget<FilledButton>(
@@ -485,22 +499,15 @@ void main() {
       planKey: paymentPlanProAnnual,
     );
 
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-subscribe-pro')),
-    );
+    await tester.tap(find.byKey(const ValueKey('paywall-subscribe-pro')));
     await tester.pumpAndSettle();
 
     expect(
       find.byKey(const ValueKey('paywall-renew-shift-dialog')),
       findsOneWidget,
     );
-    expect(
-      find.text('Your Scheduled Plan Will Start Later'),
-      findsOneWidget,
-    );
-    await tester.tap(
-      find.byKey(const ValueKey('paywall-renew-shift-go-back')),
-    );
+    expect(find.text('Your Scheduled Plan Will Start Later'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('paywall-renew-shift-go-back')));
     await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('paywall-renew-shift-dialog')),
@@ -598,37 +605,54 @@ void main() {
   });
 
   test('the six tiers and eighteen plans are the settled ladder', () {
-    expect(
-      SubscriptionTier.values.map((tier) => tier.key),
-      <String>[
-        'free',
-        'starter',
-        'pro',
-        'firm',
-        'firm_plus',
-        'enterprise',
-      ],
-    );
-    expect(
-      SubscriptionTier.values.map((tier) => tier.rank),
-      <int>[0, 1, 2, 3, 4, 5],
-    );
-    expect(
-      SubscriptionTier.values.map((tier) => tier.caseCeiling),
-      <int?>[50, 500, 1000, 2500, 6000, 20000],
-    );
-    expect(
-      SubscriptionTier.values.map((tier) => tier.lapseAllowance),
-      <int>[0, 100, 250, 500, 1000, 2000],
-    );
-    expect(
-      SubscriptionTier.values.map((tier) => tier.monthlyPrice),
-      <int>[0, 80, 150, 250, 500, 1500],
-    );
-    expect(
-      SubscriptionTier.values.map((tier) => tier.seatCap),
-      <int?>[null, 0, 0, 5, 10, 20],
-    );
+    expect(SubscriptionTier.values.map((tier) => tier.key), <String>[
+      'free',
+      'starter',
+      'pro',
+      'firm',
+      'firm_plus',
+      'enterprise',
+    ]);
+    expect(SubscriptionTier.values.map((tier) => tier.rank), <int>[
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+    ]);
+    expect(SubscriptionTier.values.map((tier) => tier.caseCeiling), <int?>[
+      50,
+      500,
+      1000,
+      2500,
+      6000,
+      20000,
+    ]);
+    expect(SubscriptionTier.values.map((tier) => tier.lapseAllowance), <int>[
+      0,
+      100,
+      250,
+      500,
+      1000,
+      2000,
+    ]);
+    expect(SubscriptionTier.values.map((tier) => tier.monthlyPrice), <int>[
+      0,
+      80,
+      150,
+      250,
+      500,
+      1500,
+    ]);
+    expect(SubscriptionTier.values.map((tier) => tier.seatCap), <int?>[
+      null,
+      0,
+      0,
+      5,
+      10,
+      20,
+    ]);
 
     expect(subscriptionPlans, hasLength(18));
     expect(paymentPlanAmount(paymentPlanStarterMonthly), 80);

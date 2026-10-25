@@ -4949,6 +4949,45 @@ class AppLocalizationsEn extends AppLocalizations {
       'Firm dissolved. Its cases are now your own diary.';
 
   @override
+  String get manageAssociates_firmOverviewTitle => 'What Is a Firm?';
+
+  @override
+  String get manageAssociates_firmOverviewCollaborateTitle =>
+      'Collaborate with Your Associates';
+
+  @override
+  String get manageAssociates_firmOverviewCollaborateBody =>
+      'Share your diary with your associates so they can add cases, update court dates, and maintain your diary on your behalf — allowing you to focus on more pressing matters.';
+
+  @override
+  String get manageAssociates_firmOverviewDevicesTitle =>
+      'Flexible Device Access';
+
+  @override
+  String get manageAssociates_firmOverviewDevicesBody =>
+      'Depending on your subscribed firm plan, access your diary on 5–20 devices and invite associates up to your plan\'s limit.';
+
+  @override
+  String get manageAssociates_firmOverviewBackupTitle =>
+      'Cloud Backup and Offline Access';
+
+  @override
+  String get manageAssociates_firmOverviewBackupBody =>
+      'Enjoy real-time cloud backup while retaining the ability to use your diary offline.';
+
+  @override
+  String get manageAssociates_firmOverviewReadyTitle =>
+      'Ready to Create Your Firm?';
+
+  @override
+  String get manageAssociates_firmOverviewReadyPrefix =>
+      'Choose a firm plan from the';
+
+  @override
+  String get manageAssociates_firmOverviewReadySuffix =>
+      'page to create your firm and invite your first associate.';
+
+  @override
   String get syncNotice_permissionsChanged =>
       'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
 

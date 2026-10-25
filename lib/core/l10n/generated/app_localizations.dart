@@ -8452,6 +8452,66 @@ abstract class AppLocalizations {
   /// **'Firm dissolved. Its cases are now your own diary.'**
   String get manageAssociates_dissolveDone;
 
+  /// No description provided for @manageAssociates_firmOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What Is a Firm?'**
+  String get manageAssociates_firmOverviewTitle;
+
+  /// No description provided for @manageAssociates_firmOverviewCollaborateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaborate with Your Associates'**
+  String get manageAssociates_firmOverviewCollaborateTitle;
+
+  /// No description provided for @manageAssociates_firmOverviewCollaborateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your diary with your associates so they can add cases, update court dates, and maintain your diary on your behalf — allowing you to focus on more pressing matters.'**
+  String get manageAssociates_firmOverviewCollaborateBody;
+
+  /// No description provided for @manageAssociates_firmOverviewDevicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexible Device Access'**
+  String get manageAssociates_firmOverviewDevicesTitle;
+
+  /// No description provided for @manageAssociates_firmOverviewDevicesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Depending on your subscribed firm plan, access your diary on 5–20 devices and invite associates up to your plan\'s limit.'**
+  String get manageAssociates_firmOverviewDevicesBody;
+
+  /// No description provided for @manageAssociates_firmOverviewBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup and Offline Access'**
+  String get manageAssociates_firmOverviewBackupTitle;
+
+  /// No description provided for @manageAssociates_firmOverviewBackupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy real-time cloud backup while retaining the ability to use your diary offline.'**
+  String get manageAssociates_firmOverviewBackupBody;
+
+  /// No description provided for @manageAssociates_firmOverviewReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Create Your Firm?'**
+  String get manageAssociates_firmOverviewReadyTitle;
+
+  /// No description provided for @manageAssociates_firmOverviewReadyPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a firm plan from the'**
+  String get manageAssociates_firmOverviewReadyPrefix;
+
+  /// No description provided for @manageAssociates_firmOverviewReadySuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'page to create your firm and invite your first associate.'**
+  String get manageAssociates_firmOverviewReadySuffix;
+
   /// No description provided for @syncNotice_permissionsChanged.
   ///
   /// In en, this message translates to:

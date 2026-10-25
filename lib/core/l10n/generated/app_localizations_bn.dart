@@ -4972,6 +4972,45 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।';
 
   @override
+  String get manageAssociates_firmOverviewTitle => 'ফার্ম কী?';
+
+  @override
+  String get manageAssociates_firmOverviewCollaborateTitle =>
+      'সহকারীদের সাথে একসাথে কাজ করুন';
+
+  @override
+  String get manageAssociates_firmOverviewCollaborateBody =>
+      'আপনার ডায়েরি সহকারীদের সাথে শেয়ার করুন, যাতে তারা মামলা যোগ করতে, আদালতের তারিখ হালনাগাদ করতে এবং আপনার পক্ষে ডায়েরি দেখাশোনা করতে পারেন — এতে আপনি আরও জরুরি কাজে মন দিতে পারবেন।';
+
+  @override
+  String get manageAssociates_firmOverviewDevicesTitle =>
+      'নমনীয় ডিভাইস অ্যাক্সেস';
+
+  @override
+  String get manageAssociates_firmOverviewDevicesBody =>
+      'আপনার কেনা ফার্ম প্ল্যান অনুযায়ী ৫–২০টি ডিভাইসে ডায়েরি ব্যবহার করুন এবং প্ল্যানের সীমা পর্যন্ত সহকারী আমন্ত্রণ করুন।';
+
+  @override
+  String get manageAssociates_firmOverviewBackupTitle =>
+      'ক্লাউড ব্যাকআপ ও অফলাইন অ্যাক্সেস';
+
+  @override
+  String get manageAssociates_firmOverviewBackupBody =>
+      'রিয়েল-টাইম ক্লাউড ব্যাকআপ নিন, একই সাথে অফলাইনেও ডায়েরি ব্যবহার করতে পারবেন।';
+
+  @override
+  String get manageAssociates_firmOverviewReadyTitle =>
+      'ফার্ম তৈরি করতে প্রস্তুত?';
+
+  @override
+  String get manageAssociates_firmOverviewReadyPrefix =>
+      'ফার্ম তৈরি করে আপনার প্রথম সহকারীকে আমন্ত্রণ জানাতে';
+
+  @override
+  String get manageAssociates_firmOverviewReadySuffix =>
+      'পেজ থেকে একটি ফার্ম প্ল্যান বেছে নিন।';
+
+  @override
   String get syncNotice_permissionsChanged =>
       'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
 

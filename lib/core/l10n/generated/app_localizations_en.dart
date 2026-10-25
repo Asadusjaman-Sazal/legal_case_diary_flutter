@@ -4952,6 +4952,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Firm dissolved. Its cases are now your own diary.';
 
   @override
+  String get manageAssociates_capacityTitle => 'Device Usage';
+
+  @override
+  String get manageAssociates_inviteCodeUnavailable =>
+      'Code not available on this device.';
+
+  @override
   String get manageAssociates_firmOverviewTitle => 'What Is a Firm?';
 
   @override

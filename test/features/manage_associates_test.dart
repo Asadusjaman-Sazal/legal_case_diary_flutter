@@ -26,6 +26,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
@@ -38,6 +40,8 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/profil
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_associates_screen.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart'
+    show settingsPrimaryButtonHeight;
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 
@@ -491,10 +495,19 @@ void main() {
   testWidgets('the owner sees the chamber logo actions', (tester) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 
+    // The frame, with the pencil under it; the wording lives on the tooltip now,
+    // because the buttons carry no visible text (user request 0.0.653).
+    expect(find.byKey(const ValueKey('firm-logo-frame')), findsOneWidget);
     expect(find.byKey(const ValueKey('firm-logo-change')), findsOneWidget);
-    expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
+    expect(find.byTooltip(l.manageAssociates_addLogo), findsOneWidget);
+    expect(find.text(l.manageAssociates_addLogo), findsNothing);
     // Nothing to remove until a logo exists.
     expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
+    // The firm's name is bold and centred, with no "Firm" caption above it.
+    final name = tester.widget<Text>(find.text('Rahman & Associates'));
+    expect(name.textAlign, TextAlign.center);
+    expect(name.style?.fontWeight, FontWeight.w700);
+    expect(find.text(l.settingsManageAccount_firm), findsNothing);
 
     await unmountApp(tester);
   });
@@ -518,16 +531,13 @@ void main() {
         seed: seedOwner,
       );
 
-      expect(find.text(l.manageAssociates_changeLogo), findsOneWidget);
-      final avatar = tester.widget<CircleAvatar>(
-        find
-            .descendant(
-              of: find.byType(ManageAssociatesScreen),
-              matching: find.byType(CircleAvatar),
-            )
-            .first,
+      expect(find.byTooltip(l.manageAssociates_changeLogo), findsOneWidget);
+      // The frame paints the saved logo as its background.
+      final frame = tester.widget<Container>(
+        find.byKey(const ValueKey('firm-logo-frame')),
       );
-      expect((avatar.backgroundImage! as FileImage).file.path, logo.path);
+      final decoration = frame.decoration! as BoxDecoration;
+      expect((decoration.image!.image as FileImage).file.path, logo.path);
 
       final remove = find.byKey(const ValueKey('firm-logo-remove'));
       await tester.ensureVisible(remove);
@@ -542,7 +552,7 @@ void main() {
 
       expect(logo.existsSync(), isFalse);
       expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
-      expect(find.text(l.manageAssociates_addLogo), findsOneWidget);
+      expect(find.byTooltip(l.manageAssociates_addLogo), findsOneWidget);
 
       await unmountApp(tester);
     },
@@ -776,6 +786,137 @@ void main() {
 
     expect(harness.firm.revokedInviteIds, ['invite-9']);
     expect(find.text(l.manageAssociates_inviteRevoked), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an outstanding invite shows its code and copies it on tap', (
+    tester,
+  ) async {
+    harness.firm.invites = [
+      const FirmInviteSummary(id: 'invite-9', createdAt: 5000),
+      const FirmInviteSummary(id: 'invite-8', createdAt: 4000),
+    ];
+
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async => null,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      // The code this device generated for invite-9, as the store remembers it.
+      preferences: <String, Object>{'firm_invite_code_invite-9': 'K7MQ2X'},
+    );
+
+    expect(find.text('K7MQ2X'), findsOneWidget);
+    // invite-8 was made elsewhere (or before this device kept codes), so the row
+    // says the code is not here rather than inventing one.
+    expect(find.text(l.manageAssociates_inviteCodeUnavailable), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-invite-code-invite-9')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(l.manageAssociates_codeCopied), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Revoke is red-filled and Dissolve is tall and red', (
+    tester,
+  ) async {
+    harness.firm.invites = [
+      const FirmInviteSummary(id: 'invite-9', createdAt: 5000),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    final revoke = tester.widget<FilledButton>(
+      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+    );
+    expect(
+      revoke.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      revoke.style?.foregroundColor?.resolve(<WidgetState>{}),
+      AppColors.onError,
+    );
+
+    // Dissolve is a full-height red button, not an outlined one.
+    final dissolve = tester.widget<FilledButton>(
+      find
+          .descendant(
+            of: find.byType(ManageAssociatesScreen),
+            matching: find.widgetWithText(
+              FilledButton,
+              l.manageAssociates_dissolveFirm,
+            ),
+          )
+          .first,
+    );
+    expect(
+      dissolve.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      dissolve.style?.minimumSize?.resolve(<WidgetState>{}),
+      const Size.fromHeight(settingsPrimaryButtonHeight),
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the revoke window takes the Invite Code window\'s shape', (
+    tester,
+  ) async {
+    harness.firm.invites = [
+      const FirmInviteSummary(id: 'invite-9', createdAt: 5000),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_revokeInviteTitle), findsOneWidget);
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    expect(
+      (dialog.shape! as RoundedRectangleBorder).borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
+
+    // Both actions are the Invite Code window's 112 x 48 at 16 pt, centred.
+    // Scoped to the window: Revoke's label also exists on the row behind it.
+    for (final (label, type) in <(String, Type)>[
+      (l.sharedActions_cancel, TextButton),
+      (l.manageAssociates_revokeInvite, FilledButton),
+    ]) {
+      final button = tester.widget<ButtonStyleButton>(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.ancestor(
+            of: find.text(label),
+            matching: find.byType(type),
+          ),
+        ),
+      );
+      expect(
+        button.style?.minimumSize?.resolve(<WidgetState>{}),
+        const Size(112, 48),
+      );
+      expect(button.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+    }
 
     await unmountApp(tester);
   });
@@ -1059,8 +1200,8 @@ void main() {
       find.text(l.manageAssociates_dissolveBlockedMembers(1)),
       findsOneWidget,
     );
-    final button = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
+    final button = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
     );
     expect(button.onPressed, isNull);
 
@@ -1080,7 +1221,13 @@ void main() {
     expect(harness.firm.dissolveCalls, 0, reason: 'the dialog is the gate');
 
     await tester.tap(
-      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(
+          FilledButton,
+          l.manageAssociates_dissolveFirm,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -1102,7 +1249,13 @@ void main() {
     await tester.tap(find.text(l.manageAssociates_dissolveFirm));
     await tester.pumpAndSettle();
     await tester.tap(
-      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(
+          FilledButton,
+          l.manageAssociates_dissolveFirm,
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -1150,8 +1303,8 @@ void main() {
       find.text(l.manageAssociates_dissolveBlockedPending),
       findsOneWidget,
     );
-    final button = tester.widget<OutlinedButton>(
-      find.widgetWithText(OutlinedButton, l.manageAssociates_dissolveFirm),
+    final button = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, l.manageAssociates_dissolveFirm),
     );
     expect(button.onPressed, isNull);
 

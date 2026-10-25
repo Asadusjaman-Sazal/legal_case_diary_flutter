@@ -8458,6 +8458,18 @@ abstract class AppLocalizations {
   /// **'Firm dissolved. Its cases are now your own diary.'**
   String get manageAssociates_dissolveDone;
 
+  /// No description provided for @manageAssociates_capacityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Usage'**
+  String get manageAssociates_capacityTitle;
+
+  /// No description provided for @manageAssociates_inviteCodeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Code not available on this device.'**
+  String get manageAssociates_inviteCodeUnavailable;
+
   /// No description provided for @manageAssociates_firmOverviewTitle.
   ///
   /// In en, this message translates to:

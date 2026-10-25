@@ -58,6 +58,7 @@ import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
 import '../data/avatar_image_processor.dart';
 import '../data/firm_capacity.dart';
+import '../data/firm_invite_code_store.dart';
 import '../data/firm_logo_repository.dart';
 import '../data/firm_logo_store.dart';
 import '../data/firm_logo_sync.dart';
@@ -175,7 +176,6 @@ class _ManageAssociatesScreenState
           const SizedBox(height: AppSpacing.md),
         ],
         _FirmCard(
-          label: l.settingsManageAccount_firm,
           name: firmName,
           onChange: _busy || firm == null ? null : _pickFirmLogo,
           onRemove: _busy || firm == null ? null : _removeFirmLogo,
@@ -244,15 +244,23 @@ class _ManageAssociatesScreenState
                     for (final invite in rows) ...[
                       _InviteRow(
                         id: invite.id,
-                        // The code itself is unrecoverable — only its hash is
-                        // stored — so a row is named by when it was made.
                         createdLabel: l.manageAssociates_inviteCreated(
                           AppDateUtils.formatDateDDMMYYYY(
                             invite.createdAt,
                             locale: locale,
                           ),
                         ),
+                        // The server keeps only a hash, so the code is here only
+                        // when **this device** generated the invite (user ruling
+                        // 2026-10-26).
+                        code: ref
+                            .read(firmInviteCodeStoreProvider)
+                            .codeFor(invite.id),
+                        unavailableLabel:
+                            l.manageAssociates_inviteCodeUnavailable,
+                        copyLabel: l.manageAssociates_copyCode,
                         revokeLabel: l.manageAssociates_revokeInvite,
+                        onCopy: _copyInviteCode,
                         onRevoke: _busy ? null : () => _revokeInvite(invite.id),
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -391,16 +399,40 @@ class _ManageAssociatesScreenState
       // without this the screen would still believe it is an individual and this
       // account would not count as firm mode until the next launch.
       await ref.read(accountRefreshProvider)();
-      final invite = await repository.createInvite();
+      final invite = await _newInvite();
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
       await _showInviteCode(invite);
     });
   }
 
+  /// Puts an invite's remembered code on the clipboard and says so.
+  ///
+  /// A SnackBar is right here: no window is open on top of the roster when this
+  /// runs, so the message lands where it can be read.
+  Future<void> _copyInviteCode(String code) async {
+    final l = AppLocalizations.of(context);
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!mounted) return;
+    _say(context, l.manageAssociates_codeCopied);
+  }
+
+  /// Generates one invite and remembers its code on this device.
+  ///
+  /// The server keeps only a hash, so this is the one moment the plaintext can be
+  /// kept — and keeping it is what lets the Outstanding Invites list print it
+  /// again (user ruling 2026-10-26).
+  Future<GeneratedInvite> _newInvite() async {
+    final invite = await ref.read(firmRepositoryProvider).createInvite();
+    await ref
+        .read(firmInviteCodeStoreProvider)
+        .remember(invite.inviteId, invite.code);
+    return invite;
+  }
+
   /// Generates one invite for an existing firm and shows its code.
   Future<void> _addAssociate() => _run(() async {
-    final invite = await ref.read(firmRepositoryProvider).createInvite();
+    final invite = await _newInvite();
     if (!mounted) return;
     // The new code joins the outstanding list as soon as this sheet closes.
     ref.invalidate(firmInvitesListProvider);
@@ -419,10 +451,15 @@ class _ManageAssociatesScreenState
       title: l.manageAssociates_revokeInviteTitle,
       body: l.manageAssociates_revokeInviteBody,
       confirmLabel: l.manageAssociates_revokeInvite,
+      // The Invite Code window's corner and action size (user request).
+      matchesInviteCodeWindow: true,
     );
     if (!confirmed) return;
     await _run(() async {
       await ref.read(firmRepositoryProvider).revokeInvite(inviteId);
+      // A revoked code can never be redeemed, so this device stops remembering
+      // it (no server copy exists to clean up — only the hash is stored).
+      await ref.read(firmInviteCodeStoreProvider).forget(inviteId);
       if (!mounted) return;
       ref.invalidate(firmInvitesListProvider);
       _say(context, l.manageAssociates_inviteRevoked);
@@ -729,23 +766,31 @@ class _OverviewPoint extends StatelessWidget {
   );
 }
 
-/// The firm header card: what this account's firm is called.
-/// The chamber's identity: its logo, its name, and the owner's two actions.
+/// The chamber's identity: its logo in a rectangular frame, the two picture
+/// actions under it, and the firm's name in bold beneath them.
+///
+/// Rebuilt at the user's request (0.0.653): the small round avatar and the
+/// words *Add Logo* / *Change Logo* / *Remove Logo* are gone — the frame shows
+/// the firm's current logo and the pencil/bin buttons are the Profile screen's
+/// own, so the chamber is presented the same way a lawyer's own picture is.
 ///
 /// The card shows the local copy immediately (the provider is synchronous), so
-/// a newly chosen logo appears before its upload finishes. Remove is offered
-/// only when there is something to remove.
+/// a newly chosen logo appears before its upload finishes. Delete is offered
+/// only when there is something to delete, exactly as on Profile.
 class _FirmCard extends ConsumerWidget {
   const _FirmCard({
-    required this.label,
     required this.name,
     required this.onChange,
     required this.onRemove,
   });
 
-  final String label;
+  /// The firm's name, drawn bold and centred under the frame.
   final String name;
+
+  /// Picks or replaces the logo; null while a server call is in flight.
   final VoidCallback? onChange;
+
+  /// Removes the logo; null while a server call is in flight.
   final VoidCallback? onRemove;
 
   @override
@@ -760,74 +805,119 @@ class _FirmCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: AppColors.surfaceContainerLow,
-                backgroundImage: logo != null ? FileImage(logo) : null,
-                child: logo == null
-                    ? const Icon(
-                        Icons.apartment_outlined,
-                        color: AppColors.primary,
-                        size: 28,
-                      )
+          Center(
+            child: Container(
+              key: const ValueKey('firm-logo-frame'),
+              width: _firmLogoFrameWidth,
+              height: _firmLogoFrameHeight,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                border: Border.all(color: AppColors.outlineVariant),
+                image: hasLogo
+                    ? DecorationImage(image: FileImage(logo), fit: BoxFit.cover)
                     : null,
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTypography.bodySm.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
+              // The fallback the round avatar used to draw: the chamber is a
+              // firm with no picture yet, not a missing image.
+              child: hasLogo
+                  ? null
+                  : const Icon(
+                      Icons.apartment_outlined,
+                      color: AppColors.primary,
+                      size: 32,
                     ),
-                    Text(name, style: AppTypography.bodyLg),
-                  ],
-                ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // The Profile screen's two picture buttons, side by side under the
+          // frame: a black pencil, and a red bin only when there is a logo.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _PictureAction(
+                key: const ValueKey('firm-logo-change'),
+                icon: Icons.edit,
+                color: AppColors.primary,
+                tooltip: hasLogo
+                    ? l.manageAssociates_changeLogo
+                    : l.manageAssociates_addLogo,
+                onTap: onChange,
               ),
+              if (hasLogo) ...[
+                const SizedBox(width: AppSpacing.md),
+                _PictureAction(
+                  key: const ValueKey('firm-logo-remove'),
+                  icon: Icons.delete,
+                  color: AppColors.error,
+                  tooltip: l.manageAssociates_removeLogo,
+                  onTap: onRemove,
+                ),
+              ],
             ],
           ),
-          const SizedBox(height: AppSpacing.gutter),
-          // Wrapped, not a Row: at a large text setting the two labels may not
-          // fit side by side on a narrow phone.
-          Align(
-            alignment: Alignment.centerRight,
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.xs,
-              children: [
-                TextButton(
-                  key: const ValueKey('firm-logo-change'),
-                  style: TextButton.styleFrom(textStyle: AppTypography.labelLg),
-                  onPressed: onChange,
-                  child: Text(
-                    hasLogo
-                        ? l.manageAssociates_changeLogo
-                        : l.manageAssociates_addLogo,
-                  ),
-                ),
-                if (hasLogo)
-                  TextButton(
-                    key: const ValueKey('firm-logo-remove'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      textStyle: AppTypography.labelLg,
-                    ),
-                    onPressed: onRemove,
-                    child: Text(l.manageAssociates_removeLogo),
-                  ),
-              ],
-            ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
+}
+
+/// Width of the firm's rectangular logo frame.
+const double _firmLogoFrameWidth = 148;
+
+/// Height of the firm's rectangular logo frame.
+const double _firmLogoFrameHeight = 100;
+
+/// A round picture action, drawn exactly like the Profile screen's edit and
+/// delete buttons: a filled circle with a white icon and a white rim.
+class _PictureAction extends StatelessWidget {
+  const _PictureAction({
+    required this.icon,
+    required this.color,
+    required this.tooltip,
+    required this.onTap,
+    super.key,
+  });
+
+  /// The glyph inside the circle.
+  final IconData icon;
+
+  /// The circle's fill.
+  final Color color;
+
+  /// Spoken label for screen readers; there is no visible text (user request).
+  final String tooltip;
+
+  /// Runs the action; null greys the circle out while a call is in flight.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Opacity(
+        opacity: onTap == null ? 0.4 : 1,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+            border: Border.all(color: AppColors.surface, width: 2),
+          ),
+          child: Icon(icon, color: AppColors.onPrimary, size: 18),
+        ),
+      ),
+    ),
+  );
 }
 
 /// The owner's shared-capacity card: slots used, a pending shrink, and the
@@ -855,7 +945,11 @@ class _CapacityCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            l.settingsSubscription_usageSeats,
+            // The title the user chose for this card (0.0.653): *Seats and
+            // Devices* described the parts rather than the number under it.
+            // The shared `settingsSubscription_usageSeats` is untouched, because
+            // Manage Plan's usage meters still use it.
+            l.manageAssociates_capacityTitle,
             style: AppTypography.labelMd.copyWith(
               color: AppColors.onSurfaceVariant,
             ),
@@ -1012,20 +1106,39 @@ class _MemberRow extends StatelessWidget {
   }
 }
 
-/// One outstanding invite: when it was created, and the way to revoke it.
+/// One outstanding invite: when it was created, its code when this device knows
+/// it, and the way to revoke it.
 ///
-/// The row never shows the code — the server keeps only its SHA-256 hash, so the
-/// plaintext is genuinely unrecoverable once the "shown once" sheet is closed.
+/// The server keeps only the code's SHA-256 hash, so the plaintext can only come
+/// from the local store: an invite made on another phone says so instead of
+/// inventing one.
 class _InviteRow extends StatelessWidget {
   const _InviteRow({
     required this.id,
     required this.createdLabel,
+    required this.code,
+    required this.unavailableLabel,
+    required this.copyLabel,
+    required this.onCopy,
     required this.revokeLabel,
     required this.onRevoke,
   });
 
   final String id;
   final String createdLabel;
+
+  /// The plaintext code, known only when this device generated the invite.
+  final String? code;
+
+  /// What the row says when this device never held the code.
+  final String unavailableLabel;
+
+  /// Spoken/screen-reader label for the tappable code.
+  final String copyLabel;
+
+  /// Copies the code; only called when [code] is non-null.
+  final ValueChanged<String> onCopy;
+
   final String revokeLabel;
   final VoidCallback? onRevoke;
 
@@ -1040,11 +1153,56 @@ class _InviteRow extends StatelessWidget {
       children: [
         const Icon(Icons.vpn_key_outlined, color: AppColors.primary),
         const SizedBox(width: AppSpacing.md),
-        Expanded(child: Text(createdLabel, style: AppTypography.bodyMd)),
-        TextButton(
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(createdLabel, style: AppTypography.bodyMd),
+              const SizedBox(height: 2),
+              // The code under the date, a step smaller and tappable to copy
+              // (user request, 0.0.653). A code this device never saw says so
+              // rather than disappearing, so the row keeps its shape.
+              if (code != null)
+                GestureDetector(
+                  key: ValueKey('manage-associates-invite-code-$id'),
+                  onTap: () => onCopy(code!),
+                  child: Tooltip(
+                    message: copyLabel,
+                    child: Text(
+                      code!,
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  unavailableLabel,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        // Red fill with white text (user request): a revocation is the one
+        // destructive action in this list, so it wears the colour everywhere
+        // the app uses for one.
+        FilledButton(
           key: ValueKey('manage-associates-revoke-$id'),
           onPressed: onRevoke,
-          style: TextButton.styleFrom(foregroundColor: AppColors.error),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.error,
+            foregroundColor: AppColors.onError,
+            minimumSize: const Size(0, 40),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          ),
           child: Text(revokeLabel),
         ),
       ],
@@ -1335,28 +1493,59 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
 }
 
 /// A titled confirmation window, with the destructive action in the error colour.
+///
+/// [matchesInviteCodeWindow] gives the window the **Invite Code** window's
+/// corner (8 px) and its centred action size (112 x 48 at 16 pt). Only the revoke
+/// confirmation asks for it — the other three windows on this screen keep the
+/// app's standard confirmation look (user request, 0.0.653).
 Future<bool> _confirm({
   required String title,
   required String body,
   required String confirmLabel,
   required BuildContext context,
+  bool matchesInviteCodeWindow = false,
 }) async {
   final l = AppLocalizations.of(context);
+  final actionSize = matchesInviteCodeWindow ? const Size(112, 48) : null;
+  const actionText = TextStyle(fontSize: 16);
   final answer = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(title),
+      title: Text(
+        title,
+        // Centred only where the request asked for the Invite Code window: the
+        // other windows are unchanged.
+        textAlign: matchesInviteCodeWindow ? TextAlign.center : null,
+      ),
+      shape: matchesInviteCodeWindow
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+            )
+          : null,
       // Scrollable: the removal warning is several sentences long on purpose
       // (the owner is told what cannot be reached, and what to do about it), and
       // a fixed Text would clip it on a phone.
       content: SingleChildScrollView(child: Text(body)),
+      actionsAlignment: matchesInviteCodeWindow
+          ? MainAxisAlignment.center
+          : null,
       actions: [
         TextButton(
+          style: matchesInviteCodeWindow
+              ? TextButton.styleFrom(
+                  minimumSize: actionSize,
+                  textStyle: actionText,
+                )
+              : null,
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(l.sharedActions_cancel),
         ),
         FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.error,
+            minimumSize: actionSize,
+            textStyle: matchesInviteCodeWindow ? actionText : null,
+          ),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(confirmLabel),
         ),
@@ -1422,15 +1611,22 @@ class _DissolveCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.md),
+          // Full height and filled red with white text (user request, 0.0.653):
+          // the outlined red button read as an optional action, and a dissolve
+          // is the most consequential one on this screen.
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
+            child: FilledButton.icon(
               onPressed: onPressed,
               icon: const Icon(Icons.delete_forever_outlined),
               label: Text(actionLabel),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.onError,
+                disabledBackgroundColor: AppColors.error.withValues(
+                  alpha: 0.38,
+                ),
+                minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
               ),
             ),
           ),

@@ -39,6 +39,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_picture_store.dart';
+import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_viewmodel.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
@@ -120,6 +121,49 @@ class _FakeUpdateRepository extends UpdateRepository {
     return outcome ?? const UpdateCheckOutcome(ReleaseCheckResult.upToDate);
   }
 }
+
+/// The admin lists the drawer's badge reads, answerable from memory.
+class _FakeAdminRepository implements AdminRepository {
+  final List<AdminPaymentRequest> rows = <AdminPaymentRequest>[];
+
+  @override
+  Future<bool> isAdmin() async => true;
+
+  @override
+  Future<List<AdminPaymentRequest>> listPaymentRequests() async =>
+      List<AdminPaymentRequest>.of(rows);
+
+  @override
+  Future<AdminActionFailure?> approve(String submissionId) async => null;
+
+  @override
+  Future<AdminActionFailure?> reject(
+    String submissionId, {
+    String? note,
+  }) async => null;
+
+  @override
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
+      const <AdminUnconfirmedAccount>[];
+
+  @override
+  Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
+      null;
+}
+
+/// One pending payment, so the badge has something to count.
+AdminPaymentRequest _pendingPayment(String id) => AdminPaymentRequest(
+  id: id,
+  userId: 'user-$id',
+  planKey: 'annual',
+  amount: 960,
+  mfsProvider: 'bkash',
+  senderNumber: '01712345678',
+  transactionId: 'TRX$id',
+  status: 'pending',
+  submittedAt: DateTime(2026, 10, 1),
+  fullName: 'Adv. Sarah Islam',
+);
 
 void main() {
   late SharedPreferences prefs;
@@ -237,6 +281,7 @@ void main() {
     String email = signedInEmail,
     LogoutFlow? logoutFlow,
     int? adminBadgeCount,
+    AdminRepository? adminRepository,
     bool firmMember = false,
     SubscriptionTier? tier,
     Profile? profile,
@@ -322,6 +367,12 @@ void main() {
           if (adminBadgeCount != null) ...[
             adminStatusProvider.overrideWith((_) async => true),
             adminPendingCountProvider.overrideWithValue(adminBadgeCount),
+          ],
+          // A real repository behind the two lists, so the badge's own refresh
+          // can be watched rather than a stub count.
+          if (adminRepository != null) ...[
+            adminStatusProvider.overrideWith((_) async => true),
+            adminRepositoryProvider.overrideWithValue(adminRepository),
           ],
         ],
         child: MaterialApp.router(
@@ -1323,6 +1374,28 @@ void main() {
     // The row is there, with a plain icon and no count over it.
     expect(find.text('Admin Panel'), findsOneWidget);
     expect(find.byType(Badge), findsNothing);
+  });
+
+  testWidgets('the Admin count is re-read every time the drawer opens', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository();
+    await pumpDrawerOnRouter(tester, adminRepository: repo);
+    expect(find.text('Admin Panel'), findsOneWidget);
+    expect(find.byType(Badge), findsNothing);
+
+    // Close the menu, let a payment arrive, then open it again: the badge must
+    // ask the server rather than show the empty list it cached on the first open.
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).closeDrawer();
+    await tester.pumpAndSettle();
+    repo.rows.add(_pendingPayment('1'));
+    tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(of: find.byType(Badge), matching: find.text('1')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

@@ -230,7 +230,7 @@ void main() {
 
     expect(find.text(l.auth_errorFirmAdminOffline), findsOneWidget);
     expect(find.text(l.manageAssociates_addAssociate), findsNothing);
-    expect(find.text(l.manageAssociates_createFirmIntro), findsNothing);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
 
     await unmountApp(tester);
   });
@@ -347,7 +347,7 @@ void main() {
       findsOneWidget,
     );
     // The link is what the request asked for rather than one flat paragraph:
-    // bold, underlined, and a step larger than the sentence it sits in.
+    // bold and underlined, at the sentence's own size.
     final link = tester.widget<Text>(
       find.descendant(
         of: find.byKey(const ValueKey('manage-associates-plans-link')),
@@ -356,12 +356,25 @@ void main() {
     );
     expect(link.style?.fontWeight, FontWeight.w700);
     expect(link.style?.decoration, TextDecoration.underline);
-    expect(link.style!.fontSize!, greaterThan(AppTypography.bodyMd.fontSize!));
+    expect(link.style!.fontSize, AppTypography.bodyMd.fontSize);
 
     // The form still follows the explainer: the overview is above the name
     // field, not instead of it.
     expect(
       tester.getTopLeft(find.text(l.manageAssociates_firmOverviewTitle)).dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.byKey(const ValueKey('manage-associates-firm-name')),
+            )
+            .dy,
+      ),
+    );
+    // The section's own title sits between the explainer and the name box, in
+    // place of the sentence it replaced.
+    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text(l.manageAssociates_createFirmTitle)).dy,
       lessThan(
         tester
             .getTopLeft(
@@ -607,7 +620,7 @@ void main() {
     );
 
     expect(find.text(l.manageAssociates_ownerOnly), findsOneWidget);
-    expect(find.text(l.manageAssociates_createFirmIntro), findsNothing);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
     expect(find.text(l.manageAssociates_addAssociate), findsNothing);
 
     await unmountApp(tester);

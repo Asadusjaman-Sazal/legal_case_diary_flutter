@@ -21,7 +21,6 @@ import '../../accounts_and_profile/data/account_mode.dart';
 import '../../admin/presentation/admin_viewmodel.dart';
 import '../../payments/data/payment_plans.dart';
 import '../data/update_metadata_store.dart';
-import 'delete_requests_viewmodel.dart';
 import 'settings_controls.dart';
 import 'settings_search_index.dart';
 
@@ -36,12 +35,6 @@ class _SettingsItem {
   /// Route the item navigates to on tap.
   final String route;
 
-  /// How many things this entry is waiting on, shown as a pill when non-zero.
-  ///
-  /// Only the Delete Requests entry uses it today (Task 20 Phase 4's
-  /// notification), and zero renders nothing at all rather than a "0" badge.
-  final int badgeCount;
-
   /// Whether to draw the updater's small "something is waiting" dot.
   ///
   /// Only the About entry uses it, and unlike [badgeCount] there is no number:
@@ -52,7 +45,6 @@ class _SettingsItem {
     required this.title,
     required this.icon,
     required this.route,
-    this.badgeCount = 0,
     this.dot = false,
   });
 }
@@ -104,11 +96,8 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
 
   /// All settings sections in display order, localized for the active locale.
   ///
-  /// Delete Requests is a firm-only entry: an individual owns their own diary,
-  /// so there is nobody to ask and nothing to review, and showing them a queue
-  /// that can never have anything in it would be worse than not showing it. The
-  /// count is read here rather than inside the tile so the whole list rebuilds
-  /// once when it changes, which is what a badge is.
+  /// Delete Requests is no longer here (0.0.649, user request): it moved to
+  /// Accounts & Profile > Firm, after Manage Associates, with its badge.
   List<_SettingsSection> _buildSections(AppLocalizations l) => [
     _SettingsSection(l.settingsScreen_sectionGeneral, [
       _SettingsItem(
@@ -116,13 +105,6 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.person_outline,
         route: AppRoutes.settingsAccountProfile,
       ),
-      if (ref.watch(firmModeProvider))
-        _SettingsItem(
-          title: l.deleteRequests_title,
-          icon: Icons.delete_outline,
-          route: AppRoutes.settingsDeleteRequests,
-          badgeCount: ref.watch(deleteRequestsBadgeCountProvider),
-        ),
       _SettingsItem(
         title: l.settingsScreen_onlineSync,
         icon: Icons.sync_outlined,
@@ -243,9 +225,7 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
     final results = searching
         ? _searchResults(l, query)
         : const <SettingsSearchEntry>[];
-    final sections = searching
-        ? const <_SettingsSection>[]
-        : _buildSections(l);
+    final sections = searching ? const <_SettingsSection>[] : _buildSections(l);
 
     // The shared live settings stream keeps the navigation drawer's
     // [sideNavOptions] in sync without re-creating a Future on rebuild.
@@ -623,10 +603,6 @@ class _SettingsListTile extends StatelessWidget {
     trailing: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (item.badgeCount > 0) ...[
-          _CountPill(count: item.badgeCount),
-          const SizedBox(width: AppSpacing.sm),
-        ],
         if (item.dot) ...[
           const UpdateDot(),
           const SizedBox(width: AppSpacing.sm),
@@ -635,28 +611,5 @@ class _SettingsListTile extends StatelessWidget {
       ],
     ),
     onTap: () => context.push(item.route),
-  );
-}
-
-/// The count pill on a settings entry that is waiting for the user.
-class _CountPill extends StatelessWidget {
-  const _CountPill({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.error,
-      borderRadius: BorderRadius.circular(AppSpacing.md),
-    ),
-    child: Text(
-      '$count',
-      style: AppTypography.labelMd.copyWith(color: AppColors.onError),
-    ),
   );
 }

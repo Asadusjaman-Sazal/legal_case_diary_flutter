@@ -314,11 +314,11 @@ class _ManageAssociatesScreenState
         // already decided a firm is worth creating.
         const _FirmOverview(),
         const SizedBox(height: AppSpacing.lg),
+        // The form's own heading, in the explainer's title size, so the page
+        // reads as two sections rather than one long card chain.
         Text(
-          l.manageAssociates_createFirmIntro,
-          style: AppTypography.bodyMd.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
+          l.manageAssociates_createFirmTitle,
+          style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: AppSpacing.md),
         Container(
@@ -585,8 +585,10 @@ class _MessageBody extends StatelessWidget {
 /// The form used to arrive with nothing explaining why an individual would want
 /// a firm, and the plan that pays for one is bought on another screen — so the
 /// last paragraph names **Subscription Plans**, which is a link into the paywall
-/// opened on its **Firm** cards. The body is written as prose sentences (the
-/// descriptions) under bold labels, per the app's casing rule.
+/// opened on its **Firm** cards — bold and underlined in the sentence's own
+/// size, so the words beside it are not pushed out of step (user request). The
+/// body is written as prose sentences (the descriptions) under bold labels, per
+/// the app's casing rule.
 class _FirmOverview extends StatelessWidget {
   const _FirmOverview();
 
@@ -651,7 +653,10 @@ class _FirmOverview extends StatelessWidget {
                     onTap: () => context.push(AppRoutes.paywallFromFirmSetup),
                     child: Text(
                       l.paywall_title,
-                      style: AppTypography.bodyLg.copyWith(
+                      // The sentence's own size: the link is marked by its
+                      // weight and underline, not by standing taller than the
+                      // words beside it.
+                      style: AppTypography.bodyMd.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,
                         decoration: TextDecoration.underline,

@@ -4822,8 +4822,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_unnamedMember => 'নামহীন সদস্য';
 
   @override
-  String get manageAssociates_createFirmIntro =>
-      'ফার্ম তৈরি করে একসাথে কাজ করতে আপনার প্রথম সহকারীকে যোগ করুন।';
+  String get manageAssociates_createFirmTitle => 'ফার্ম তৈরি করুন';
 
   @override
   String get manageAssociates_firmNameLabel => 'ফার্মের নাম';
@@ -4984,7 +4983,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_firmOverviewDevicesTitle =>
-      'নমনীয় ডিভাইস অ্যাক্সেস';
+      'একাধিক ডিভাইস অ্যাক্সেস';
 
   @override
   String get manageAssociates_firmOverviewDevicesBody =>

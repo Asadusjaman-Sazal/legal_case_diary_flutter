@@ -8200,11 +8200,11 @@ abstract class AppLocalizations {
   /// **'Unnamed Member'**
   String get manageAssociates_unnamedMember;
 
-  /// No description provided for @manageAssociates_createFirmIntro.
+  /// No description provided for @manageAssociates_createFirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Your First Associate To Create Your Firm And Work Together.'**
-  String get manageAssociates_createFirmIntro;
+  /// **'Create a Firm'**
+  String get manageAssociates_createFirmTitle;
 
   /// No description provided for @manageAssociates_firmNameLabel.
   ///
@@ -8215,7 +8215,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_firmNameHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter Your Chamber Or Firm Name'**
+  /// **'Enter your chamber or firm name'**
   String get manageAssociates_firmNameHint;
 
   /// No description provided for @manageAssociates_addLogo.
@@ -8473,7 +8473,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_firmOverviewDevicesTitle.
   ///
   /// In en, this message translates to:
-  /// **'Flexible Device Access'**
+  /// **'Multi-device Access'**
   String get manageAssociates_firmOverviewDevicesTitle;
 
   /// No description provided for @manageAssociates_firmOverviewDevicesBody.

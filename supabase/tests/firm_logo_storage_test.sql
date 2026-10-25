@@ -10,6 +10,11 @@
 --
 --   psql "$URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_logo_storage_test.sql
 --
+-- **First apply `supabase/manual/storage_policies.sql` through the Supabase
+-- Storage policy editor.** The policy checks below fail until those eight
+-- policies exist; the bucket, column and trigger checks pass as soon as the
+-- migration is applied.
+--
 -- What it proves, in order:
 --
 --   * the `firm-avatars` bucket is private, 50 KB, JPEG only;
@@ -21,6 +26,10 @@
 --   * another chamber's owner cannot write this chamber's object.
 
 begin;
+
+-- The Storage API sets this flag for its own delete path; the proof needs
+-- the same permission to exercise the DELETE policies. Transaction-local.
+set local storage.allow_delete_query = 'true';
 
 create or replace function pg_temp.assert_true(p_condition boolean, p_message text)
 returns void
@@ -270,10 +279,13 @@ begin
      set subscription_expiry = now() - interval '3 days'
    where id = v_firm;
 
-  perform pg_temp.raises_as(
+  v_rows := pg_temp.rows_as(
     c_owner,
-    format('update storage.objects set updated_at = now() where name = %L', v_path),
-    'row-level security'
+    format('update storage.objects set updated_at = now() where name = %L', v_path)
+  );
+  perform pg_temp.assert_true(
+    v_rows = 0,
+    'a lapsed owner cannot replace the logo: the row is not visible to the update'
   );
 
   -- ... but can still remove the logo.

@@ -12,6 +12,7 @@
 /// remote data binds in Part B (Task 17) via [ProfileRepository].
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -21,10 +22,14 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/errors/error_log.dart';
+import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
+import '../data/avatar_image_processor.dart';
+import '../data/profile_avatar_sync.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
 
@@ -56,16 +61,46 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  /// Picks an image from the gallery and saves it locally for persistence.
+  /// Picks an image, shrinks it to 50 KB, and saves it locally first.
+  ///
+  /// A premium individual or chamber owner then gets the detached cloud copy;
+  /// for everyone else the local file is the whole picture. An image that
+  /// cannot be read keeps the previous picture and says so.
   Future<void> _pickAvatar() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
+    final l = AppLocalizations.of(context);
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 90,
+    );
+    if (picked == null || !mounted) return;
+
+    try {
       await ref.read(profilePictureProvider.notifier).setFromPath(picked.path);
+      if (!mounted) return;
+      unawaited(ref.read(profileAvatarSyncProvider)());
+    } on AvatarImageException {
+      if (mounted) _sayUnreadable(l);
+    } on Object catch (error) {
+      recordFailure(ref.read(errorLogProvider), 'profile.avatar', error);
+      if (mounted) _sayUnreadable(l);
     }
   }
 
-  Future<void> _clearAvatar() =>
-      ref.read(profilePictureProvider.notifier).clear();
+  /// One sentence for an image that cannot be used, however it failed.
+  void _sayUnreadable(AppLocalizations l) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.shared_avatarUnreadable)));
+  }
+
+  /// Clears the picture locally and, when a cloud copy exists, from Storage.
+  Future<void> _clearAvatar() async {
+    await ref.read(profilePictureProvider.notifier).clear();
+    if (!mounted) return;
+    unawaited(ref.read(profileAvatarSyncProvider)());
+  }
 
   void _openEditSheet() {
     // Seed the editor with the saved record, so a sheet dismissed without

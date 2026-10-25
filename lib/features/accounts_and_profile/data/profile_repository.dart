@@ -291,6 +291,10 @@ class SupabaseProfileRepository implements ProfileRepository {
         ProfilesCompanion(
           id: Value(userId),
           fullName: Value(row['full_name'] as String? ?? ''),
+          // The profile picture's server-stamped state (0.0.630). A row that
+          // has never had a picture reads "no path, version 0".
+          avatarPath: Value(row['avatar_path'] as String?),
+          avatarVersion: Value((row['avatar_version'] as num?)?.toInt() ?? 0),
           firmId: Value(firmId),
           role: Value(row['role'] as String? ?? AccountRole.individual),
           subscriptionStatus: Value(

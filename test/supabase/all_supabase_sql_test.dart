@@ -57,8 +57,9 @@ void main() {
       );
       expect(
         onDisk.length,
-        68,
+        69,
         reason:
+            'The profile-avatar bucket (2026-10-25) added one file. '
             'The chamber logo bucket (2026-10-25) added one file. '
             'The user_devices retention pruner (2026-10-23) added one file. '
             'The device revocation broadcast (2026-10-23) added one file. '
@@ -169,6 +170,36 @@ void main() {
           ledger,
           contains('```sql\n$sql\n```'),
           reason: 'the ledger text for ${section.file} differs from the file',
+        );
+      }
+    });
+
+    test('the manual storage policies are recorded and labelled', () {
+      final ledger = normalizeSql(File(ledgerPath).readAsStringSync());
+      final onDisk =
+          Directory(manualDir)
+              .listSync()
+              .whereType<File>()
+              .where((file) => file.path.endsWith('.sql'))
+              .map((file) => file.uri.pathSegments.last)
+              .toList()
+            ..sort();
+
+      expect(ledgerManualFiles().toSet(), onDisk.toSet());
+      expect(
+        ledger,
+        contains('## Manual SQL — Applied Outside The Migration Tool'),
+      );
+      for (final file in ledgerManualFiles()) {
+        final heading = '### Manual · `$file`';
+        expect(ledger, contains(heading), reason: '$heading is missing');
+        final sql = normalizeSql(
+          File('$manualDir/$file').readAsStringSync(),
+        ).trimRight();
+        expect(
+          ledger,
+          contains('```sql\n$sql\n```'),
+          reason: 'the ledger text for $file differs from the file',
         );
       }
     });

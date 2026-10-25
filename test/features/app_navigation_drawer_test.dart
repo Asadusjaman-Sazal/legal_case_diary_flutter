@@ -80,6 +80,7 @@ const String signedInEmail = 'rahim@example.com';
 Profile firmProfile({String role = 'associate'}) => Profile(
   id: 'drawer-test-user',
   fullName: 'Zaid',
+  avatarVersion: 0,
   role: role,
   firmId: 'firm-1',
   subscriptionStatus: 'premium',

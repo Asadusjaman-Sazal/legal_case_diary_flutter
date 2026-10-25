@@ -163,6 +163,9 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
               SettingsMenuCard(
                 icon: Icons.delete_outline,
                 title: l.deleteRequests_title,
+                // Every card on this page carries a line saying what it holds,
+                // so this one does too (user request).
+                subtitle: l.settingsAccountProfile_deleteRequestsSubtitle,
                 // The badge travels with the row: it is the count of what is
                 // waiting on this account, and the screen it opens is where it
                 // is cleared. Passed as the trailing widget so the chevron it

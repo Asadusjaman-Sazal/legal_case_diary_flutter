@@ -160,6 +160,17 @@ void main() {
       expect(find.text(l.manageAssociates_title), findsOneWidget);
       expect(find.text(l.deleteRequests_title), findsOneWidget);
       expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+      // Every card on this page carries a line under its title, so a bare card
+      // reads as a mistake (user report).
+      expect(
+        find.text(l.settingsAccountProfile_deleteRequestsSubtitle),
+        findsOneWidget,
+      );
+      for (final card in tester.widgetList<SettingsMenuCard>(
+        find.byType(SettingsMenuCard),
+      )) {
+        expect(card.subtitle, isNotNull, reason: card.title);
+      }
       // Directly after Manage Associates, inside the same section.
       expect(
         tester.getTopLeft(find.text(l.deleteRequests_title)).dy,

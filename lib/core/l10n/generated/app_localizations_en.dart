@@ -2076,6 +2076,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage Associates, Invites, And Firm Permissions';
 
   @override
+  String get settingsAccountProfile_deleteRequestsSubtitle =>
+      'Review requests and track their decisions';
+
+  @override
   String get settingsProfile_title => 'Profile';
 
   @override

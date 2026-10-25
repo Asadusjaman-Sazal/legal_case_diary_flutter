@@ -18,9 +18,12 @@ import '../../../core/services/app_share_flow.dart';
 import '../../../shared/widgets/pull_to_sync.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../admin/presentation/admin_viewmodel.dart';
+import '../../payments/data/payment_plans.dart';
 import '../data/update_metadata_store.dart';
 import 'delete_requests_viewmodel.dart';
 import 'settings_controls.dart';
+import 'settings_search_index.dart';
 
 /// A single navigable settings entry within a section.
 class _SettingsItem {
@@ -186,29 +189,63 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
     ]),
   ];
 
-  /// Filters sections to those with at least one title matching [query].
-  List<_SettingsSection> _filteredSections(AppLocalizations l, String query) {
-    final sections = _buildSections(l);
-    final q = query.trim().toLowerCase();
-    if (q.isEmpty) return sections;
-    return sections
-        .map(
-          (section) => _SettingsSection(
-            section.header,
-            section.items
-                .where((item) => item.title.toLowerCase().contains(q))
-                .toList(),
+  /// Every top-level and deep setting matching [query], best matches first.
+  ///
+  /// The top-level rows come from the same section list the empty search shows;
+  /// the rest come from the deep index, which knows the labels filed three or
+  /// four taps down. A label match outranks a parent's name, so "plan" puts
+  /// Manage Plan above everything merely filed under a subscription screen.
+  List<SettingsSearchEntry> _searchResults(AppLocalizations l, String query) {
+    final q = query.trim();
+    if (q.isEmpty) return const <SettingsSearchEntry>[];
+
+    final entries = <SettingsSearchEntry>[
+      for (final section in _buildSections(l))
+        for (final item in section.items)
+          SettingsSearchEntry(
+            label: item.title,
+            icon: item.icon,
+            route: item.route,
+            path: <String>[l.settingsScreen_title],
           ),
-        )
-        .where((section) => section.items.isNotEmpty)
-        .toList();
+      ...buildSettingsSearchIndex(
+        l: l,
+        firmMode: ref.watch(firmModeProvider),
+        firmMember: ref.watch(firmMemberProvider),
+        premium: ref.watch(premiumAccessProvider).value == true,
+        canOpenManageAssociates: ref.watch(canOpenManageAssociatesProvider),
+        canManageFirm: ref.watch(canManageFirmProvider),
+        showDevices:
+            ref.watch(currentTierProvider).rank > SubscriptionTier.starter.rank,
+        isAdmin: ref.watch(adminStatusProvider).value == true,
+      ),
+    ];
+
+    final scored = <({SettingsSearchEntry entry, int score, int index})>[];
+    for (var i = 0; i < entries.length; i++) {
+      final score = entries[i].scoreFor(q);
+      if (score != null) {
+        scored.add((entry: entries[i], score: score, index: i));
+      }
+    }
+    scored.sort((a, b) {
+      final byScore = a.score.compareTo(b.score);
+      return byScore != 0 ? byScore : a.index.compareTo(b.index);
+    });
+    return <SettingsSearchEntry>[for (final hit in scored) hit.entry];
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final query = _searchController.text;
-    final visible = _filteredSections(l, query);
+    final searching = query.trim().isNotEmpty;
+    final results = searching
+        ? _searchResults(l, query)
+        : const <SettingsSearchEntry>[];
+    final sections = searching
+        ? const <_SettingsSection>[]
+        : _buildSections(l);
 
     // The shared live settings stream keeps the navigation drawer's
     // [sideNavOptions] in sync without re-creating a Future on rebuild.
@@ -249,20 +286,22 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
               onSearchChanged: () => setState(() {}),
             ),
             Expanded(
-              child: visible.isEmpty
-                  ? Center(
-                      child: Text(
-                        l.settingsScreen_noResults,
-                        style: AppTypography.bodyMd,
-                      ),
-                    )
+              child: searching
+                  ? results.isEmpty
+                        ? Center(
+                            child: Text(
+                              l.settingsScreen_noResults,
+                              style: AppTypography.bodyMd,
+                            ),
+                          )
+                        : PullToSync(child: _SearchResults(results: results))
                   : PullToSync(
                       child: ListView(
                         padding: const EdgeInsets.only(bottom: AppSpacing.lg),
                         children: [
-                          for (var s = 0; s < visible.length; s++) ...[
+                          for (var s = 0; s < sections.length; s++) ...[
                             if (s > 0) const SizedBox(height: AppSpacing.lg),
-                            _SectionHeader(title: visible[s].header),
+                            _SectionHeader(title: sections[s].header),
                             // A shaped Material rather than a decorated Container
                             // (0.0.407): a ListTile paints its background and ink
                             // splashes on its nearest Material ancestor, and a
@@ -285,13 +324,13 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
                                 children: [
                                   for (
                                     var i = 0;
-                                    i < visible[s].items.length;
+                                    i < sections[s].items.length;
                                     i++
                                   ) ...[
                                     _SettingsListTile(
-                                      item: visible[s].items[i],
+                                      item: sections[s].items[i],
                                     ),
-                                    if (i < visible[s].items.length - 1)
+                                    if (i < sections[s].items.length - 1)
                                       const Divider(
                                         height: 1,
                                         thickness: 1,
@@ -488,6 +527,62 @@ class _SlideInSearchField extends StatelessWidget {
         ),
       ],
     ),
+  );
+}
+
+/// The flat search result list: the label, its breadcrumb, and the screen that
+/// holds it. Tapping a result opens that screen.
+class _SearchResults extends StatelessWidget {
+  const _SearchResults({required this.results});
+
+  final List<SettingsSearchEntry> results;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+    children: [
+      Material(
+        color: AppColors.surface,
+        shape: Border(
+          top: BorderSide(color: AppColors.outlineVariant),
+          bottom: BorderSide(color: AppColors.outlineVariant),
+        ),
+        child: Column(
+          children: [
+            for (var i = 0; i < results.length; i++) ...[
+              ListTile(
+                key: ValueKey('settings-search-result-${results[i].label}'),
+                leading: Icon(results[i].icon, color: AppColors.primary),
+                title: Text(results[i].label, style: AppTypography.bodyLg),
+                // A top-level row has nowhere to point; a deep one carries the
+                // path that tells the user where the screen lives.
+                subtitle: results[i].path.length > 1
+                    ? Text(
+                        results[i].path.join(' › '),
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      )
+                    : null,
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: AppColors.tertiary,
+                ),
+                onTap: () => context.push(results[i].route),
+              ),
+              if (i < results.length - 1)
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  indent: AppSpacing.md,
+                  endIndent: AppSpacing.md,
+                  color: AppColors.outlineVariant,
+                ),
+            ],
+          ],
+        ),
+      ),
+    ],
   );
 }
 

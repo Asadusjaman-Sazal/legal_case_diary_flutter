@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Settings search reaches every sub-setting — COMPLETE (0.0.637)
+
+- **What was asked.** Searching from Settings should find sub-setting labels and buttons three or four levels deep, not only the main Settings rows.
+- **What changed.** A deep index (`settings_search_index.dart`) carries the sub-setting labels/actions with their breadcrumb and the screen that holds them. The main search now matches the label, a few English synonyms and the parent path; it ranks a direct label match first and shows a flat result list with the breadcrumb (for example `Settings › Account & Profile › Subscription › Manage Plan`). Tapping opens that screen. Entries the account cannot see are not indexed: associate vs owner, premium, the multi-device tier, firm mode, the member's hidden History/Backup, and the admin-only notification setting. The empty search keeps the original sectioned body; no new copy was needed.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,093 passed**; new tests cover the deep paths, visibility, ranking, keyword matches, label uniqueness and the widget search + navigation.
+- **Remaining.** A result opens the screen that holds a button or dialog; it does not auto-open the dialog or scroll to the row. Search is label/path-based, not full-text content search.
+
 ### 2026-10-26 — A live 48-hour grace countdown — COMPLETE (0.0.636)
 
 - **What was asked.** During the 48-hour grace, show a countdown of the time left instead of only the fixed renewal sentence.

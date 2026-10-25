@@ -4341,6 +4341,12 @@ abstract class AppLocalizations {
   /// **'Delete Data?'**
   String get settingsManageAccount_deleteDataTitle;
 
+  /// No description provided for @settingsManageAccount_deleteLocalDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Local Data?'**
+  String get settingsManageAccount_deleteLocalDataTitle;
+
   /// No description provided for @settingsManageAccount_deleteDataBodyCloud.
   ///
   /// In en, this message translates to:

@@ -2490,6 +2490,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_deleteDataTitle => 'ডেটা মুছে ফেলবেন?';
 
   @override
+  String get settingsManageAccount_deleteLocalDataTitle =>
+      'লোকাল ডেটা মুছে ফেলবেন?';
+
+  @override
   String get settingsManageAccount_deleteDataBodyCloud =>
       'এই ডিভাইস ও আপনার অ্যাকাউন্ট থেকে কী মুছবেন তা টিক দিন। আপনার প্রোফাইল, সাবস্ক্রিপশন ও সেটিং অপরিবর্তিত থাকবে।';
 

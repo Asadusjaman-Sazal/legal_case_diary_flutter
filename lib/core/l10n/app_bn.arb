@@ -1185,6 +1185,7 @@
   "settingsManageAccount_deleteLocalAndCloudData": "লোকাল ও ক্লাউড ডেটা মুছুন",
   "settingsManageAccount_deleteLocalData": "লোকাল ডেটা মুছুন",
   "settingsManageAccount_deleteDataTitle": "ডেটা মুছে ফেলবেন?",
+  "settingsManageAccount_deleteLocalDataTitle": "লোকাল ডেটা মুছে ফেলবেন?",
   "settingsManageAccount_deleteDataBodyCloud": "এই ডিভাইস ও আপনার অ্যাকাউন্ট থেকে কী মুছবেন তা টিক দিন। আপনার প্রোফাইল, সাবস্ক্রিপশন ও সেটিং অপরিবর্তিত থাকবে।",
   "settingsManageAccount_deleteDataBodyLocal": "এই ডিভাইস থেকে কী মুছবেন তা টিক দিন। আপনার প্রোফাইল, সাবস্ক্রিপশন ও সেটিং অপরিবর্তিত থাকবে।",
   "settingsManageAccount_deleteDataCases": "মামলা",

@@ -1233,6 +1233,7 @@
   "settingsManageAccount_deleteLocalAndCloudData": "Delete Local & Cloud Data",
   "settingsManageAccount_deleteLocalData": "Delete Local Data",
   "settingsManageAccount_deleteDataTitle": "Delete Data?",
+  "settingsManageAccount_deleteLocalDataTitle": "Delete Local Data?",
   "settingsManageAccount_deleteDataBodyCloud": "Tick what to delete from this device and your account. Your profile, subscription and settings stay.",
   "settingsManageAccount_deleteDataBodyLocal": "Tick what to delete from this device. Your profile, subscription and settings stay.",
   "settingsManageAccount_deleteDataCases": "Cases",

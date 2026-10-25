@@ -12,8 +12,8 @@
 ///
 /// **Who opens it decides the wording, not the list.** A premium account's
 /// *Delete Local & Cloud Data* and a free account's *Delete Local Data* offer
-/// exactly the same four rows — the difference is where the copies come from, and
-/// that is one sentence ([cloud]).
+/// exactly the same four rows — only the title and the sentence naming where the
+/// copies come from differ ([cloud]).
 ///
 /// The window returns the ticked set, or `null` when it was dismissed, which the
 /// caller treats as a cancellation: a dismissed window deletes nothing.
@@ -56,7 +56,11 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(l.settingsManageAccount_deleteDataTitle),
+      title: Text(
+        widget.cloud
+            ? l.settingsManageAccount_deleteDataTitle
+            : l.settingsManageAccount_deleteLocalDataTitle,
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

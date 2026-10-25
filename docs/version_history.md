@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.637 - Settings search now finds sub-settings three or four levels deep by label, shows their breadcrumb, and opens the screen that holds them.
+Version: 0.0.638 - Added the full manual verification checklist for the shared firm capacity and device limits, with test data, the 48-hour SQL shortcut, cleanup and a results log.
 --------------------------------------
 
 ## Version History Log:
@@ -651,3 +651,4 @@ Version: 0.0.634 - The eight storage policies are live and both storage proofs p
 Version: 0.0.635 - Chamber slots are shared between associates and the owner's devices; a downgrade shrinks only after the 48-hour grace, with an owner-chosen or automatic trim and plan cards that state the slots.
 Version: 0.0.636 - The 48-hour grace banner now shows a live HH:MM:SS countdown to sync stopping, in the locale's digits and on the corrected server clock.
 Version: 0.0.637 - Settings search now finds sub-settings three or four levels deep by label, shows their breadcrumb, and opens the screen that holds them.
+Version: 0.0.638 - Added the full manual verification checklist for the shared firm capacity and device limits, with test data, the 48-hour SQL shortcut, cleanup and a results log.

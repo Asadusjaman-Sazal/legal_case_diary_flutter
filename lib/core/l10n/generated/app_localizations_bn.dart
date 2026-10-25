@@ -2080,6 +2080,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন';
 
   @override
+  String get settingsAccountProfile_deleteRequestsSubtitle =>
+      'অনুরোধ পর্যালোচনা করুন ও সিদ্ধান্ত জানুন';
+
+  @override
   String get settingsProfile_title => 'প্রোফাইল';
 
   @override

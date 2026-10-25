@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Delete Requests card gains its supporting line — COMPLETE (0.0.650)
+
+- **What was reported.** The moved **Delete Requests** card had no line under its title, and every other card on Accounts & Profile has one — it read as a mistake.
+- **What changed.** A new key, `settingsAccountProfile_deleteRequestsSubtitle` — *Review requests and track their decisions* / *অনুরোধ পর্যালোচনা করুন ও সিদ্ধান্ত জানুন* — in sentence case with no full stop, matching its eight neighbours. Nothing else on the page moved.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,107 passed**. The case that pins the row now also asserts the line is drawn **and** that every card on the page has a subtitle, so a future row cannot arrive bare.
+- **Mockup.** None owed: the Accounts & Profile menu has no mockup of its own (rule 9).
+
 ### 2026-10-26 — Delete Requests moves into the Firm section — COMPLETE (0.0.649)
 
 - **What was asked.** Move the **Delete Requests** sub-menu out of Settings and into Accounts & Profile > **Firm**, after **Manage Associates**.

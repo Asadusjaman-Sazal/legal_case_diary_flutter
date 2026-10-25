@@ -3694,6 +3694,12 @@ abstract class AppLocalizations {
   /// **'Manage Associates, Invites, And Firm Permissions'**
   String get settingsAccountProfile_manageAssociatesSubtitle;
 
+  /// No description provided for @settingsAccountProfile_deleteRequestsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review requests and track their decisions'**
+  String get settingsAccountProfile_deleteRequestsSubtitle;
+
   /// No description provided for @settingsProfile_title.
   ///
   /// In en, this message translates to:

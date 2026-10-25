@@ -1074,6 +1074,7 @@
   "settingsAccountProfile_subscriptionPlansSubtitle": "Compare plans and buy a new one",
   "settingsAccountProfile_subscriptionHistorySubtitle": "Every purchase, approval, and cancellation",
   "settingsAccountProfile_manageAssociatesSubtitle": "Manage Associates, Invites, And Firm Permissions",
+  "settingsAccountProfile_deleteRequestsSubtitle": "Review requests and track their decisions",
   "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
   "settingsProfile_title": "Profile",
   "settingsProfile_editTooltip": "Edit profile",

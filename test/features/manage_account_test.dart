@@ -647,7 +647,7 @@ void main() {
       // The tick list opens with nothing ticked, so the red action is disabled —
       // a stray tap cannot delete anything.
       expect(
-        find.text(l.settingsManageAccount_deleteDataTitle),
+        find.text(l.settingsManageAccount_deleteLocalDataTitle),
         findsOneWidget,
       );
       final tickConfirm = tester.widget<TextButton>(
@@ -788,7 +788,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text(l.settingsManageAccount_deleteDataTitle),
+        find.text(l.settingsManageAccount_deleteLocalDataTitle),
         findsNothing,
         reason: 'the tick list never opens for a firm account',
       );

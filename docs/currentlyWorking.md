@@ -1,5 +1,11 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Delete Local Data window names itself — COMPLETE (0.0.639)
+
+- **What was asked.** Only in Manage Account → Delete Local Data, the tick-list pop-over's title should read **Delete Local Data?**.
+- **What changed.** The dialog now picks its title by flow: the free account's local window uses a new `settingsManageAccount_deleteLocalDataTitle` (**Delete Local Data?** / **লোকাল ডেটা মুছে ফেলবেন?**), while the premium cloud window keeps **Delete Data?**. Nothing else changed — the typed confirmation screen and the cloud flow keep their existing title.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,093 passed** (the two Manage Account title assertions moved to the new key); the Manage Account mockup's dialog note updated.
+
 ### 2026-10-26 — Manual verification checklist for firm capacity — COMPLETE (0.0.638)
 
 - **What was added.** `docs/manual_verification_firm_capacity.md`: a full 15-scenario physical-device checklist for the shared firm slots and device limits — slot math, the fifth associate, the owner's dynamic device cap, the downgrade warning and owner choice, the trim, the signed-out member's admit/removal, the pure lapse/frozen state, the 48-hour countdown, the 0-seat lock, removal/rejoin, dissolve, the legacy over-capacity rule, and the cron/Realtime checks. It includes test data, safety rules, exact expected copy, per-firm SQL shortcuts for the 48-hour deadline, SQL row checks, cleanup and a results log. Linked from Task 22 and the implementation plan.

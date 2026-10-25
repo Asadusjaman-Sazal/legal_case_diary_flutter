@@ -2483,6 +2483,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_deleteDataTitle => 'Delete Data?';
 
   @override
+  String get settingsManageAccount_deleteLocalDataTitle => 'Delete Local Data?';
+
+  @override
   String get settingsManageAccount_deleteDataBodyCloud =>
       'Tick what to delete from this device and your account. Your profile, subscription and settings stay.';
 

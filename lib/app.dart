@@ -7,6 +7,7 @@ import 'features/accounts_and_profile/presentation/account_refresh_scope.dart';
 import 'features/accounts_and_profile/presentation/membership_revoked_scope.dart';
 import 'features/auth/presentation/device_gate_scope.dart';
 import 'features/auth/presentation/session_state.dart';
+import 'features/payments/presentation/payment_approval_watch.dart';
 import 'sync/sync_trigger_scope.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/backup/backup_scheduler_scope.dart';
@@ -87,39 +88,45 @@ class App extends ConsumerWidget {
                         // its child untouched and refreshes the profile and firm
                         // permissions on launch, on resume and on reconnect.
                         child: AccountRefreshScope(
-                          // Wraps everything below the refresh: a device the firm has
-                          // removed replaces the app with the removal screen, and
-                          // nothing is erased until the user acts there. It sits
-                          // inside the refresh scope because the removal **is** a
-                          // refresh result — the profile loses its firm id — and
-                          // outside the sync trigger so no edit can be started on a
-                          // membership that no longer exists.
-                          child: MembershipRevokedScope(
-                            router: router,
-                            // Inside the removal scope: losing the chamber is the
-                            // larger event, and its wipe wins. The device gate
-                            // then answers for the plan's slot — a full plan names
-                            // the devices holding it, and a revoked device saves
-                            // its unsent work before it erases.
-                            child: DeviceGateScope(
+                          // A payment awaiting approval is invisible to a free
+                          // account's closed socket, so the checkout starts a
+                          // short bounded refresh here; it renders its child
+                          // untouched.
+                          child: PaymentApprovalWatchScope(
+                            // Wraps everything below the refresh: a device the firm has
+                            // removed replaces the app with the removal screen, and
+                            // nothing is erased until the user acts there. It sits
+                            // inside the refresh scope because the removal **is** a
+                            // refresh result — the profile loses its firm id — and
+                            // outside the sync trigger so no edit can be started on a
+                            // membership that no longer exists.
+                            child: MembershipRevokedScope(
                               router: router,
-                              // Drives the push/pull engine on launch, resume,
-                              // reconnect and new local writes.
-                              child: SyncTriggerScope(
-                                // Innermost, so the extended-offline lock covers
-                                // every screen and route: while it is set the app
-                                // has no editable surface at all, and the blocking
-                                // screen returns on every launch until recovery
-                                // succeeds.
-                                child: RecoveryRequiredScope(
-                                  child: UpdateCheckScope(
-                                    // Innermost next to the screens: it renders its
-                                    // child untouched and, in the background,
-                                    // registers this device for admin payment
-                                    // alerts once the server confirms the account
-                                    // is an administrator's.
-                                    child: AdminPushScope(
-                                      child: child ?? const SizedBox.shrink(),
+                              // Inside the removal scope: losing the chamber is the
+                              // larger event, and its wipe wins. The device gate
+                              // then answers for the plan's slot — a full plan names
+                              // the devices holding it, and a revoked device saves
+                              // its unsent work before it erases.
+                              child: DeviceGateScope(
+                                router: router,
+                                // Drives the push/pull engine on launch, resume,
+                                // reconnect and new local writes.
+                                child: SyncTriggerScope(
+                                  // Innermost, so the extended-offline lock covers
+                                  // every screen and route: while it is set the app
+                                  // has no editable surface at all, and the blocking
+                                  // screen returns on every launch until recovery
+                                  // succeeds.
+                                  child: RecoveryRequiredScope(
+                                    child: UpdateCheckScope(
+                                      // Innermost next to the screens: it renders its
+                                      // child untouched and, in the background,
+                                      // registers this device for admin payment
+                                      // alerts once the server confirms the account
+                                      // is an administrator's.
+                                      child: AdminPushScope(
+                                        child: child ?? const SizedBox.shrink(),
+                                      ),
                                     ),
                                   ),
                                 ),

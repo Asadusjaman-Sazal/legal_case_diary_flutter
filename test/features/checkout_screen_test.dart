@@ -21,6 +21,7 @@ import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/data/payment_repository.dart';
 import 'package:legal_case_diary/features/payments/data/payments_configuration_service.dart';
 import 'package:legal_case_diary/features/payments/presentation/checkout_screen.dart';
+import 'package:legal_case_diary/features/payments/presentation/payment_approval_watch.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 
 /// A remote that always returns one bKash number.
@@ -101,7 +102,11 @@ void main() {
   }
 
   testWidgets('shows the resolved receiving number', (tester) async {
-    await pump(tester, await SharedPreferences.getInstance(), _AcceptingRepository());
+    await pump(
+      tester,
+      await SharedPreferences.getInstance(),
+      _AcceptingRepository(),
+    );
 
     expect(find.text('Checkout'), findsOneWidget);
     expect(find.text('01712345678'), findsOneWidget);
@@ -110,9 +115,14 @@ void main() {
     expect(find.text('৳150'), findsOneWidget);
   });
 
-  testWidgets('the instruction names the amount and bolds only Send Money',
-      (tester) async {
-    await pump(tester, await SharedPreferences.getInstance(), _AcceptingRepository());
+  testWidgets('the instruction names the amount and bolds only Send Money', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      await SharedPreferences.getInstance(),
+      _AcceptingRepository(),
+    );
 
     final sentence = tester.widget<Text>(
       find.byKey(const ValueKey('checkout-transfer-body')),
@@ -136,8 +146,9 @@ void main() {
     );
   });
 
-  testWidgets('a saved draft pre-fills the form and a submit clears it',
-      (tester) async {
+  testWidgets('a saved draft pre-fills the form and a submit clears it', (
+    tester,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final repo = _AcceptingRepository();
     await pump(tester, prefs, repo);
@@ -146,10 +157,7 @@ void main() {
       find.byKey(const ValueKey('checkout-phone')),
       '01712345678',
     );
-    await tester.enterText(
-      find.byKey(const ValueKey('checkout-trx')),
-      'TRX99',
-    );
+    await tester.enterText(find.byKey(const ValueKey('checkout-trx')), 'TRX99');
     await tester.pumpAndSettle();
 
     // The draft is saved on keystroke, before any submit.
@@ -201,9 +209,8 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.checkout,
-          builder: (context, state) => CheckoutScreen(
-            planKey: paymentPlanProMonthly,
-          ),
+          builder: (context, state) =>
+              CheckoutScreen(planKey: paymentPlanProMonthly),
         ),
         GoRoute(
           path: AppRoutes.settingsSubscriptionHistory,
@@ -256,10 +263,7 @@ void main() {
       find.byKey(const ValueKey('checkout-phone')),
       '01712345678',
     );
-    await tester.enterText(
-      find.byKey(const ValueKey('checkout-trx')),
-      'TRX42',
-    );
+    await tester.enterText(find.byKey(const ValueKey('checkout-trx')), 'TRX42');
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('checkout-submit')));
     await tester.pumpAndSettle();
@@ -267,6 +271,12 @@ void main() {
     expect(repo.submitted, ['TRX42']);
     expect(find.text('History-Landed'), findsOneWidget);
     expect(find.textContaining('Submission Received'), findsOneWidget);
+    // The payer is still free, so there is no socket to hear the approval:
+    // the checkout starts the bounded watch that re-reads the account.
+    final container = ProviderScope.containerOf(
+      tester.element(find.text('History-Landed')),
+    );
+    expect(container.read(paymentApprovalWatchProvider), greaterThan(0));
 
     // Back from History reaches Account & Profile, never the completed checkout.
     await tester.tap(find.byType(BackButton));

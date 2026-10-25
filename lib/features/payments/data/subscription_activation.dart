@@ -2,9 +2,12 @@
 ///
 /// Task 21 Phase 4 item 3 / plan §2. A payment is approved by the admin RPC on
 /// the server; the app learns about it through the ordinary profile refresh on
-/// launch/resume (a `profiles`/`payment_submissions` Broadcast ping does not
-/// exist — neither table has the row trigger). When the derived entitlement
-/// rises from **false to true**, this runs [SyncService.runBacklogPush] once,
+/// launch/resume, and — while the payer waits after submitting — through the
+/// bounded post-payment watch the checkout starts
+/// (`payment_approval_watch.dart`). A `profiles`/`payment_submissions` Broadcast
+/// ping does not exist — neither table has the row trigger. When the derived
+/// entitlement rises from **false to true**, this runs
+/// [SyncService.runBacklogPush] once,
 /// which compacts and pushes everything the account accumulated while it was
 /// free and then does a full pull.
 ///

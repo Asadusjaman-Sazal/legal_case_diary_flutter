@@ -1,7 +1,7 @@
 # Manual verification — Firm shared capacity and device limits
 
-**App version tested:** 0.0.637 or later  
-**Checklist version:** 0.0.638  
+**App version tested:** 0.0.645 or later  
+**Checklist version:** 0.0.645  
 **Date:** ________  **Tester:** ________  **Result:** ________
 
 ---
@@ -13,6 +13,8 @@ This is the physical-device pass for the shared firm capacity introduced in
 
 - the firm’s slots (Firm 5, Firm Plus 10, Enterprise 20, owner included) are
   shared between associates and the owner’s own devices;
+- a chamber-tier account with **no chamber yet** keeps the tier’s full seat cap
+  for its own devices (the owner-designate, 0.0.645);
 - the owner’s device allowance follows the number of associates;
 - a downgrade’s smaller capacity waits for the **48-hour grace**, warns the
   owner, and then signs out the excess — the owner’s extra devices first, then
@@ -36,7 +38,7 @@ beyond what is needed to prepare a test chamber.
 | `supabase/tests/firm_capacity_test.sql` (`CAPACITY OK`) | Slot map, owner/associate/signed-out device caps, join invariant, freeze, `already_in_firm`, owner sign-out/admit, trim order, legacy no-trim, removal and orphan safety |
 | `test/features/firm_capacity_test.dart` | The client capacity resolver: used/seated, owner cap, reserved first device, pending shrink, grace boundary |
 | `test/supabase/firm_capacity_parity_test.dart` | Tier slot counts and trim/join invariants pinned to the SQL |
-| `test/supabase/device_cap_parity_test.dart` | Owner/associate/flagged device-cap arms |
+| `test/supabase/device_cap_parity_test.dart` | Owner/associate/signed-out/owner-designate device-cap arms |
 | `test/features/manage_associates_test.dart` | **Not Signed In**, Admit Again, roster actions |
 | `supabase/tests/firm_mode_join_gate_test.sql`, `firm_mode_stored_tier_test.sql`, `subscription_ladder_test.sql`, `firm_removal_test.sql`, `device_limit_test.sql` | The existing join, tier, ladder, removal and device rules |
 
@@ -456,6 +458,27 @@ then wait for the next quarter hour **without** calling the per-firm function.
       while online and show the relevant screen; no manual refresh is needed.
 - [ ] A device that is offline learns on its next launch (note this if tested).
 
+### Scenario 16 — A chamber-tier owner-designate before the firm exists (0.0.645)
+
+Use a Firm (or Firm Plus / Enterprise) account with **no firm yet** — what a
+fresh chamber-plan purchase is.
+
+- [ ] Cold-start the app (registration is what carries the cap) and open
+      Manage Plan.
+- [ ] Read the Devices meter and the server’s device cap (§12.11).
+- [ ] Register a second phone on the same account; repeat up to the tier’s cap;
+      try one more.
+
+**Expected:**
+
+- [ ] The meter reads **5 of 1 used** on Firm (10 / 20 on the larger tiers), not
+      1 of 1.
+- [ ] `device_cap('<user id>')` returns 5 / 10 / 20 while `firm_id` is null.
+- [ ] Devices up to the cap register and sync; the next one is refused by the
+      normal device-limit screen.
+- [ ] After Manage Associates → Create Firm, the meter becomes **Seats** with
+      the same number of slots, and an associate reduces the owner’s share.
+
 ---
 
 ## 7. SQL shortcuts
@@ -610,6 +633,18 @@ keeps the authored chamber rows. Push tokens are 0 in both cases.
 Always refresh the app after a SQL change: **Settings → Online Sync → Sync Now**,
 or relaunch. The firm row is a pull-only cache.
 
+### 12.11 Check an owner-designate device cap (Scenario 16)
+
+```sql
+select p.id, p.email, p.tier, p.firm_id, public.device_cap(p.id) as cap
+  from public.profiles p
+ where p.email = '<TEST_EMAIL>';
+```
+
+Expected: `firm_id` is null and `cap` is **5 / 10 / 20** for Firm / Firm Plus /
+Enterprise; `cap` is 2 for Pro and 1 for Starter and Free. After Create Firm the
+owner’s cap is the same number minus associates.
+
 ---
 
 ## 8. Cleanup
@@ -645,6 +680,7 @@ or relaunch. The firm row is a pull-only cache.
 | 13 | Dissolve blocked with members; succeeds when empty | | | | |
 | 14 | Legacy over-capacity: no auto-trim; owner trims | | | | |
 | 15 | Cron within 15 minutes; Realtime sign-outs; offline device on next launch | | | | |
+| 16 | Owner-designate: tier cap 5/10/20 before a firm; Seats after creation | | | | |
 
 **Final result:** ________  
 **Blocking issues found:** ________  

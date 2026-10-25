@@ -92,6 +92,7 @@ declare
   c_a5 uuid := gen_random_uuid();
   c_a6 uuid := gen_random_uuid();
   c_a7 uuid := gen_random_uuid();
+  c_designate uuid := gen_random_uuid();
   c_orphan uuid := gen_random_uuid();
   v_firm uuid := gen_random_uuid();
   v_firm_b uuid := gen_random_uuid();
@@ -121,6 +122,7 @@ begin
     (c_a5, 'cap-a5@test.local', now(), now(), now(), false, false),
     (c_a6, 'cap-a6@test.local', now(), now(), now(), false, false),
     (c_a7, 'cap-a7@test.local', now(), now(), now(), false, false),
+    (c_designate, 'cap-designate@test.local', now(), now(), now(), false, false),
     (c_orphan, 'cap-orphan@test.local', now(), now(), now(), false, false);
 
   -- The seven associates of chamber C, so the trim's profile join is exercised.
@@ -184,6 +186,42 @@ begin
   update public.firms set tier = 'free' where id = v_firm;
   perform pg_temp.assert_true(public.firm_seat_cap(v_firm) = 0, 'Free is not 0');
   update public.firms set tier = 'firm' where id = v_firm;
+
+  -- -------------------------------------------------------------------------
+  -- 1b. A chamber-tier account with no chamber keeps the seats it paid for.
+  -- -------------------------------------------------------------------------
+  -- `tier_device_cap` stays 1 per member; the individual branch must read the
+  -- tier's seat cap until a firm exists, then the owner branch takes over.
+  update public.profiles set tier = 'firm' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 5,
+    'a Firm owner-designate does not read five devices'
+  );
+  update public.profiles set tier = 'firm_plus' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 10,
+    'a Firm Plus owner-designate does not read ten devices'
+  );
+  update public.profiles set tier = 'enterprise' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 20,
+    'an Enterprise owner-designate does not read twenty devices'
+  );
+  update public.profiles set tier = 'pro' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 2,
+    'a Pro individual lost its second device'
+  );
+  update public.profiles set tier = 'starter' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 1,
+    'a Starter individual does not read one device'
+  );
+  update public.profiles set tier = 'free' where id = c_designate;
+  perform pg_temp.assert_true(
+    public.device_cap(c_designate) = 1,
+    'a free individual does not read one device'
+  );
 
   -- -------------------------------------------------------------------------
   -- 2. The owner's device cap follows the associates.

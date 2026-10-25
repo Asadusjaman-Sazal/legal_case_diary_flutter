@@ -23,6 +23,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/device_providers.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
@@ -73,6 +74,19 @@ final paymentApprovalExpiryProvider = Provider<Future<int?> Function()>((ref) {
     final db = await ref.read(databaseProvider.future);
     return resolveSubscriptionExpiry(db, userId);
   };
+});
+
+/// Re-registers this device after an approval, so its cap is the new plan's.
+///
+/// The device gate answers the Manage Plan meter and enforces the limit with the
+/// cap the last registration returned. A plan approval can raise it — most
+/// visibly a Firm owner-designate going from 1 to 5 before any chamber exists —
+/// and without this the screen would keep showing the old number until a resume
+/// or a relaunch.
+final paymentApprovalDeviceRefreshProvider = Provider<Future<void> Function()>((
+  ref,
+) {
+  return () => ref.read(deviceGateProvider.notifier).refresh();
 });
 
 /// Runs the bounded refresh while a submitted payment waits for a decision.
@@ -202,6 +216,7 @@ class _PaymentApprovalWatchScopeState
         // decision has not landed yet (or this beat's read failed).
         final expiry = await ref.read(paymentApprovalExpiryProvider)();
         if (expiry != _startExpiry) {
+          await _refreshDeviceCap();
           _finish();
           return;
         }
@@ -210,6 +225,7 @@ class _PaymentApprovalWatchScopeState
         // signal left, and it still ends the watch for the reported case.
         final premium = await ref.read(premiumAccessProvider.future);
         if (!_wasPremium && premium) {
+          await _refreshDeviceCap();
           _finish();
           return;
         }
@@ -220,6 +236,19 @@ class _PaymentApprovalWatchScopeState
       // resume or the next launch tries again.
     } finally {
       _working = false;
+    }
+  }
+
+  /// Asks the gate for the new cap after the subscription moved.
+  ///
+  /// Best-effort: a failure leaves the last answer in place, and the gate's own
+  /// resume check re-registers. It is the display and the limit's shared
+  /// source, so this is the one place the new cap has to be picked up.
+  Future<void> _refreshDeviceCap() async {
+    try {
+      await ref.read(paymentApprovalDeviceRefreshProvider)();
+    } on Object {
+      // Keep the previous gate answer; a resume or the next launch re-asks.
     }
   }
 

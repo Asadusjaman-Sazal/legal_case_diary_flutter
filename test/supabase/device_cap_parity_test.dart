@@ -49,29 +49,38 @@ void main() {
       }
     });
 
-    test('a seated associate is allowed one device; the owner reads the slots',
-        () {
-      final sql = _latestDefining(
-        'create or replace function public.device_cap(',
-      );
-      expect(
-        sql,
-        contains('capacity_signed_out_at is not null'),
-        reason: 'a capacity-signed-out associate must read 0',
-      );
-      expect(
-        sql,
-        contains(
-          'public.firm_seat_cap(p.firm_id) - public.firm_associate_count(p.firm_id)',
-        ),
-        reason: 'a chamber owner reads the slots left after associates',
-      );
-      expect(
-        sql,
-        contains('when p.firm_id is not null then 1'),
-        reason: 'every other chamber account still reads one device',
-      );
-    });
+    test(
+      'a seated associate is allowed one device; the owner reads the slots',
+      () {
+        final sql = _latestDefining(
+          'create or replace function public.device_cap(',
+        );
+        expect(
+          sql,
+          contains('capacity_signed_out_at is not null'),
+          reason: 'a capacity-signed-out associate must read 0',
+        );
+        expect(
+          sql,
+          contains(
+            'public.firm_seat_cap(p.firm_id) - public.firm_associate_count(p.firm_id)',
+          ),
+          reason: 'a chamber owner reads the slots left after associates',
+        );
+        expect(
+          sql,
+          contains('when p.firm_id is not null then 1'),
+          reason: 'every other chamber account still reads one device',
+        );
+        expect(
+          sql,
+          contains('public.tier_seat_cap('),
+          reason:
+              'a chamber-tier account with no chamber is an owner-designate and '
+              'keeps the paid seats for its own devices (0.0.645)',
+        );
+      },
+    );
 
     test('the floor is one device, so no account is left without a slot', () {
       expect(_floor(), 1);

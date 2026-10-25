@@ -5356,6 +5356,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক চালু রাখতে নবায়ন করুন।';
 
   @override
+  String subscription_bannerGraceCountdown(String time) {
+    return 'সিঙ্ক বন্ধ হতে বাকি $time।';
+  }
+
+  @override
   String get subscription_bannerExpiredOwner =>
       'আপনার প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। সিঙ্ক ফিরে পেতে সাবস্ক্রিপশন নবায়ন করুন।';
 

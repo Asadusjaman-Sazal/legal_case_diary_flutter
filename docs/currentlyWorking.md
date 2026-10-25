@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — A live 48-hour grace countdown — COMPLETE (0.0.636)
+
+- **What was asked.** During the 48-hour grace, show a countdown of the time left instead of only the fixed renewal sentence.
+- **What changed.** The app-wide `SubscriptionBanner` now adds a live `HH:MM:SS` line under the grace message, computed from the cached expiry + 48 hours and the recorded server offset, in English/Bengali digits. It ticks once a second, caps at 48:00:00, flips to the red past-grace banner at zero, and only the grace state mounts the timer.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,083 passed**; the banner tests cover the formatter (English/Bengali digits, zero, negative, the 48-hour cap) and the live countdown widget.
+- **Remaining.** No server change. If the app is left open across the expiry, the existing state refresh still decides when the banner enters the grace and mounts the countdown.
+
 ### 2026-10-26 — Shared chamber capacity and a delayed shrink — COMPLETE (0.0.635)
 
 - **What was asked.** A chamber's slots should be shared between associates and the owner's own devices rather than one device each; a downgrade must shrink only after the 48-hour grace, signing out the over-limit members/devices (the owner chooses during the grace, automatic otherwise); a signed-out associate stays a member as **Not Signed In** until removed; plan cards state the slots.

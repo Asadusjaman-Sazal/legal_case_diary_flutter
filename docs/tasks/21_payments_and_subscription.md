@@ -39,7 +39,7 @@
 
 ## Phase 4 — Grace Period, Expiry Banners & Activation Detection
 
-1. **48-hour grace period:** when `subscription_expiry` passes, sync stays fully active for 48h with a persistent, non-intrusive banner: *"Your subscription expired. Renew to avoid losing sync access."* If an admin approves a payment within the window, expiry extends seamlessly and the banner disappears.
+1. **48-hour grace period:** when `subscription_expiry` passes, sync stays fully active for 48h with a persistent, non-intrusive banner: *"Your subscription expired. Renew to avoid losing sync access."* The banner also shows a live `HH:MM:SS` countdown of the remaining grace (*"Sync stops in 47:59:58."*), in the locale's digits and on the corrected server clock; at zero it becomes the past-grace banner. If an admin approves a payment within the window, expiry extends seamlessly and the banner disappears.
 2. **After grace ends:** sync is disabled immediately; the app falls back to local-only mode; no data is deleted. Banners:
    - Firm Owner: *"Your premium subscription has ended. Renew your subscription to restore sync."*
    - Associate: *"Your firm's premium subscription has ended. Contact your firm owner to renew."*

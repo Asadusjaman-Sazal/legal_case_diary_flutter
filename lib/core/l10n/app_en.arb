@@ -542,6 +542,7 @@
   "paywall_memberPlanTitle": "Chamber Plan",
   "paywall_memberPlanBody": "This account is covered by the chamber's subscription. The chamber owner buys and renews it.",
   "paywall_memberLockedToast": "Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.",
+  "paywall_chamberPlanLockedToast": "Dissolve your chamber before choosing an individual plan.",
   "paywall_limitTitle": "Free Plan Limit Reached",
   "paywall_limitBody": "The free plan holds up to {limit} cases. Deleting a case frees a slot, and everything else — Case Management, taking Notes, using Case Reference, editing and printing — stays free.",
   "@paywall_limitBody": {
@@ -600,7 +601,7 @@
   "paywall_featureCloudBackup": "Real-time cloud backup",
   "paywall_featureDisasterRecovery": "Disaster recovery: restore your diary from the cloud on a new device",
   "paywall_featureSingleDevice": "Single-device use",
-  "paywall_featureMultiDevice": "Multi-device support: up to {count} concurrent devices",
+  "paywall_featureMultiDevice": "Multi-device access: Use your account on up to {count} devices simultaneously.",
   "@paywall_featureMultiDevice": {
       "placeholders": {
           "count": {
@@ -608,10 +609,13 @@
           }
       }
   },
-  "paywall_featureCollaboration": "Collaboration: up to {count} members (one concurrent device each)",
+  "paywall_featureCollaboration": "Collaboration: Use your account on up to {devices} devices simultaneously or invite up to {associates} associates to your firm.",
   "@paywall_featureCollaboration": {
       "placeholders": {
-          "count": {
+          "devices": {
+              "type": "String"
+          },
+          "associates": {
               "type": "String"
           }
       }
@@ -1138,6 +1142,8 @@
   "devices_limitRevokedRelogin": "To continue using this device, please log in again using the button below.",
   "devices_backToLogin": "Back to Login",
   "devices_revokedRemovedBody": "You removed this device from your device list. Any unsaved work on this device is discarded.",
+  "devices_capacityRevokedBody": "Your firm no longer has a slot for this device, so it has been signed out and its local copy is being erased. Your account is still a member of the firm — ask the owner to make room.",
+  "devices_removedRevokedBody": "The firm owner removed this account, so this device has been signed out and its local copy is being erased.",
   "devices_evicted": "{name} was signed out to make room for this device.",
   "@devices_evicted": {"placeholders": {"name": {"type": "String"}}},
   "settingsSubscription_freePlanLimitations": "Free Plan Limitations",
@@ -1170,7 +1176,7 @@
       }
   },
   "settingsSubscription_freeLimitCasesSuffix": " at a time.",
-  "settingsSubscription_freeLimitCloud": "Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.",
+  "settingsSubscription_freeLimitCloud": "Cloud features—including real-time backup, syncing your diary across multiple devices and collaborating in a firm—require a subscription.",
   "settingsSubscription_freeLimitRecoveryBold": "No cloud backup:",
   "settingsSubscription_freeLimitRecoverySuffix": " If your phone is lost or damaged, you won't be able to restore your diary from a cloud backup.",
   "settingsSubscription_upgradeTitle": "Want to Upgrade?",
@@ -1200,6 +1206,23 @@
   "settingsSubscription_usageOfLimit": "{used} of {limit} used",
   "@settingsSubscription_usageOfLimit": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
   "settingsSubscription_usageFirmNote": "Cases are counted across the whole chamber.",
+  "settingsSubscription_usageSeats": "Seats and Devices",
+  "settingsSubscription_usageSeatsNote": "Your associates and your own signed-in devices share these slots.",
+  "settingsSubscription_usageSignedOut": "{count, plural, =1{1 associate is not signed in.} other{{count} associates are not signed in.}}",
+  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int"}}},
+  "settingsSubscription_capacityShrinkTitle": "Capacity Changes Soon",
+  "settingsSubscription_capacityShrinkBody": "From {date}, your firm allows {slots} devices in total. You have {associates} associates and {devices} devices of your own. Sign out a device or remove an associate before then; otherwise the extra ones are signed out automatically.",
+  "@settingsSubscription_capacityShrinkBody": {
+      "placeholders": {
+          "date": {"type": "String"},
+          "slots": {"type": "String"},
+          "associates": {"type": "String"},
+          "devices": {"type": "String"}
+      }
+  },
+  "settingsSubscription_capacityOverBody": "Your firm has more associates than its plan allows. Remove associates to free seats; until then no new associate can join.",
+  "settingsSubscription_capacityDevicesOverBody": "This account has more devices than the plan allows. Sign one out under Devices to free a slot.",
+  "settingsSubscription_capacityFrozenBody": "Your firm's subscription has ended. No new associates can join until it is renewed. Current members keep working on their devices; nothing syncs.",
   "settingsSubscription_manageSubscription": "Manage Subscription",
   "settingsSubscription_renewSubscription": "Renew Subscription",
   "settingsSubscription_cancelSubscription": "Cancel Subscription",
@@ -2220,7 +2243,7 @@
     }
   },
   "auth_errorOwnDiaryNoCount": "This account already has its own diary. An associate's diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.",
-  "auth_errorSeatsFull": "This firm has no seats left ({seats} in use). Ask the owner to add a seat or remove an associate.",
+  "auth_errorSeatsFull": "This firm's plan has {seats} seats and they are all in use. Ask the owner to remove an associate or sign out one of their own devices.",
   "@auth_errorSeatsFull": {
     "placeholders": {
       "seats": {
@@ -2228,7 +2251,9 @@
       }
     }
   },
-  "auth_errorSeatsFullNoCount": "This firm has no seats left. Ask the owner to add a seat or remove an associate.",
+  "auth_errorSeatsFullNoCount": "This firm's plan has no free seats. Ask the owner to remove an associate or sign out one of their own devices.",
+  "auth_errorFirmLapsed": "This firm's subscription has ended, so no new associate can join until the owner renews.",
+  "auth_errorAlreadyInFirm": "You are already in a firm. Ask that firm's owner to remove you before joining another.",
   "auth_validationEmailRequired": "Enter your email address.",
   "auth_validationEmailInvalid": "Enter a valid email address.",
   "auth_validationPasswordRequired": "Enter your password.",
@@ -2254,6 +2279,15 @@
   "manageAssociates_sectionMembers": "Associates",
   "manageAssociates_addAssociate": "Add Associate",
   "manageAssociates_noMembers": "No Associates Yet.",
+  "manageAssociates_statusNotSignedIn": "Not Signed In",
+  "manageAssociates_signedOutNote": "This member's devices are signed out because the firm had no free slot. Remove them to free the seat, or admit them again when there is room.",
+  "manageAssociates_capacityAdmit": "Admit Again",
+  "manageAssociates_capacitySignOut": "Sign Out Devices",
+  "manageAssociates_capacitySignOutBody": "{name}'s devices will be signed out, and their unsynced work will be discarded. They stay a member and can be admitted again when there is room.",
+  "@manageAssociates_capacitySignOutBody": {"placeholders": {"name": {"type": "String"}}},
+  "manageAssociates_noFreeSlot": "No free slot: the last slot is for your own device.",
+  "manageAssociates_capacitySignedOut": "Devices Signed Out.",
+  "manageAssociates_capacityAdmitted": "Member Admitted.",
   "manageAssociates_unnamedMember": "Unnamed Member",
   "manageAssociates_createFirmIntro": "Add Your First Associate To Create Your Firm And Work Together.",
   "manageAssociates_firmNameLabel": "Firm Name",

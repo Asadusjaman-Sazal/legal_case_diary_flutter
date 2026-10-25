@@ -922,6 +922,33 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'step. Account deletion removes the object through the delete-account '
         'Edge Function, because Storage deletes must use the Storage API.',
   ),
+  LedgerSection(
+    file: '20261026100000_payment_downgrade_after_grace.sql',
+    version: '0.0.635',
+    label:
+        'A queued downgrade now starts 48 hours after the paid period it '
+        'replaces ends, so the old plan\'s capacity covers the whole grace. '
+        'approve_payment gains the grace-aware start, applies a lower tier '
+        'bought inside the grace as a pending pair, applies a higher tier after '
+        'a started pending immediately, and refuses Starter/Pro for a chamber '
+        'owner (tier_seat_cap is defined here and reused by the capacity '
+        'migration). Existing queued downgrades are backfilled by 48h through '
+        'profiles only, because the mirror trigger copies the value to firms.',
+  ),
+  LedgerSection(
+    file: '20261026110000_firm_shared_capacity.sql',
+    version: '0.0.635',
+    label:
+        'Chamber capacity is shared: associates plus the owner\'s own devices '
+        'must fit the tier\'s slots (Firm 5, Firm Plus 10, Enterprise 20, owner '
+        'included). Adds joined_at and capacity_signed_out_at to firm_members, '
+        'closes its direct INSERT/UPDATE/DELETE bypass, adds the capacity '
+        'helpers, makes device_cap dynamic for an owner and 0 for a signed-out '
+        'associate, rebuilds join_firm/register_device/remove_firm_member under '
+        'one firm lock order, adds owner sign-out/admit RPCs, and rebalances a '
+        'chamber only after a started lower-tier shrink (owner devices first, '
+        'then the newest associates), every 15 minutes by pg_cron.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1005,6 +1032,9 @@ const Map<String, String> _groupTitles = <String, String>{
       'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
       'Belong To The Server',
   '0.0.630': 'Profile Pictures — A 50 KB Cap And A Premium Cloud Copy',
+  '0.0.635':
+      'Shared Chamber Capacity — Slots Cover Associates And The Owner\'s '
+      'Devices, And A Shrink Waits For The Grace',
   '0.0.629': 'Firm Identity — The Chamber Logo And The Side Menu',
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523':

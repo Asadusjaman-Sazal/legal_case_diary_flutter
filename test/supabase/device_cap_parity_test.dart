@@ -49,16 +49,27 @@ void main() {
       }
     });
 
-    test('a chamber member is allowed one device, the owner included', () {
+    test('a seated associate is allowed one device; the owner reads the slots',
+        () {
       final sql = _latestDefining(
         'create or replace function public.device_cap(',
       );
       expect(
         sql,
+        contains('capacity_signed_out_at is not null'),
+        reason: 'a capacity-signed-out associate must read 0',
+      );
+      expect(
+        sql,
+        contains(
+          'public.firm_seat_cap(p.firm_id) - public.firm_associate_count(p.firm_id)',
+        ),
+        reason: 'a chamber owner reads the slots left after associates',
+      );
+      expect(
+        sql,
         contains('when p.firm_id is not null then 1'),
-        reason:
-            'the chamber cards say "one concurrent device each", so a member '
-            'and the chamber owner both read 1 whatever the chamber tier says',
+        reason: 'every other chamber account still reads one device',
       );
     });
 

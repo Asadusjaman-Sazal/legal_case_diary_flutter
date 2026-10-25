@@ -1088,6 +1088,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্মের সাবস্ক্রিপশন কেবল ফার্মের মালিকই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের মালিকের সাথে যোগাযোগ করুন।';
 
   @override
+  String get paywall_chamberPlanLockedToast =>
+      'ব্যক্তিগত প্ল্যান বেছে নেওয়ার আগে আপনার ফার্মটি বিলুপ্ত করুন।';
+
+  @override
   String get paywall_limitTitle => 'ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে';
 
   @override
@@ -1195,12 +1199,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String paywall_featureMultiDevice(String count) {
-    return 'একাধিক ডিভাইসে ব্যবহার: একসঙ্গে সর্বোচ্চ $countটি ডিভাইস';
+    return 'একাধিক ডিভাইস: একসঙ্গে সর্বোচ্চ $countটি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন।';
   }
 
   @override
-  String paywall_featureCollaboration(String count) {
-    return 'সহযোগিতা: সর্বোচ্চ $count জন সদস্য (প্রতিজনে একসঙ্গে একটি ডিভাইস)';
+  String paywall_featureCollaboration(String devices, String associates) {
+    return 'সহযোগিতা: একসঙ্গে সর্বোচ্চ $devicesটি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন অথবা আপনার ফার্মে সর্বোচ্চ $associates জন সহকারী আমন্ত্রণ করুন।';
   }
 
   @override
@@ -2296,6 +2300,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনি ডিভাইসের তালিকা থেকে এই ডিভাইসটি সরিয়েছেন। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।';
 
   @override
+  String get devices_capacityRevokedBody =>
+      'আপনার ফার্মে এই ডিভাইসের জন্য আর স্লট নেই, তাই এটি সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে। আপনার অ্যাকাউন্ট এখনো ফার্মের সদস্য — মালিককে জায়গা করতে বলুন।';
+
+  @override
+  String get devices_removedRevokedBody =>
+      'ফার্মের মালিক এই অ্যাকাউন্ট সরিয়ে দিয়েছেন, তাই এই ডিভাইস সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে।';
+
+  @override
   String devices_evicted(String name) {
     return 'এই ডিভাইসের জায়গা করতে $name সাইন আউট হয়েছে।';
   }
@@ -2330,7 +2342,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_freeLimitCloud =>
-      'ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং সর্বোচ্চ ২০ জন সহযোগীর সঙ্গে কাজ—এর জন্য সাবস্ক্রিপশন প্রয়োজন।';
+      'ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং ফার্মে সহযোগিতা—এর জন্য সাবস্ক্রিপশন প্রয়োজন।';
 
   @override
   String get settingsSubscription_freeLimitRecoveryBold =>
@@ -2399,6 +2411,50 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsSubscription_usageFirmNote =>
       'কেস সংখ্যা পুরো চেম্বারের হিসাবে ধরা হয়।';
+
+  @override
+  String get settingsSubscription_usageSeats => 'সিট ও ডিভাইস';
+
+  @override
+  String get settingsSubscription_usageSeatsNote =>
+      'আপনার সহকারী ও আপনার নিজের সাইন-ইন করা ডিভাইসগুলো এই স্লটগুলো ভাগ করে ব্যবহার করে।';
+
+  @override
+  String settingsSubscription_usageSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count জন সহকারী সাইন ইন করা নেই।',
+      one: '১ জন সহকারী সাইন ইন করা নেই।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsSubscription_capacityShrinkTitle =>
+      'শিগগিরই ধারণক্ষমতা বদলাবে';
+
+  @override
+  String settingsSubscription_capacityShrinkBody(
+    String date,
+    String slots,
+    String associates,
+    String devices,
+  ) {
+    return '$date থেকে আপনার ফার্মে মোট $slotsটি ডিভাইস চলবে। এখন $associates জন সহকারী ও আপনার $devicesটি ডিভাইস আছে। তার আগে একটি ডিভাইস সাইন আউট করুন বা একজন সহকারী সরান; নাহলে অতিরিক্তগুলো স্বয়ংক্রিয়ভাবে সাইন আউট হবে।';
+  }
+
+  @override
+  String get settingsSubscription_capacityOverBody =>
+      'আপনার ফার্মে প্ল্যানের অনুমতির চেয়ে বেশি সহকারী আছে। সিট খালি করতে সহকারী সরান; ততক্ষণ নতুন কোনো সহকারী যোগ দিতে পারবেন না।';
+
+  @override
+  String get settingsSubscription_capacityDevicesOverBody =>
+      'এই অ্যাকাউন্টে প্ল্যানের অনুমতির চেয়ে বেশি ডিভাইস আছে। একটি স্লট খালি করতে ডিভাইস তালিকা থেকে একটি ডিভাইস সাইন আউট করুন।';
+
+  @override
+  String get settingsSubscription_capacityFrozenBody =>
+      'আপনার ফার্মের সাবস্ক্রিপশন শেষ হয়েছে। নবায়ন না হওয়া পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না। বর্তমান সদস্যরা তাঁদের ডিভাইসে কাজ চালিয়ে যেতে পারবেন, তবে সিঙ্ক হবে না।';
 
   @override
   String get settingsSubscription_manageSubscription => 'সাবস্ক্রিপশন পরিচালনা';
@@ -4663,12 +4719,20 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String auth_errorSeatsFull(int seats) {
-    return 'এই ফার্মে আর সিট খালি নেই ($seatsটি ব্যবহৃত)। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।';
+    return 'এই ফার্মের প্ল্যানে $seatsটি সিট আছে এবং সবগুলোই ব্যবহৃত। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
   }
 
   @override
   String get auth_errorSeatsFullNoCount =>
-      'এই ফার্মে আর সিট খালি নেই। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।';
+      'এই ফার্মের প্ল্যানে আর খালি সিট নেই। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
+
+  @override
+  String get auth_errorFirmLapsed =>
+      'এই ফার্মের সাবস্ক্রিপশন শেষ হয়েছে, তাই মালিক নবায়ন না করা পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না।';
+
+  @override
+  String get auth_errorAlreadyInFirm =>
+      'আপনি ইতিমধ্যেই একটি ফার্মে আছেন। অন্য ফার্মে যোগ দেওয়ার আগে সেই ফার্মের মালিককে আপনাকে সরাতে বলুন।';
 
   @override
   String get auth_validationEmailRequired => 'আপনার ইমেইল লিখুন।';
@@ -4720,6 +4784,35 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_noMembers => 'এখনো কোনো সহকারী নেই।';
+
+  @override
+  String get manageAssociates_statusNotSignedIn => 'সাইন ইন করা নেই';
+
+  @override
+  String get manageAssociates_signedOutNote =>
+      'ফার্মে খালি স্লট না থাকায় এই সদস্যের ডিভাইসগুলো সাইন আউট করা হয়েছে। সিট খালি করতে তাঁকে সরান, অথবা জায়গা হলে আবার সাইন ইন করান।';
+
+  @override
+  String get manageAssociates_capacityAdmit => 'আবার সাইন ইন করান';
+
+  @override
+  String get manageAssociates_capacitySignOut => 'ডিভাইস সাইন আউট করুন';
+
+  @override
+  String manageAssociates_capacitySignOutBody(String name) {
+    return '$name-এর ডিভাইসগুলো সাইন আউট হবে এবং অসিঙ্ক করা কাজ মুছে যাবে। তিনি সদস্যই থাকবেন এবং জায়গা হলে আবার সাইন ইন করতে পারবেন।';
+  }
+
+  @override
+  String get manageAssociates_noFreeSlot =>
+      'খালি স্লট নেই: শেষ স্লটটি আপনার নিজের ডিভাইসের জন্য।';
+
+  @override
+  String get manageAssociates_capacitySignedOut => 'ডিভাইস সাইন আউট হয়েছে।';
+
+  @override
+  String get manageAssociates_capacityAdmitted =>
+      'সদস্যকে আবার সাইন ইন করানো হয়েছে।';
 
   @override
   String get manageAssociates_unnamedMember => 'নামহীন সদস্য';

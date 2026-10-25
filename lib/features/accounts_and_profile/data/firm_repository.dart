@@ -172,6 +172,14 @@ enum InviteRefusalKind {
 
   /// The chamber's effective tier sells fewer seats than it has live members.
   seatsFull,
+
+  /// The chamber's subscription has lapsed past the 48-hour grace, so it
+  /// accepts no new associate until the owner renews.
+  firmLapsed,
+
+  /// The redeemer already belongs to another chamber. The code is left unused
+  /// for someone who can redeem it.
+  alreadyInFirm,
 }
 
 /// A dissolve the server refused because the roster still holds someone.
@@ -257,6 +265,8 @@ InviteRedemption parseInviteRedemption(Object? response) {
       InviteRefusalKind.seatsFull,
       count: (result['seats'] as num?)?.toInt(),
     ),
+    'firm_lapsed' => throw const InviteRefusal(InviteRefusalKind.firmLapsed),
+    'already_in_firm' => throw const InviteRefusal(InviteRefusalKind.alreadyInFirm),
     'invalid_code' => throw const FirmFailure(FirmFailureKind.invalidInviteCode),
     // The RPC falls back to a status rather than raising when it cannot see a
     // caller; a redemption always happens signed in, so this is a bug state, not
@@ -280,6 +290,7 @@ class FirmMemberSummary {
     required this.canAdd,
     required this.canEdit,
     required this.canDelete,
+    this.capacitySignedOutAt,
   });
 
   /// The member's `auth.users.id`.
@@ -299,6 +310,10 @@ class FirmMemberSummary {
 
   /// Whether the member may delete cases directly instead of raising a request.
   final bool canDelete;
+
+  /// When the owner or the capacity trim signed this member's devices out, or
+  /// null while they are seated. Their membership and seat remain either way.
+  final DateTime? capacitySignedOutAt;
 }
 
 /// An invite that is still outstanding: unused and unrevoked.
@@ -390,6 +405,14 @@ abstract class FirmRepository {
   /// [FirmFailure] when the server refused — a non-owner, the owner themselves,
   /// or a member who is already gone.
   Future<void> removeMember(String userId);
+
+  /// Signs a seated member's devices out for capacity without ending their
+  /// membership. The seat stays occupied until the owner removes them.
+  Future<void> signOutMember(String userId);
+
+  /// Clears a capacity-signed-out member's marker when the chamber has room
+  /// for their device and the owner's reserved one.
+  Future<void> admitMember(String userId);
 
   /// Dissolves the caller's own firm, keeping its ledger as their own diary.
   ///
@@ -581,6 +604,14 @@ class UnavailableFirmRepository implements FirmRepository {
 
   @override
   Future<void> removeMember(String userId) async =>
+      throw const FirmFailure(FirmFailureKind.unavailable);
+
+  @override
+  Future<void> signOutMember(String userId) async =>
+      throw const FirmFailure(FirmFailureKind.unavailable);
+
+  @override
+  Future<void> admitMember(String userId) async =>
       throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
@@ -789,7 +820,9 @@ class SupabaseFirmRepository implements FirmRepository {
       // firm that is not the caller's own.
       final rows = await _client
           .from('firm_members')
-          .select('user_id, role, can_add, can_edit, can_delete');
+          .select(
+            'user_id, role, can_add, can_edit, can_delete, capacity_signed_out_at',
+          );
       if (rows.isEmpty) return const <FirmMemberSummary>[];
 
       final ids = <String>[
@@ -820,6 +853,10 @@ class SupabaseFirmRepository implements FirmRepository {
               canAdd: row['can_add'] as bool? ?? false,
               canEdit: row['can_edit'] as bool? ?? false,
               canDelete: row['can_delete'] as bool? ?? false,
+              capacitySignedOutAt: switch (row['capacity_signed_out_at']) {
+                final String stamp => DateTime.tryParse(stamp),
+                _ => null,
+              },
             ),
       ];
     } catch (error) {
@@ -909,6 +946,54 @@ class SupabaseFirmRepository implements FirmRepository {
       // itself; the server resolved the firm from the caller, so a wrong firm
       // is not one of the possibilities.
       throw FirmFailure(FirmFailureKind.unknown, cause: status);
+    } catch (error) {
+      throw mapFirmFailure(error);
+    }
+  }
+
+  @override
+  Future<void> signOutMember(String userId) async {
+    await _requireOnline();
+
+    try {
+      final result = decodeRpcMap(
+        await _client.rpc<dynamic>(
+          'sign_out_firm_member',
+          params: <String, dynamic>{'p_user_id': userId},
+        ),
+      );
+      final status = result['status'] as String?;
+      if (status == 'signed_out') return;
+      throw FirmFailure(FirmFailureKind.unknown, cause: status);
+    } catch (error) {
+      throw mapFirmFailure(error);
+    }
+  }
+
+  @override
+  Future<void> admitMember(String userId) async {
+    await _requireOnline();
+
+    try {
+      final result = decodeRpcMap(
+        await _client.rpc<dynamic>(
+          'admit_firm_member',
+          params: <String, dynamic>{'p_user_id': userId},
+        ),
+      );
+      final status = result['status'] as String?;
+      if (status == 'admitted') return;
+      // The chamber was still full: the roster card asks the owner to make
+      // room, and the invitation wording already carries the seat count.
+      if (status == 'seats_full') {
+        throw InviteRefusal(
+          InviteRefusalKind.seatsFull,
+          count: (result['seats'] as num?)?.toInt(),
+        );
+      }
+      throw FirmFailure(FirmFailureKind.unknown, cause: status);
+    } on InviteRefusal {
+      rethrow;
     } catch (error) {
       throw mapFirmFailure(error);
     }

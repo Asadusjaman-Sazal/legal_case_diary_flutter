@@ -535,6 +535,7 @@
   "paywall_memberPlanTitle": "চেম্বারের প্ল্যান",
   "paywall_memberPlanBody": "এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায়। প্ল্যানটি চেম্বারের মালিক কেনেন ও নবায়ন করেন।",
   "paywall_memberLockedToast": "ফার্মের সাবস্ক্রিপশন কেবল ফার্মের মালিকই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের মালিকের সাথে যোগাযোগ করুন।",
+  "paywall_chamberPlanLockedToast": "ব্যক্তিগত প্ল্যান বেছে নেওয়ার আগে আপনার ফার্মটি বিলুপ্ত করুন।",
   "paywall_limitTitle": "ফ্রি প্ল্যানের সীমা পূর্ণ হয়েছে",
   "paywall_limitBody": "ফ্রি প্ল্যানে সর্বোচ্চ {limit}টি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকবে।",
   "@paywall_limitBody": {
@@ -593,7 +594,7 @@
   "paywall_featureCloudBackup": "রিয়েল-টাইম ক্লাউড ব্যাকআপ",
   "paywall_featureDisasterRecovery": "দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ডিভাইসে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন",
   "paywall_featureSingleDevice": "একটি ডিভাইসে ব্যবহার",
-  "paywall_featureMultiDevice": "একাধিক ডিভাইসে ব্যবহার: একসঙ্গে সর্বোচ্চ {count}টি ডিভাইস",
+  "paywall_featureMultiDevice": "একাধিক ডিভাইস: একসঙ্গে সর্বোচ্চ {count}টি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন।",
   "@paywall_featureMultiDevice": {
       "placeholders": {
           "count": {
@@ -601,10 +602,13 @@
           }
       }
   },
-  "paywall_featureCollaboration": "সহযোগিতা: সর্বোচ্চ {count} জন সদস্য (প্রতিজনে একসঙ্গে একটি ডিভাইস)",
+  "paywall_featureCollaboration": "সহযোগিতা: একসঙ্গে সর্বোচ্চ {devices}টি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন অথবা আপনার ফার্মে সর্বোচ্চ {associates} জন সহকারী আমন্ত্রণ করুন।",
   "@paywall_featureCollaboration": {
       "placeholders": {
-          "count": {
+          "devices": {
+              "type": "String"
+          },
+          "associates": {
               "type": "String"
           }
       }
@@ -1093,6 +1097,8 @@
   "devices_limitRevokedRelogin": "এই ডিভাইসটি ব্যবহার চালিয়ে যেতে, নিচের বোতামটি ব্যবহার করে আবার লগ ইন করুন।",
   "devices_backToLogin": "লগ ইনে ফিরুন",
   "devices_revokedRemovedBody": "আপনি ডিভাইসের তালিকা থেকে এই ডিভাইসটি সরিয়েছেন। এই ডিভাইসের অসংরক্ষিত কাজ বাদ দেওয়া হয়।",
+  "devices_capacityRevokedBody": "আপনার ফার্মে এই ডিভাইসের জন্য আর স্লট নেই, তাই এটি সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে। আপনার অ্যাকাউন্ট এখনো ফার্মের সদস্য — মালিককে জায়গা করতে বলুন।",
+  "devices_removedRevokedBody": "ফার্মের মালিক এই অ্যাকাউন্ট সরিয়ে দিয়েছেন, তাই এই ডিভাইস সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে।",
   "devices_evicted": "এই ডিভাইসের জায়গা করতে {name} সাইন আউট হয়েছে।",
   "@devices_evicted": {"placeholders": {"name": {"type": "String"}}},
   "settingsSubscription_freePlanLimitations": "ফ্রি প্ল্যানের সীমাবদ্ধতা",
@@ -1124,7 +1130,7 @@
       }
   },
   "settingsSubscription_freeLimitCasesSuffix": " পরিচালনা করুন।",
-  "settingsSubscription_freeLimitCloud": "ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং সর্বোচ্চ ২০ জন সহযোগীর সঙ্গে কাজ—এর জন্য সাবস্ক্রিপশন প্রয়োজন।",
+  "settingsSubscription_freeLimitCloud": "ক্লাউড সুবিধা—রিয়েল-টাইম ব্যাকআপ, একাধিক ডিভাইসে আপনার ডায়েরি সিঙ্ক এবং ফার্মে সহযোগিতা—এর জন্য সাবস্ক্রিপশন প্রয়োজন।",
   "settingsSubscription_freeLimitRecoveryBold": "ক্লাউড ব্যাকআপ নেই:",
   "settingsSubscription_freeLimitRecoverySuffix": " ফোন হারিয়ে গেলে বা নষ্ট হলে, ক্লাউড ব্যাকআপ থেকে আপনার ডায়েরি ফিরিয়ে আনা যাবে না।",
   "settingsSubscription_upgradeTitle": "আপগ্রেড করতে চান?",
@@ -1152,6 +1158,23 @@
   "settingsSubscription_usageRemaining": "{count}টি বাকি",
   "settingsSubscription_usageOfLimit": "{limit}টির মধ্যে {used}টি ব্যবহৃত",
   "settingsSubscription_usageFirmNote": "কেস সংখ্যা পুরো চেম্বারের হিসাবে ধরা হয়।",
+  "settingsSubscription_usageSeats": "সিট ও ডিভাইস",
+  "settingsSubscription_usageSeatsNote": "আপনার সহকারী ও আপনার নিজের সাইন-ইন করা ডিভাইসগুলো এই স্লটগুলো ভাগ করে ব্যবহার করে।",
+  "settingsSubscription_usageSignedOut": "{count, plural, =1{১ জন সহকারী সাইন ইন করা নেই।} other{{count} জন সহকারী সাইন ইন করা নেই।}}",
+  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int"}}},
+  "settingsSubscription_capacityShrinkTitle": "শিগগিরই ধারণক্ষমতা বদলাবে",
+  "settingsSubscription_capacityShrinkBody": "{date} থেকে আপনার ফার্মে মোট {slots}টি ডিভাইস চলবে। এখন {associates} জন সহকারী ও আপনার {devices}টি ডিভাইস আছে। তার আগে একটি ডিভাইস সাইন আউট করুন বা একজন সহকারী সরান; নাহলে অতিরিক্তগুলো স্বয়ংক্রিয়ভাবে সাইন আউট হবে।",
+  "@settingsSubscription_capacityShrinkBody": {
+      "placeholders": {
+          "date": {"type": "String"},
+          "slots": {"type": "String"},
+          "associates": {"type": "String"},
+          "devices": {"type": "String"}
+      }
+  },
+  "settingsSubscription_capacityOverBody": "আপনার ফার্মে প্ল্যানের অনুমতির চেয়ে বেশি সহকারী আছে। সিট খালি করতে সহকারী সরান; ততক্ষণ নতুন কোনো সহকারী যোগ দিতে পারবেন না।",
+  "settingsSubscription_capacityDevicesOverBody": "এই অ্যাকাউন্টে প্ল্যানের অনুমতির চেয়ে বেশি ডিভাইস আছে। একটি স্লট খালি করতে ডিভাইস তালিকা থেকে একটি ডিভাইস সাইন আউট করুন।",
+  "settingsSubscription_capacityFrozenBody": "আপনার ফার্মের সাবস্ক্রিপশন শেষ হয়েছে। নবায়ন না হওয়া পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না। বর্তমান সদস্যরা তাঁদের ডিভাইসে কাজ চালিয়ে যেতে পারবেন, তবে সিঙ্ক হবে না।",
   "settingsSubscription_manageSubscription": "সাবস্ক্রিপশন পরিচালনা",
   "settingsSubscription_renewSubscription": "সাবস্ক্রিপশন নবায়ন",
   "settingsSubscription_cancelSubscription": "সাবস্ক্রিপশন বাতিল",
@@ -2053,7 +2076,7 @@
     }
   },
   "auth_errorOwnDiaryNoCount": "এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।",
-  "auth_errorSeatsFull": "এই ফার্মে আর সিট খালি নেই ({seats}টি ব্যবহৃত)। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।",
+  "auth_errorSeatsFull": "এই ফার্মের প্ল্যানে {seats}টি সিট আছে এবং সবগুলোই ব্যবহৃত। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।",
   "@auth_errorSeatsFull": {
     "placeholders": {
       "seats": {
@@ -2061,7 +2084,9 @@
       }
     }
   },
-  "auth_errorSeatsFullNoCount": "এই ফার্মে আর সিট খালি নেই। মালিককে সিট বাড়াতে বা একজন সহকারী সরাতে বলুন।",
+  "auth_errorSeatsFullNoCount": "এই ফার্মের প্ল্যানে আর খালি সিট নেই। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।",
+  "auth_errorFirmLapsed": "এই ফার্মের সাবস্ক্রিপশন শেষ হয়েছে, তাই মালিক নবায়ন না করা পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না।",
+  "auth_errorAlreadyInFirm": "আপনি ইতিমধ্যেই একটি ফার্মে আছেন। অন্য ফার্মে যোগ দেওয়ার আগে সেই ফার্মের মালিককে আপনাকে সরাতে বলুন।",
   "auth_validationEmailRequired": "আপনার ইমেইল লিখুন।",
   "auth_validationEmailInvalid": "সঠিক ইমেইল ঠিকানা লিখুন।",
   "auth_validationPasswordRequired": "আপনার পাসওয়ার্ড লিখুন।",
@@ -2087,6 +2112,15 @@
   "manageAssociates_sectionMembers": "সহকারীরা",
   "manageAssociates_addAssociate": "সহকারী যোগ করুন",
   "manageAssociates_noMembers": "এখনো কোনো সহকারী নেই।",
+  "manageAssociates_statusNotSignedIn": "সাইন ইন করা নেই",
+  "manageAssociates_signedOutNote": "ফার্মে খালি স্লট না থাকায় এই সদস্যের ডিভাইসগুলো সাইন আউট করা হয়েছে। সিট খালি করতে তাঁকে সরান, অথবা জায়গা হলে আবার সাইন ইন করান।",
+  "manageAssociates_capacityAdmit": "আবার সাইন ইন করান",
+  "manageAssociates_capacitySignOut": "ডিভাইস সাইন আউট করুন",
+  "manageAssociates_capacitySignOutBody": "{name}-এর ডিভাইসগুলো সাইন আউট হবে এবং অসিঙ্ক করা কাজ মুছে যাবে। তিনি সদস্যই থাকবেন এবং জায়গা হলে আবার সাইন ইন করতে পারবেন।",
+  "@manageAssociates_capacitySignOutBody": {"placeholders": {"name": {"type": "String"}}},
+  "manageAssociates_noFreeSlot": "খালি স্লট নেই: শেষ স্লটটি আপনার নিজের ডিভাইসের জন্য।",
+  "manageAssociates_capacitySignedOut": "ডিভাইস সাইন আউট হয়েছে।",
+  "manageAssociates_capacityAdmitted": "সদস্যকে আবার সাইন ইন করানো হয়েছে।",
   "manageAssociates_unnamedMember": "নামহীন সদস্য",
   "manageAssociates_createFirmIntro": "ফার্ম তৈরি করে একসাথে কাজ করতে আপনার প্রথম সহকারীকে যোগ করুন।",
   "manageAssociates_firmNameLabel": "ফার্মের নাম",

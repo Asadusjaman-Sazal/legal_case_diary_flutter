@@ -218,6 +218,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               l.localeName,
               grouping: false,
             ),
+            AppDateUtils.formatDigits(
+              tier.seatCap! - 1,
+              l.localeName,
+              grouping: false,
+            ),
           ),
         ),
       ],
@@ -261,6 +266,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final firm = ref.watch(accountFirmProvider).value;
 
     final isFirmAccount = profile?.firmId != null;
+    // The owner's purchase is the chamber's renewal, but an individual plan
+    // would leave the chamber with no seats. Those cards are locked for them.
+    final chamberOwner = isFirmAccount && !isMember;
     final expiryMs = isFirmAccount
         ? firm?.subscriptionExpiry
         : profile?.subscriptionExpiry;
@@ -362,6 +370,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     isActive: isActive,
                     expiryMs: expiryMs,
                     member: isMember,
+                    chamberOwner: chamberOwner,
                   ),
                 ],
               ),
@@ -405,6 +414,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required bool isActive,
     required int? expiryMs,
     required bool member,
+    required bool chamberOwner,
   }) {
     final tiers = tiersForAudience(audience);
     return <Widget>[
@@ -440,6 +450,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           isActive: isActive,
           expiryMs: expiryMs,
           member: member,
+          chamberOwner: chamberOwner,
         ),
       ],
     ];
@@ -456,11 +467,18 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required bool isActive,
     required int? expiryMs,
     required bool member,
+    required bool chamberOwner,
   }) {
     final isCurrent = tier == effectiveTier;
     final isScheduled = hasScheduled && tier == pendingTier;
     final isBlocked =
         hasScheduled && !isCurrent && !isScheduled;
+    // An individual plan (Starter or Pro) sells no chamber seat; a chamber
+    // owner must dissolve first. The card stays readable but its action answers
+    // with that reason.
+    final individualPlanLocked =
+        chamberOwner && (tier.seatCap ?? 0) == 0;
+    final locked = member || individualPlanLocked;
     // Most Popular marks the tier the ladder is built around: Starter among
     // individuals and **Firm Plus** among chambers (user ruling 2026-10-21 — it
     // was Firm, which is the entry chamber rung rather than the recommended
@@ -490,7 +508,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       isCurrent: isCurrent,
       isScheduled: isScheduled,
       plan: basePlan,
-      member: member,
+      member: locked,
     );
 
     return _PlanCardFrame(
@@ -659,8 +677,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // A member's action is greyed but still answers a tap: the answer
             // is who may buy, not a checkout.
             onPressed: tier.isSellable
-                ? (member
-                      ? () => _showMemberLocked(l)
+                ? (locked
+                      ? (individualPlanLocked
+                            ? () => _showChamberPlanLocked(l)
+                            : () => _showMemberLocked(l))
                       : isBlocked
                       ? null
                       : () => _onCta(
@@ -676,10 +696,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                         ))
                 : null,
             style: FilledButton.styleFrom(
-              backgroundColor: member
+              backgroundColor: locked
                   ? AppColors.surfaceContainerHigh
                   : AppColors.primary,
-              foregroundColor: member
+              foregroundColor: locked
                   ? AppColors.onSurfaceVariant
                   : AppColors.onPrimary,
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
@@ -753,9 +773,16 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     );
   }
 
-  /// The start instant a scheduled plan shows. The server stores it as the
-  /// current expiry; when it has not landed yet, the current expiry is the best
-  /// answer the device has.
+  /// Answers a chamber owner's tap on an individual plan.
+  void _showChamberPlanLocked(AppLocalizations l) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l.paywall_chamberPlanLockedToast)),
+    );
+  }
+
+  /// The start instant a scheduled plan shows. The server's
+  /// `tier_pending_from` is authoritative; before it exists, the current expiry
+  /// plus the 48-hour grace is the best answer the device has.
   int _pendingStart(int? pendingFrom, int? expiryMs) =>
       pendingFrom ?? expiryMs ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -789,7 +816,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         l,
         current: subscriptionTierLabel(l, _currentTierForLabel()),
         next: subscriptionTierLabel(l, tier),
-        startMs: expiryMs,
+        startMs: expiryMs + const Duration(hours: 48).inMilliseconds,
         termMonths: plan.months,
         ceiling: _ceilingText(l, tier),
       );

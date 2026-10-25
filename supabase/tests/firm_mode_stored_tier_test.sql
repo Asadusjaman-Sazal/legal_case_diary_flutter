@@ -210,28 +210,27 @@ begin
   --
   -- Read before any fixture is staged. `20261016120000` reconstructed the stored
   -- tier for accounts that were already paying, and this is the shape of that
-  -- repair: a paid Pro purchase in the ledger, or a period still running (or
-  -- inside its 48-hour grace), means the account holds a paid tier — never
-  -- `free`. Every future write path has to keep that true, so it is asserted
-  -- against the live rows rather than against a fixture.
+  -- repair: an **approved Pro purchase in the ledger** means the account holds a
+  -- paid tier — never `free`. Every future write path has to keep that true, so
+  -- it is asserted against the live rows. A period granted from the dashboard
+  -- without a purchase is deliberately outside this rule: the app treats that
+  -- account as premium and shows a dash for its tier-derived ceiling instead of
+  -- inventing a Free wall.
   perform pg_temp.assert_true(
     not exists (
       select 1
         from public.profiles p
        where p.tier = 'free'
-         and (
-           public.is_premium(p.id)
-           or exists (
-             select 1
-               from public.payment_submissions s
-              where s.user_id = p.id
-                and s.status = 'approved'
-                and s.plan_type in ('monthly', 'quarterly', 'half_yearly', 'annual')
-           )
+         and exists (
+           select 1
+             from public.payment_submissions s
+            where s.user_id = p.id
+              and s.status = 'approved'
+              and s.plan_type in ('monthly', 'quarterly', 'half_yearly', 'annual')
          )
     ),
-    'an account with a paid Pro purchase or a live period still reads free — '
-      'the stored tier is not being kept by every write path'
+    'an account with an approved Pro purchase still reads free — the stored '
+      'tier is not being kept by every write path'
   );
 
   -- -------------------------------------------------------------------------
@@ -255,7 +254,7 @@ begin
   update public.profiles set tier = 'pro' where id = c_pro;
 
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) is null,
+    public.firm_seat_cap(v_payer_firm) = 0,
     'a chamber on the default tier already claimed a seat cap'
   );
 
@@ -322,59 +321,60 @@ begin
   -- -------------------------------------------------------------------------
 
   -- The payer's **first** purchase, made while the chamber still holds no tier:
-  -- a free account starts at once, so the mirror carries Firm to the chamber on
-  -- the spot and the cap becomes a real number. Buying a lower tier first would
-  -- turn this into a queued change, which §5 tests on its own; Pro's own 0 is
-  -- proven there too, and by the ladder proof's seat-cap block.
-  v_submission := pg_temp.stage(c_payer, 'firm_annual', 2500, 'TIER-TRX-PAYER-1');
+  -- a free account starts at once, so the mirror carries Firm Plus to the
+  -- chamber on the spot and the cap becomes a real number. A chamber owner may
+  -- not buy Pro or Starter at all (0 slots), so the queued downgrade below uses
+  -- the next chamber rung down.
+  v_submission := pg_temp.stage(c_payer, 'firm_plus_annual', 5000, 'TIER-TRX-PAYER-1');
   v_result := pg_temp.approve(c_admin, v_submission);
 
   perform pg_temp.assert_true(
     v_result ->> 'status' = 'approved',
-    'the Firm purchase did not approve: ' || coalesce(v_result::text, 'null')
+    'the Firm Plus purchase did not approve: ' || coalesce(v_result::text, 'null')
   );
   perform pg_temp.assert_true(
-    v_result ->> 'tier' = 'firm',
-    'the Firm purchase did not report the Firm tier'
+    v_result ->> 'tier' = 'firm_plus',
+    'the Firm Plus purchase did not report the Firm Plus tier'
   );
   perform pg_temp.assert_true(
-    (select f.tier from public.firms f where f.id = v_payer_firm) = 'firm',
-    'the chamber did not follow its owner to Firm'
+    (select f.tier from public.firms f where f.id = v_payer_firm) = 'firm_plus',
+    'the chamber did not follow its owner to Firm Plus'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 5,
-    'a Firm chamber did not sell 5 seats'
+    public.firm_seat_cap(v_payer_firm) = 10,
+    'a Firm Plus chamber did not sell 10 seats'
   );
 
   -- -------------------------------------------------------------------------
   -- 5. A downgrade waits its turn (§5.4)
   -- -------------------------------------------------------------------------
 
-  v_submission := pg_temp.stage(c_payer, 'pro_annual', 1200, 'TIER-TRX-PAYER-3');
+  v_submission := pg_temp.stage(c_payer, 'firm_annual', 2500, 'TIER-TRX-PAYER-3');
   v_result := pg_temp.approve(c_admin, v_submission);
   v_expiry := (v_result ->> 'new_expiry')::timestamptz;
 
   perform pg_temp.assert_true(
-    (select p.tier from public.profiles p where p.id = c_payer) = 'firm',
+    (select p.tier from public.profiles p where p.id = c_payer) = 'firm_plus',
     'a downgrade overwrote the tier that was paid for'
   );
   perform pg_temp.assert_true(
-    (select p.tier_pending from public.profiles p where p.id = c_payer) = 'pro',
+    (select p.tier_pending from public.profiles p where p.id = c_payer) = 'firm',
     'a downgrade did not store the tier it bought as pending'
   );
-  -- The queue starts where the paid period ends, and the **new** expiry is that
-  -- day plus the term bought: the pending pair never names the far end.
+  -- The queue starts 48 hours after the paid period ends (the grace sync gets),
+  -- and the **new** expiry is the period's end plus the term bought: the pending
+  -- pair never names the far end.
   perform pg_temp.assert_true(
     (select p.tier_pending_from from public.profiles p where p.id = c_payer)
-      = (v_result ->> 'previous_expiry')::timestamptz,
-    'the pending tier did not start when the old period ends'
+      = (v_result ->> 'previous_expiry')::timestamptz + interval '48 hours',
+    'the pending tier did not wait the 48-hour grace'
   );
   perform pg_temp.assert_true(
     v_expiry = (v_result ->> 'previous_expiry')::timestamptz + interval '12 months',
     'the queued term did not extend the paid period by its own length'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 5,
+    public.firm_seat_cap(v_payer_firm) = 10,
     'a waiting downgrade capped the chamber early'
   );
 
@@ -384,32 +384,34 @@ begin
    where id = c_payer;
 
   perform pg_temp.assert_true(
-    (select f.tier from public.firms f where f.id = v_payer_firm) = 'pro',
+    (select f.tier from public.firms f where f.id = v_payer_firm) = 'firm',
     'the chamber did not follow the pending downgrade when its date arrived'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 0,
-    'the cap did not drop to Pro once the downgrade took effect'
+    public.firm_seat_cap(v_payer_firm) = 5,
+    'the cap did not drop to Firm once the downgrade took effect'
   );
 
-  -- A purchase of a **different** tier while the plan is running is queued too,
-  -- and it replaces the waiting pair: the stored tier is never rewritten when a
-  -- queued change starts, so Firm bought here leaves the account on Firm (its
-  -- stored tier) rather than on the Pro the earlier purchase had queued. The
-  -- chamber follows the effective tier the same way, so the cap is Firm's 5.
-  v_submission := pg_temp.stage(c_payer, 'firm_annual', 2500, 'TIER-TRX-PAYER-4');
+  -- An upgrade bought after a started change takes effect at once and clears the
+  -- pending pair. The shipped code queued it and reported a future start while
+  -- the stored tier was already in force.
+  v_submission := pg_temp.stage(c_payer, 'enterprise_annual', 15000, 'TIER-TRX-PAYER-4');
   v_result := pg_temp.approve(c_admin, v_submission);
   perform pg_temp.assert_true(
-    (v_result ->> 'queued')::boolean,
-    'a purchase behind a started change was not queued'
+    (v_result ->> 'queued')::boolean is false,
+    'an upgrade behind a started change was queued'
   );
   perform pg_temp.assert_true(
-    (select p.tier_pending from public.profiles p where p.id = c_payer) = 'firm',
-    'the new change was not stored as pending'
+    (select p.tier from public.profiles p where p.id = c_payer) = 'enterprise',
+    'the upgrade did not take effect at once'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 5,
-    'the chamber did not follow the effective tier after a second purchase'
+    (select p.tier_pending from public.profiles p where p.id = c_payer) is null,
+    'the upgrade did not clear the pending pair'
+  );
+  perform pg_temp.assert_true(
+    public.firm_seat_cap(v_payer_firm) = 20,
+    'the chamber did not follow the upgrade'
   );
 
   -- -------------------------------------------------------------------------
@@ -429,7 +431,7 @@ begin
     'the fixture did not actually lapse'
   );
   perform pg_temp.assert_true(
-    (select p.tier from public.profiles p where p.id = c_payer) = 'firm',
+    (select p.tier from public.profiles p where p.id = c_payer) = 'enterprise',
     'a lapse dropped the tier the account had paid for'
   );
   perform pg_temp.assert_true(
@@ -437,11 +439,11 @@ begin
       (select p.tier from public.profiles p where p.id = c_payer),
       (select p.tier_pending from public.profiles p where p.id = c_payer),
       (select p.tier_pending_from from public.profiles p where p.id = c_payer)
-    ) = 'firm',
+    ) = 'enterprise',
     'the tier in force was not the stored tier after a lapse'
   );
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_payer_firm) = 5,
+    public.firm_seat_cap(v_payer_firm) = 20,
     'a lapse dropped the ceiling the chamber had paid for'
   );
 

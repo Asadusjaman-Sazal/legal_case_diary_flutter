@@ -17,6 +17,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
 import '../../../shared/widgets/pull_to_sync.dart';
 import '../../auth/data/device_registration.dart';
+import '../data/firm_capacity.dart';
 
 /// The account's devices, newest contact first, with one Remove per row.
 class DevicesScreen extends ConsumerStatefulWidget {
@@ -86,6 +87,16 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
+                  if ((ref.watch(firmCapacityViewProvider)?.associates ?? 0) >
+                      0) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      l.settingsSubscription_usageSeatsNote,
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.md),
                   for (final device in devices) ...[
                     _DeviceRow(

@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        69,
+        71,
         reason:
+            'Shared chamber capacity (2026-10-26) added two files: the '
+            'grace-aware downgrade start and the capacity model. '
             'The profile-avatar bucket (2026-10-25) added one file. '
             'The chamber logo bucket (2026-10-25) added one file. '
             'The user_devices retention pruner (2026-10-23) added one file. '

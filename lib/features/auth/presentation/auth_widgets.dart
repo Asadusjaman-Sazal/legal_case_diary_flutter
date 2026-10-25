@@ -1699,6 +1699,8 @@ String inviteRefusalText(AppLocalizations l, InviteRefusal refusal) =>
         refusal.count == null
             ? l.auth_errorSeatsFullNoCount
             : l.auth_errorSeatsFull(refusal.count!),
+      InviteRefusalKind.firmLapsed => l.auth_errorFirmLapsed,
+      InviteRefusalKind.alreadyInFirm => l.auth_errorAlreadyInFirm,
     };
 
 /// Validates an email field, or returns null when it is usable.

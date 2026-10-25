@@ -320,6 +320,48 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('a capacity-signed-out member is labelled and can be admitted', (
+    tester,
+  ) async {
+    harness.firm.members = [
+      const FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Adv. Karim',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+        capacitySignedOutAt: DateTime.utc(2026, 10, 26, 12),
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    expect(find.text(l.manageAssociates_statusNotSignedIn), findsOneWidget);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-member-user-2')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_signedOutNote), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('member-admit')));
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.admittedMemberIds, ['user-2']);
+    expect(find.text(l.manageAssociates_capacityAdmitted), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
   testWidgets('the owner sees the chamber logo actions', (tester) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 

@@ -89,7 +89,9 @@ class DeviceGateState {
   /// The account's active devices, newest contact first.
   final List<RegisteredDevice> devices;
 
-  /// `cap`, `user`, `replaced` or `lapse`, for a revoked device.
+  /// `cap`, `user`, `replaced`, `lapse`, `capacity` or `removed`, for a revoked
+  /// device. `capacity` is a chamber shrink that signed this device out while
+  /// the account stays a member; `removed` is an owner removal.
   final String? revokedReason;
 
   /// The device this registration evicted, when it evicted one.

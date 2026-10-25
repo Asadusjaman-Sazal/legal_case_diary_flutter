@@ -4838,7 +4838,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_inviteIntro =>
-      'Share This Code With Your Associate. It Works Once, And This Is The Only Time It Is Shown.';
+      'Share this code with your associate. It works once, and this is the only time it is shown.';
 
   @override
   String get manageAssociates_copyCode => 'Copy Code';

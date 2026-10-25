@@ -555,12 +555,12 @@ class _ManageAssociatesScreenState
   String _failureText(AppLocalizations l) =>
       failureText(l, _failure) ?? l.auth_errorUnknown;
 
-  Future<void> _showInviteCode(GeneratedInvite invite) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => _InviteCodeSheet(invite: invite),
-      );
+  /// Opens the invite code in the app's pop-over window (0.0.651, user request:
+  /// it used to rise as a bottom sheet).
+  Future<void> _showInviteCode(GeneratedInvite invite) => showDialog<void>(
+    context: context,
+    builder: (_) => _InviteCodeDialog(invite: invite),
+  );
 }
 
 /// Centred single-message body (offline, or no account).
@@ -1514,27 +1514,56 @@ class _PrimaryButton extends StatelessWidget {
 /// cached, never written to the database and never logged
 /// ([GeneratedInvite.toString] omits it), so closing this sheet is the only
 /// thing that can happen to it — it cannot be shown again from anywhere.
-class _InviteCodeSheet extends ConsumerWidget {
-  const _InviteCodeSheet({required this.invite});
+class _InviteCodeDialog extends ConsumerStatefulWidget {
+  const _InviteCodeDialog({required this.invite});
 
   /// The freshly generated invite.
   final GeneratedInvite invite;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_InviteCodeDialog> createState() => _InviteCodeDialogState();
+}
+
+class _InviteCodeDialogState extends ConsumerState<_InviteCodeDialog> {
+  /// The one line of feedback the window shows, or null before any action.
+  ///
+  /// Shown **inside** the window rather than as a SnackBar: a SnackBar lives in
+  /// the Scaffold behind this dialog, so the confirmation the user asked for (a
+  /// copy proves itself) would never be seen.
+  String? _note;
+
+  /// Whether [_note] is a success (green tick) or a failure (red).
+  bool _noteOk = true;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
-    return SafeArea(
-      child: Padding(
+    return Dialog(
+      // The Exit App window's own footprint: AlertDialog's insets, its 8 px
+      // corner and its white panel (0.0.651, user request).
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      backgroundColor: AppColors.surfaceContainerLowest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l.manageAssociates_inviteTitle, style: AppTypography.titleLg),
+            // Centred, like the Exit App window's title.
+            Text(
+              l.manageAssociates_inviteTitle,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleLg,
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               l.manageAssociates_inviteIntro,
+              textAlign: TextAlign.center,
               style: AppTypography.bodySm.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
@@ -1547,52 +1576,73 @@ class _InviteCodeSheet extends ConsumerWidget {
                 color: AppColors.surfaceContainer,
               ),
               child: SelectableText(
-                invite.code,
+                widget.invite.code,
                 textAlign: TextAlign.center,
                 style: AppTypography.titleLg.copyWith(letterSpacing: 4),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
+            if (_note != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                key: const ValueKey('invite-code-note'),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _noteOk ? Icons.check_circle : Icons.error_outline,
+                    size: 16,
+                    color: _noteOk ? AppColors.success : AppColors.error,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Flexible(
+                    child: Text(
+                      _note!,
+                      style: AppTypography.bodySm.copyWith(
+                        color: _noteOk ? AppColors.success : AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            // The Exit App window's action size (112 x 48 at 16 pt), in a Wrap
+            // so the narrow window stacks them instead of overflowing — and so
+            // a longer Bengali label grows rather than clipping.
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: AppSpacing.sm,
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    key: const ValueKey('invite-code-copy'),
-                    onPressed: () => _copy(context, l),
-                    icon: const Icon(Icons.copy_all_outlined, size: 18),
-                    label: Text(l.manageAssociates_copyCode),
+                OutlinedButton(
+                  key: const ValueKey('invite-code-copy'),
+                  onPressed: _copy,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
+                  child: Text(l.manageAssociates_copyCode),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    key: const ValueKey('invite-code-share'),
-                    onPressed: () => _share(context, ref, l),
-                    icon: const Icon(Icons.share_outlined, size: 18),
-                    label: Text(l.manageAssociates_shareCode),
+                OutlinedButton(
+                  key: const ValueKey('invite-code-share'),
+                  onPressed: _share,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
+                  child: Text(l.manageAssociates_shareCode),
+                ),
+                FilledButton(
+                  key: const ValueKey('invite-code-close'),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: Text(l.sharedActions_close),
                 ),
               ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                key: const ValueKey('invite-code-close'),
-                onPressed: () => Navigator.of(context).maybePop(),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
-                  textStyle: AppTypography.titleMd,
-                  minimumSize: const Size.fromHeight(
-                    settingsPrimaryButtonHeight,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  ),
-                ),
-                child: Text(l.sharedActions_close),
-              ),
             ),
           ],
         ),
@@ -1600,35 +1650,43 @@ class _InviteCodeSheet extends ConsumerWidget {
     );
   }
 
-  /// Puts the code on the clipboard and says so.
-  Future<void> _copy(BuildContext context, AppLocalizations l) async {
-    await Clipboard.setData(ClipboardData(text: invite.code));
-    if (!context.mounted) return;
-    _say(context, l.manageAssociates_codeCopied);
+  /// Puts the code on the clipboard and confirms it in the window.
+  Future<void> _copy() async {
+    final l = AppLocalizations.of(context);
+    await Clipboard.setData(ClipboardData(text: widget.invite.code));
+    if (!mounted) return;
+    setState(() {
+      _noteOk = true;
+      _note = l.manageAssociates_codeCopied;
+    });
   }
 
   /// Hands the code to the platform's share sheet.
   ///
   /// The same service Settings > Share uses, so a device with no share target
-  /// still ends with the code on the clipboard instead of a dead tap.
-  Future<void> _share(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l,
-  ) async {
+  /// still ends with the code on the clipboard instead of a dead tap — and that
+  /// outcome is reported in the same line, for the same reason.
+  Future<void> _share() async {
+    final l = AppLocalizations.of(context);
     final outcome = await ref
         .read(appShareServiceProvider)
         .shareApp(
-          message: l.manageAssociates_inviteMessage(invite.code),
+          message: l.manageAssociates_inviteMessage(widget.invite.code),
           subject: l.manageAssociates_inviteTitle,
         );
-    if (!context.mounted) return;
+    if (!mounted) return;
 
     switch (outcome) {
       case AppShareOutcome.copiedToClipboard:
-        _say(context, l.manageAssociates_codeCopied);
+        setState(() {
+          _noteOk = true;
+          _note = l.manageAssociates_codeCopied;
+        });
       case AppShareOutcome.failed:
-        _say(context, l.manageAssociates_shareFailed);
+        setState(() {
+          _noteOk = false;
+          _note = l.manageAssociates_shareFailed;
+        });
       case AppShareOutcome.shared:
       case AppShareOutcome.dismissed:
         break;

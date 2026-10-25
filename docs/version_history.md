@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.650 - The Delete Requests card gains the supporting line every other card on Accounts & Profile already has.
+Version: 0.0.651 - The Invite Code is a centred pop-over with Exit App button sizes, sentence-case copy, and a copy confirmation shown inside the window.
 --------------------------------------
 
 ## Version History Log:
@@ -664,3 +664,4 @@ Version: 0.0.647 - The Manage Associates plans link drops to body size, the crea
 Version: 0.0.648 - The firm overview's device point is renamed Multi-device Access in both languages.
 Version: 0.0.649 - Delete Requests moved from Settings to Accounts & Profile > Firm, after Manage Associates, keeping its waiting-count badge.
 Version: 0.0.650 - The Delete Requests card gains the supporting line every other card on Accounts & Profile already has.
+Version: 0.0.651 - The Invite Code is a centred pop-over with Exit App button sizes, sentence-case copy, and a copy confirmation shown inside the window.

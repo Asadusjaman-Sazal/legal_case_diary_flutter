@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — An approval applies itself without a sign-out — COMPLETE (0.0.643)
+
+- **What was reported.** After a free user bought a plan and an admin approved it, the app kept showing **Free** for minutes; only signing out and back in applied the plan.
+- **Why.** A free account deliberately holds no Realtime socket (sync is entitlement-gated) and there is no approval push, so nothing told the app. Its profile cache is re-read only on launch, resume, reconnect or sign-in — none of which happens while the payer waits in the app.
+- **What changed.** The checkout now starts a bounded watch after a confirmed submission (`payment_approval_watch.dart`): every **30 seconds for 10 minutes** it re-reads the account — pulling the profile and firm and recomputing premium — and invalidates both Subscription History ledgers on the same beat, so the plan, gates and pending row update while the payer waits. It stops early when a free account turns premium, pauses while the app is backgrounded (the resume refresh covers that), and a second submission restarts the window. No server change; no new copy.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,099 passed**; new tests cover the 30-second beat, the end of the window, a restart, and the checkout starting the watch.
+- **Remaining.** An approval that lands after the 10-minute window, or after the app was killed and relaunched before the approval, still relies on the existing launch/resume refresh. Covering those automatically would need a server-side approval signal (a broadcast for socket-holding accounts or an approval push), which is a separate piece of work.
+
 ### 2026-10-26 — The side menu's Admin count stays current — COMPLETE (0.0.642)
 
 - **What was reported.** If the admin did not tap the payment notification, syncing from a case, notes or Settings screen still left the Admin Panel row in the side menu without a count, so a new payment request went unnoticed.

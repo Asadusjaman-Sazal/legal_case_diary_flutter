@@ -35,6 +35,7 @@ import '../data/payment_plans.dart';
 import '../data/payment_repository.dart';
 import '../data/payments_configuration_service.dart';
 import 'payment_plan_labels.dart';
+import 'payment_approval_watch.dart';
 import 'payment_viewmodel.dart';
 
 /// Checkout: pay one plan by MFS transfer and report the transaction.
@@ -172,6 +173,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       // The chain the user asked for is History → Account & Profile → Settings
       // → the configured landing page, so all three sit beneath the history.
       _showMessage(l.payments_submitSuccess);
+      // The payer is free until an admin approves, so no socket is open to hear
+      // the change: watch the account for a short bounded window instead.
+      ref.read(paymentApprovalWatchProvider.notifier).start();
       final router = GoRouter.maybeOf(context);
       if (router != null) {
         final landing =

@@ -96,10 +96,11 @@ continue to view, edit, update, print and delete them. Cloud sync is not part of
 **Premium.** A paid plan raises the case ceiling and enables cloud synchronisation, multi-device use
 (where the plan allows it) and firm mode. The plans are **Starter** (৳80 a month, 500 cases),
 **Pro** (৳150 a month, 1,000 cases), **Firm** (৳300 a month, or ৳750 for three months, 2,500 cases,
-five members including the owner), **Firm Plus** (৳1,500 for three months, 6,000 cases, ten
-members including the owner) and **Enterprise** (৳4,500 for three months, 20,000 cases and twenty
-members including the owner). Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm Plus and
-Enterprise sell 3, 6 and 12. A longer term costs less per month, and the app shows each plan's
+five slots shared between your own devices and up to four associates), **Firm Plus** (৳1,500 for
+three months, 6,000 cases, ten slots shared between your own devices and up to nine associates) and
+**Enterprise** (৳4,500 for three months, 20,000 cases and twenty slots shared between your own
+devices and up to nineteen associates). Starter, Pro and Firm sell 1, 3, 6 and 12 months; Firm Plus
+and Enterprise sell 3, 6 and 12. A longer term costs less per month, and the app shows each plan's
 price per month before you pay. There is no lifetime plan.
 
 - **Purchasing is not yet open.** The premium screen shows the plans, but the purchase actions are
@@ -108,7 +109,9 @@ price per month before you pay. There is no lifetime plan.
   nothing is charged to you automatically and no plan renews without a fresh payment from you.
 - **A change of plan starts when the paid period ends.** A different plan bought while one is
   running starts on the date the current plan ends, and the app shows both dates before you pay. A
-  renewal of the running plan extends it. Only one change can wait at a time.
+  **lower** plan's smaller device allowance starts **48 hours after** that date, the same grace that
+  keeps sync running; until then the plan you already had applies. A renewal of the running plan
+  extends it. Only one change can wait at a time.
 - **Expiry and grace.** When a subscription ends, synchronisation continues for a **48-hour grace
   period**, during which the app shows a renewal notice. After that, sync stops and the app returns
   to local-only operation.
@@ -117,15 +120,20 @@ price per month before you pay. There is no lifetime plan.
   allowance of the plan you last held — Starter 100, Pro 250, Firm 500, Firm Plus 1,000 and
   Enterprise 2,000 cases, notes and case references — with the most recently updated rows editable
   and the rest readable, printable and exportable until you renew.
-- **Devices.** A plan allows a set number of devices signed in at the same time: **Starter one**,
-  **Pro two**, and each chamber plan **one for every member, the owner included**. When a new device
-  signs in and the plan is full, the device used least recently is signed out only if it has been
-  idle for **seven days or more**; a device used more recently is never signed out for you, and the
-  new device is asked to free a place or sign out instead. Before a signed-out device is emptied,
-  whatever it has not yet sent is uploaded to your account, and a device that cannot reach your
-  account is left untouched. **Nothing is erased while a plan is lapsed**, because the account has
-  no live copy to send the work to. You can free a place yourself at any time under Settings →
-  Manage Account → Devices.
+- **Devices and chamber slots.** A plan allows a set number of devices signed in at the same time:
+  **Starter one** and **Pro two**. A chamber plan sells **slots** instead of one device per person:
+  every associate uses one slot, and your own devices use the rest. A Firm chamber's five slots can
+  therefore be five of your devices, four associates and one of your devices, or a mix of the two.
+  A member of a chamber may use one device. When a new device signs in and the plan is full, the
+  device used least recently is signed out only if it has been idle for **seven days or more**; a
+  device used more recently is never signed out for you, and the new device is asked to free a place
+  or sign out instead. When a chamber's plan falls to a lower tier, the smaller allowance starts
+  **48 hours after** the period it replaces ends. If the chamber is still over it, the owner's least
+  recently used extra devices are signed out first and the most recently joined associates are
+  signed out after that; a signed-out associate stays a member until the owner removes them. **A
+  device signed out for a plan change is erased, including any work it has not yet synced; the app
+  warns the chamber owner before the change takes effect.** You can free a place yourself at any
+  time under Settings → Manage Account → Devices.
 - **Price changes.** We may change prices for future periods. A change will be shown in the app
   before you pay it, and it never affects a period you have already paid for.
 

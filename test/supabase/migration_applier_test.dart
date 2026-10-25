@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(69),
+        hasLength(71),
         reason:
+            'Shared chamber capacity (2026-10-26) added two files: the '
+            'grace-aware downgrade start and the capacity model. '
             'The profile-avatar bucket (2026-10-25) added one file. '
             'The chamber logo bucket (2026-10-25) added one file. '
             'The user_devices retention pruner (2026-10-23) added one file. '
@@ -145,7 +147,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(69),
+        hasLength(71),
         reason: 'versions must be unique',
       );
       expect(
@@ -154,7 +156,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261025180000');
+      expect(versions.last, '20261026110000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

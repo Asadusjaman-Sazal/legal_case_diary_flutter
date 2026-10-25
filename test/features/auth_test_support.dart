@@ -378,6 +378,32 @@ class FakeFirmRepository implements FirmRepository {
     if (failure != null) throw failure;
   }
 
+  /// User ids handed to [signOutMember].
+  final List<String> signedOutMemberIds = <String>[];
+
+  /// Error to throw from [signOutMember]; null to succeed.
+  Object? signOutMemberError;
+
+  /// User ids handed to [admitMember].
+  final List<String> admittedMemberIds = <String>[];
+
+  /// Error to throw from [admitMember]; null to succeed.
+  Object? admitMemberError;
+
+  @override
+  Future<void> signOutMember(String userId) async {
+    signedOutMemberIds.add(userId);
+    final failure = signOutMemberError;
+    if (failure != null) throw failure;
+  }
+
+  @override
+  Future<void> admitMember(String userId) async {
+    admittedMemberIds.add(userId);
+    final failure = admitMemberError;
+    if (failure != null) throw failure;
+  }
+
   @override
   Future<void> dissolveFirm() async {
     dissolveCalls++;

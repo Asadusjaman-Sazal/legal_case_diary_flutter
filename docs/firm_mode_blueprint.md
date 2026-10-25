@@ -104,27 +104,22 @@ scoped, a removed member's old chamber rows come back on their next full pull, a
 even be counted as "its own diary" by this definition, so one chamber's ledger could reappear
 inside the next one.
 
-### 2.4 Joining a lapsed chamber is allowed, on purpose
+### 2.4 Joining a chamber during its grace, and after it
 
-If the owner's subscription has lapsed past the 48-hour grace window when a new associate redeems a
-code, the join still succeeds, and nothing bad follows from it.
+While the owner's subscription is **inside** the 48-hour grace, a new associate may still redeem a
+code; the join succeeds and the chamber works local-only until renewal, exactly as §5.2 describes.
 
-- There is **nothing to merge**: the seat is empty by §2.1, so the newcomer brings no second diary
-  and the chamber's ledger is not touched.
-- The only effect is that the new member works **local-only** with everybody else until the owner
-  renews: the app behaves exactly as it always does without a connection, every write is saved
-  locally and queued in `sync_queue` with its sync columns, and the member sees the plan's existing
-  *"Your firm's premium subscription has ended. Contact your firm owner to renew."* banner.
-  §5.2's write ceilings apply to the whole chamber from that moment, the newcomer included.
-- When the owner renews, the false→true entitlement transition re-issues the delta pull and all of
-  it catches up by itself.
+Once the grace has ended, the chamber is **frozen**: `join_firm` refuses with `firm_lapsed` and
+leaves the code unused for the day the owner renews. The ruling changed on 2026-10-26: the old
+behaviour admitted a newcomer into a lapsed chamber on the argument that the seat was empty and
+nothing merged, but a frozen chamber that keeps growing would owe seats the moment it renewed, and
+the owner is the one who must choose who is in it. Existing members keep their seats and their
+local work; only the owner's renewal or a removal changes the roster.
 
-Refusing the join would strand the owner's new colleague for no benefit to anyone. Lapsing does not
-weaken the other gate either: a chamber that does not exist yet still cannot be **created** without
-**the Firm tier or above** (user ruling). The chamber tiers are what sell seats, so `ensure_firm`'s
-gate reads the tier rather than the derived premium answer it reads today: a Pro caller is refused
-with the reason, instead of being allowed to build a chamber whose seat cap of 0 makes every
-invitation fail.
+A chamber that does not exist yet still cannot be **created** without **the Firm tier or above**
+(user ruling). The chamber tiers are what sell seats, so `ensure_firm`'s gate reads the tier: a Pro
+caller is refused with the reason, instead of being allowed to build a chamber whose seat cap of 0
+makes every join impossible.
 
 ### 2.5 The invite code stays, and its fumble is fixed
 
@@ -597,8 +592,8 @@ on have nowhere to live today: *which tier* the account holds — so §5.2's all
 last held can still be derived after a lapse — and *how many seats* it bought, so §5.4's join-time
 cap has a source. Both become columns: **`profiles.tier`** for an individual and **`firms.tier`**
 for a chamber, written at approval and **never cleared by expiry** (it is the record of the last
-tier held), with the seat cap read from the same value — Pro 0, Firm 5, Firm Plus 20, Unlimited by
-agreement. **The write path is two steps, and the second is easy to miss** (audit):
+tier held), with the seat cap read from the same value — Starter and Pro 0, Firm 5, Firm Plus 10,
+Enterprise 20 — the slots associates and the owner's own devices share (§5.4). **The write path is two steps, and the second is easy to miss** (audit):
 `approve_payment` writes the **profile**, and the firm's copy moves only because
 `mirror_owner_subscription_to_firm()` copies it — a trigger that fires *on `subscription_expiry`
 changes only* and copies two columns. `tier` therefore needs the same mirror, with the trigger's
@@ -647,19 +642,29 @@ recommendation between colleagues.
   over, so one stored value cannot express it — the purchase writes a **pending tier and the
   instant it starts** beside the tier in force, and every gate derives which applies now
   (`pending once its instant has passed, else the tier in force`). The purchase still extends
-  `subscription_expiry` by `greatest(now, expiry) + duration`, so paid time is never lost.
+  `subscription_expiry` by `greatest(now, expiry) + duration`, so paid time is never lost. **The
+  lower tier's capacity starts 48 hours after that date** (the same grace synchronisation gets);
+  until then the old plan's slots and devices apply.
 - **A lapse falls back to the allowance of the tier last held, never to Free** (§5.2): a lapsed Pro
   keeps writing 100 cases, notes and references, a lapsed Firm 500, a lapsed Firm Plus 1,000. Renewal
   restores the tier's own ceiling at once, and a *higher* tier bought later restores it immediately.
-- **A seat cap binds new joins only.** If a Firm Plus chamber holding 30 members drops to Firm
-  (20), **nobody is auto-removed** — a removal is a destructive, broadcast act that must never be a
-  billing side effect — the owner is told to trim the roster, and the extra members keep working
-  read-write until the owner acts. (Seat caps are checked at join time from `firms.tier` — §5.3 —
-  and a refusal names the cap and how many seats are in use.)
+  A lapsed chamber keeps the last tier's slots but is **frozen** for new joins; a device may still
+  sign in within the existing slots, so a reinstall or a replacement phone works.
+- **A chamber's slots are shared, and a shrink is signed out after the grace.** A tier sells `S`
+  slots — Firm 5, Firm Plus 10, Enterprise 20, owner included. Each associate uses one slot and the
+  owner's own devices use the rest, with the owner's first device always reserved:
+  `associates + owner devices <= S`, and a join is allowed only when
+  `associates + max(owner devices, 1) + 1 <= S`. When a lower tier starts, a chamber still over `S`
+  is trimmed automatically: the owner's least recently used extra devices first, then the most
+  recently joined associates. A trimmed associate keeps their membership and seat and shows as
+  **Not Signed In**; only an owner removal frees the seat. A legacy over-capacity chamber with no
+  queued shrink is never mass-signed-out; the owner trims it from the roster card. A chamber owner
+  cannot buy Starter or Pro, which sell 0 slots: the server refuses and the cards are locked.
 - **Types never change silently.** A plan's `subscription_expiry` is extended by
   `greatest(now, expiry) + duration`, so buying while entitled stacks rather than restarting, and the
   tier that applies is the one **in force** — a higher tier the moment it is bought, a lower one
-  only when the period it was bought for begins (the pending pair above, and §5.3).
+  only when the period it was bought for begins, plus the 48-hour capacity grace (the pending pair
+  above, and §5.3).
 
 ### 5.5 Retention and the recovery window (user ruling)
 
@@ -849,14 +854,14 @@ and never restored (§6) — `profiles`, `firms`, `firm_members`. *Server-manage
 | Dissolving a chamber that still holds cases | `firm_id` is nulled and the owner becomes the rows' **scope owner**, so they become his personal diary and stay readable to him; attribution is untouched and nothing is deleted (§4.3, §4.4). |
 | Owner wants to delete their account while the chamber has members | `delete_my_account()` refuses a firm account; the owner must finish with the chamber first. |
 | Owner wants to delete their account after dissolving | Allowed once `profiles.firm_id` is null and no `firms` row is owned. |
-| Owner's plan lapses while a member is joining | Join succeeds; local-only until renewal (§2.4), with §5.2's ceilings applying to the chamber. |
+| Owner's plan lapses while a member is joining | Inside the 48-hour grace the join succeeds and the chamber works local-only until renewal; after it, `firm_lapsed` refuses the code until renewal (§2.4). |
 | Owner's plan lapses while a member is working | Local-only until renewal; writes continue up to the allowance of the tier last held (Pro 100, Firm 500, Firm Plus 1,000); beyond it the most recently updated rows stay writable and the rest are read-only; nothing deleted; the plan's own banner (§5.2). |
 | A chamber that last held Firm lapses holding 2,500 cases | Its 500 most recently updated cases stay writable; the other 2,000 stay readable, searchable, printable and exportable but read-only until renewal, and deleting a writable row frees a slot (§5.2). |
 | A lapsed chamber is asked for a printed cause list of everything | Never capped: the read path ignores the allowance entirely, and only add and edit are limited (§5.2). |
-| A chamber buys Firm after holding Firm Plus and lapses later | The last tier held decides the allowance, so its 20 seats and 6,000-case ceiling were what it lost, not the Firm one it never held (§5.4). |
+| A chamber buys Firm after holding Firm Plus and lapses later | The last tier held decides the allowance: Firm's 500-case ceiling and 5 slots, not Firm Plus's 6,000 and 10 (§5.4). |
 | A firm owner lapses and renews a week later | Everything the members wrote meanwhile is queued; the false→true transition pulls the delta and pushes the backlog, and the read-only set disappears at once (§5.2). |
 | A device has been offline 335+ days in a chamber | The extended-offline recovery lock applies (firm mode only), now at 335 days under the 365-day tombstone retention (§5.5). |
-| A Firm Plus chamber with 30 members downgrades to Firm | Nobody is auto-removed; the 20-seat cap binds new joins and the owner is told to trim the roster (§5.4). |
+| A Firm Plus chamber with 30 members (a legacy over-roster) downgrades to Firm | After the 48-hour grace the owner's least recently used extra devices, then the newest associates, are signed out automatically; a trimmed associate stays a member as **Not Signed In** until the owner removes them (§5.4). |
 | A member tries to buy a plan of their own | Refused: Subscription Plans is not offered to an account that holds a firm, and the server refuses the submission itself. A plan bought before joining is ignored while they hold the firm and applies again once they are individual (§5.1). |
 | A dissolved chamber's rows | The owner keeps the whole ledger: the rows lose their `firm_id` and gain the owner as their **scope owner**, so they stay readable to him and stop being readable to their authors, whose attribution is untouched (§4.4). |
 | An owner restores an old file onto the blank phone | The file's rows are stamped into the current chamber and the file's account rows are ignored; a file naming another firm is refused (§6). |

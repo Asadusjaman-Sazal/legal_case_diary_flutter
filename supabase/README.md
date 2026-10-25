@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All forty-eight migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All seventy-one migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases

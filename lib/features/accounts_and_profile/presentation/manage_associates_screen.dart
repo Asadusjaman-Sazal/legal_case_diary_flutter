@@ -57,6 +57,7 @@ import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
 import '../data/avatar_image_processor.dart';
+import '../data/firm_capacity.dart';
 import '../data/firm_logo_repository.dart';
 import '../data/firm_logo_store.dart';
 import '../data/firm_logo_sync.dart';
@@ -131,6 +132,17 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
     final firmName = firm?.name ?? '';
     final members = ref.watch(firmMembersListProvider);
     final invites = ref.watch(firmInvitesListProvider);
+    // The owner's shared-capacity picture: associates and the owner's own
+    // devices against the tier's slots.
+    final capacity = ref.watch(firmCapacityViewProvider);
+    final noFreeSlot = capacity != null && !capacity.canAddAssociate;
+    final addBlockReason = capacity == null
+        ? null
+        : capacity.frozen
+        ? l.settingsSubscription_capacityFrozenBody
+        : noFreeSlot
+        ? l.manageAssociates_noFreeSlot
+        : null;
 
     // Dissolving is server-only work and the push runs before the pull: a queued
     // local edit still names this chamber, so it would be refused and rolled
@@ -167,12 +179,25 @@ class _ManageAssociatesScreenState extends ConsumerState<ManageAssociatesScreen>
           onChange: _busy || firm == null ? null : _pickFirmLogo,
           onRemove: _busy || firm == null ? null : _removeFirmLogo,
         ),
+        if (capacity != null) ...[
+          const SizedBox(height: AppSpacing.gutter),
+          _CapacityCard(capacity: capacity, l: l),
+        ],
         const SizedBox(height: AppSpacing.gutter),
         _PrimaryButton(
           icon: Icons.person_add_alt_1_outlined,
           label: l.manageAssociates_addAssociate,
-          onPressed: _busy ? null : _addAssociate,
+          onPressed: _busy || addBlockReason != null ? null : _addAssociate,
         ),
+        if (addBlockReason != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            addBlockReason,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         SettingsSectionLabel(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
@@ -649,6 +674,106 @@ class _FirmCard extends ConsumerWidget {
   }
 }
 
+/// The owner's shared-capacity card: slots used, a pending shrink, and the
+/// states that block a new join.
+class _CapacityCard extends StatelessWidget {
+  const _CapacityCard({required this.capacity, required this.l});
+
+  final FirmCapacityView capacity;
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final shrinkDate = capacity.shrinkAt == null
+        ? ''
+        : AppDateUtils.formatDateDDMMYYYY(
+            capacity.shrinkAt!.millisecondsSinceEpoch,
+            locale: locale,
+          );
+
+    return Container(
+      decoration: settingsCardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.settingsSubscription_usageSeats,
+            style: AppTypography.labelMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l.settingsSubscription_usageOfLimit(
+              '${capacity.used}',
+              '${capacity.slots}',
+            ),
+            style: AppTypography.titleMd,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l.settingsSubscription_usageSeatsNote,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          if (capacity.shrinkPending && capacity.shrinkAt != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l.settingsSubscription_capacityShrinkTitle,
+              style: AppTypography.titleMd,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityShrinkBody(
+                shrinkDate,
+                '${capacity.pendingSlots}',
+                '${capacity.associates}',
+                '${capacity.ownerDevices}',
+              ),
+              style: AppTypography.bodySm,
+            ),
+          ],
+          if (capacity.signedOut > 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_usageSignedOut(capacity.signedOut),
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (capacity.overRoster) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityOverBody,
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
+            ),
+          ],
+          if (capacity.overDevices) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityDevicesOverBody,
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
+            ),
+          ],
+          if (capacity.frozen) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityFrozenBody,
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// One associate: name on the left, role on the right, an edit affordance when
 /// the row can be edited.
 class _MemberRow extends StatelessWidget {
@@ -678,13 +803,28 @@ class _MemberRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: Text(
-              member.fullName.isEmpty
-                  ? l.manageAssociates_unnamedMember
-                  : member.fullName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.bodyLg,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  member.fullName.isEmpty
+                      ? l.manageAssociates_unnamedMember
+                      : member.fullName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyLg,
+                ),
+                if (member.capacitySignedOutAt != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l.manageAssociates_statusNotSignedIn,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.error,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -808,6 +948,11 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final capacity = ref.watch(firmCapacityViewProvider);
+    final flagged = widget.member.capacitySignedOutAt != null;
+    final showSignOut = !flagged &&
+        capacity != null &&
+        (capacity.shrinkPending || capacity.overRoster || capacity.overDevices);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -822,6 +967,15 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
                   : widget.member.fullName,
               style: AppTypography.titleLg,
             ),
+            if (flagged) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l.manageAssociates_signedOutNote,
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             if (_failure != null) ...[
               AuthErrorBanner(
@@ -886,6 +1040,30 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
               label: l.manageAssociates_savePermissions,
               onPressed: _busy ? null : _save,
             ),
+            if (flagged) ...[
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  key: const ValueKey('member-admit'),
+                  onPressed: _busy ? null : _admit,
+                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                  label: Text(l.manageAssociates_capacityAdmit),
+                ),
+              ),
+            ] else if (showSignOut) ...[
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  key: const ValueKey('member-sign-out'),
+                  onPressed: _busy ? null : _signOut,
+                  icon: const Icon(Icons.logout_outlined, size: 18),
+                  label: Text(l.manageAssociates_capacitySignOut),
+                  style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.sm),
             SizedBox(
               width: double.infinity,
@@ -939,6 +1117,40 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
       ref.invalidate(firmMembersListProvider);
       Navigator.of(context).maybePop();
       _say(context, l.manageAssociates_associateRemoved);
+    });
+  }
+
+  /// Signs a seated member's devices out for capacity, after a confirmation.
+  Future<void> _signOut() async {
+    final l = AppLocalizations.of(context);
+    final name = widget.member.fullName.isEmpty
+        ? l.manageAssociates_unnamedMember
+        : widget.member.fullName;
+    final confirmed = await _confirm(
+      context: context,
+      title: l.manageAssociates_capacitySignOut,
+      body: l.manageAssociates_capacitySignOutBody(name),
+      confirmLabel: l.manageAssociates_capacitySignOut,
+    );
+    if (!confirmed) return;
+    await _run(() async {
+      await ref.read(firmRepositoryProvider).signOutMember(widget.member.userId);
+      if (!mounted) return;
+      ref.invalidate(firmMembersListProvider);
+      Navigator.of(context).maybePop();
+      _say(context, l.manageAssociates_capacitySignedOut);
+    });
+  }
+
+  /// Clears a capacity-signed-out member's marker when the chamber has room.
+  Future<void> _admit() async {
+    final l = AppLocalizations.of(context);
+    await _run(() async {
+      await ref.read(firmRepositoryProvider).admitMember(widget.member.userId);
+      if (!mounted) return;
+      ref.invalidate(firmMembersListProvider);
+      Navigator.of(context).maybePop();
+      _say(context, l.manageAssociates_capacityAdmitted);
     });
   }
 

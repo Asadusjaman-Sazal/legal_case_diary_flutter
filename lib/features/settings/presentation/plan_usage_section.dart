@@ -20,6 +20,7 @@ import '../../../core/providers/device_providers.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../../accounts_and_profile/data/firm_capacity.dart';
 import '../../auth/data/device_registration.dart';
 import '../../cases/data/local/cases_dao.dart';
 import '../../payments/data/payment_plans.dart';
@@ -65,6 +66,12 @@ class PlanUsageSection extends ConsumerWidget {
     final caseLimit = tier == SubscriptionTier.free ? null : tier.caseCeiling;
     final caseUsed = ref.watch(_planCaseCountProvider).value;
     final devices = ref.watch(_planDeviceUsageProvider);
+    // A chamber owner's seats are shared with associates, so the owner's meter
+    // is the whole chamber's committed usage. An associate keeps the device meter
+    // (the owner manages the shared slots).
+    final chamber = ref.watch(firmModeProvider);
+    final showSeats = chamber && !ref.watch(firmMemberProvider);
+    final capacity = ref.watch(firmCapacityViewProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,16 +92,18 @@ class PlanUsageSection extends ConsumerWidget {
                 child: Divider(height: 1, color: AppColors.outlineVariant),
               ),
               _UsageMeter(
-                label: l.devices_title,
-                used: devices.used,
-                limit: devices.cap,
+                label: showSeats
+                    ? l.settingsSubscription_usageSeats
+                    : l.devices_title,
+                used: showSeats ? capacity?.used : devices.used,
+                limit: showSeats ? capacity?.slots : devices.cap,
               ),
             ],
           ),
         ),
         // A chamber's cases share one ceiling, so the count can be high without
         // this account's own diary being large.
-        if (ref.watch(firmModeProvider)) ...[
+        if (chamber) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(
             l.settingsSubscription_usageFirmNote,
@@ -102,6 +111,47 @@ class PlanUsageSection extends ConsumerWidget {
               color: AppColors.onSurfaceVariant,
             ),
           ),
+        ],
+        if (showSeats) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l.settingsSubscription_usageSeatsNote,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          if ((capacity?.signedOut ?? 0) > 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_usageSignedOut(capacity!.signedOut),
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (capacity?.overRoster ?? false) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityOverBody,
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
+            ),
+          ],
+          if (capacity?.overDevices ?? false) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityDevicesOverBody,
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
+            ),
+          ],
+          if (capacity?.frozen ?? false) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.settingsSubscription_capacityFrozenBody,
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
         ],
       ],
     );

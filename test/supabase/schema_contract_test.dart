@@ -796,7 +796,9 @@ void main() {
         isFalse,
       );
       // ...and no server-owned column is named in any GRANT, which is also the
-      // default for a column a later migration adds.
+      // default for a column a later migration adds. `firm_members.role` is the
+      // one deliberate exception: the owner edits a member's role through
+      // PostgREST, so its grant names it.
       for (final column in <String>[
         'status',
         'approved_at',
@@ -808,11 +810,28 @@ void main() {
         'owner_id',
       ]) {
         expect(
-          RegExp('grant update \\([^)]*\\b$column\\b').hasMatch(sql),
+          RegExp(
+            'grant update \\([^)]*\\b$column\\b[^)]*\\)\\s+on\\s+public\\.'
+            r'(profiles|firms|payment_submissions)',
+          ).hasMatch(sql),
           isFalse,
-          reason: '$column must stay server-only',
+          reason: '$column must stay server-only on those tables',
         );
       }
+
+      // `firm_members` keeps exactly the four permission columns and no
+      // INSERT/DELETE grant; every write path is the RPC.
+      expect(
+        sql,
+        contains(
+          'grant update (role, can_add, can_edit, can_delete) on public.firm_members to authenticated',
+        ),
+      );
+      expect(
+        RegExp(r'grant (insert|delete)[^;]*on public\.firm_members').hasMatch(sql),
+        isFalse,
+        reason: 'firm_members writes must go through the RPCs',
+      );
     });
 
     test(

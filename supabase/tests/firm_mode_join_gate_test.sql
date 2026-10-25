@@ -372,6 +372,9 @@ begin
     values (c_filler, 'gate-filler' || i || '@test.local', now(), now(), now(), false, false);
     insert into public.firm_members (firm_id, user_id, role, can_add, can_edit, can_delete)
     values (v_firm, c_filler, 'associate', true, true, false);
+    update public.profiles
+       set firm_id = v_firm, role = 'associate'
+     where id = c_filler;
   end loop;
 
   v_result := pg_temp.redeem(c_member, 'GATECODE04');
@@ -407,21 +410,25 @@ begin
     'a lapse dropped the tier the chamber had paid for'
   );
 
-  -- No paid tier in force, which is the uncapped chamber of §2.4: it stays
-  -- joinable, with the newcomer local-only.
+  -- No paid tier in force: the cap is 0, and the lapsed chamber is frozen. A
+  -- code redeemed now is refused and left unused for the day the owner renews.
   update public.profiles set tier = 'free' where id = c_owner;
   update public.firms set tier = 'free' where id = v_firm;
 
   perform pg_temp.assert_true(
-    public.firm_seat_cap(v_firm) is null,
+    public.firm_seat_cap(v_firm) = 0,
     'a chamber with no paid tier still had a seat cap'
   );
 
   v_result := pg_temp.redeem(c_member, 'GATECODE04');
   perform pg_temp.assert_true(
-    v_result ->> 'status' = 'joined',
-    'a lapsed chamber refused a join it should have allowed: '
+    v_result ->> 'status' = 'firm_lapsed',
+    'a frozen chamber did not refuse the join: '
       || coalesce(v_result::text, 'null')
+  );
+  perform pg_temp.assert_true(
+    (pg_temp.invite_of(v_firm, 'GATECODE04')).used_by is null,
+    'the frozen refusal consumed the code'
   );
 
   -- -------------------------------------------------------------------------

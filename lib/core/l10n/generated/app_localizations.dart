@@ -1952,6 +1952,12 @@ abstract class AppLocalizations {
   /// **'Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.'**
   String get paywall_memberLockedToast;
 
+  /// No description provided for @paywall_chamberPlanLockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve your chamber before choosing an individual plan.'**
+  String get paywall_chamberPlanLockedToast;
+
   /// No description provided for @paywall_limitTitle.
   ///
   /// In en, this message translates to:
@@ -2135,14 +2141,14 @@ abstract class AppLocalizations {
   /// No description provided for @paywall_featureMultiDevice.
   ///
   /// In en, this message translates to:
-  /// **'Multi-device support: up to {count} concurrent devices'**
+  /// **'Multi-device access: Use your account on up to {count} devices simultaneously.'**
   String paywall_featureMultiDevice(String count);
 
   /// No description provided for @paywall_featureCollaboration.
   ///
   /// In en, this message translates to:
-  /// **'Collaboration: up to {count} members (one concurrent device each)'**
-  String paywall_featureCollaboration(String count);
+  /// **'Collaboration: Use your account on up to {devices} devices simultaneously or invite up to {associates} associates to your firm.'**
+  String paywall_featureCollaboration(String devices, String associates);
 
   /// No description provided for @paywall_mostPopular.
   ///
@@ -4042,6 +4048,18 @@ abstract class AppLocalizations {
   /// **'You removed this device from your device list. Any unsaved work on this device is discarded.'**
   String get devices_revokedRemovedBody;
 
+  /// No description provided for @devices_capacityRevokedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm no longer has a slot for this device, so it has been signed out and its local copy is being erased. Your account is still a member of the firm — ask the owner to make room.'**
+  String get devices_capacityRevokedBody;
+
+  /// No description provided for @devices_removedRevokedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The firm owner removed this account, so this device has been signed out and its local copy is being erased.'**
+  String get devices_removedRevokedBody;
+
   /// No description provided for @devices_evicted.
   ///
   /// In en, this message translates to:
@@ -4093,7 +4111,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSubscription_freeLimitCloud.
   ///
   /// In en, this message translates to:
-  /// **'Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.'**
+  /// **'Cloud features—including real-time backup, syncing your diary across multiple devices and collaborating in a firm—require a subscription.'**
   String get settingsSubscription_freeLimitCloud;
 
   /// No description provided for @settingsSubscription_freeLimitRecoveryBold.
@@ -4209,6 +4227,59 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cases are counted across the whole chamber.'**
   String get settingsSubscription_usageFirmNote;
+
+  /// No description provided for @settingsSubscription_usageSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats and Devices'**
+  String get settingsSubscription_usageSeats;
+
+  /// No description provided for @settingsSubscription_usageSeatsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your associates and your own signed-in devices share these slots.'**
+  String get settingsSubscription_usageSeatsNote;
+
+  /// No description provided for @settingsSubscription_usageSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 associate is not signed in.} other{{count} associates are not signed in.}}'**
+  String settingsSubscription_usageSignedOut(int count);
+
+  /// No description provided for @settingsSubscription_capacityShrinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity Changes Soon'**
+  String get settingsSubscription_capacityShrinkTitle;
+
+  /// No description provided for @settingsSubscription_capacityShrinkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'From {date}, your firm allows {slots} devices in total. You have {associates} associates and {devices} devices of your own. Sign out a device or remove an associate before then; otherwise the extra ones are signed out automatically.'**
+  String settingsSubscription_capacityShrinkBody(
+    String date,
+    String slots,
+    String associates,
+    String devices,
+  );
+
+  /// No description provided for @settingsSubscription_capacityOverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm has more associates than its plan allows. Remove associates to free seats; until then no new associate can join.'**
+  String get settingsSubscription_capacityOverBody;
+
+  /// No description provided for @settingsSubscription_capacityDevicesOverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has more devices than the plan allows. Sign one out under Devices to free a slot.'**
+  String get settingsSubscription_capacityDevicesOverBody;
+
+  /// No description provided for @settingsSubscription_capacityFrozenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s subscription has ended. No new associates can join until it is renewed. Current members keep working on their devices; nothing syncs.'**
+  String get settingsSubscription_capacityFrozenBody;
 
   /// No description provided for @settingsSubscription_manageSubscription.
   ///
@@ -7952,14 +8023,26 @@ abstract class AppLocalizations {
   /// No description provided for @auth_errorSeatsFull.
   ///
   /// In en, this message translates to:
-  /// **'This firm has no seats left ({seats} in use). Ask the owner to add a seat or remove an associate.'**
+  /// **'This firm\'s plan has {seats} seats and they are all in use. Ask the owner to remove an associate or sign out one of their own devices.'**
   String auth_errorSeatsFull(int seats);
 
   /// No description provided for @auth_errorSeatsFullNoCount.
   ///
   /// In en, this message translates to:
-  /// **'This firm has no seats left. Ask the owner to add a seat or remove an associate.'**
+  /// **'This firm\'s plan has no free seats. Ask the owner to remove an associate or sign out one of their own devices.'**
   String get auth_errorSeatsFullNoCount;
+
+  /// No description provided for @auth_errorFirmLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This firm\'s subscription has ended, so no new associate can join until the owner renews.'**
+  String get auth_errorFirmLapsed;
+
+  /// No description provided for @auth_errorAlreadyInFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already in a firm. Ask that firm\'s owner to remove you before joining another.'**
+  String get auth_errorAlreadyInFirm;
 
   /// No description provided for @auth_validationEmailRequired.
   ///
@@ -8056,6 +8139,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No Associates Yet.'**
   String get manageAssociates_noMembers;
+
+  /// No description provided for @manageAssociates_statusNotSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Signed In'**
+  String get manageAssociates_statusNotSignedIn;
+
+  /// No description provided for @manageAssociates_signedOutNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This member\'s devices are signed out because the firm had no free slot. Remove them to free the seat, or admit them again when there is room.'**
+  String get manageAssociates_signedOutNote;
+
+  /// No description provided for @manageAssociates_capacityAdmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Admit Again'**
+  String get manageAssociates_capacityAdmit;
+
+  /// No description provided for @manageAssociates_capacitySignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out Devices'**
+  String get manageAssociates_capacitySignOut;
+
+  /// No description provided for @manageAssociates_capacitySignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s devices will be signed out, and their unsynced work will be discarded. They stay a member and can be admitted again when there is room.'**
+  String manageAssociates_capacitySignOutBody(String name);
+
+  /// No description provided for @manageAssociates_noFreeSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'No free slot: the last slot is for your own device.'**
+  String get manageAssociates_noFreeSlot;
+
+  /// No description provided for @manageAssociates_capacitySignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices Signed Out.'**
+  String get manageAssociates_capacitySignedOut;
+
+  /// No description provided for @manageAssociates_capacityAdmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Member Admitted.'**
+  String get manageAssociates_capacityAdmitted;
 
   /// No description provided for @manageAssociates_unnamedMember.
   ///

@@ -234,34 +234,36 @@ begin
   -- -------------------------------------------------------------------------
   -- 4-6. A different tier queues; a third is refused; renewing the queue shifts it.
   -- -------------------------------------------------------------------------
+  -- Start from a chamber tier so the next purchase is a **downgrade**: an
+  -- upgrade is immediate, and only a lower tier queues.
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_queue, 'starter_annual', 540, 'LAD-QUEUE-1')
+    pg_temp.stage(c_queue, 'firm_annual', 2500, 'LAD-QUEUE-1')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'queue setup approved');
   select subscription_expiry into v_first_expiry from public.profiles p where p.id = c_queue;
-  v_queue_start := v_first_expiry;
+  v_queue_start := v_first_expiry + interval '48 hours';
 
   v_result := pg_temp.approve(
     c_admin,
     pg_temp.stage(c_queue, 'pro_quarterly', 360, 'LAD-QUEUE-2')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'pro quarterly accepted');
-  perform pg_temp.assert_true((v_result->>'queued')::boolean, 'a different tier is queued');
+  perform pg_temp.assert_true((v_result->>'queued')::boolean, 'a lower tier is queued');
   perform pg_temp.assert_true(
     (v_result->>'starts_at')::timestamptz = v_queue_start,
-    'the queued term starts when the paid one ends'
+    'the queued term starts 48 hours after the paid one ends'
   );
 
   select * into v_profile from public.profiles p where p.id = c_queue;
-  perform pg_temp.assert_true(v_profile.tier = 'starter', 'the tier in force is not overwritten');
+  perform pg_temp.assert_true(v_profile.tier = 'firm', 'the tier in force is not overwritten');
   perform pg_temp.assert_true(v_profile.tier_pending = 'pro', 'the bought tier waits');
   perform pg_temp.assert_true(
     v_profile.tier_pending_from = v_queue_start,
-    'the pending start is the old expiry'
+    'the pending start is the old expiry plus the grace'
   );
   perform pg_temp.assert_true(
-    v_profile.subscription_expiry = v_queue_start + interval '3 months',
+    v_profile.subscription_expiry = v_first_expiry + interval '3 months',
     'the queued term extends the paid period'
   );
 
@@ -269,7 +271,7 @@ begin
   select subscription_expiry into v_before_expiry from public.profiles p where p.id = c_queue;
   v_result := pg_temp.approve(
     c_admin,
-    pg_temp.stage(c_queue, 'firm_quarterly', 750, 'LAD-QUEUE-3')
+    pg_temp.stage(c_queue, 'enterprise_quarterly', 4500, 'LAD-QUEUE-3')
   );
   perform pg_temp.assert_true(v_result->>'status' = 'change_pending', 'a third plan is refused');
   select * into v_profile from public.profiles p where p.id = c_queue;
@@ -287,7 +289,7 @@ begin
   );
   perform pg_temp.assert_true(v_result->>'status' = 'approved', 'renewing the queued plan is accepted');
   select * into v_profile from public.profiles p where p.id = c_queue;
-  perform pg_temp.assert_true(v_profile.tier = 'starter', 'the renewal leaves the tier in force alone');
+  perform pg_temp.assert_true(v_profile.tier = 'firm', 'the renewal leaves the tier in force alone');
   perform pg_temp.assert_true(v_profile.tier_pending = 'pro', 'the queued tier stands');
   perform pg_temp.assert_true(
     v_profile.tier_pending_from = v_queue_start + interval '12 months',

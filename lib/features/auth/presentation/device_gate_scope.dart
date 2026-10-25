@@ -687,6 +687,8 @@ class _RevokedScreen extends StatelessWidget {
     'user' => l.devices_revokedRemovedBody,
     'signed_out' => l.devices_signedOutBody,
     'session_in_use' => l.devices_sessionInUseBody,
+    'capacity' => l.devices_capacityRevokedBody,
+    'removed' => l.devices_removedRevokedBody,
     _ => l.devices_revokedBody('${state.cap}'),
   };
 

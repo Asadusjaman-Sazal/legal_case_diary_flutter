@@ -1086,6 +1086,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only the firm owner can purchase a subscription for the firm. Please contact your firm owner to manage the subscription.';
 
   @override
+  String get paywall_chamberPlanLockedToast =>
+      'Dissolve your chamber before choosing an individual plan.';
+
+  @override
   String get paywall_limitTitle => 'Free Plan Limit Reached';
 
   @override
@@ -1191,12 +1195,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String paywall_featureMultiDevice(String count) {
-    return 'Multi-device support: up to $count concurrent devices';
+    return 'Multi-device access: Use your account on up to $count devices simultaneously.';
   }
 
   @override
-  String paywall_featureCollaboration(String count) {
-    return 'Collaboration: up to $count members (one concurrent device each)';
+  String paywall_featureCollaboration(String devices, String associates) {
+    return 'Collaboration: Use your account on up to $devices devices simultaneously or invite up to $associates associates to your firm.';
   }
 
   @override
@@ -2290,6 +2294,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'You removed this device from your device list. Any unsaved work on this device is discarded.';
 
   @override
+  String get devices_capacityRevokedBody =>
+      'Your firm no longer has a slot for this device, so it has been signed out and its local copy is being erased. Your account is still a member of the firm — ask the owner to make room.';
+
+  @override
+  String get devices_removedRevokedBody =>
+      'The firm owner removed this account, so this device has been signed out and its local copy is being erased.';
+
+  @override
   String devices_evicted(String name) {
     return '$name was signed out to make room for this device.';
   }
@@ -2324,7 +2336,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSubscription_freeLimitCloud =>
-      'Cloud features—including real-time backup, syncing your diary across multiple devices, and collaborating with up to 20 associates—require a subscription.';
+      'Cloud features—including real-time backup, syncing your diary across multiple devices and collaborating in a firm—require a subscription.';
 
   @override
   String get settingsSubscription_freeLimitRecoveryBold => 'No cloud backup:';
@@ -2392,6 +2404,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSubscription_usageFirmNote =>
       'Cases are counted across the whole chamber.';
+
+  @override
+  String get settingsSubscription_usageSeats => 'Seats and Devices';
+
+  @override
+  String get settingsSubscription_usageSeatsNote =>
+      'Your associates and your own signed-in devices share these slots.';
+
+  @override
+  String settingsSubscription_usageSignedOut(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count associates are not signed in.',
+      one: '1 associate is not signed in.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsSubscription_capacityShrinkTitle =>
+      'Capacity Changes Soon';
+
+  @override
+  String settingsSubscription_capacityShrinkBody(
+    String date,
+    String slots,
+    String associates,
+    String devices,
+  ) {
+    return 'From $date, your firm allows $slots devices in total. You have $associates associates and $devices devices of your own. Sign out a device or remove an associate before then; otherwise the extra ones are signed out automatically.';
+  }
+
+  @override
+  String get settingsSubscription_capacityOverBody =>
+      'Your firm has more associates than its plan allows. Remove associates to free seats; until then no new associate can join.';
+
+  @override
+  String get settingsSubscription_capacityDevicesOverBody =>
+      'This account has more devices than the plan allows. Sign one out under Devices to free a slot.';
+
+  @override
+  String get settingsSubscription_capacityFrozenBody =>
+      'Your firm\'s subscription has ended. No new associates can join until it is renewed. Current members keep working on their devices; nothing syncs.';
 
   @override
   String get settingsSubscription_manageSubscription => 'Manage Subscription';
@@ -4646,12 +4702,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String auth_errorSeatsFull(int seats) {
-    return 'This firm has no seats left ($seats in use). Ask the owner to add a seat or remove an associate.';
+    return 'This firm\'s plan has $seats seats and they are all in use. Ask the owner to remove an associate or sign out one of their own devices.';
   }
 
   @override
   String get auth_errorSeatsFullNoCount =>
-      'This firm has no seats left. Ask the owner to add a seat or remove an associate.';
+      'This firm\'s plan has no free seats. Ask the owner to remove an associate or sign out one of their own devices.';
+
+  @override
+  String get auth_errorFirmLapsed =>
+      'This firm\'s subscription has ended, so no new associate can join until the owner renews.';
+
+  @override
+  String get auth_errorAlreadyInFirm =>
+      'You are already in a firm. Ask that firm\'s owner to remove you before joining another.';
 
   @override
   String get auth_validationEmailRequired => 'Enter your email address.';
@@ -4702,6 +4766,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_noMembers => 'No Associates Yet.';
+
+  @override
+  String get manageAssociates_statusNotSignedIn => 'Not Signed In';
+
+  @override
+  String get manageAssociates_signedOutNote =>
+      'This member\'s devices are signed out because the firm had no free slot. Remove them to free the seat, or admit them again when there is room.';
+
+  @override
+  String get manageAssociates_capacityAdmit => 'Admit Again';
+
+  @override
+  String get manageAssociates_capacitySignOut => 'Sign Out Devices';
+
+  @override
+  String manageAssociates_capacitySignOutBody(String name) {
+    return '$name\'s devices will be signed out, and their unsynced work will be discarded. They stay a member and can be admitted again when there is room.';
+  }
+
+  @override
+  String get manageAssociates_noFreeSlot =>
+      'No free slot: the last slot is for your own device.';
+
+  @override
+  String get manageAssociates_capacitySignedOut => 'Devices Signed Out.';
+
+  @override
+  String get manageAssociates_capacityAdmitted => 'Member Admitted.';
 
   @override
   String get manageAssociates_unnamedMember => 'Unnamed Member';

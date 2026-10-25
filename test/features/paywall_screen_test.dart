@@ -208,7 +208,9 @@ void main() {
     expect(find.text('Includes Everything in Starter, plus'), findsOneWidget);
     expect(find.text('Up to 1,000 cases'), findsOneWidget);
     expect(
-      find.text('Multi-device support: up to 2 concurrent devices'),
+      find.text(
+        'Multi-device access: Use your account on up to 2 devices simultaneously.',
+      ),
       findsOneWidget,
     );
 
@@ -312,19 +314,25 @@ void main() {
     expect(find.textContaining('Everything in'), findsNothing);
     expect(find.text('Up to 2,500 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 5 members (one concurrent device each)'),
+      find.text(
+        'Collaboration: Use your account on up to 5 devices simultaneously or invite up to 4 associates to your firm.',
+      ),
       findsOneWidget,
     );
     expect(find.text('Up to 6,000 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 10 members (one concurrent device each)'),
+      find.text(
+        'Collaboration: Use your account on up to 10 devices simultaneously or invite up to 9 associates to your firm.',
+      ),
       findsOneWidget,
     );
     // Enterprise is the largest tier, not an unlimited one: both numbers are
     // the ones the app's Add Case gate and the join gate enforce.
     expect(find.text('Up to 20,000 cases'), findsOneWidget);
     expect(
-      find.text('Collaboration: up to 20 members (one concurrent device each)'),
+      find.text(
+        'Collaboration: Use your account on up to 20 devices simultaneously or invite up to 19 associates to your firm.',
+      ),
       findsOneWidget,
     );
     // The three shared rows are printed from the same strings on every card.

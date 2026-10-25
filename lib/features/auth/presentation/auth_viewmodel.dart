@@ -485,7 +485,9 @@ class AuthViewModel extends AsyncNotifier<AuthState> {
   /// Empties the SharedPreferences-backed per-user caches.
   Future<void> _clearPerUserCaches() async {
     await ref.read(profileFieldsProvider.notifier).clear();
-    await ref.read(profilePictureProvider.notifier).clear();
+    // `reset`, not `clear`: clearing would think the next account owed a remote
+    // delete for the previous account's picture.
+    await ref.read(profilePictureProvider.notifier).reset();
     // The chamber logo is the next account's to download, not this one's.
     await ref.read(firmLogoProvider.notifier).reset();
     await ref.read(backupMetadataProvider.notifier).reset();

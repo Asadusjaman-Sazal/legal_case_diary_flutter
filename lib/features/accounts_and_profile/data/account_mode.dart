@@ -34,6 +34,7 @@ import '../../settings/data/write_allowance.dart';
 import 'local/firm_members_dao.dart';
 import 'local/profiles_dao.dart';
 import 'firm_logo_sync.dart';
+import 'profile_avatar_sync.dart';
 import 'profile_name_store.dart';
 import 'profile_repository.dart';
 
@@ -507,6 +508,11 @@ final accountRefreshProvider = Provider<Future<bool> Function()>((ref) {
     // downloaded, a removed one cleared, and an owner's owed upload retried.
     // Best-effort — the local picture is the offline truth (0.0.629).
     await ref.read(firmLogoSyncProvider)();
+
+    // The account's own picture follows the refreshed profile row (0.0.630):
+    // premium individuals and chamber owners sync it; everyone else keeps the
+    // local file alone.
+    await ref.read(profileAvatarSyncProvider)();
 
     // The server's name fills a blank local record — a device that signed up
     // elsewhere, or an associate whose name came from the firm's invite. A name

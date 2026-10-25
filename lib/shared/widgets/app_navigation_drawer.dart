@@ -545,7 +545,7 @@ Widget _headerLine(String text, TextStyle style) => Padding(
   ),
 );
 
-/// The signed-in member line under a chamber's name: "Zaid · Associate".
+/// The signed-in member line under a chamber's name: `<member> · <role>`.
 ///
 /// A role that has not landed yet is omitted rather than printed as
 /// *Individual* inside a chamber, which would be untrue; the name still shows.

@@ -8,26 +8,33 @@ Guard:    dart run tool/generate_all_supabase_sql.dart --check
 # All Supabase SQL
 
 Every SQL statement this project **ships** to Supabase, in the order it was
-created: the versioned migration set, plus the applier's own bootstrap. One
-section per file in `supabase/migrations/`, grouped by the app version that was
-current when the phase landed; the text under each label is that migration file
-**verbatim**. Two things are deliberately not here, and neither changes the
-server: the assertions in `supabase/tests/*.sql` (runnable checks that roll back)
-and the read-only counts `tool/check_supabase_seed.dart` and
-`tool/apply_supabase_migrations.dart` issue.
+created: the versioned migration set, the applier's own bootstrap, and one
+labelled manual section for the SQL the migration role cannot run (the storage
+policies). One section per file in `supabase/migrations/`, grouped by the app
+version that was current when the phase landed; the text under each label is
+that migration file **verbatim**. Two things are deliberately not here, and
+neither changes the server: the assertions in `supabase/tests/*.sql` (runnable
+checks that roll back) and the read-only counts
+`tool/check_supabase_seed.dart` and `tool/apply_supabase_migrations.dart` issue.
 
 - Only one project is ever in scope: `lsthasywrdrhuuxnykau` ("Legal Case Diary").
   AGENTS.md rule 12 names the live project that must never be touched.
-- Server SQL is written only as a migration file, then this ledger is rebuilt.
-  Nothing here is typed by hand, so the two can never disagree.
+- Server SQL is written as a migration file, then this ledger is rebuilt.
+  The one exception is storage policy SQL, which the migration role cannot
+  create; it lives in `supabase/manual/` and is recorded in the manual section,
+  still generated rather than typed here.
+- The manual section is **not applied** by `tool/apply_supabase_migrations.dart`.
+  Its policies are created once in Supabase's Storage policy editor.
 - Re-running the whole set is safe: creates are `if not exists`, functions are
   `create or replace`, every policy and trigger is preceded by a `drop ... if
   exists`, and all six seed inserts upsert `where <table>.is_user_modified = false`.
 - One setting is dashboard-only and is not SQL: Realtime Authorization
   (`supabase/README.md`). pg_cron is installed and the tombstone purge
   scheduled by the last migration — verified on the project.
-- Every version here is recorded in `supabase_migrations.schema_migrations` on
-  `lsthasywrdrhuuxnykau`, so `supabase db push` sees the set as applied.
+- Every **migration** version here is recorded in
+  `supabase_migrations.schema_migrations` on `lsthasywrdrhuuxnykau`, so
+  `supabase db push` sees the set as applied. The manual section has no
+  migration row: it is applied through the dashboard.
 
 ## Index
 
@@ -102,6 +109,8 @@ and the read-only counts `tool/check_supabase_seed.dart` and
 | 0.0.602 | 2026-10-23 | `20261023110000_device_revocation_broadcast.sql` | Device revocation — the server tells the device over the channel it already holds. A guarded AFTER UPDATE trigger on user_devices, only on the null-to-non-null revoked_at transition, sends the existing row_change {table,id} ping to firm:<firm_id> for a chamber member or user:<user_id> for an individual, so a signed-out phone discards immediately without polling; a Realtime failure is swallowed and the revocation still commits. |
 | 0.0.604 | 2026-10-23 | `20261023120000_user_devices_retention.sql` | Device registry retention — six months of revoked rows, plus the newest revoked row per (user_id, device_key) forever. A partial (user_id, device_key, revoked_at desc) index supports the lookup; public.prune_user_devices(interval default 6 months) deletes only old rows with a strictly newer revoked row for the same key, never active rows, and is internal-only (revoked from public, anon, authenticated). A guarded pg_cron job, prune-user-devices, runs daily at 03:45 after purge-tombstones. |
 | 0.0.629 | 2026-10-25 | `20261025120000_firm_logo_storage.sql` | Chamber logo storage — a private, 50 KB, JPEG-only `firm-avatars` bucket holding one flat `{firm_id}.jpg` per chamber. Any member of a chamber may read its logo; only its owner, and only while the chamber plan is live, may write it; the owner may always delete it. public.can_write_firm_logo() carries both halves of the write rule because has_sync_entitlement is revoked from clients. `firms` gains the server-managed logo_path and logo_version, and a trigger on storage.objects bumps them on every write or delete. |
+| 0.0.630 | 2026-10-25 | `20261025180000_profile_avatar_storage.sql` | Profile-picture storage — a private, 50 KB, JPEG-only `individual-avatars` bucket holding one flat `{user_id}.jpg` per account. The holder reads and deletes their own file; only a premium individual or a premium chamber owner may insert or replace it, through public.can_write_profile_avatar() because has_sync_entitlement is revoked from clients. `profiles` gains the server-managed avatar_path and avatar_version, and a trigger on storage.objects keeps them in step. Account deletion removes the object through the delete-account Edge Function, because Storage deletes must use the Storage API. |
+| — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
 
@@ -17069,24 +17078,20 @@ $$;
 --
 --   1. the **firm-avatars** bucket: private, 50 KB, JPEG only. It is one flat
 --      folder; each chamber has exactly one object, `{firm_id}.jpg`.
---   2. the **policies** on storage.objects: any member of the chamber may read
---      its logo (a lapsed chamber keeps it); only the owner may write, and only
---      while the chamber's plan is live; the owner may always delete it.
---   3. two **server-managed columns** on public.firms, `logo_path` and
+--   2. two **server-managed columns** on public.firms, `logo_path` and
 --      `logo_version`. They are deliberately not in any client UPDATE grant.
---   4. a **trigger** on storage.objects keeping those columns in step, so the
+--   3. a **trigger** on storage.objects keeping those columns in step, so the
 --      client learns that a logo changed without polling the bucket.
 --
--- What it does not do: touch any row, any policy, or any grant that existed.
--- Clients never write the two columns; the bucket and trigger are the only
--- writers of a chamber's logo state.
---
--- **The storage role switch.** `storage.objects` and `storage.buckets` are
--- owned by `supabase_storage_admin`, so the bucket, the policies and the two
--- triggers are created while that role is assumed (`set local role` inside this
--- file's transaction). The columns and the trigger function belong to public
--- and are created as the migration's own role, so the function can update
--- `public.firms` as the definer.
+-- **The policies are manual, and why.** `storage.objects` is owned by
+-- `supabase_storage_admin`; the migration role (`postgres`) is neither its
+-- owner nor a member of that role, so `create policy` would fail here. The four
+-- policies (member read; owner insert/update while the plan is live; owner
+-- delete) live in `supabase/manual/storage_policies.sql`, are included in
+-- `supabase/AllSupabaseSql.md` as a labelled manual section, and are applied
+-- once through Supabase's Storage policy editor. The bucket, the columns and
+-- the trigger below need no such step: `postgres` can insert the bucket and
+-- holds TRIGGER on storage.objects.
 -- ===========================================================================
 
 -- ---------------------------------------------------------------------------
@@ -17112,7 +17117,7 @@ as $$
 $$;
 
 comment on function public.can_write_firm_logo() is
-  'True when the caller owns their chamber and the chamber''s plan is live: the firm-logo upload/update gate.';
+  'True when the caller owns their chamber and the chamber''s plan is live: the firm-logo upload/update gate (used by the storage policies in supabase/manual/storage_policies.sql).';
 
 revoke all on function public.can_write_firm_logo() from public, anon;
 grant execute on function public.can_write_firm_logo() to authenticated;
@@ -17120,8 +17125,6 @@ grant execute on function public.can_write_firm_logo() to authenticated;
 -- ---------------------------------------------------------------------------
 -- 2. The bucket.
 -- ---------------------------------------------------------------------------
-
-set local role supabase_storage_admin;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
@@ -17137,62 +17140,7 @@ on conflict (id) do update
       allowed_mime_types = excluded.allowed_mime_types;
 
 -- ---------------------------------------------------------------------------
--- 3. Policies on the objects.
---
--- The object name is exactly `{firm_id}.jpg`, so `split_part(name, '.', 1)` is
--- the chamber id (a UUID holds no period). Matching the **exact** name rather
--- than a folder prefix means no stray object can exist in the bucket and no
--- second file per chamber can be written.
--- ---------------------------------------------------------------------------
-
-drop policy if exists firm_logo_select_member on storage.objects;
-create policy firm_logo_select_member on storage.objects
-  for select to authenticated
-  using (
-    bucket_id = 'firm-avatars'
-    and name = public.current_firm_id()::text || '.jpg'
-  );
-
-drop policy if exists firm_logo_insert_owner on storage.objects;
-create policy firm_logo_insert_owner on storage.objects
-  for insert to authenticated
-  with check (
-    bucket_id = 'firm-avatars'
-    and name = public.current_firm_id()::text || '.jpg'
-    and public.can_write_firm_logo()
-  );
-
--- `upsert: true` on a replace is an UPDATE, so both the old and the new row
--- must satisfy the same rule.
-drop policy if exists firm_logo_update_owner on storage.objects;
-create policy firm_logo_update_owner on storage.objects
-  for update to authenticated
-  using (
-    bucket_id = 'firm-avatars'
-    and name = public.current_firm_id()::text || '.jpg'
-    and public.can_write_firm_logo()
-  )
-  with check (
-    bucket_id = 'firm-avatars'
-    and name = public.current_firm_id()::text || '.jpg'
-    and public.can_write_firm_logo()
-  );
-
--- Removing the logo is the owner's own decision and stays possible after a
--- lapse, so a chamber can always clean up what it uploaded.
-drop policy if exists firm_logo_delete_owner on storage.objects;
-create policy firm_logo_delete_owner on storage.objects
-  for delete to authenticated
-  using (
-    bucket_id = 'firm-avatars'
-    and name = public.current_firm_id()::text || '.jpg'
-    and public.is_firm_owner(public.current_firm_id())
-  );
-
-reset role;
-
--- ---------------------------------------------------------------------------
--- 4. The server-managed cache fields.
+-- 3. The server-managed cache fields.
 --
 -- `firms` is a pull-only cache and the client may UPDATE only its name, so
 -- these two columns are unwritable from a device by construction. They are
@@ -17210,11 +17158,12 @@ comment on column public.firms.logo_version is
   'Bumped on every logo write/delete so a member device knows to download or clear the local copy. Written only by sync_firm_logo_state().';
 
 -- ---------------------------------------------------------------------------
--- 5. The trigger.
+-- 4. The trigger.
 --
 -- Two triggers rather than one with a coalesce in its WHEN: an INSERT has no
 -- OLD row and a DELETE has no NEW row, and each operation's own condition is
--- the clearer statement of what it acts on.
+-- the clearer statement of what it acts on. `postgres` holds TRIGGER on
+-- storage.objects, so no ownership switch is needed.
 -- ---------------------------------------------------------------------------
 
 create or replace function public.sync_firm_logo_state()
@@ -17244,10 +17193,6 @@ comment on function public.sync_firm_logo_state() is
   'Keeps firms.logo_path/logo_version in step with the firm-avatars bucket.';
 
 revoke all on function public.sync_firm_logo_state() from public, anon, authenticated;
--- The trigger's creating role needs EXECUTE; no client role is granted it.
-grant execute on function public.sync_firm_logo_state() to supabase_storage_admin;
-
-set local role supabase_storage_admin;
 
 drop trigger if exists trg_firm_logo_write on storage.objects;
 create trigger trg_firm_logo_write
@@ -17262,7 +17207,305 @@ after delete on storage.objects
 for each row
 when (old.bucket_id = 'firm-avatars')
 execute function public.sync_firm_logo_state();
+```
 
-reset role;
+## App Version 0.0.630 — Profile Pictures — A 50 KB Cap And A Premium Cloud Copy
+
+### 0.0.630 · `20261025180000_profile_avatar_storage.sql`
+
+> **Created 2026-10-25.** Profile-picture storage — a private, 50 KB, JPEG-only `individual-avatars` bucket holding one flat `{user_id}.jpg` per account. The holder reads and deletes their own file; only a premium individual or a premium chamber owner may insert or replace it, through public.can_write_profile_avatar() because has_sync_entitlement is revoked from clients. `profiles` gains the server-managed avatar_path and avatar_version, and a trigger on storage.objects keeps them in step. Account deletion removes the object through the delete-account Edge Function, because Storage deletes must use the Storage API.
+
+```sql
+-- ===========================================================================
+-- 2026-10-25 — The profile picture: one private bucket, one 50 KB JPEG each.
+--
+-- Why. The picture is saved on the phone today, uncapped and unsynced: a photo
+-- from the camera can be several megabytes, and another device of the same
+-- account never sees it. A private bucket with a hard size and type limit makes
+-- it safe to sync, and the 50 KB pipeline on the phone (avatar_image_processor)
+-- makes that limit easy to meet.
+--
+-- Who may upload: a **premium individual** or a **chamber owner**. A chamber
+-- member is premium through the chamber but cannot buy for it, and the firm's
+-- logo is the workspace identity; a member's own picture stays local-only.
+-- Free accounts are local-only too. A lapsed account keeps its picture readable
+-- and may delete it, but cannot upload a new one.
+--
+-- What this file creates, in order:
+--
+--   1. public.can_write_profile_avatar() — the owner/entitlement predicate,
+--      because has_sync_entitlement is revoked from client roles;
+--   2. the **individual-avatars** bucket: private, 50 KB, JPEG only, one flat
+--      `{user_id}.jpg` per account;
+--   3. two server-managed columns on public.profiles, `avatar_path` and
+--      `avatar_version`, which no client UPDATE grant reaches;
+--   4. a trigger on storage.objects keeping those columns in step.
+--
+-- **The policies are manual, and why.** `storage.objects` is owned by
+-- `supabase_storage_admin`; the migration role (`postgres`) is neither its
+-- owner nor a member of that role, so `create policy` would fail here. The four
+-- policies (owner read/delete; premium individual or owner insert/update) live
+-- in `supabase/manual/storage_policies.sql`, are included in
+-- `supabase/AllSupabaseSql.md` as a labelled manual section, and are applied
+-- once through Supabase's Storage policy editor. The bucket, the columns and
+-- the trigger below need no such step: `postgres` can insert the bucket and
+-- holds TRIGGER on storage.objects.
+--
+-- Account deletion removes the object through the `delete-account` Edge
+-- Function, not SQL: Supabase requires the Storage API for a real delete.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. Who may write a profile picture.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.can_write_profile_avatar()
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+  select public.has_sync_entitlement(auth.uid())
+     and (
+       public.current_firm_id() is null
+       or public.is_firm_owner(public.current_firm_id())
+     );
+$$;
+
+comment on function public.can_write_profile_avatar() is
+  'True for a premium individual or a premium chamber owner: the profile-picture upload/update gate (used by the storage policies in supabase/manual/storage_policies.sql).';
+
+revoke all on function public.can_write_profile_avatar() from public, anon;
+grant execute on function public.can_write_profile_avatar() to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 2. The bucket.
+-- ---------------------------------------------------------------------------
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'individual-avatars',
+  'individual-avatars',
+  false,
+  51200,
+  array['image/jpeg']
+)
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+-- ---------------------------------------------------------------------------
+-- 3. The server-managed cache fields. `profiles` is pull-only and the client
+--    may UPDATE only its display fields, so both columns are unwritable from a
+--    device by construction.
+-- ---------------------------------------------------------------------------
+
+alter table public.profiles
+  add column if not exists avatar_path text,
+  add column if not exists avatar_version integer not null default 0;
+
+comment on column public.profiles.avatar_path is
+  'Object name of the profile picture in the individual-avatars bucket, or null. Written only by sync_profile_avatar_state().';
+comment on column public.profiles.avatar_version is
+  'Bumped on every picture write/delete so a device knows to download or clear its local copy. Written only by sync_profile_avatar_state().';
+
+-- ---------------------------------------------------------------------------
+-- 4. The trigger. `postgres` holds TRIGGER on storage.objects, so no
+--    ownership switch is needed.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.sync_profile_avatar_state()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  if tg_op = 'DELETE' then
+    update public.profiles
+       set avatar_path = null,
+           avatar_version = avatar_version + 1
+     where id::text = split_part(old.name, '.', 1);
+    return old;
+  end if;
+
+  update public.profiles
+     set avatar_path = new.name,
+         avatar_version = avatar_version + 1
+   where id::text = split_part(new.name, '.', 1);
+  return new;
+end;
+$$;
+
+comment on function public.sync_profile_avatar_state() is
+  'Keeps profiles.avatar_path/avatar_version in step with the individual-avatars bucket.';
+
+revoke all on function public.sync_profile_avatar_state() from public, anon, authenticated;
+
+drop trigger if exists trg_profile_avatar_write on storage.objects;
+create trigger trg_profile_avatar_write
+after insert or update on storage.objects
+for each row
+when (new.bucket_id = 'individual-avatars')
+execute function public.sync_profile_avatar_state();
+
+drop trigger if exists trg_profile_avatar_delete on storage.objects;
+create trigger trg_profile_avatar_delete
+after delete on storage.objects
+for each row
+when (old.bucket_id = 'individual-avatars')
+execute function public.sync_profile_avatar_state();
+```
+
+## Manual SQL — Applied Outside The Migration Tool
+
+> **These statements are not applied by the migration tool.** `storage.objects` is owned by `supabase_storage_admin`, which the migration role (`postgres`) is not a member of, so a storage policy cannot be created by a migration or through the MCP. They are created once in Supabase's Storage policy editor, and recorded here because this ledger is the whole record of the SQL this project runs.
+
+### Manual · `storage_policies.sql`
+
+> **Created 2026-10-25.** The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead.
+
+```sql
+-- ===========================================================================
+-- Storage policies — applied through the Supabase Storage policy editor.
+--
+-- **Why this file is not a migration.** `storage.objects` is owned by
+-- `supabase_storage_admin`. The migration role (`postgres`) is neither its owner
+-- nor a member of that role, so `create policy` fails in the migrations, in the
+-- psql applier and through the MCP's SQL. Supabase's Storage policy editor does
+-- run with the required rights, so these eight policies are created there once.
+--
+-- **When.** After both migrations are applied:
+--   20261025120000_firm_logo_storage.sql
+--   20261025180000_profile_avatar_storage.sql
+-- The migrations create the buckets, the helper functions and the version
+-- triggers; these policies are what let the app read and write the objects.
+--
+-- **How.** Supabase Dashboard → Storage → Policies. For each block below create
+-- a policy on `storage.objects` with:
+--   * the given name and operation,
+--   * role `authenticated`,
+--   * the USING and/or WITH CHECK expression shown.
+-- A SQL editor that runs with the storage admin's rights can execute the
+-- `create policy` statement directly. Each block drops its own name first, so a
+-- re-run is safe.
+--
+-- This file is included in `supabase/AllSupabaseSql.md` as a labelled manual
+-- section. It is not applied by `tool/apply_supabase_migrations.dart`.
+--
+-- **The editor adds a SELECT policy beside each UPDATE and DELETE policy.** The
+-- Storage API reads a row before it updates or removes it, so the editor creates
+-- a matching SELECT policy (e.g. `... _1`) automatically. Those are permissive
+-- and therefore redundant with the bucket's SELECT policy, not a restriction;
+-- leave them in place. The live policy names also carry a random suffix, which
+-- is cosmetic. Both proofs were run against the live project on 2026-10-25 and
+-- printed FIRM LOGO OK and PROFILE AVATAR OK.
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- Chamber logos — bucket `firm-avatars`, object `{firm_id}.jpg`
+-- ---------------------------------------------------------------------------
+
+-- 1. firm_logo_select_member — SELECT
+--    Any member of the chamber may read its logo; a lapsed chamber keeps it.
+drop policy if exists firm_logo_select_member on storage.objects;
+create policy firm_logo_select_member on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'firm-avatars'
+    and name = public.current_firm_id()::text || '.jpg'
+  );
+
+-- 2. firm_logo_insert_owner — INSERT
+--    Only the owner of a chamber whose plan is live may add its logo.
+drop policy if exists firm_logo_insert_owner on storage.objects;
+create policy firm_logo_insert_owner on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'firm-avatars'
+    and name = public.current_firm_id()::text || '.jpg'
+    and public.can_write_firm_logo()
+  );
+
+-- 3. firm_logo_update_owner — UPDATE
+--    A replace is an UPDATE, so the old and the new row must both satisfy it.
+drop policy if exists firm_logo_update_owner on storage.objects;
+create policy firm_logo_update_owner on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'firm-avatars'
+    and name = public.current_firm_id()::text || '.jpg'
+    and public.can_write_firm_logo()
+  )
+  with check (
+    bucket_id = 'firm-avatars'
+    and name = public.current_firm_id()::text || '.jpg'
+    and public.can_write_firm_logo()
+  );
+
+-- 4. firm_logo_delete_owner — DELETE
+--    Removing the logo stays possible after a lapse, so the owner can clean up.
+drop policy if exists firm_logo_delete_owner on storage.objects;
+create policy firm_logo_delete_owner on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'firm-avatars'
+    and name = public.current_firm_id()::text || '.jpg'
+    and public.is_firm_owner(public.current_firm_id())
+  );
+
+-- ---------------------------------------------------------------------------
+-- Individual profile pictures — bucket `individual-avatars`, object
+-- `{user_id}.jpg`
+-- ---------------------------------------------------------------------------
+
+-- 5. profile_avatar_select_owner — SELECT
+--    The holder reads their own picture, including after a lapse.
+drop policy if exists profile_avatar_select_owner on storage.objects;
+create policy profile_avatar_select_owner on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'individual-avatars'
+    and name = auth.uid()::text || '.jpg'
+  );
+
+-- 6. profile_avatar_insert_owner — INSERT
+--    Only a premium individual or a premium chamber owner may add one.
+drop policy if exists profile_avatar_insert_owner on storage.objects;
+create policy profile_avatar_insert_owner on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'individual-avatars'
+    and name = auth.uid()::text || '.jpg'
+    and public.can_write_profile_avatar()
+  );
+
+-- 7. profile_avatar_update_owner — UPDATE
+--    A replace is an UPDATE; both the old and the new row satisfy the rule.
+drop policy if exists profile_avatar_update_owner on storage.objects;
+create policy profile_avatar_update_owner on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'individual-avatars'
+    and name = auth.uid()::text || '.jpg'
+    and public.can_write_profile_avatar()
+  )
+  with check (
+    bucket_id = 'individual-avatars'
+    and name = auth.uid()::text || '.jpg'
+    and public.can_write_profile_avatar()
+  );
+
+-- 8. profile_avatar_delete_owner — DELETE
+--    The holder can always remove their own picture, including after a lapse.
+drop policy if exists profile_avatar_delete_owner on storage.objects;
+create policy profile_avatar_delete_owner on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'individual-avatars'
+    and name = auth.uid()::text || '.jpg'
+  );
 ```
 

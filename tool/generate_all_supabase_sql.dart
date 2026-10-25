@@ -25,7 +25,7 @@ import 'apply_supabase_migrations.dart';
 
 // The migration folder is defined once, in the applier: the two tools must read
 // the same files, and a second copy of the path is a second thing to drift.
-export 'apply_supabase_migrations.dart' show migrationsDir;
+export 'apply_supabase_migrations.dart' show manualDir, migrationsDir;
 
 /// The generated ledger, relative to the project root.
 const String ledgerPath = 'supabase/AllSupabaseSql.md';
@@ -907,6 +907,53 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'the server-managed logo_path and logo_version, and a trigger on '
         'storage.objects bumps them on every write or delete.',
   ),
+  LedgerSection(
+    file: '20261025180000_profile_avatar_storage.sql',
+    version: '0.0.630',
+    label:
+        'Profile-picture storage — a private, 50 KB, JPEG-only '
+        '`individual-avatars` '
+        'bucket holding one flat `{user_id}.jpg` per account. The holder reads '
+        'and deletes their own file; only a premium individual or a premium '
+        'chamber owner may insert or replace it, through '
+        'public.can_write_profile_avatar() because has_sync_entitlement is '
+        'revoked from clients. `profiles` gains the server-managed avatar_path '
+        'and avatar_version, and a trigger on storage.objects keeps them in '
+        'step. Account deletion removes the object through the delete-account '
+        'Edge Function, because Storage deletes must use the Storage API.',
+  ),
+];
+
+/// One SQL file that the migration role cannot run, applied through the
+/// Supabase dashboard and recorded in the ledger's manual section.
+class ManualSection {
+  const ManualSection({
+    required this.file,
+    required this.created,
+    required this.label,
+  });
+
+  /// File name inside [manualDir].
+  final String file;
+
+  /// The date it was written and applied.
+  final String created;
+
+  /// What it does and why it is manual.
+  final String label;
+}
+
+/// Manual SQL, in creation order. Every file here must exist in [manualDir].
+const List<ManualSection> _manualSections = <ManualSection>[
+  ManualSection(
+    file: 'storage_policies.sql',
+    created: '2026-10-25',
+    label:
+        'The eight storage policies for the profile-picture and chamber-logo '
+        'buckets. `storage.objects` is owned by `supabase_storage_admin`, which '
+        'the migration role is not a member of, so these are created once in '
+        'the Supabase Storage policy editor instead.',
+  ),
 ];
 
 /// Heading text per version group, so the groups read as phases rather than as
@@ -957,6 +1004,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.522':
       'Firm Mode Phase 2 — Creation Shares The Diary, And The Scope Columns '
       'Belong To The Server',
+  '0.0.630': 'Profile Pictures — A 50 KB Cap And A Premium Cloud Copy',
   '0.0.629': 'Firm Identity — The Chamber Logo And The Side Menu',
   '0.0.524': 'Firm Mode Phase 4 — Removing A Member Clears Their Push Tokens',
   '0.0.523':
@@ -986,26 +1034,33 @@ Guard:    dart run tool/generate_all_supabase_sql.dart --check
 # All Supabase SQL
 
 Every SQL statement this project **ships** to Supabase, in the order it was
-created: the versioned migration set, plus the applier's own bootstrap. One
-section per file in `supabase/migrations/`, grouped by the app version that was
-current when the phase landed; the text under each label is that migration file
-**verbatim**. Two things are deliberately not here, and neither changes the
-server: the assertions in `supabase/tests/*.sql` (runnable checks that roll back)
-and the read-only counts `tool/check_supabase_seed.dart` and
-`tool/apply_supabase_migrations.dart` issue.
+created: the versioned migration set, the applier's own bootstrap, and one
+labelled manual section for the SQL the migration role cannot run (the storage
+policies). One section per file in `supabase/migrations/`, grouped by the app
+version that was current when the phase landed; the text under each label is
+that migration file **verbatim**. Two things are deliberately not here, and
+neither changes the server: the assertions in `supabase/tests/*.sql` (runnable
+checks that roll back) and the read-only counts
+`tool/check_supabase_seed.dart` and `tool/apply_supabase_migrations.dart` issue.
 
 - Only one project is ever in scope: `lsthasywrdrhuuxnykau` ("Legal Case Diary").
   AGENTS.md rule 12 names the live project that must never be touched.
-- Server SQL is written only as a migration file, then this ledger is rebuilt.
-  Nothing here is typed by hand, so the two can never disagree.
+- Server SQL is written as a migration file, then this ledger is rebuilt.
+  The one exception is storage policy SQL, which the migration role cannot
+  create; it lives in `supabase/manual/` and is recorded in the manual section,
+  still generated rather than typed here.
+- The manual section is **not applied** by `tool/apply_supabase_migrations.dart`.
+  Its policies are created once in Supabase's Storage policy editor.
 - Re-running the whole set is safe: creates are `if not exists`, functions are
   `create or replace`, every policy and trigger is preceded by a `drop ... if
   exists`, and all six seed inserts upsert `where <table>.is_user_modified = false`.
 - One setting is dashboard-only and is not SQL: Realtime Authorization
   (`supabase/README.md`). pg_cron is installed and the tombstone purge
   scheduled by the last migration — verified on the project.
-- Every version here is recorded in `supabase_migrations.schema_migrations` on
-  `lsthasywrdrhuuxnykau`, so `supabase db push` sees the set as applied.
+- Every **migration** version here is recorded in
+  `supabase_migrations.schema_migrations` on `lsthasywrdrhuuxnykau`, so
+  `supabase db push` sees the set as applied. The manual section has no
+  migration row: it is applied through the dashboard.
 
 ## Index
 
@@ -1066,6 +1121,12 @@ String buildAllSupabaseSql() {
       '${section.label} |',
     );
   }
+  for (final section in _manualSections) {
+    buffer.writeln(
+      '| — | ${section.created} | `$manualDir/${section.file}` | '
+      'Manual: ${section.label} |',
+    );
+  }
   buffer.writeln();
   buffer.write(buildBootstrapSection());
 
@@ -1106,6 +1167,49 @@ String buildAllSupabaseSql() {
       ..writeln();
   }
 
+  buffer.write(buildManualSection());
+
+  return buffer.toString();
+}
+
+/// The manual SQL section: files the migration role cannot run.
+String buildManualSection() {
+  if (_manualSections.isEmpty) return '';
+
+  final buffer = StringBuffer()
+    ..writeln('## Manual SQL — Applied Outside The Migration Tool')
+    ..writeln()
+    ..writeln(
+      '> **These statements are not applied by the migration tool.** '
+      '`storage.objects` is owned by `supabase_storage_admin`, which the '
+      'migration role (`postgres`) is not a member of, so a storage policy '
+      'cannot be created by a migration or through the MCP. They are created '
+      'once in Supabase\'s Storage policy editor, and recorded here because '
+      'this ledger is the whole record of the SQL this project runs.',
+    )
+    ..writeln();
+
+  for (final section in _manualSections) {
+    final file = File('$manualDir/${section.file}');
+    if (!file.existsSync()) {
+      throw StateError(
+        'Missing $manualDir/${section.file} — the ledger lists a manual file '
+        'that is not on disk.',
+      );
+    }
+    final sql = normalizeSql(file.readAsStringSync()).trimRight();
+
+    buffer
+      ..writeln('### Manual · `${section.file}`')
+      ..writeln()
+      ..writeln('> **Created ${section.created}.** ${section.label}')
+      ..writeln()
+      ..writeln('```sql')
+      ..writeln(sql)
+      ..writeln('```')
+      ..writeln();
+  }
+
   return buffer.toString();
 }
 
@@ -1120,6 +1224,10 @@ List<String> ledgerMigrationFiles() =>
 /// The ledger's sections, in creation order, for tests that verify the output.
 List<LedgerSection> ledgerSections() =>
     List<LedgerSection>.unmodifiable(_sections);
+
+/// Manual file names the ledger claims to cover, in order.
+List<String> ledgerManualFiles() =>
+    _manualSections.map((section) => section.file).toList();
 
 void main(List<String> args) {
   final check = args.contains('--check');

@@ -50,6 +50,7 @@ void main() {
     final profile = Profile(
       id: 'user-1',
       fullName: '',
+      avatarVersion: 0,
       role: 'individual',
       subscriptionStatus: premium ? 'premium' : 'free',
       subscriptionExpiry: expiryMs,

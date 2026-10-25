@@ -1,5 +1,50 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-25 — The storage policies are live and both proofs pass — COMPLETE (0.0.634)
+
+- **What was done.** The owner created the eight policies in the Supabase Storage policy editor. The editor automatically added a SELECT policy beside each UPDATE and DELETE policy — the Storage API reads a row before it writes or removes it. All twelve are **permissive**, role `authenticated`; the extra SELECTs are redundant with each bucket's base SELECT and add no restriction. UPDATE policies use their `USING` expression as `WITH CHECK` because no separate check was given, which is the correct PostgreSQL behaviour.
+- **Verified live:** twelve policies (8 base + 4 auto SELECT), all permissive and authenticated; names carry a cosmetic dashboard suffix (`… bf2ca3_0` / `… xbqzuu_0`).
+- **Proofs fixed and green.** Two test assumptions were wrong and are corrected: PostgreSQL strings escape a quote with `''`, not `\'`; and a lapsed owner's UPDATE is **filtered to 0 rows** by `USING` rather than raising an error. The proofs also set `storage.allow_delete_query = true` for their transaction, the same flag the Storage API uses for its own deletes. Both ran against the project: **FIRM LOGO OK**, **PROFILE AVATAR OK**.
+- **Live state:** 69 migrations; both buckets at 50 KB/JPEG; all four columns, helper functions and triggers; both Edge Functions active; the policy set above.
+- **Checks.** `flutter analyze` clean; full suite **2,064 passed**; ledger regenerated (manual note added) and its tests green. Version **0.0.634**.
+- **Remaining:** a device smoke test — premium individual uploads, a second device downloads, delete propagates; owner sets a chamber logo and an associate sees it; lapsed/free/member restrictions; account deletion on a throwaway account removes `{user_id}.jpg`.
+
+### 2026-10-25 — The avatar migrations are applied and `delete-account` is live — COMPLETE (0.0.633)
+
+- **What was done.** With the owner's approval, applied the two policy-free migrations to `lsthasywrdrhuuxnykau` through `tool/apply_supabase_migrations.dart` (it reported **69 versions recorded**), then deployed the `delete-account` Edge Function through the MCP (**ACTIVE**, version 1, `verify_jwt` on).
+- **Verified live through the MCP:** both buckets exist (`firm-avatars`, `individual-avatars`, 51,200-byte limit); all four columns exist (`profiles.avatar_path/avatar_version`, `firms.logo_path/logo_version`); all four helper functions and all four storage triggers exist; **0 storage policies**; both Edge Functions are active (`send-admin-payment-alerts`, `delete-account`).
+- **What remains, and only this:** the **eight storage policies** must be created once in **Supabase → Storage → Policies** from `supabase/manual/storage_policies.sql` (the migration role cannot create them). Until then the picture features are inert: uploads/downloads fail and retry; account deletion now works and removes the picture through the service role.
+- **Checks.** Applier output, live MCP verification above, `flutter analyze` clean, full suite **2,064 passed**, ledger tests green. Version **0.0.633**.
+- **Resume point.** After the policies are created, verify them with a read and run both `supabase/tests/*storage_test.sql` proofs, then a device smoke test.
+
+### 2026-10-25 — Storage policies move to a labelled manual SQL file — COMPLETE (0.0.632)
+
+- **What was found.** Verified live through the MCP and psql: the migration role is `postgres`, it is not a member of `supabase_storage_admin`, and it does not own `storage.objects`. It can create the bucket and the triggers, but **cannot create storage policies** — so the two new migrations would fail at their policy sections.
+- **What changed.** The two migrations now create only the helper function, the 50 KB/JPEG bucket, the server-managed version columns and the storage trigger. Their **eight policies** moved to `supabase/manual/storage_policies.sql`, with the exact expressions and the dashboard path, because they must be created once in Supabase's Storage policy editor. The SQL ledger generator now records `supabase/manual/` in a clearly labelled **“Manual SQL — Applied Outside The Migration Tool”** section, so the ledger still holds every statement; a new ledger test proves the manual files are covered verbatim. The two SQL proofs say the manual step comes first.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,064 passed**; ledger regenerated and its tests green. Version **0.0.632**.
+- **Not applied, and the next steps:** neither migration is applied, the eight policies do not exist yet, and `delete-account` is not deployed (verified: only `send-admin-payment-alerts` is live). On the owner's confirmation: apply the two migrations, deploy `delete-account`, then create the eight policies in Storage → Policies; run both proofs after that.
+- **Resume point.** Awaiting the owner's go-ahead to apply.
+
+### 2026-10-25 — The individual picture bucket is named `individual-avatars` — COMPLETE (0.0.631)
+
+- **What was asked.** The individual profile-picture bucket should be `individual-avatars`; the chamber bucket should be `firm-avatars`.
+- **What changed.** The profile bucket was renamed from `avatars` to **`individual-avatars`** in the (unapplied) migration, its proof, the client's `profileAvatarBucket` constant, the `delete-account` Edge Function and the ledger label. **`firm-avatars` was already correct**, so the chamber side is unchanged. Because the migration has never been applied, there are no stored objects to move; applying it now creates the correctly named bucket.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,063 passed**; the ledger regenerated and its tests green. Version **0.0.631**.
+- **Docs.** Plan §8, Tasks 12/17, the working log and the plan file updated. The migration and function are still **not applied/deployed**.
+
+### 2026-10-25 — The profile picture is capped and premium accounts sync it — COMPLETE (0.0.630)
+
+- **What was asked.** Build Part 2 of the avatar plan: cap the saved profile picture at 50 KB so premium accounts can keep it in a Supabase bucket, and remove it when the account is deleted.
+- **What changed.**
+  - **Phone:** the Profile picker now resizes (1024 px, quality 90) and the shared `avatar_image_processor.dart` produces a 512 px JPEG at most 50 KB, with EXIF and GPS stripped. An unreadable image keeps the previous picture and shows `shared_avatarUnreadable`.
+  - **Sync:** `profile_picture_store.dart` gained the downloaded version and upload/delete pending flags, with `clear()` (user delete, which forgets the remote copy) distinct from `reset()` (logout, which owes nothing). `profile_avatar_repository.dart` and `profile_avatar_sync.dart` upload/download/delete the private `individual-avatars/{user_id}.jpg`; the sync runs at the end of every account refresh and detached after a save or delete. Only a **premium individual or chamber owner** uploads; free accounts and chamber members stay local, and a lapsed account can read/delete but not upload. The sentinel and stale-pull guard from the firm logo are reused.
+  - **Server:** `20261025180000_profile_avatar_storage.sql` (written; **not applied**) creates the private 50 KB/JPEG `individual-avatars` bucket, the owner reads/deletes plus premium-individual/owner writes, `public.can_write_profile_avatar()`, `profiles.avatar_path` / `avatar_version`, and the trigger. `supabase/tests/profile_avatar_storage_test.sql` is ready.
+  - **Account deletion:** the client now invokes the new `supabase/functions/delete-account` Edge Function (written; **not deployed**), which runs `delete_my_account()` as the user and then removes `{user_id}.jpg` with the service role; refusals touch no file. SQL cannot delete a Storage object, so this step cannot live in the RPC.
+- **Tests.** New profile-avatar sync suite (12) plus the existing profile-picture, schema, drawer and paywall suites; `flutter analyze` clean; full `flutter test` **2,063 passed**; ledger regenerated (69 migrations) and its tests green. Version **0.0.630**.
+- **Docs.** Plan §8 and Tasks 12/17 updated; no mockup (the screen looks the same).
+- **Before release, and not done here:** apply the migration and deploy `delete-account` (only `lsthasywrdrhuuxnykau`). The app is safe before the migration (missing avatar fields read as none), but **account deletion fails until the function is deployed** — ship them together. The plan's Part 2 status is updated.
+- **Resume point.** Apply/verify the two server pieces, then a device pass on a large camera photo and a HEIC photo.
+
 ### 2026-10-25 — The side menu names the chamber, with its logo — COMPLETE (0.0.629)
 
 - **What was asked.** In a firm, the side menu showed the signed-in associate's picture and said "Legal Case Diary of Zaid", although the diary is the chamber's. Show the **chamber logo and chamber name**, and the signed-in member and role underneath; the member's own picture is the fallback when the chamber has no logo. The owner sets the logo in Manage Associates.

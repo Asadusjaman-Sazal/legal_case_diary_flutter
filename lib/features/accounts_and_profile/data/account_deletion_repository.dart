@@ -10,11 +10,19 @@
 /// reached from a screen directly, so the boundary is this repository — the same
 /// shape [AdminRepository] uses for the admin panel's calls.
 ///
-/// **One RPC, and the server decides.** `delete_my_account()` runs as the caller,
-/// takes no arguments (it can only ever act on `auth.uid()`), and answers with
-/// the project's usual `{status, reason?}` envelope. So the client never guesses
-/// whether a deletion is allowed: a firm member or an app admin is refused by the
-/// server and told why, and the reason is mapped to one thing a screen can word.
+/// **One server call, and the server decides (0.0.630).** The app invokes the
+/// **`delete-account` Edge Function**, which runs `delete_my_account()` as the
+/// caller — the RPC takes no arguments and can only ever act on `auth.uid()` —
+/// and then removes the caller's profile picture from the
+/// `individual-avatars` bucket. The
+/// storage step has to live in a function: Supabase requires Storage objects to
+/// be deleted through the Storage API, and a SQL delete from `storage.objects`
+/// leaves the file behind. The function keeps the RPC's `{status, reason?}`
+/// envelope, so a firm member or an app admin is still refused by the server
+/// and the reason is mapped to one thing a screen can word.
+///
+/// The function must be deployed with the app; against a project without it,
+/// deletion answers [AccountDeletionOutcome.failed] and nothing is removed.
 ///
 /// **No queue, by design.** This is deliberately not a domain mutation: it is
 /// never written to `sync_queue` and never retried in the background. A queued
@@ -86,7 +94,8 @@ AccountDeletionOutcome outcomeFromDeleteResponse(Object? response) {
   return AccountDeletionOutcome.failed;
 }
 
-/// The real repository: one RPC over the signed-in session.
+/// The real repository: the `delete-account` function over the signed-in
+/// session.
 class SupabaseAccountDeletionRepository implements AccountDeletionRepository {
   /// Creates the repository over an initialized client.
   SupabaseAccountDeletionRepository(this._client);
@@ -101,11 +110,12 @@ class SupabaseAccountDeletionRepository implements AccountDeletionRepository {
       return AccountDeletionOutcome.unavailable;
     }
     try {
-      return outcomeFromDeleteResponse(await _client.rpc('delete_my_account'));
+      final response = await _client.functions.invoke('delete-account');
+      return outcomeFromDeleteResponse(response.data);
     } on Object {
-      // Offline, refused by the network, or a server error: nothing was deleted,
-      // and the user may retry. The screen words this; a typed failure here would
-      // only be a second way to say the same sentence.
+      // Offline, the function not deployed, or a server error: nothing was
+      // deleted, and the user may retry. The screen words this; a typed failure
+      // here would only be a second way to say the same sentence.
       return AccountDeletionOutcome.failed;
     }
   }

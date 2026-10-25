@@ -19,6 +19,17 @@ class Profiles extends Table {
   /// Display name.
   TextColumn get fullName => text()();
 
+  /// Object name of the profile picture in the `individual-avatars` bucket,
+  /// or null.
+  ///
+  /// Server-written by the storage trigger, never by a device. The local
+  /// picture stays the offline truth; this is how another device learns that
+  /// it exists and changed (0.0.630).
+  TextColumn get avatarPath => text().nullable()();
+
+  /// Bumped by the server on every profile-picture write or delete.
+  IntColumn get avatarVersion => integer().withDefault(const Constant(0))();
+
   /// Firm membership; null for individual lawyers.
   TextColumn get firmId => text().nullable()();
 

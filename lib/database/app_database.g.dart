@@ -12969,6 +12969,29 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _avatarPathMeta = const VerificationMeta(
+    'avatarPath',
+  );
+  @override
+  late final GeneratedColumn<String> avatarPath = GeneratedColumn<String>(
+    'avatar_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _avatarVersionMeta = const VerificationMeta(
+    'avatarVersion',
+  );
+  @override
+  late final GeneratedColumn<int> avatarVersion = GeneratedColumn<int>(
+    'avatar_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _firmIdMeta = const VerificationMeta('firmId');
   @override
   late final GeneratedColumn<String> firmId = GeneratedColumn<String>(
@@ -13055,6 +13078,8 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
   List<GeneratedColumn> get $columns => [
     id,
     fullName,
+    avatarPath,
+    avatarVersion,
     firmId,
     role,
     subscriptionStatus,
@@ -13088,6 +13113,21 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
       );
     } else if (isInserting) {
       context.missing(_fullNameMeta);
+    }
+    if (data.containsKey('avatar_path')) {
+      context.handle(
+        _avatarPathMeta,
+        avatarPath.isAcceptableOrUnknown(data['avatar_path']!, _avatarPathMeta),
+      );
+    }
+    if (data.containsKey('avatar_version')) {
+      context.handle(
+        _avatarVersionMeta,
+        avatarVersion.isAcceptableOrUnknown(
+          data['avatar_version']!,
+          _avatarVersionMeta,
+        ),
+      );
     }
     if (data.containsKey('firm_id')) {
       context.handle(
@@ -13172,6 +13212,14 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, Profile> {
         DriftSqlType.string,
         data['${effectivePrefix}full_name'],
       )!,
+      avatarPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_path'],
+      ),
+      avatarVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}avatar_version'],
+      )!,
       firmId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}firm_id'],
@@ -13220,6 +13268,17 @@ class Profile extends DataClass implements Insertable<Profile> {
   /// Display name.
   final String fullName;
 
+  /// Object name of the profile picture in the `individual-avatars` bucket,
+  /// or null.
+  ///
+  /// Server-written by the storage trigger, never by a device. The local
+  /// picture stays the offline truth; this is how another device learns that
+  /// it exists and changed (0.0.630).
+  final String? avatarPath;
+
+  /// Bumped by the server on every profile-picture write or delete.
+  final int avatarVersion;
+
   /// Firm membership; null for individual lawyers.
   final String? firmId;
 
@@ -13254,6 +13313,8 @@ class Profile extends DataClass implements Insertable<Profile> {
   const Profile({
     required this.id,
     required this.fullName,
+    this.avatarPath,
+    required this.avatarVersion,
     this.firmId,
     required this.role,
     required this.subscriptionStatus,
@@ -13268,6 +13329,10 @@ class Profile extends DataClass implements Insertable<Profile> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['full_name'] = Variable<String>(fullName);
+    if (!nullToAbsent || avatarPath != null) {
+      map['avatar_path'] = Variable<String>(avatarPath);
+    }
+    map['avatar_version'] = Variable<int>(avatarVersion);
     if (!nullToAbsent || firmId != null) {
       map['firm_id'] = Variable<String>(firmId);
     }
@@ -13291,6 +13356,10 @@ class Profile extends DataClass implements Insertable<Profile> {
     return ProfilesCompanion(
       id: Value(id),
       fullName: Value(fullName),
+      avatarPath: avatarPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarPath),
+      avatarVersion: Value(avatarVersion),
       firmId: firmId == null && nullToAbsent
           ? const Value.absent()
           : Value(firmId),
@@ -13318,6 +13387,8 @@ class Profile extends DataClass implements Insertable<Profile> {
     return Profile(
       id: serializer.fromJson<String>(json['id']),
       fullName: serializer.fromJson<String>(json['fullName']),
+      avatarPath: serializer.fromJson<String?>(json['avatarPath']),
+      avatarVersion: serializer.fromJson<int>(json['avatarVersion']),
       firmId: serializer.fromJson<String?>(json['firmId']),
       role: serializer.fromJson<String>(json['role']),
       subscriptionStatus: serializer.fromJson<String>(
@@ -13336,6 +13407,8 @@ class Profile extends DataClass implements Insertable<Profile> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'fullName': serializer.toJson<String>(fullName),
+      'avatarPath': serializer.toJson<String?>(avatarPath),
+      'avatarVersion': serializer.toJson<int>(avatarVersion),
       'firmId': serializer.toJson<String?>(firmId),
       'role': serializer.toJson<String>(role),
       'subscriptionStatus': serializer.toJson<String>(subscriptionStatus),
@@ -13350,6 +13423,8 @@ class Profile extends DataClass implements Insertable<Profile> {
   Profile copyWith({
     String? id,
     String? fullName,
+    Value<String?> avatarPath = const Value.absent(),
+    int? avatarVersion,
     Value<String?> firmId = const Value.absent(),
     String? role,
     String? subscriptionStatus,
@@ -13361,6 +13436,8 @@ class Profile extends DataClass implements Insertable<Profile> {
   }) => Profile(
     id: id ?? this.id,
     fullName: fullName ?? this.fullName,
+    avatarPath: avatarPath.present ? avatarPath.value : this.avatarPath,
+    avatarVersion: avatarVersion ?? this.avatarVersion,
     firmId: firmId.present ? firmId.value : this.firmId,
     role: role ?? this.role,
     subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
@@ -13378,6 +13455,12 @@ class Profile extends DataClass implements Insertable<Profile> {
     return Profile(
       id: data.id.present ? data.id.value : this.id,
       fullName: data.fullName.present ? data.fullName.value : this.fullName,
+      avatarPath: data.avatarPath.present
+          ? data.avatarPath.value
+          : this.avatarPath,
+      avatarVersion: data.avatarVersion.present
+          ? data.avatarVersion.value
+          : this.avatarVersion,
       firmId: data.firmId.present ? data.firmId.value : this.firmId,
       role: data.role.present ? data.role.value : this.role,
       subscriptionStatus: data.subscriptionStatus.present
@@ -13402,6 +13485,8 @@ class Profile extends DataClass implements Insertable<Profile> {
     return (StringBuffer('Profile(')
           ..write('id: $id, ')
           ..write('fullName: $fullName, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('avatarVersion: $avatarVersion, ')
           ..write('firmId: $firmId, ')
           ..write('role: $role, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
@@ -13418,6 +13503,8 @@ class Profile extends DataClass implements Insertable<Profile> {
   int get hashCode => Object.hash(
     id,
     fullName,
+    avatarPath,
+    avatarVersion,
     firmId,
     role,
     subscriptionStatus,
@@ -13433,6 +13520,8 @@ class Profile extends DataClass implements Insertable<Profile> {
       (other is Profile &&
           other.id == this.id &&
           other.fullName == this.fullName &&
+          other.avatarPath == this.avatarPath &&
+          other.avatarVersion == this.avatarVersion &&
           other.firmId == this.firmId &&
           other.role == this.role &&
           other.subscriptionStatus == this.subscriptionStatus &&
@@ -13446,6 +13535,8 @@ class Profile extends DataClass implements Insertable<Profile> {
 class ProfilesCompanion extends UpdateCompanion<Profile> {
   final Value<String> id;
   final Value<String> fullName;
+  final Value<String?> avatarPath;
+  final Value<int> avatarVersion;
   final Value<String?> firmId;
   final Value<String> role;
   final Value<String> subscriptionStatus;
@@ -13458,6 +13549,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.fullName = const Value.absent(),
+    this.avatarPath = const Value.absent(),
+    this.avatarVersion = const Value.absent(),
     this.firmId = const Value.absent(),
     this.role = const Value.absent(),
     this.subscriptionStatus = const Value.absent(),
@@ -13471,6 +13564,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   ProfilesCompanion.insert({
     required String id,
     required String fullName,
+    this.avatarPath = const Value.absent(),
+    this.avatarVersion = const Value.absent(),
     this.firmId = const Value.absent(),
     required String role,
     required String subscriptionStatus,
@@ -13488,6 +13583,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   static Insertable<Profile> custom({
     Expression<String>? id,
     Expression<String>? fullName,
+    Expression<String>? avatarPath,
+    Expression<int>? avatarVersion,
     Expression<String>? firmId,
     Expression<String>? role,
     Expression<String>? subscriptionStatus,
@@ -13501,6 +13598,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (fullName != null) 'full_name': fullName,
+      if (avatarPath != null) 'avatar_path': avatarPath,
+      if (avatarVersion != null) 'avatar_version': avatarVersion,
       if (firmId != null) 'firm_id': firmId,
       if (role != null) 'role': role,
       if (subscriptionStatus != null) 'subscription_status': subscriptionStatus,
@@ -13516,6 +13615,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   ProfilesCompanion copyWith({
     Value<String>? id,
     Value<String>? fullName,
+    Value<String?>? avatarPath,
+    Value<int>? avatarVersion,
     Value<String?>? firmId,
     Value<String>? role,
     Value<String>? subscriptionStatus,
@@ -13529,6 +13630,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     return ProfilesCompanion(
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
+      avatarPath: avatarPath ?? this.avatarPath,
+      avatarVersion: avatarVersion ?? this.avatarVersion,
       firmId: firmId ?? this.firmId,
       role: role ?? this.role,
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
@@ -13549,6 +13652,12 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     }
     if (fullName.present) {
       map['full_name'] = Variable<String>(fullName.value);
+    }
+    if (avatarPath.present) {
+      map['avatar_path'] = Variable<String>(avatarPath.value);
+    }
+    if (avatarVersion.present) {
+      map['avatar_version'] = Variable<int>(avatarVersion.value);
     }
     if (firmId.present) {
       map['firm_id'] = Variable<String>(firmId.value);
@@ -13585,6 +13694,8 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
     return (StringBuffer('ProfilesCompanion(')
           ..write('id: $id, ')
           ..write('fullName: $fullName, ')
+          ..write('avatarPath: $avatarPath, ')
+          ..write('avatarVersion: $avatarVersion, ')
           ..write('firmId: $firmId, ')
           ..write('role: $role, ')
           ..write('subscriptionStatus: $subscriptionStatus, ')
@@ -23943,6 +24054,8 @@ typedef $$ProfilesTableCreateCompanionBuilder =
     ProfilesCompanion Function({
       required String id,
       required String fullName,
+      Value<String?> avatarPath,
+      Value<int> avatarVersion,
       Value<String?> firmId,
       required String role,
       required String subscriptionStatus,
@@ -23957,6 +24070,8 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
     ProfilesCompanion Function({
       Value<String> id,
       Value<String> fullName,
+      Value<String?> avatarPath,
+      Value<int> avatarVersion,
       Value<String?> firmId,
       Value<String> role,
       Value<String> subscriptionStatus,
@@ -23984,6 +24099,16 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get fullName => $composableBuilder(
     column: $table.fullName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get avatarVersion => $composableBuilder(
+    column: $table.avatarVersion,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24047,6 +24172,16 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get avatarVersion => $composableBuilder(
+    column: $table.avatarVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get firmId => $composableBuilder(
     column: $table.firmId,
     builder: (column) => ColumnOrderings(column),
@@ -24102,6 +24237,16 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<String> get fullName =>
       $composableBuilder(column: $table.fullName, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarPath => $composableBuilder(
+    column: $table.avatarPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get avatarVersion => $composableBuilder(
+    column: $table.avatarVersion,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get firmId =>
       $composableBuilder(column: $table.firmId, builder: (column) => column);
@@ -24166,6 +24311,8 @@ class $$ProfilesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> fullName = const Value.absent(),
+                Value<String?> avatarPath = const Value.absent(),
+                Value<int> avatarVersion = const Value.absent(),
                 Value<String?> firmId = const Value.absent(),
                 Value<String> role = const Value.absent(),
                 Value<String> subscriptionStatus = const Value.absent(),
@@ -24178,6 +24325,8 @@ class $$ProfilesTableTableManager
               }) => ProfilesCompanion(
                 id: id,
                 fullName: fullName,
+                avatarPath: avatarPath,
+                avatarVersion: avatarVersion,
                 firmId: firmId,
                 role: role,
                 subscriptionStatus: subscriptionStatus,
@@ -24192,6 +24341,8 @@ class $$ProfilesTableTableManager
               ({
                 required String id,
                 required String fullName,
+                Value<String?> avatarPath = const Value.absent(),
+                Value<int> avatarVersion = const Value.absent(),
                 Value<String?> firmId = const Value.absent(),
                 required String role,
                 required String subscriptionStatus,
@@ -24204,6 +24355,8 @@ class $$ProfilesTableTableManager
               }) => ProfilesCompanion.insert(
                 id: id,
                 fullName: fullName,
+                avatarPath: avatarPath,
+                avatarVersion: avatarVersion,
                 firmId: firmId,
                 role: role,
                 subscriptionStatus: subscriptionStatus,

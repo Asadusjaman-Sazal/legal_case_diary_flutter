@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.629 - The side menu now names the chamber with its logo and the member's role; the owner sets the logo in Manage Associates.
+Version: 0.0.634 - The eight storage policies are live and both storage proofs pass; the avatar and logo setup is complete.
 --------------------------------------
 
 ## Version History Log:
@@ -643,3 +643,8 @@ Version: 0.0.626 - Manage Plan shows premium usage with full-width Renew and Can
 Version: 0.0.627 - The Cancel Subscription window takes the Exit App corner, is 10% wider and taller with 10% taller buttons.
 Version: 0.0.628 - The Cancel Subscription window's title is centred.
 Version: 0.0.629 - The side menu now names the chamber with its logo and the member's role; the owner sets the logo in Manage Associates.
+Version: 0.0.630 - The profile picture is capped at 50 KB and premium individuals and owners sync it privately; account deletion removes it.
+Version: 0.0.631 - The individual avatar bucket is now named individual-avatars; the firm bucket was already firm-avatars.
+Version: 0.0.632 - Storage policies move to a manual SQL file because the migration role cannot create them; the ledger records them.
+Version: 0.0.633 - The two avatar migrations are applied and delete-account is deployed; the eight storage policies await the dashboard step.
+Version: 0.0.634 - The eight storage policies are live and both storage proofs pass; the avatar and logo setup is complete.

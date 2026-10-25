@@ -51,6 +51,14 @@ const String offLimitsProjectName = 'Swanirvor-23';
 /// Migration folder, relative to the project root.
 const String migrationsDir = 'supabase/migrations';
 
+/// SQL that the migration role cannot run and is applied by hand.
+///
+/// The storage policies live here: `storage.objects` belongs to
+/// `supabase_storage_admin`, which the connection role is not a member of, so a
+/// `create policy` statement cannot run in a migration. The ledger records the
+/// file as a manual section; this tool never applies it.
+const String manualDir = 'supabase/manual';
+
 /// Git-ignored file holding `SUPABASE_DB_URL`; see `supabase/README.md`.
 const String envFilePath = 'supabase/.env.local';
 const String dbUrlVariable = 'SUPABASE_DB_URL';

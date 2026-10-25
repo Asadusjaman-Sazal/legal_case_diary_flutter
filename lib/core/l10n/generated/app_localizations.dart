@@ -8269,7 +8269,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_inviteIntro.
   ///
   /// In en, this message translates to:
-  /// **'Share This Code With Your Associate. It Works Once, And This Is The Only Time It Is Shown.'**
+  /// **'Share this code with your associate. It works once, and this is the only time it is shown.'**
   String get manageAssociates_inviteIntro;
 
   /// No description provided for @manageAssociates_copyCode.

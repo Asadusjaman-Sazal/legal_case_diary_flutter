@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Invite Code becomes a centred pop-over that confirms a copy — COMPLETE (0.0.651)
+
+- **What was asked.** In Manage Associates > Invite Code: centre the title, make it a pop-over whose window and buttons match the Exit App? window, put the "Share this code…" line in sentence case, and make Copy Code show a confirmation.
+- **What changed.** The window is no longer a bottom sheet: it is a centred `Dialog` with the Exit App window's insets (40 × 24), its 8 px corner and its white panel. The title is centred; the sentence is now *Share this code with your associate. It works once, and this is the only time it is shown.*; and all three actions take the Exit App button size — a minimum of 112 × 48 at 16 pt — laid out in a `Wrap`, so on a phone they read Copy | Share with Close beneath, and a longer Bengali label grows instead of clipping.
+- **Why the old copy confirmation never showed.** Copy Code already said *Code Copied.*, but through a SnackBar, which is drawn in the screen **behind** the window — so it was invisible. The confirmation now appears **inside** the window as a green tick and the same words, above the buttons; a failed Share uses the same line in red, since its message had the same problem.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,108 passed**, including a new case that pins the `Dialog` (not a sheet), the centred title, all three buttons at 112 × 48 / 16 pt and the copy confirmation. The test answers the clipboard channel, because an unanswered one leaves `Clipboard.setData` pending in the test host — on a device the platform answers it, so the confirmation is immediate.
+- **Mockup.** None owed: Manage Associates has no mockup (rule 9).
+
 ### 2026-10-26 — The Delete Requests card gains its supporting line — COMPLETE (0.0.650)
 
 - **What was reported.** The moved **Delete Requests** card had no line under its title, and every other card on Accounts & Profile has one — it read as a mistake.

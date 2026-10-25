@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -593,6 +594,69 @@ void main() {
       reason: 'the firm already exists; ensure_firm is for the first one only',
     );
     expect(find.text(l.manageAssociates_inviteTitle), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the invite code is a centred pop-over with Exit App buttons', (
+    tester,
+  ) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(find.text(l.manageAssociates_addAssociate));
+    await tester.pumpAndSettle();
+
+    // A window, not the bottom sheet it used to be.
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text(l.manageAssociates_inviteTitle)).textAlign,
+      TextAlign.center,
+    );
+
+    /// The Exit App action size: 112 x 48 at 16 pt, as a minimum so a longer
+    /// Bengali label grows instead of clipping.
+    void expectExitAppSize(Key key) {
+      final button = tester.widget<ButtonStyleButton>(find.byKey(key));
+      expect(
+        button.style?.minimumSize?.resolve(<WidgetState>{}),
+        const Size(112, 48),
+      );
+      expect(button.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+    }
+
+    expectExitAppSize(const ValueKey('invite-code-copy'));
+    expectExitAppSize(const ValueKey('invite-code-share'));
+    expectExitAppSize(const ValueKey('invite-code-close'));
+
+    // Copying confirms itself inside the window, where the user can see it.
+    // The clipboard channel is answered so the copy settles like it does on a
+    // device.
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async => null,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    expect(find.byKey(const ValueKey('invite-code-note')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('invite-code-copy')));
+    await tester.pumpAndSettle();
+    expect(find.text(l.manageAssociates_codeCopied), findsOneWidget);
 
     await unmountApp(tester);
   });

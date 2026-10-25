@@ -40,6 +40,17 @@ class _AdminUnconfirmedAccountsScreenState
   String _query = '';
 
   @override
+  void initState() {
+    super.initState();
+    // Re-read on every open, the same freshness the pull gesture gives, so an
+    // abandoned sign-up that landed meanwhile is already on the list.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.invalidate(adminUnconfirmedAccountsProvider);
+    });
+  }
+
+  @override
   void dispose() {
     _search.dispose();
     super.dispose();

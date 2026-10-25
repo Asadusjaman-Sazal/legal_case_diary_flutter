@@ -609,6 +609,9 @@ void main() {
       ..failure = AdminActionFailure.alreadyResolved;
     await pump(tester, repo);
 
+    // The page's own refresh on open has already run; the refusal must not add
+    // another read.
+    final listsBefore = repo.listCalls;
     await tester.tap(find.widgetWithText(FilledButton, 'Approve'));
     await tester.pumpAndSettle();
 
@@ -617,7 +620,50 @@ void main() {
     // still there and still actionable.
     expect(find.text('That payment was already decided.'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Approve'), findsOneWidget);
-    expect(repo.listCalls, 1);
+    expect(repo.listCalls, listsBefore);
+  });
+
+  testWidgets('re-reads the list every time the page opens', (tester) async {
+    final repo = _FakeAdminRepository(rows: [_request(id: '1')]);
+    final settingsRepo = FakeSettingsRepository();
+    final visible = ValueNotifier<bool>(true);
+    addTearDown(visible.dispose);
+
+    tester.view.physicalSize = const Size(1080, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: withErrorLog([
+          adminRepositoryProvider.overrideWithValue(repo),
+          settingsRepositoryProvider.overrideWith((ref) async => settingsRepo),
+        ]),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: ValueListenableBuilder<bool>(
+            valueListenable: visible,
+            builder: (context, shown, _) => shown
+                ? const AdminPaymentRequestsScreen()
+                : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('TrxID: TRX1'), findsOneWidget);
+
+    // Close the page, let a payment land, then open it again: it must ask the
+    // server rather than show the list it cached on the first visit.
+    visible.value = false;
+    await tester.pumpAndSettle();
+    repo.rows.add(_request(id: '2'));
+    visible.value = true;
+    await tester.pumpAndSettle();
+
+    expect(find.text('TrxID: TRX2'), findsOneWidget);
   });
 
   testWidgets('a non-admin is offered no payment data at all', (tester) async {

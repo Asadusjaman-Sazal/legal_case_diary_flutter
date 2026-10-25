@@ -36,13 +36,21 @@ class _FakeAdminRepository implements AdminRepository {
   final List<AdminPaymentRequest> rows;
   final List<AdminUnconfirmedAccount> accounts;
 
+  /// Reads the page asked the repository for, so an open can be told apart
+  /// from the cached data it already holds.
+  int paymentCalls = 0;
+  int accountCalls = 0;
+
   /// Calls [syncServiceProvider]'s drain — not these — so nothing here records
   /// them; a test that needs the drain fakes the service instead.
   @override
   Future<bool> isAdmin() async => true;
 
   @override
-  Future<List<AdminPaymentRequest>> listPaymentRequests() async => rows;
+  Future<List<AdminPaymentRequest>> listPaymentRequests() async {
+    paymentCalls++;
+    return rows;
+  }
 
   @override
   Future<AdminActionFailure?> approve(String submissionId) async => null;
@@ -54,8 +62,10 @@ class _FakeAdminRepository implements AdminRepository {
   }) async => null;
 
   @override
-  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
-      accounts;
+  Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async {
+    accountCalls++;
+    return accounts;
+  }
 
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
@@ -83,6 +93,14 @@ AdminUnconfirmedAccount _unconfirmed(String id) => AdminUnconfirmedAccount(
   fullName: '',
   createdAt: DateTime(2026, 10, 8, 14, 30),
 );
+
+/// The count drawn on the panel's card at [index], in render order.
+String? _count(WidgetTester tester, int index) {
+  final cards = tester
+      .widgetList<SettingsMenuCard>(find.byType(SettingsMenuCard))
+      .toList();
+  return (cards[index].trailing as Text).data;
+}
 
 
 void main() {
@@ -233,6 +251,55 @@ void main() {
     }
     expect((cards[0].trailing as Text).data, '2', reason: 'pending payments');
     expect((cards[1].trailing as Text).data, '3', reason: 'unconfirmed');
+  });
+
+  testWidgets('re-reads both counts every time the panel opens', (tester) async {
+    final repo = _FakeAdminRepository(
+      rows: [_pending('1')],
+      accounts: [_unconfirmed('a')],
+    );
+    final visible = ValueNotifier<bool>(true);
+    addTearDown(visible.dispose);
+
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          adminRepositoryProvider.overrideWithValue(repo),
+          syncStatusAttentionProvider.overrideWith(
+            (ref) => Stream<int>.value(0),
+          ),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: ValueListenableBuilder<bool>(
+            valueListenable: visible,
+            builder: (context, shown, _) =>
+                shown ? const AdminPanelScreen() : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(_count(tester, 0), '1');
+    expect(_count(tester, 1), '1');
+
+    // Close the panel, let work arrive, then open it again: the counts must be
+    // the server's new answer, not the lists it cached on the first visit.
+    visible.value = false;
+    await tester.pumpAndSettle();
+    repo.rows.add(_pending('2'));
+    repo.accounts.add(_unconfirmed('b'));
+    visible.value = true;
+    await tester.pumpAndSettle();
+
+    expect(_count(tester, 0), '2');
+    expect(_count(tester, 1), '2');
   });
 
   testWidgets('the panel can be pulled down to sync', (tester) async {

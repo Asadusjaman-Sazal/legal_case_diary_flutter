@@ -1,5 +1,11 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Admin screens re-read the cloud on open — COMPLETE (0.0.641)
+
+- **What was reported.** Tapping an admin payment notification opened Payment Requests with data the app had cached earlier; only a pull-down showed the new payment. The same staleness affected the panel's two counts and the Non-verified Accounts list.
+- **What changed.** The Admin Panel invalidates both count lists, Payment Requests invalidates its submissions, and Non-verified Accounts invalidates its sign-ups — once, in `initState`, after the first frame. The page therefore opens on the server's current answer, with the old list still visible until the new one lands. Pull-to-sync and the header Sync button are untouched, and a refused approve/reject still performs no extra read. Scope was the admin feature only; no server change, no new copy.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,095 passed**; new reopen cases in `admin_panel_screen_test.dart` and `admin_payment_requests_screen_test.dart` fail without the refresh and assert the newly arrived payment/counts appear on the second open.
+
 ### 2026-10-26 — Back from Subscription History goes through the account — COMPLETE (0.0.640)
 
 - **What was asked.** After submitting a payment from Checkout, Back on Subscription History reopened Checkout. It should instead go to **Account & Profile**, then **Settings**, then the default landing page.

@@ -66,6 +66,18 @@ class _AdminPaymentRequestsScreenState
   String _query = '';
 
   @override
+  void initState() {
+    super.initState();
+    // A payment alert can open this page while the cached list is older than
+    // the payment it announced. Re-read it on every open (user request), after
+    // the first frame so the provider is not touched mid-build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.invalidate(adminPaymentRequestsProvider);
+    });
+  }
+
+  @override
   void dispose() {
     _search.dispose();
     super.dispose();

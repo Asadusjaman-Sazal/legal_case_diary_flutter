@@ -500,16 +500,12 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the owner sees the chamber logo actions', (tester) async {
+  testWidgets('the chamber logo frame opens its viewer', (tester) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 
-    // The frame, with the pencil under it; the wording lives on the tooltip now,
-    // because the buttons carry no visible text (user request 0.0.653).
+    // The frame is the control now; the round picture buttons are gone.
     expect(find.byKey(const ValueKey('firm-logo-frame')), findsOneWidget);
-    expect(find.byKey(const ValueKey('firm-logo-change')), findsOneWidget);
-    expect(find.byTooltip(l.manageAssociates_addLogo), findsOneWidget);
-    expect(find.text(l.manageAssociates_addLogo), findsNothing);
-    // Nothing to remove until a logo exists.
+    expect(find.byKey(const ValueKey('firm-logo-change')), findsNothing);
     expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
     // The firm's name is bold and centred, with no "Firm" caption above it.
     final name = tester.widget<Text>(find.text('Rahman & Associates'));
@@ -517,26 +513,28 @@ void main() {
     expect(name.style?.fontWeight, FontWeight.w700);
     expect(find.text(l.settingsManageAccount_firm), findsNothing);
 
+    await tester.tap(find.byKey(const ValueKey('firm-logo-open')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.firmLogo_title), findsOneWidget);
+    // A placeholder has no Delete; Edit is always there.
+    expect(find.byTooltip(l.sharedActions_delete), findsNothing);
+    expect(find.byTooltip(l.sharedActions_edit), findsOneWidget);
+
     await unmountApp(tester);
   });
 
-  testWidgets('the firm picture actions take the Profile edit button size', (
+  testWidgets('the firm-name pencil takes the Profile edit button size', (
     tester,
   ) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 
     // The Profile picture button is an 18 px icon, xs padding on each side and
-    // a 2 px rim on each edge; the firm logo and name actions must be that same
-    // box.
+    // a 2 px rim on each edge; the name pencil must be that same box.
     final side = 18 + AppSpacing.xs * 2 + 2 * 2;
-    final expected = Size(side, side);
-    expect(
-      tester.getSize(find.byKey(const ValueKey('firm-logo-change'))),
-      expected,
-    );
     expect(
       tester.getSize(find.byKey(const ValueKey('firm-name-change'))),
-      expected,
+      Size(side, side),
     );
 
     await unmountApp(tester);
@@ -586,51 +584,55 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets(
-    'a saved chamber logo shows Change and Remove, and Remove clears it',
-    (tester) async {
-      // Synchronous IO: a widget test runs on a fake clock, so a real async file
-      // call inside the body would never complete.
-      final dir = Directory.systemTemp.createTempSync('manage-logo');
-      addTearDown(() => dir.delete(recursive: true));
-      final logo = File('${dir.path}/firm_firm-1.png');
-      logo.writeAsBytesSync(_pngBytes);
+  testWidgets('a saved chamber logo opens in the viewer, and Delete clears it', (
+    tester,
+  ) async {
+    // Synchronous IO: a widget test runs on a fake clock, so a real async file
+    // call inside the body would never complete.
+    final dir = Directory.systemTemp.createTempSync('manage-logo');
+    addTearDown(() => dir.delete(recursive: true));
+    final logo = File('${dir.path}/firm_firm-1.png');
+    logo.writeAsBytesSync(_pngBytes);
 
-      await pumpManageAssociates(
-        tester,
-        preferences: <String, Object>{
-          firmLogoPathKey: logo.path,
-          'firm_logo_firm_id': 'firm-1',
-        },
-        seed: seedOwner,
-      );
+    await pumpManageAssociates(
+      tester,
+      preferences: <String, Object>{
+        firmLogoPathKey: logo.path,
+        'firm_logo_firm_id': 'firm-1',
+      },
+      seed: seedOwner,
+    );
 
-      expect(find.byTooltip(l.manageAssociates_changeLogo), findsOneWidget);
-      // The frame paints the saved logo as its background.
-      final frame = tester.widget<Container>(
-        find.byKey(const ValueKey('firm-logo-frame')),
-      );
-      final decoration = frame.decoration! as BoxDecoration;
-      expect((decoration.image!.image as FileImage).file.path, logo.path);
+    // The frame paints the saved logo as its background.
+    final frame = tester.widget<Container>(
+      find.byKey(const ValueKey('firm-logo-frame')),
+    );
+    final decoration = frame.decoration! as BoxDecoration;
+    expect((decoration.image!.image as FileImage).file.path, logo.path);
 
-      final remove = find.byKey(const ValueKey('firm-logo-remove'));
-      await tester.ensureVisible(remove);
-      await tester.pumpAndSettle();
-      await tester.tap(remove);
-      // The delete is real file IO; a widget test's fake clock needs a real
-      // event-loop turn for it to finish before the assertion.
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)),
-      );
-      await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('firm-logo-open')));
+    await tester.pumpAndSettle();
+    expect(find.text(l.firmLogo_title), findsOneWidget);
+    expect(find.byTooltip(l.sharedActions_delete), findsOneWidget);
 
-      expect(logo.existsSync(), isFalse);
-      expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
-      expect(find.byTooltip(l.manageAssociates_addLogo), findsOneWidget);
+    await tester.tap(find.byTooltip(l.sharedActions_delete));
+    // The delete is real file IO; a widget test's fake clock needs a real
+    // event-loop turn for it to finish before the assertion.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pumpAndSettle();
 
-      await unmountApp(tester);
-    },
-  );
+    // The viewer popped back to Manage Firm, where the frame is empty.
+    expect(find.text(l.firmLogo_title), findsNothing);
+    expect(logo.existsSync(), isFalse);
+    final empty = tester.widget<Container>(
+      find.byKey(const ValueKey('firm-logo-frame')),
+    );
+    expect((empty.decoration! as BoxDecoration).image, isNull);
+
+    await unmountApp(tester);
+  });
 
   testWidgets('a lapsed owner is told a live plan is needed for a logo', (
     tester,
@@ -640,13 +642,12 @@ void main() {
       seed: (db) => seedOwner(db, premium: false),
     );
 
-    final change = find.byKey(const ValueKey('firm-logo-change'));
-    await tester.ensureVisible(change);
+    await tester.tap(find.byKey(const ValueKey('firm-logo-open')));
     await tester.pumpAndSettle();
-    await tester.tap(change);
+    await tester.tap(find.byTooltip(l.sharedActions_edit));
     await tester.pumpAndSettle();
 
-    // No picker opens: the message is the whole answer.
+    // No source chooser opens: the message is the whole answer.
     expect(find.text(l.manageAssociates_logoNeedsPlan), findsOneWidget);
 
     await unmountApp(tester);

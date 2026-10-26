@@ -222,14 +222,20 @@ Future<Uint8List> processCroppedImage(
   CropRect rect, {
   required int targetWidth,
   required int targetHeight,
+  int rotationQuarterTurns = 0,
 }) async {
   if (targetWidth < 1 || targetHeight < 1) {
     throw const AvatarImageException.unreadable();
   }
-  final x = rect.x.clamp(0, source.width - 1);
-  final y = rect.y.clamp(0, source.height - 1);
-  final width = rect.width.clamp(1, source.width - x);
-  final height = rect.height.clamp(1, source.height - y);
+  final turns = rotationQuarterTurns % 4;
+  // The rectangle is in the rotated image's pixels, so the clamp uses the
+  // dimensions that image will have after the rotation.
+  final rotatedWidth = turns.isOdd ? source.height : source.width;
+  final rotatedHeight = turns.isOdd ? source.width : source.height;
+  final x = rect.x.clamp(0, rotatedWidth - 1);
+  final y = rect.y.clamp(0, rotatedHeight - 1);
+  final width = rect.width.clamp(1, rotatedWidth - x);
+  final height = rect.height.clamp(1, rotatedHeight - y);
 
   final Uint8List? result;
   try {
@@ -242,6 +248,7 @@ Future<Uint8List> processCroppedImage(
         height: height,
         targetWidth: targetWidth,
         targetHeight: targetHeight,
+        turns: turns,
       ),
     );
   } on Object {
@@ -259,6 +266,7 @@ Uint8List? _processCropped(
   required int height,
   required int targetWidth,
   required int targetHeight,
+  required int turns,
 }) {
   img.Image? decoded;
   try {
@@ -268,8 +276,12 @@ Uint8List? _processCropped(
   }
   if (decoded == null) return null;
 
+  var upright = decoded;
+  for (var i = 0; i < turns; i++) {
+    upright = _rotateClockwise(upright);
+  }
   final cropped = img.copyCrop(
-    decoded,
+    upright,
     x: x,
     y: y,
     width: width,
@@ -316,4 +328,22 @@ Uint8List? _processCropped(
     if (bytes.length <= avatarMaxBytes) return bytes;
   }
   return null;
+}
+
+/// Rotates [source] a quarter turn clockwise.
+///
+/// The screen's canvas uses the same clockwise convention, so the rectangle a
+/// person selects on the rotated preview is the rectangle this crops.
+img.Image _rotateClockwise(img.Image source) {
+  final out = img.Image(
+    width: source.height,
+    height: source.width,
+    numChannels: source.numChannels,
+  );
+  for (var y = 0; y < source.height; y++) {
+    for (var x = 0; x < source.width; x++) {
+      out.setPixel(source.height - 1 - y, x, source.getPixel(x, y));
+    }
+  }
+  return out;
 }

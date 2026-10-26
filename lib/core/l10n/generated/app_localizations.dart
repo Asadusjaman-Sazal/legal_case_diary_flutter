@@ -2922,20 +2922,44 @@ abstract class AppLocalizations {
   /// No description provided for @imageCrop_title.
   ///
   /// In en, this message translates to:
-  /// **'Crop Image'**
+  /// **'Select Image'**
   String get imageCrop_title;
 
-  /// No description provided for @imageCrop_hint.
+  /// No description provided for @imageCrop_save.
   ///
   /// In en, this message translates to:
-  /// **'Pinch to zoom and drag to move.'**
-  String get imageCrop_hint;
+  /// **'Save'**
+  String get imageCrop_save;
 
-  /// No description provided for @imageCrop_use.
+  /// No description provided for @imageCrop_rotate.
   ///
   /// In en, this message translates to:
-  /// **'Use'**
-  String get imageCrop_use;
+  /// **'Rotate'**
+  String get imageCrop_rotate;
+
+  /// No description provided for @profilePicture_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Picture'**
+  String get profilePicture_title;
+
+  /// No description provided for @firmLogo_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Logo'**
+  String get firmLogo_title;
+
+  /// No description provided for @imageSource_gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get imageSource_gallery;
+
+  /// No description provided for @imageSource_files.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get imageSource_files;
 
   /// No description provided for @sharedActions_delete.
   ///

@@ -110,6 +110,35 @@ void main() {
     expect(_avatarPaths(tester), contains(picture.path));
   });
 
+  testWidgets('the picture opens its viewer, which can delete it', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final picture = writePicture('viewer.png');
+    await prefs.setString(profilePicturePathKey, picture.path);
+
+    await tester.pumpWidget(app(const ProfileScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('profile-picture-open')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.profilePicture_title), findsOneWidget);
+    expect(find.byTooltip(l.sharedActions_delete), findsOneWidget);
+    expect(find.byTooltip(l.sharedActions_edit), findsOneWidget);
+
+    await tester.tap(find.byTooltip(l.sharedActions_delete));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pumpAndSettle();
+
+    // The viewer closes on delete; the file and the avatar are gone.
+    expect(find.text(l.profilePicture_title), findsNothing);
+    expect(picture.existsSync(), isFalse);
+    expect(_avatarPaths(tester), isEmpty);
+  });
+
   testWidgets('Manage Account shows the same picture as the Profile screen', (
     tester,
   ) async {

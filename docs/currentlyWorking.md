@@ -1,5 +1,17 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Pictures open a viewer and a simpler selection page — COMPLETE (0.0.658)
+
+- **What was asked.** The frame selection was too complicated, and the overlaying edit/delete buttons add clutter. Tapping the profile picture or firm logo should open a full-screen viewer with a sub-page header (back, Delete, Edit), Edit should offer Gallery and a Files button, and the selection page should show a fixed frame dragged over a whole image with Cancel / rotate / Save.
+- **What changed.**
+  - **Profile and Manage Firm:** the overlay picture buttons are gone; the 128 px avatar and the firm's 148 x 100 frame are themselves tappable (`profile-picture-open`, `firm-logo-open`). The firm-name pencil stays.
+  - **Viewer (`picture_viewer_screen.dart`):** a standard sub-page header titled **Profile Picture** / **Firm Logo**, a back arrow, a larger round **Delete** (hidden on a placeholder) and **Edit**, over the picture on black. Delete clears and returns to the Profile/Firm screen.
+  - **Edit (`image_source_sheet.dart`):** a chooser with **Gallery** and a **Files** action at the bottom right (the two installed pickers; the system gallery cannot host our own button). Both return bytes to the same crop pipeline.
+  - **Select Image (`image_crop_screen.dart`):** the whole image is shown, a fixed frame is dragged over it, the outside is dimmed, and white **Cancel** (bottom left), rotate-right (middle) and **Save** (bottom right) replace the pinch/Use page. The processor rotates the image clockwise before cropping, so the saved area is the rotated selection. The 50 KB/cloud rules are unchanged.
+- **Checks.** `flutter analyze` clean; the affected suites pass (crop page 5, processor 10, Manage Firm 42, Profile picture 7); full `flutter test` **2,132 passed**. New tests: frame drag, shape ratios, quarter-turn save and processor rotation, the viewer's open/Delete, and the firm card's viewer.
+- **Mockup.** The Profile mockup's avatar edit badge is removed; the picture is now the control (rule 9). The viewer and Select Image pages are new and have no mockup (Manage Firm has none either).
+- **Remaining.** No device check yet. The system gallery is opened through the Gallery row; the Files button opens the file manager, as chosen.
+
 ### 2026-10-26 — Profile pictures and firm logos get a crop step — COMPLETE (0.0.657)
 
 - **What was asked.** Let the user select the area of the picked image the app shows as the profile picture or the firm logo.

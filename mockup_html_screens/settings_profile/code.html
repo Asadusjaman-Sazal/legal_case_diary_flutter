@@ -143,15 +143,13 @@
 </header>
 
 <main class="max-w-lg mx-auto w-full px-edge-margin pt-sm pb-xl">
-  <!-- Avatar header: the picture plus the always-present edit badge. -->
+  <!-- Avatar header: the picture itself is the control (user request, 0.0.658).
+       Tapping it opens the full-screen Profile Picture viewer, whose sub-page
+       header carries the back arrow, Delete (only when a picture exists) and
+       the larger Edit action. No overlay badge sits on the picture. -->
   <div class="flex flex-col items-center mb-lg">
-    <div class="relative">
-      <div class="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-surface-container-highest flex items-center justify-center">
-        <span class="font-headline-md text-headline-md font-bold text-on-surface-variant">AS</span>
-      </div>
-      <div class="absolute bottom-1 right-1 bg-primary text-on-primary p-xs rounded-full border-2 border-white shadow-sm flex items-center justify-center">
-        <span class="material-symbols-outlined text-[18px]">edit</span>
-      </div>
+    <div class="w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-surface-container-highest flex items-center justify-center">
+      <span class="font-headline-md text-headline-md font-bold text-on-surface-variant">AS</span>
     </div>
     <span class="mt-md font-title-lg text-title-lg text-on-background">Asadusjaman</span>
   </div>

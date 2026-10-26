@@ -17,7 +17,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -33,6 +32,8 @@ import '../data/profile_avatar_sync.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
 import 'image_crop_screen.dart';
+import 'image_source_sheet.dart';
+import 'picture_viewer_screen.dart';
 
 /// Profile screen matching `settings_profile\code.html`.
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -62,27 +63,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  /// Picks an image, lets the user crop it in a circle, shrinks it to 50 KB,
-  /// and saves it locally first.
-  ///
-  /// A premium individual or chamber owner then gets the detached cloud copy;
-  /// for everyone else the local file is the whole picture. An image that
-  /// cannot be read keeps the previous picture and says so.
-  Future<void> _pickAvatar() async {
-    final l = AppLocalizations.of(context);
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 90,
-    );
-    if (picked == null || !mounted) return;
+  /// Picks an image through the source chooser, lets the user select its area
+  /// in a circle, shrinks it to 50 KB, and saves it locally first.
+  Future<void> _pickAvatar(BuildContext viewerContext) async {
+    final l = AppLocalizations.of(viewerContext);
+    final navigator = Navigator.of(viewerContext);
+    final bytes = await pickPictureBytes(viewerContext);
+    if (bytes == null || !mounted) return;
 
     try {
-      final bytes = await File(picked.path).readAsBytes();
       final source = await prepareCropSource(bytes);
       if (!mounted) return;
-      final selection = await Navigator.of(context).push<CropSelection>(
+      final selection = await navigator.push<CropSelection>(
         MaterialPageRoute(
           builder: (_) => ImageCropScreen(
             source: source,
@@ -98,6 +90,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         selection.rect,
         targetWidth: avatarMaxSide,
         targetHeight: avatarMaxSide,
+        rotationQuarterTurns: selection.rotationQuarterTurns,
       );
       await ref.read(profilePictureProvider.notifier).setBytes(processed);
       if (!mounted) return;
@@ -108,6 +101,53 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       recordFailure(ref.read(errorLogProvider), 'profile.avatar', error);
       if (mounted) _sayUnreadable(l);
     }
+  }
+
+  /// Opens the picture full-screen; its header owns Edit and Delete.
+  void _openPictureViewer(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final name = ref.read(profileFieldsProvider).fullName.trim();
+    final initials = name.isNotEmpty
+        ? name.split(RegExp(r'\s+')).map((part) => part[0]).take(2).join()
+        : '?';
+
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => PictureViewerScreen(
+          title: l.profilePicture_title,
+          hasImage: (ref) => ref.watch(profilePictureProvider) != null,
+          editTooltip: l.sharedActions_edit,
+          onEdit: _pickAvatar,
+          onDelete: _clearAvatar,
+          body: Consumer(
+            builder: (context, ref, _) {
+              final file = ref.watch(profilePictureProvider);
+              if (file != null) {
+                return Image.file(file, fit: BoxFit.contain);
+              }
+              return Center(
+                child: Container(
+                  width: 220,
+                  height: 220,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.surfaceContainerHighest,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    initials.toUpperCase(),
+                    style: AppTypography.headlineMd.copyWith(
+                      fontSize: 84,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   /// One sentence for an image that cannot be used, however it failed.
@@ -217,8 +257,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               _ProfileHeader(
                 fullName: displayName,
                 avatarFile: avatarFile,
-                onEditAvatar: _pickAvatar,
-                onDeleteAvatar: avatarFile != null ? _clearAvatar : null,
+                onOpenPicture: () => _openPictureViewer(context),
               ),
               SizedBox(height: AppSpacing.lg),
               // Read-only data card.
@@ -285,17 +324,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 }
 
 /// Circular avatar with name heading, mirroring the mockup's picture section.
+///
+/// The picture and its placeholder are the one tappable control: the overlay
+/// edit/delete buttons are gone, and a tap opens the full-screen viewer whose
+/// header carries those actions (user request).
 class _ProfileHeader extends StatelessWidget {
   final String fullName;
   final File? avatarFile;
-  final VoidCallback onEditAvatar;
-  final VoidCallback? onDeleteAvatar;
+  final VoidCallback onOpenPicture;
 
   const _ProfileHeader({
     required this.fullName,
     required this.avatarFile,
-    required this.onEditAvatar,
-    required this.onDeleteAvatar,
+    required this.onOpenPicture,
   });
 
   @override
@@ -306,79 +347,42 @@ class _ProfileHeader extends StatelessWidget {
     final hasAvatar = avatarFile != null;
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            Container(
-              width: 128,
-              height: 128,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.surface, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-                color: AppColors.surfaceContainerHighest,
-                image: hasAvatar
-                    ? DecorationImage(
-                        image: FileImage(avatarFile!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: hasAvatar
-                  ? null
-                  : Center(
-                      child: Text(
-                        initials.toUpperCase(),
-                        style: AppTypography.headlineMd.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
+        GestureDetector(
+          key: const ValueKey('profile-picture-open'),
+          onTap: onOpenPicture,
+          child: Container(
+            width: 128,
+            height: 128,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.surface, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+              color: AppColors.surfaceContainerHighest,
+              image: hasAvatar
+                  ? DecorationImage(
+                      image: FileImage(avatarFile!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: hasAvatar
+                ? null
+                : Center(
+                    child: Text(
+                      initials.toUpperCase(),
+                      style: AppTypography.headlineMd.copyWith(
+                        color: AppColors.onSurfaceVariant,
                       ),
                     ),
-            ),
-            // Edit button (always present).
-            GestureDetector(
-              onTap: onEditAvatar,
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.xs),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary,
-                  border: Border.all(color: AppColors.surface, width: 2),
-                ),
-                child: const Icon(
-                  Icons.edit,
-                  color: AppColors.onPrimary,
-                  size: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: AppSpacing.sm),
-        // Red delete button appears once a picture is selected, just left of
-        // the name area (mirrors the round edit button position).
-        if (hasAvatar && onDeleteAvatar != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-            child: GestureDetector(
-              onTap: onDeleteAvatar,
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.xs),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.error,
-                  border: Border.all(color: AppColors.surface, width: 2),
-                ),
-                child: const Icon(Icons.delete, color: Colors.white, size: 18),
-              ),
-            ),
+                  ),
           ),
+        ),
         SizedBox(height: AppSpacing.md),
         Text(
           // The name exactly as the lawyer saved it; no honorific is added

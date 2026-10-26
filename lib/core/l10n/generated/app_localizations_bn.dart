@@ -4976,13 +4976,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_roleLabel => 'ভূমিকা';
 
   @override
-  String get manageAssociates_permissionAdd => 'মামলা যোগ';
+  String get manageAssociates_permissionAdd => 'মামলা, নোট ইত্যাদি যোগ';
 
   @override
-  String get manageAssociates_permissionEdit => 'মামলা সম্পাদনা';
+  String get manageAssociates_permissionEdit => 'মামলা, নোট ইত্যাদি সম্পাদনা';
 
   @override
-  String get manageAssociates_permissionDelete => 'মামলা মুছে ফেলা';
+  String get manageAssociates_permissionDelete =>
+      'মামলা, নোট ইত্যাদি মুছে ফেলা';
 
   @override
   String get manageAssociates_savePermissions => 'অনুমতি সংরক্ষণ করুন';

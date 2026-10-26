@@ -8485,19 +8485,19 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_permissionAdd.
   ///
   /// In en, this message translates to:
-  /// **'Add Cases'**
+  /// **'Add Cases, Notes etc'**
   String get manageAssociates_permissionAdd;
 
   /// No description provided for @manageAssociates_permissionEdit.
   ///
   /// In en, this message translates to:
-  /// **'Edit Cases'**
+  /// **'Edit Cases, Notes etc'**
   String get manageAssociates_permissionEdit;
 
   /// No description provided for @manageAssociates_permissionDelete.
   ///
   /// In en, this message translates to:
-  /// **'Delete Cases'**
+  /// **'Delete Cases, Notes etc'**
   String get manageAssociates_permissionDelete;
 
   /// No description provided for @manageAssociates_savePermissions.
@@ -8515,7 +8515,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_removeAssociate.
   ///
   /// In en, this message translates to:
-  /// **'Remove From Firm'**
+  /// **'Remove from Firm'**
   String get manageAssociates_removeAssociate;
 
   /// No description provided for @manageAssociates_removeAssociateTitle.

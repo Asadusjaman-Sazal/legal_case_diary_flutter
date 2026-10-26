@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.676 - The Review Note box's cross now clears the note as well as closing the keyboard, and its accessible name reads Clear texts.
+Version: 0.0.677 - The permission sheet puts its Permissions heading under Role, names each flag's record kinds (Cases, Notes etc) and paints Remove from Firm red with white ink.
 --------------------------------------
 
 ## Version History Log:
@@ -690,3 +690,4 @@ Version: 0.0.673 - Delete requests name a case by type and number; the review sc
 Version: 0.0.674 - The review note's box closes the keyboard from its own cross; answered why Requested by reads A Firm Member (a colleague's name is never on the device).
 Version: 0.0.675 - Delete requests now carry the requester's name: a server-derived requester_name column, the name written on create and shown on the review, so the owner always sees which member asked.
 Version: 0.0.676 - The Review Note box's cross now clears the note as well as closing the keyboard, and its accessible name reads Clear texts.
+Version: 0.0.677 - The permission sheet puts its Permissions heading under Role, names each flag's record kinds (Cases, Notes etc) and paints Remove from Firm red with white ink.

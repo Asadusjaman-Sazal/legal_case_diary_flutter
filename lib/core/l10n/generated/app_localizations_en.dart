@@ -4956,13 +4956,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_roleLabel => 'Role';
 
   @override
-  String get manageAssociates_permissionAdd => 'Add Cases';
+  String get manageAssociates_permissionAdd => 'Add Cases, Notes etc';
 
   @override
-  String get manageAssociates_permissionEdit => 'Edit Cases';
+  String get manageAssociates_permissionEdit => 'Edit Cases, Notes etc';
 
   @override
-  String get manageAssociates_permissionDelete => 'Delete Cases';
+  String get manageAssociates_permissionDelete => 'Delete Cases, Notes etc';
 
   @override
   String get manageAssociates_savePermissions => 'Save Permissions';
@@ -4971,7 +4971,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_permissionsUpdated => 'Permissions Updated.';
 
   @override
-  String get manageAssociates_removeAssociate => 'Remove From Firm';
+  String get manageAssociates_removeAssociate => 'Remove from Firm';
 
   @override
   String get manageAssociates_removeAssociateTitle => 'Remove This Associate?';

@@ -579,6 +579,7 @@ void main() {
         entitySnapshot: <String, dynamic>{'id': 'case-123'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
 
       final request = await deleteRequestsRepo.getById(id);
@@ -588,6 +589,10 @@ void main() {
       // a refused insert rather than "no firm" (Task 20 Phase 3).
       expect(request.firmId, 'firm-1');
       expect(request.requestedBy, isNotEmpty);
+      // Who asked travels on the request itself, so a reviewer can read it
+      // offline: the server derives this column, and the requester's own value
+      // only stands until that first sync.
+      expect(request.requesterName, 'Rekha');
       expect(request.entitySnapshot, '{"id":"case-123"}');
     });
 
@@ -600,6 +605,7 @@ void main() {
           entitySnapshot: <String, dynamic>{'id': 'note-1', 'title': 'Old'},
           targetBaseVersion: 3,
           firmId: 'firm-1',
+          requesterName: 'Rekha',
         );
 
         await deleteRequestsRepo.refreshSnapshot(
@@ -634,6 +640,7 @@ void main() {
         entitySnapshot: <String, dynamic>{'id': 'note-1'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
 
       await deleteRequestsRepo.cancel(id);
@@ -654,6 +661,7 @@ void main() {
           entitySnapshot: <String, dynamic>{'id': 'note-1'},
           targetBaseVersion: 1,
           firmId: 'firm-1',
+          requesterName: 'Rekha',
         );
         // The server has seen it: the row is now a fact that must be withdrawn
         // rather than an unsent intention.
@@ -683,6 +691,7 @@ void main() {
         entitySnapshot: <String, dynamic>{'id': 'note-mine'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
       await DeleteRequestsDao(db).insert(
         DeleteRequestsCompanion(
@@ -714,6 +723,7 @@ void main() {
         entitySnapshot: <String, dynamic>{'id': 'note-1'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
       // The server has seen the request, so the decision is an update against
       // the version it holds rather than a rewrite of an unsent intention.
@@ -749,6 +759,7 @@ void main() {
         entitySnapshot: <String, dynamic>{'id': 'note-1'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
 
       await deleteRequestsRepo.approve(id);

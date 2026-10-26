@@ -142,6 +142,7 @@ void main() {
     String entityId = 'note-1',
     String title = 'My Note',
     String requestedBy = 'user-2',
+    String? requesterName,
     String status = 'pending',
     int updatedAt = 2000,
     int version = 4,
@@ -159,6 +160,7 @@ void main() {
         ),
         targetBaseVersion: const Value(2),
         requestedBy: Value(requestedBy),
+        requesterName: Value(requesterName),
         status: Value(status),
         reviewedBy: Value(reviewedBy),
         createdAt: const Value(1000),
@@ -441,9 +443,13 @@ void main() {
     };
 
     /// A case request, raised by the colleague whose name the screen prints.
-    Future<void> seedCaseRequest() async {
-      // The requester's own cached profile: the name on the screen comes from
-      // it, never from the network.
+    ///
+    /// [requesterName] is the name the request itself carries; the profile row
+    /// below is the **fallback** the screen used before the column existed, so
+    /// leaving the argument null is how the fallback stays pinned.
+    Future<void> seedCaseRequest({String? requesterName}) async {
+      // The requester's cached profile, when the device happens to hold one:
+      // read locally, never fetched.
       await ProfilesDao(db).upsert(
         ProfilesCompanion(
           id: const Value('user-2'),
@@ -459,6 +465,7 @@ void main() {
         entityType: 'case',
         entityId: 'case-1',
         requestedBy: 'user-2',
+        requesterName: requesterName,
         snapshot: caseSnapshot,
       );
     }
@@ -509,6 +516,41 @@ void main() {
 
       await unmountApp(tester);
     });
+
+    testWidgets(
+      'the name on the request reads right with no profile cached here',
+      (tester) async {
+        final overrides = await openScope();
+        db = harness.db;
+        await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+        // Deliberately **no** profile row for the requester: this is a reviewer
+        // whose device has never held the colleague's profile, which is exactly
+        // the case the old lookup turned into a neutral label.
+        await seedCaseRequest(requesterName: 'Jannatul Ferdousi Rekha');
+
+        await pumpAuthScreen(
+          tester,
+          const DeleteRequestReviewScreen(requestId: 'r1'),
+          overrides: overrides,
+        );
+        await tester.pumpAndSettle();
+
+        final l = await AppLocalizations.delegate.load(const Locale('en'));
+        expect(
+          find.text(l.deleteRequests_requestedBy('Jannatul Ferdousi Rekha')),
+          findsOneWidget,
+        );
+        expect(
+          find.text(
+            l.deleteRequests_requestedBy(l.deleteRequests_unknownRequester),
+          ),
+          findsNothing,
+          reason: 'the request carries who asked, so nothing is guessed',
+        );
+
+        await unmountApp(tester);
+      },
+    );
 
     testWidgets("the Reject button matches Approve's size, in white ink", (
       tester,

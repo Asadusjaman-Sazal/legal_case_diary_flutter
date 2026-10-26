@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -76,7 +76,8 @@ class AppDatabase extends _$AppDatabase {
   /// the stored subscription tier (`tier`, `tier_pending`, `tier_pending_from`)
   /// to the cached `profiles` and `firms` rows, then v12→v13 by adding the
   /// chamber logo's server-stamped path and version to the cached `firms` row,
-  /// then v13→v14 by adding the profile picture's same two fields to `profiles`.
+  /// then v13→v14 by adding the profile picture's same two fields to `profiles`,
+  /// then v14→v15 by adding the requester's display name to `delete_requests`.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -163,6 +164,13 @@ class AppDatabase extends _$AppDatabase {
         // fills the real values.
         await m.addColumn(profiles, profiles.avatarPath);
         await m.addColumn(profiles, profiles.avatarVersion);
+      }
+      if (from < 15) {
+        // The requester's name on a delete request. Additive and nullable: an
+        // older request keeps a null here and the review screen falls back to
+        // the profile lookup it used before, and the next pull of that row
+        // brings the name the server derived.
+        await m.addColumn(deleteRequests, deleteRequests.requesterName);
       }
     },
     beforeOpen: (details) async {

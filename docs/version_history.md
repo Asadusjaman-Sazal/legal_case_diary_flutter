@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.674 - The review note's box closes the keyboard from its own cross; answered why Requested by reads A Firm Member (a colleague's name is never on the device).
+Version: 0.0.675 - Delete requests now carry the requester's name: a server-derived requester_name column, the name written on create and shown on the review, so the owner always sees which member asked.
 --------------------------------------
 
 ## Version History Log:
@@ -688,3 +688,4 @@ Version: 0.0.671 - The Update window's title band now wears the app's black (App
 Version: 0.0.672 - The side menu gains Manage Firm (after Notes, or after the Admin Panel for admins) with the delete-request count, opening the firm page when requests wait.
 Version: 0.0.673 - Delete requests name a case by type and number; the review screen drops its top card, groups the record with who asked and when, and sizes Reject like Approve.
 Version: 0.0.674 - The review note's box closes the keyboard from its own cross; answered why Requested by reads A Firm Member (a colleague's name is never on the device).
+Version: 0.0.675 - Delete requests now carry the requester's name: a server-derived requester_name column, the name written on create and shown on the review, so the owner always sees which member asked.

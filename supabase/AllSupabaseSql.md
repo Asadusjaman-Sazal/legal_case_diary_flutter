@@ -113,6 +113,7 @@ checks that roll back) and the read-only counts
 | 0.0.635 | 2026-10-26 | `20261026100000_payment_downgrade_after_grace.sql` | A queued downgrade now starts 48 hours after the paid period it replaces ends, so the old plan's capacity covers the whole grace. approve_payment gains the grace-aware start, applies a lower tier bought inside the grace as a pending pair, applies a higher tier after a started pending immediately, and refuses Starter/Pro for a chamber owner (tier_seat_cap is defined here and reused by the capacity migration). Existing queued downgrades are backfilled by 48h through profiles only, because the mirror trigger copies the value to firms. |
 | 0.0.635 | 2026-10-26 | `20261026110000_firm_shared_capacity.sql` | Chamber capacity is shared: associates plus the owner's own devices must fit the tier's slots (Firm 5, Firm Plus 10, Enterprise 20, owner included). Adds joined_at and capacity_signed_out_at to firm_members, closes its direct INSERT/UPDATE/DELETE bypass, adds the capacity helpers, makes device_cap dynamic for an owner and 0 for a signed-out associate, rebuilds join_firm/register_device/remove_firm_member under one firm lock order, adds owner sign-out/admit RPCs, and rebalances a chamber only after a started lower-tier shrink (owner devices first, then the newest associates), every 15 minutes by pg_cron. |
 | 0.0.645 | 2026-10-26 | `20261026130000_owner_designate_device_slots.sql` | A chamber-tier account with no chamber — a Firm, Firm Plus or Enterprise owner-designate — now keeps the tier's full seat cap for its own devices (5 / 10 / 20) instead of falling to the one-per-member cap. A chamber owner still reads the slots left after associates; a seated associate 1; a capacity-signed-out associate 0; a non-chamber tier its own cap. |
+| 0.0.675 | 2026-10-26 | `20261026140000_delete_requests_requester_name.sql` | A delete request now carries the requester's name inside the row, so a reviewer reads who asked offline and from the first review instead of falling back to a neutral label when that colleague's profile is not in the reviewer's pull-only cache. The value is server-derived: a trigger fills requester_name from the profile of the row's own requested_by on both write paths, keeps the client's value only while that profile still holds no name, and the column is granted exactly like the rest of the row. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -19324,6 +19325,105 @@ $$;
 
 comment on function public.device_cap(uuid) is
   'The caller''s concurrent-device allowance: a chamber owner gets the slots left after associates (at least 1); a chamber-tier account with no chamber keeps the tier''s full seat cap (Firm 5, Firm Plus 10, Enterprise 20); a seated associate 1; a capacity-signed-out associate 0; a non-chamber tier its own cap.';
+```
+
+## App Version 0.0.675 — Delete Requests — The Requester's Name Travels With The Request
+
+### 0.0.675 · `20261026140000_delete_requests_requester_name.sql`
+
+> **Created 2026-10-26.** A delete request now carries the requester's name inside the row, so a reviewer reads who asked offline and from the first review instead of falling back to a neutral label when that colleague's profile is not in the reviewer's pull-only cache. The value is server-derived: a trigger fills requester_name from the profile of the row's own requested_by on both write paths, keeps the client's value only while that profile still holds no name, and the column is granted exactly like the rest of the row.
+
+```sql
+-- ---------------------------------------------------------------------------
+-- The requester's name travels inside the request itself
+-- ---------------------------------------------------------------------------
+--
+-- A delete request exists to protect a chamber's owner from a member deleting
+-- the chamber's data, and a request nobody can put a face to does not protect
+-- anyone. Until now the reviewer's screen had to look the name up out of the
+-- `profiles` cache on their own device, which is a pull-only cache and holds the
+-- reader's own row — so the line read *A Firm Member* exactly when it mattered
+-- most.
+--
+-- The name therefore becomes part of the request row: one nullable column,
+-- written once by the requester and carried to every reviewer's device by the
+-- ordinary pull, so it is readable offline from the first review.
+--
+-- It is **server-derived, not client-trusted**: the trigger below fills it from
+-- `public.profiles` for the row's own `requested_by`, whatever the client sent,
+-- because a request that names somebody is an attribution inside an audit trail
+-- and the app must not be the authority on a colleague's name. A client value is
+-- kept only when the profile still holds no name (a brand-new account), which is
+-- strictly better than a blank.
+--
+-- Firm-shared and display-only, so it rides the ordinary push/pull row: nothing
+-- in `sync_can_write` or the `delete_requests` policies changes.
+
+alter table public.delete_requests
+  add column if not exists requester_name text;
+
+comment on column public.delete_requests.requester_name is
+  'Display name of requested_by as the server recorded it when the request was '
+  'written; server-derived from profiles by trigger, snapshot of the name at '
+  'write time.';
+
+-- Backfill the requests already in the queue: the profile is the only source for
+-- a row that predates the column, and a request whose requester has since been
+-- hard-deleted keeps the blank it has rather than a made-up name.
+update public.delete_requests r
+   set requester_name = nullif(btrim(p.full_name), '')
+  from public.profiles p
+ where p.id = r.requested_by
+   and coalesce(r.requester_name, '') = ''
+   and nullif(btrim(p.full_name), '') is not null;
+
+-- The value is the server's to decide, on both write paths: `push_changes` writes
+-- the row directly and a SECURITY DEFINER function would otherwise be the only
+-- writer of a column that is also granted to clients.
+create or replace function public.delete_requests_set_requester_name()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_name text;
+begin
+  select nullif(btrim(p.full_name), '')
+    into v_name
+    from public.profiles p
+   where p.id = new.requested_by;
+
+  -- Definer rights, so this reads the profile regardless of the caller's own
+  -- read scope. A missing or still-empty profile leaves whatever arrived in
+  -- place, which is the requester's own best guess and never an invention.
+  if v_name is not null then
+    new.requester_name := v_name;
+  end if;
+
+  return new;
+end;
+$$;
+
+-- Trigger functions can only run as triggers, and the EXECUTE is closed anyway so
+-- no signed-in account can reach it through PostgREST's RPC surface.
+revoke all on function public.delete_requests_set_requester_name()
+  from public, anon, authenticated;
+
+drop trigger if exists delete_requests_set_requester_name
+  on public.delete_requests;
+
+create trigger delete_requests_set_requester_name
+  before insert or update on public.delete_requests
+  for each row
+  execute function public.delete_requests_set_requester_name();
+
+-- Column-level parity with the rest of the row: `20261015100000` revoked the
+-- table-level write grants and granted back the columns that existed then, so a
+-- column added afterwards is writable by name only if it says so here.
+grant insert (requester_name), update (requester_name)
+  on public.delete_requests
+  to authenticated;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

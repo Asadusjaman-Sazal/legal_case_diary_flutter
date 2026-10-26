@@ -57,12 +57,19 @@ abstract class DeleteRequestsRepository {
   /// [firmId] is the account's own firm, read by the caller from the cached
   /// profile: team deletion is a firm-scoped decision, and a request with no firm
   /// is one the server would refuse.
+  ///
+  /// [requesterName] is the requester's own display name — the one profile row
+  /// every device holds is its own, so this is known offline. The server derives
+  /// the column from `profiles` and overwrites this on the way up, so it is a
+  /// best-effort value that makes the request readable before the first sync
+  /// rather than the authority on anybody's name.
   Future<String> createRequest({
     required String entityType,
     required String entityId,
     required Map<String, dynamic> entitySnapshot,
     required int targetBaseVersion,
     required String firmId,
+    required String requesterName,
   });
 
   /// Re-takes the snapshot and the observed version of a pending request.
@@ -133,6 +140,7 @@ class LocalDeleteRequestsRepository
     required Map<String, dynamic> entitySnapshot,
     required int targetBaseVersion,
     required String firmId,
+    required String requesterName,
   }) async {
     final now = BaseLocalRepository.nowMillis;
     final id = const Uuid().v4();
@@ -146,6 +154,7 @@ class LocalDeleteRequestsRepository
       entitySnapshot: Value(jsonEncode(entitySnapshot)),
       targetBaseVersion: Value(targetBaseVersion),
       requestedBy: Value(userId),
+      requesterName: Value(requesterName.trim()),
       status: const Value('pending'),
       reviewNote: const Value.absent(),
       reviewedBy: const Value.absent(),

@@ -9587,6 +9587,17 @@ class $DeleteRequestsTable extends DeleteRequests
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _requesterNameMeta = const VerificationMeta(
+    'requesterName',
+  );
+  @override
+  late final GeneratedColumn<String> requesterName = GeneratedColumn<String>(
+    'requester_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -9697,6 +9708,7 @@ class $DeleteRequestsTable extends DeleteRequests
     entitySnapshot,
     targetBaseVersion,
     requestedBy,
+    requesterName,
     status,
     reviewedBy,
     reviewNote,
@@ -9778,6 +9790,15 @@ class $DeleteRequestsTable extends DeleteRequests
       );
     } else if (isInserting) {
       context.missing(_requestedByMeta);
+    }
+    if (data.containsKey('requester_name')) {
+      context.handle(
+        _requesterNameMeta,
+        requesterName.isAcceptableOrUnknown(
+          data['requester_name']!,
+          _requesterNameMeta,
+        ),
+      );
     }
     if (data.containsKey('status')) {
       context.handle(
@@ -9879,6 +9900,10 @@ class $DeleteRequestsTable extends DeleteRequests
         DriftSqlType.string,
         data['${effectivePrefix}requested_by'],
       )!,
+      requesterName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}requester_name'],
+      ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}status'],
@@ -9946,6 +9971,15 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
   /// The associate who requested deletion.
   final String requestedBy;
 
+  /// The requester's display name, carried inside the request itself.
+  ///
+  /// A reviewer has to be able to see who asked while offline, and the
+  /// `profiles` cache on their device holds the reader's own row rather than a
+  /// colleague's — which is why the name travels on the request. Server-derived
+  /// (see `20261026140000_delete_requests_requester_name.sql`), nullable because
+  /// a request whose requester had no name yet still has to save.
+  final String? requesterName;
+
   /// `pending`, `approved`, `rejected`, or `stale_review_required`.
   final String status;
 
@@ -9970,6 +10004,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
     required this.entitySnapshot,
     required this.targetBaseVersion,
     required this.requestedBy,
+    this.requesterName,
     required this.status,
     this.reviewedBy,
     this.reviewNote,
@@ -9992,6 +10027,9 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
     map['entity_snapshot'] = Variable<String>(entitySnapshot);
     map['target_base_version'] = Variable<int>(targetBaseVersion);
     map['requested_by'] = Variable<String>(requestedBy);
+    if (!nullToAbsent || requesterName != null) {
+      map['requester_name'] = Variable<String>(requesterName);
+    }
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || reviewedBy != null) {
       map['reviewed_by'] = Variable<String>(reviewedBy);
@@ -10025,6 +10063,9 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
       entitySnapshot: Value(entitySnapshot),
       targetBaseVersion: Value(targetBaseVersion),
       requestedBy: Value(requestedBy),
+      requesterName: requesterName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(requesterName),
       status: Value(status),
       reviewedBy: reviewedBy == null && nullToAbsent
           ? const Value.absent()
@@ -10060,6 +10101,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
       entitySnapshot: serializer.fromJson<String>(json['entitySnapshot']),
       targetBaseVersion: serializer.fromJson<int>(json['targetBaseVersion']),
       requestedBy: serializer.fromJson<String>(json['requestedBy']),
+      requesterName: serializer.fromJson<String?>(json['requesterName']),
       status: serializer.fromJson<String>(json['status']),
       reviewedBy: serializer.fromJson<String?>(json['reviewedBy']),
       reviewNote: serializer.fromJson<String?>(json['reviewNote']),
@@ -10082,6 +10124,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
       'entitySnapshot': serializer.toJson<String>(entitySnapshot),
       'targetBaseVersion': serializer.toJson<int>(targetBaseVersion),
       'requestedBy': serializer.toJson<String>(requestedBy),
+      'requesterName': serializer.toJson<String?>(requesterName),
       'status': serializer.toJson<String>(status),
       'reviewedBy': serializer.toJson<String?>(reviewedBy),
       'reviewNote': serializer.toJson<String?>(reviewNote),
@@ -10102,6 +10145,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
     String? entitySnapshot,
     int? targetBaseVersion,
     String? requestedBy,
+    Value<String?> requesterName = const Value.absent(),
     String? status,
     Value<String?> reviewedBy = const Value.absent(),
     Value<String?> reviewNote = const Value.absent(),
@@ -10119,6 +10163,9 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
     entitySnapshot: entitySnapshot ?? this.entitySnapshot,
     targetBaseVersion: targetBaseVersion ?? this.targetBaseVersion,
     requestedBy: requestedBy ?? this.requestedBy,
+    requesterName: requesterName.present
+        ? requesterName.value
+        : this.requesterName,
     status: status ?? this.status,
     reviewedBy: reviewedBy.present ? reviewedBy.value : this.reviewedBy,
     reviewNote: reviewNote.present ? reviewNote.value : this.reviewNote,
@@ -10148,6 +10195,9 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
       requestedBy: data.requestedBy.present
           ? data.requestedBy.value
           : this.requestedBy,
+      requesterName: data.requesterName.present
+          ? data.requesterName.value
+          : this.requesterName,
       status: data.status.present ? data.status.value : this.status,
       reviewedBy: data.reviewedBy.present
           ? data.reviewedBy.value
@@ -10176,6 +10226,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
           ..write('entitySnapshot: $entitySnapshot, ')
           ..write('targetBaseVersion: $targetBaseVersion, ')
           ..write('requestedBy: $requestedBy, ')
+          ..write('requesterName: $requesterName, ')
           ..write('status: $status, ')
           ..write('reviewedBy: $reviewedBy, ')
           ..write('reviewNote: $reviewNote, ')
@@ -10198,6 +10249,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
     entitySnapshot,
     targetBaseVersion,
     requestedBy,
+    requesterName,
     status,
     reviewedBy,
     reviewNote,
@@ -10219,6 +10271,7 @@ class DeleteRequest extends DataClass implements Insertable<DeleteRequest> {
           other.entitySnapshot == this.entitySnapshot &&
           other.targetBaseVersion == this.targetBaseVersion &&
           other.requestedBy == this.requestedBy &&
+          other.requesterName == this.requesterName &&
           other.status == this.status &&
           other.reviewedBy == this.reviewedBy &&
           other.reviewNote == this.reviewNote &&
@@ -10238,6 +10291,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
   final Value<String> entitySnapshot;
   final Value<int> targetBaseVersion;
   final Value<String> requestedBy;
+  final Value<String?> requesterName;
   final Value<String> status;
   final Value<String?> reviewedBy;
   final Value<String?> reviewNote;
@@ -10256,6 +10310,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
     this.entitySnapshot = const Value.absent(),
     this.targetBaseVersion = const Value.absent(),
     this.requestedBy = const Value.absent(),
+    this.requesterName = const Value.absent(),
     this.status = const Value.absent(),
     this.reviewedBy = const Value.absent(),
     this.reviewNote = const Value.absent(),
@@ -10275,6 +10330,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
     required String entitySnapshot,
     required int targetBaseVersion,
     required String requestedBy,
+    this.requesterName = const Value.absent(),
     required String status,
     this.reviewedBy = const Value.absent(),
     this.reviewNote = const Value.absent(),
@@ -10302,6 +10358,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
     Expression<String>? entitySnapshot,
     Expression<int>? targetBaseVersion,
     Expression<String>? requestedBy,
+    Expression<String>? requesterName,
     Expression<String>? status,
     Expression<String>? reviewedBy,
     Expression<String>? reviewNote,
@@ -10321,6 +10378,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
       if (entitySnapshot != null) 'entity_snapshot': entitySnapshot,
       if (targetBaseVersion != null) 'target_base_version': targetBaseVersion,
       if (requestedBy != null) 'requested_by': requestedBy,
+      if (requesterName != null) 'requester_name': requesterName,
       if (status != null) 'status': status,
       if (reviewedBy != null) 'reviewed_by': reviewedBy,
       if (reviewNote != null) 'review_note': reviewNote,
@@ -10342,6 +10400,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
     Value<String>? entitySnapshot,
     Value<int>? targetBaseVersion,
     Value<String>? requestedBy,
+    Value<String?>? requesterName,
     Value<String>? status,
     Value<String?>? reviewedBy,
     Value<String?>? reviewNote,
@@ -10361,6 +10420,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
       entitySnapshot: entitySnapshot ?? this.entitySnapshot,
       targetBaseVersion: targetBaseVersion ?? this.targetBaseVersion,
       requestedBy: requestedBy ?? this.requestedBy,
+      requesterName: requesterName ?? this.requesterName,
       status: status ?? this.status,
       reviewedBy: reviewedBy ?? this.reviewedBy,
       reviewNote: reviewNote ?? this.reviewNote,
@@ -10397,6 +10457,9 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
     }
     if (requestedBy.present) {
       map['requested_by'] = Variable<String>(requestedBy.value);
+    }
+    if (requesterName.present) {
+      map['requester_name'] = Variable<String>(requesterName.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -10441,6 +10504,7 @@ class DeleteRequestsCompanion extends UpdateCompanion<DeleteRequest> {
           ..write('entitySnapshot: $entitySnapshot, ')
           ..write('targetBaseVersion: $targetBaseVersion, ')
           ..write('requestedBy: $requestedBy, ')
+          ..write('requesterName: $requesterName, ')
           ..write('status: $status, ')
           ..write('reviewedBy: $reviewedBy, ')
           ..write('reviewNote: $reviewNote, ')
@@ -22526,6 +22590,7 @@ typedef $$DeleteRequestsTableCreateCompanionBuilder =
       required String entitySnapshot,
       required int targetBaseVersion,
       required String requestedBy,
+      Value<String?> requesterName,
       required String status,
       Value<String?> reviewedBy,
       Value<String?> reviewNote,
@@ -22546,6 +22611,7 @@ typedef $$DeleteRequestsTableUpdateCompanionBuilder =
       Value<String> entitySnapshot,
       Value<int> targetBaseVersion,
       Value<String> requestedBy,
+      Value<String?> requesterName,
       Value<String> status,
       Value<String?> reviewedBy,
       Value<String?> reviewNote,
@@ -22599,6 +22665,11 @@ class $$DeleteRequestsTableFilterComposer
 
   ColumnFilters<String> get requestedBy => $composableBuilder(
     column: $table.requestedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get requesterName => $composableBuilder(
+    column: $table.requesterName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22692,6 +22763,11 @@ class $$DeleteRequestsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get requesterName => $composableBuilder(
+    column: $table.requesterName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
     builder: (column) => ColumnOrderings(column),
@@ -22776,6 +22852,11 @@ class $$DeleteRequestsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get requesterName => $composableBuilder(
+    column: $table.requesterName,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
@@ -22850,6 +22931,7 @@ class $$DeleteRequestsTableTableManager
                 Value<String> entitySnapshot = const Value.absent(),
                 Value<int> targetBaseVersion = const Value.absent(),
                 Value<String> requestedBy = const Value.absent(),
+                Value<String?> requesterName = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<String?> reviewedBy = const Value.absent(),
                 Value<String?> reviewNote = const Value.absent(),
@@ -22868,6 +22950,7 @@ class $$DeleteRequestsTableTableManager
                 entitySnapshot: entitySnapshot,
                 targetBaseVersion: targetBaseVersion,
                 requestedBy: requestedBy,
+                requesterName: requesterName,
                 status: status,
                 reviewedBy: reviewedBy,
                 reviewNote: reviewNote,
@@ -22888,6 +22971,7 @@ class $$DeleteRequestsTableTableManager
                 required String entitySnapshot,
                 required int targetBaseVersion,
                 required String requestedBy,
+                Value<String?> requesterName = const Value.absent(),
                 required String status,
                 Value<String?> reviewedBy = const Value.absent(),
                 Value<String?> reviewNote = const Value.absent(),
@@ -22906,6 +22990,7 @@ class $$DeleteRequestsTableTableManager
                 entitySnapshot: entitySnapshot,
                 targetBaseVersion: targetBaseVersion,
                 requestedBy: requestedBy,
+                requesterName: requesterName,
                 status: status,
                 reviewedBy: reviewedBy,
                 reviewNote: reviewNote,

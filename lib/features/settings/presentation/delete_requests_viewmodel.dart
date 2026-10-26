@@ -78,6 +78,7 @@ class DeleteRequestsViewModel
     required Map<String, dynamic> entitySnapshot,
     required int targetBaseVersion,
     required String firmId,
+    required String requesterName,
   }) async {
     await withRepo(
       (repo) async => await repo.createRequest(
@@ -86,6 +87,7 @@ class DeleteRequestsViewModel
         entitySnapshot: entitySnapshot,
         targetBaseVersion: targetBaseVersion,
         firmId: firmId,
+        requesterName: requesterName,
       ),
     );
   }
@@ -284,11 +286,15 @@ final deleteRequestsUnseenProvider = Provider<List<DeleteRequest>>((ref) {
 
 /// The requester's display name, as far as this device already knows it.
 ///
-/// A reviewer reads the requester's name off the locally cached profile when the
-/// pull happens to hold one and falls back to a neutral label when it does not —
-/// deliberately, because the alternative is an online roster fetch, and a review
-/// has to be stageable offline. The request still names the requester by id in
-/// every case; only the display is best-effort.
+/// A reviewer's **fallback** name for the requester (the 0.0.xxx user request
+/// that put the real name on the request row itself).
+///
+/// Prefer `DeleteRequest.requesterName` — the request carries the name, which is
+/// what makes the review read correctly offline and on the first review. This
+/// lookup remains for a request written before that column existed: it reads the
+/// locally cached profile when the pull happens to hold one and answers null when
+/// it does not, which is what the screen turns into its neutral label. The
+/// request still names the requester by id in every case.
 final deleteRequestRequesterNameProvider =
     FutureProvider.family<String?, String>((ref, userId) async {
       final db = await ref.watch(databaseProvider.future);

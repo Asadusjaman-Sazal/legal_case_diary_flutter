@@ -960,6 +960,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'seated associate 1; a capacity-signed-out associate 0; a non-chamber '
         'tier its own cap.',
   ),
+  LedgerSection(
+    file: '20261026140000_delete_requests_requester_name.sql',
+    version: '0.0.675',
+    label:
+        'A delete request now carries the requester\'s name inside the row, so '
+        'a reviewer reads who asked offline and from the first review instead '
+        'of falling back to a neutral label when that colleague\'s profile is '
+        'not in the reviewer\'s pull-only cache. The value is server-derived: a '
+        'trigger fills requester_name from the profile of the row\'s own '
+        'requested_by on both write paths, keeps the client\'s value only while '
+        'that profile still holds no name, and the column is granted exactly '
+        'like the rest of the row.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1066,6 +1079,8 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
   '0.0.552': 'Task 22 — The 2026-10-20 Price Ladder',
   '0.0.553': 'Task 22 — Enterprise Limits And Ten Firm Plus Seats',
+  '0.0.675':
+      'Delete Requests — The Requester\'s Name Travels With The Request',
 };
 
 const String _header = '''<!--

@@ -28,6 +28,15 @@ class DeleteRequests extends Table {
   /// The associate who requested deletion.
   TextColumn get requestedBy => text()();
 
+  /// The requester's display name, carried inside the request itself.
+  ///
+  /// A reviewer has to be able to see who asked while offline, and the
+  /// `profiles` cache on their device holds the reader's own row rather than a
+  /// colleague's — which is why the name travels on the request. Server-derived
+  /// (see `20261026140000_delete_requests_requester_name.sql`), nullable because
+  /// a request whose requester had no name yet still has to save.
+  TextColumn get requesterName => text().nullable()();
+
   /// `pending`, `approved`, `rejected`, or `stale_review_required`.
   TextColumn get status => text()();
 

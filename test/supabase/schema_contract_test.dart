@@ -433,6 +433,37 @@ void main() {
       },
     );
 
+    test('a delete request carries the requester name, server-derived', () {
+      // A reviewer has to be able to read who asked while offline, and the
+      // `profiles` cache on their device holds their own row rather than a
+      // colleague's, so the name travels on the request itself.
+      expect(
+        sql,
+        contains('add column if not exists requester_name text'),
+      );
+      // The server decides that value: the trigger overwrites whatever the
+      // client sent with the profile's name for the row's own `requested_by`,
+      // and it does so on both paths because both are just inserts and updates.
+      expect(
+        sql,
+        contains('create trigger delete_requests_set_requester_name'),
+      );
+      expect(
+        sql,
+        contains('where p.id = new.requested_by'),
+        reason: 'the name comes from the profile of the requester, not the row',
+      );
+      // And because `20261015100000` granted the row column by column, a column
+      // added afterwards says for itself that a client may write it.
+      expect(
+        sql,
+        contains(
+          'grant insert (requester_name), update (requester_name)\n'
+          '  on public.delete_requests',
+        ),
+      );
+    });
+
     test(
       'the six reference tables share one matrix, built-ins readable by all',
       () {

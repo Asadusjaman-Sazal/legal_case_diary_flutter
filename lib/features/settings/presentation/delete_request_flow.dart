@@ -105,7 +105,8 @@ Future<DeleteOutcome> deleteThroughFirmRules(
   // (both the RLS insert policy and `sync_can_write` compare it against
   // `current_firm_id()`), so it is checked rather than assumed: if it were ever
   // null, nothing happens, which is the safe direction.
-  final firmId = ref.read(accountProfileProvider).value?.firmId;
+  final profile = ref.read(accountProfileProvider).value;
+  final firmId = profile?.firmId;
   if (firmId == null) return DeleteOutcome.failed;
 
   try {
@@ -116,6 +117,10 @@ Future<DeleteOutcome> deleteThroughFirmRules(
       entitySnapshot: entitySnapshot,
       targetBaseVersion: targetBaseVersion,
       firmId: firmId,
+      // The requester's own name is the one profile row every device holds, so
+      // the request can say who asked before it has ever reached the server.
+      // The server derives the stored value from `profiles` regardless.
+      requesterName: profile?.fullName ?? '',
     );
     messenger.showSnackBar(SnackBar(content: Text(l.deleteRequest_sent)));
     return DeleteOutcome.requested;

@@ -194,9 +194,16 @@ class _DeleteRequestReviewScreenState
 
     final stale = request.status == 'stale_review_required';
     final locale = Localizations.localeOf(context).toString();
-    final requester = ref
-        .watch(deleteRequestRequesterNameProvider(request.requestedBy))
-        .value;
+    // The request carries who asked inside it, so the line is right offline and
+    // from the very first review. The profile lookup stays as the fallback for a
+    // request written before the column existed, or by a requester whose profile
+    // still held no name when it was written.
+    final storedRequester = request.requesterName?.trim() ?? '';
+    final requester = storedRequester.isNotEmpty
+        ? storedRequester
+        : ref
+              .watch(deleteRequestRequesterNameProvider(request.requestedBy))
+              .value;
 
     return SettingsSubPageModal(
       title: l.deleteRequests_reviewTitle,

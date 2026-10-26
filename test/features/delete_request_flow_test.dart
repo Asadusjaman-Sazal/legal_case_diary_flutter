@@ -50,6 +50,7 @@ class _RecordingDeleteRequestsRepository implements DeleteRequestsRepository {
     required Map<String, dynamic> entitySnapshot,
     required int targetBaseVersion,
     required String firmId,
+    required String requesterName,
   }) async {
     created.add(<String, Object?>{
       'entityType': entityType,
@@ -57,6 +58,7 @@ class _RecordingDeleteRequestsRepository implements DeleteRequestsRepository {
       'entitySnapshot': entitySnapshot,
       'targetBaseVersion': targetBaseVersion,
       'firmId': firmId,
+      'requesterName': requesterName,
     });
     return 'request-1';
   }
@@ -358,6 +360,9 @@ void main() {
       'firm-1',
       reason: 'a request with no firm is one the server refuses',
     );
+    // The requester's own cached name rides on the request, so a reviewer can
+    // read who asked even before the request reaches the server.
+    expect(request['requesterName'], 'Adv. Karim');
     expect(find.text(l.deleteRequest_sent), findsOneWidget);
 
     await unmountApp(tester);

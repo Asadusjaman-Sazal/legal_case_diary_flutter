@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(72),
+        hasLength(73),
         reason:
+            'The requester-name column on delete requests (2026-10-26) added '
+            'one file. '
             'Owner-designate device slots (2026-10-26) added one file. '
             'Shared chamber capacity (2026-10-26) added two files: the '
             'grace-aware downgrade start and the capacity model. '
@@ -148,7 +150,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(72),
+        hasLength(73),
         reason: 'versions must be unique',
       );
       expect(
@@ -157,7 +159,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261026130000');
+      expect(versions.last, '20261026140000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

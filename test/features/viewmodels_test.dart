@@ -168,6 +168,7 @@ void main() {
         entitySnapshot: const <String, dynamic>{'id': 'case-123'},
         targetBaseVersion: 1,
         firmId: 'firm-1',
+        requesterName: 'Rekha',
       );
 
       final state = await container.read(deleteRequestsViewModelProvider.future);

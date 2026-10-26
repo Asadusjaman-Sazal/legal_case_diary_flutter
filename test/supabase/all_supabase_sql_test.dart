@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        72,
+        73,
         reason:
+            'Carrying the requester\'s name inside a delete request '
+            '(2026-10-26) added one file. '
             'Owner-designate device slots (2026-10-26) added one file. '
             'Shared chamber capacity (2026-10-26) added two files: the '
             'grace-aware downgrade start and the capacity model. '

@@ -8341,7 +8341,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_joinFirmSend.
   ///
   /// In en, this message translates to:
-  /// **'Send'**
+  /// **'Join'**
   String get manageAssociates_joinFirmSend;
 
   /// No description provided for @manageAssociates_joinFirmPlanTitle.

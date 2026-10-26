@@ -4897,7 +4897,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_joinFirmCodeLabel => 'আমন্ত্রণ কোড';
 
   @override
-  String get manageAssociates_joinFirmSend => 'পাঠান';
+  String get manageAssociates_joinFirmSend => 'যোগ দিন';
 
   @override
   String get manageAssociates_joinFirmPlanTitle => 'ফার্মে যোগ দেবেন?';

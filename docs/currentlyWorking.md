@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Join a Firm window's action says Join — COMPLETE (0.0.665)
+
+- **What was asked.** Change the **Send** button in the Join a Firm pop-over to **Join**.
+- **What changed.** The window's action label (`manageAssociates_joinFirmSend`) is now *Join* / *যোগ দিন*, matching the যোগ দিনের card that opens it. The key keeps its name, so no call site moved; the window's title, sentence, code box, Cancel action, the empty-code guard, the in-window refusal, the paying individual's warning and the entry's own visibility are untouched.
+- **Checks.** `flutter analyze` clean; the Firm menu and Manage Firm suites pass together (**46 cases**), with the redemption case now asserting the action reads **Join**.
+- **Mockup.** None owed — the window is new and has none (rule 9).
+- **Resume point.** Nothing outstanding.
+
 ### 2026-10-26 — Join a Firm moves to the Firm menu, and the premium line loses its capitals — COMPLETE (0.0.664)
 
 - **What was asked.** On the Create a Firm page: write *Firm Mode Requires An Active Premium Subscription.* in sentence case, and move the **Join a Firm** button to the Firm sub menu with the style and background of the Create a Firm entry there.

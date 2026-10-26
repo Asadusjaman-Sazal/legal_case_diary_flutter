@@ -2314,7 +2314,7 @@
   "manageAssociates_joinFirmTitle": "Join a Firm",
   "manageAssociates_joinFirmIntro": "Enter the invitation code provided by your firm owner.",
   "manageAssociates_joinFirmCodeLabel": "Invitation Code",
-  "manageAssociates_joinFirmSend": "Send",
+  "manageAssociates_joinFirmSend": "Join",
   "manageAssociates_joinFirmPlanTitle": "Join a Firm?",
   "manageAssociates_joinFirmPlanBody": "Your individual plan will not be paused. While you are in the firm, the firm's plan covers your access, and the paid time on your own plan stays with your account and applies again if you leave the firm.",
   "manageAssociates_joinFirmContinue": "Continue",

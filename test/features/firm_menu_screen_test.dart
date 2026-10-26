@@ -244,6 +244,11 @@ void main() {
       );
       expect(find.text(l.manageAssociates_joinFirmIntro), findsOneWidget);
       expect(find.text(l.sharedActions_cancel), findsOneWidget);
+      // The action is worded for what it does (user request, 0.0.665).
+      expect(
+        find.descendant(of: find.byType(Dialog), matching: find.text('Join')),
+        findsOneWidget,
+      );
       // An empty code cannot be sent: the server would only refuse it.
       expect(
         tester

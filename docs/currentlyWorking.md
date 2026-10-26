@@ -1,5 +1,40 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The deletion-request window is titled Request Deletion — COMPLETE (0.0.670)
+
+- **What was asked.** Change that window's title to **Request Deletion**.
+- **What changed.** `deleteRequest_confirmTitle` now reads *Request Deletion*, and the Bengali title follows it (*মুছে ফেলার অনুরোধ করুন*, the same words the app already uses for a deletion request in this flow). The key keeps its name, so nothing else moved: the title is still centred, the sentence under it is still justified and in sentence case, the action still reads **Send**, and the decision between deleting straight away and sending a request is untouched.
+- **Checks.** `flutter analyze` clean; `delete_request_flow_test.dart` passes **6 cases**, with the request case now also asserting the title literally; full `flutter test` **2,138 passed** on the re-run; `python tool/record_version.py --check` clean.
+- **One unrelated flake, reported rather than hidden.** The first full-suite run of this change had a single failure in `test/features/app_lock_test.dart` — *AppLockStore setup stores a digest, never the pin, and verifies it* — a suite this change does not touch. It passes on its own and the full suite passes immediately after, so it is a flake in the App Lock suite, not an effect of this change; nothing there was edited.
+- **Mockup.** None owed — this window has no mockup (rule 9).
+- **Resume point.** Nothing outstanding.
+
+### 2026-10-26 — The deletion-request window's sentence is justified — COMPLETE (0.0.669)
+
+- **What was asked.** Justify the body text in the *Send A Deletion Request?* window, for that window only.
+- **What changed.** Its body `Text` now carries `textAlign: TextAlign.justify`, so both edges of the sentence are flush. Nothing else moved: the title stays centred, the sentence keeps the sentence-case wording set at 0.0.668, and the decision, the request and the toasts are untouched. Every other confirmation in the app — the Exit App window's message included — stays left-aligned, as asked.
+- **What was true before.** Asked whether the body was already justified, I measured the painted paragraph and it read `TextAlign.start` (left), so it was not; this change is what makes it so.
+- **Checks.** `flutter analyze` clean; `delete_request_flow_test.dart` passes **6 cases**; full `flutter test` **2,138 passed**; `python tool/record_version.py --check` clean. The new assertion reads the **painted** paragraph's alignment (`RenderParagraph.textAlign`) rather than the widget's argument, and was verified to fail with the flag removed (`Expected: TextAlign.justify`, `Actual: TextAlign.start`) before being kept.
+- **Mockup.** None owed — this window has no mockup (rule 9).
+- **Resume point.** Nothing outstanding.
+
+### 2026-10-26 — The deletion-request window's title is centred and its sentence is sentence case — COMPLETE (0.0.668)
+
+- **What was asked.** In the *Send A Deletion Request?* pop-over only: middle-align the title, and put the body text in sentence case.
+- **What changed.** The window's title now carries `textAlign: TextAlign.center`, the same as the Exit App window's, and the sentence under it reads *A firm member with delete permission has to approve it before the record is removed.* — only the first word capitalised. The wording itself is unchanged; Bengali is untouched, having no letter case. Nothing else in the window or its flow moved.
+- **Checks.** `flutter analyze` clean; `delete_request_flow_test.dart` passes **6 cases**, with *a member without delete permission raises a request* also asserting the title's alignment is centre and the sentence literally, so neither can drift back unnoticed; full `flutter test` **2,138 passed**; `python tool/record_version.py --check` clean.
+- **Mockup.** None owed — this window has no mockup (rule 9).
+- **Resume point.** Nothing outstanding.
+
+### 2026-10-26 — The deletion-request window matches the Exit App window — COMPLETE (0.0.667)
+
+- **What was asked.** In the *Send A Deletion Request?* pop-over only: make its corner, its button size and its alignment the same as the **Exit App?** window, and word its action **Send** instead of *Send Request*.
+- **What changed.** `_confirmRequest` in `delete_request_flow.dart` now carries the Exit App window's shape (`RoundedRectangleBorder` at `AppSpacing.cardRadius * 2`, the 8 px corner), `actionsAlignment: MainAxisAlignment.center`, and both actions at the same style the Exit App window uses — `minimumSize` 112 × 48 with a 16 pt label. The label itself is now **Send** (`deleteRequest_confirmSend` / *পাঠান*), because the window's title already says what is being sent. Nothing else about the branch moved: the title, the body sentence, the decision between a direct delete and a request, the queued `delete_requests` row and the two toasts are untouched.
+- **One measurement worth recording.** The app's theme sets `VisualDensity.compact`, so a button whose style asks for a 112 × 48 minimum is laid out at 104 × 40 in the running app — for the Exit App window's own buttons just as much as for this one. That is why the new test pins the *style* both windows ask for (112 × 48 at 16 pt) and the equality of the two actions' heights, rather than a pixel height that would depend on the density in whichever harness pumps it.
+- **Checks.** `flutter analyze` clean; `delete_request_flow_test.dart` passes **6 cases**, with *a member without delete permission raises a request* now asserting the corner, the centred actions, the literal word **Send** and both actions' Exit App action style; full `flutter test` **2,138 passed**; `python tool/record_version.py --check` clean.
+- **Mockup.** None owed — this window has no mockup (rule 9).
+- **Resume point.** Nothing outstanding.
+
 ### 2026-10-26 — An associate reads their firm, read-only — COMPLETE (0.0.666)
 
 - **What was asked.** An associate should see a trimmed version of Manage Firm in Settings → Firm: a sub menu named after the firm they belong to, opening the read-only form of the owner's page, holding the firm identity card (logo and name) and the associates with their labels.

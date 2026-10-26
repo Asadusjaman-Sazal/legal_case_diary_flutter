@@ -8695,19 +8695,19 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequest_confirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Send A Deletion Request?'**
+  /// **'Request Deletion'**
   String get deleteRequest_confirmTitle;
 
   /// No description provided for @deleteRequest_confirmBody.
   ///
   /// In en, this message translates to:
-  /// **'A Firm Member With Delete Permission Has To Approve It Before The Record Is Removed.'**
+  /// **'A firm member with delete permission has to approve it before the record is removed.'**
   String get deleteRequest_confirmBody;
 
   /// No description provided for @deleteRequest_confirmSend.
   ///
   /// In en, this message translates to:
-  /// **'Send Request'**
+  /// **'Send'**
   String get deleteRequest_confirmSend;
 
   /// No description provided for @deleteRequest_sent.

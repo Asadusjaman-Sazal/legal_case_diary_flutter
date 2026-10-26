@@ -2338,7 +2338,7 @@
   },
   "@@_section_manageAssociatesPermissions": "MANAGE ASSOCIATES - INVITES AND PERMISSIONS  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
   "manageAssociates_sectionInvites": "Outstanding Invitation Codes",
-  "manageAssociates_noInvites": "No Unused Invites.",
+  "manageAssociates_noInvites": "No unused invites.",
   "manageAssociates_inviteCreated": "Created {date}",
   "@manageAssociates_inviteCreated": {
       "placeholders": {

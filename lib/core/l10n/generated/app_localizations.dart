@@ -8854,6 +8854,12 @@ abstract class AppLocalizations {
   /// **'Add A Reason'**
   String get deleteRequests_noteHint;
 
+  /// No description provided for @deleteRequests_noteCloseKeyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Keyboard'**
+  String get deleteRequests_noteCloseKeyboard;
+
   /// No description provided for @deleteRequests_approve.
   ///
   /// In en, this message translates to:

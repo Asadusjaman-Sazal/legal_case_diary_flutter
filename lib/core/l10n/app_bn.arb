@@ -2273,6 +2273,7 @@
   "deleteRequests_snapshot": "অনুরোধকৃত রেকর্ড",
   "deleteRequests_noteLabel": "পর্যালোচনা নোট (ঐচ্ছিক)",
   "deleteRequests_noteHint": "একটি কারণ যোগ করুন",
+  "deleteRequests_noteCloseKeyboard": "কীবোর্ড বন্ধ করুন",
   "deleteRequests_approve": "অনুমোদন",
   "deleteRequests_reconfirm": "পুনরায় নিশ্চিত করুন",
   "deleteRequests_reject": "প্রত্যাখ্যান",

@@ -5176,6 +5176,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_noteHint => 'Add A Reason';
 
   @override
+  String get deleteRequests_noteCloseKeyboard => 'Close Keyboard';
+
+  @override
   String get deleteRequests_approve => 'Approve';
 
   @override

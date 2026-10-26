@@ -563,6 +563,47 @@ void main() {
 
       await unmountApp(tester);
     });
+
+    testWidgets('the note box offers a cross that closes the keyboard', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedCaseRequest();
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final note = find.byKey(const ValueKey('delete-review-note'));
+      final cross = find.byKey(const ValueKey('delete-review-note-close'));
+      // Nothing to close while the box is resting.
+      expect(cross, findsNothing);
+
+      await tester.tap(note);
+      await tester.pumpAndSettle();
+      expect(cross, findsOneWidget);
+
+      await tester.enterText(note, 'Still needed for the appeal.');
+      await tester.pumpAndSettle();
+      await tester.tap(cross);
+      await tester.pumpAndSettle();
+
+      // The cross takes the keyboard away and leaves the note alone: the words
+      // the reviewer typed are the review's own content, not a query string.
+      expect(cross, findsNothing);
+      expect(tester.widget<TextField>(note).focusNode!.hasFocus, isFalse);
+      expect(
+        tester.widget<TextField>(note).controller!.text,
+        'Still needed for the appeal.',
+      );
+
+      await unmountApp(tester);
+    });
   });
 
   group("The requester's list", () {

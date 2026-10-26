@@ -6,7 +6,10 @@
 /// that screen — every individual, whatever their plan, and a firm owner — and
 /// **Delete Requests** is drawn in firm mode only, with the count of what is
 /// waiting on this account. The label follows the account: *Create a Firm*
-/// until a firm exists, *Manage Firm* after.
+/// until a firm exists, *Manage Firm* after. **Join a Firm** (0.0.664, user
+/// request) sits directly under the create entry for the one account
+/// `join_firm` accepts — an individual whose own diary is still empty — and
+/// opens the invitation-code window the create page used to carry.
 library;
 
 import 'package:flutter/material.dart';
@@ -19,6 +22,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../settings/presentation/delete_requests_viewmodel.dart';
+import 'join_firm_flow.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
@@ -36,6 +40,13 @@ class FirmMenuScreen extends ConsumerWidget {
     // The firm exists, so the row offers management, and the queue belongs to it.
     final firmExists = ref.watch(firmModeProvider);
     final deleteRequestsCount = ref.watch(deleteRequestsBadgeCountProvider);
+    // The other way into a chamber (0.0.664, user request): an individual can
+    // still join a colleague's firm by redeeming an owner's code, while their
+    // own diary is empty. `join_firm` refuses an account that already holds its
+    // own rows, so a non-empty — or not yet counted — diary offers nothing.
+    final ownCaseCount = ref.watch(ownCaseCountProvider).value;
+    final canJoinFirm =
+        showManageAssociates && !firmExists && ownCaseCount == 0;
 
     return SettingsSubPageModal(
       title: l.settingsFirm_title,
@@ -53,6 +64,16 @@ class FirmMenuScreen extends ConsumerWidget {
                   : l.settingsAccountProfile_createFirmSubtitle,
               onTap: () => context.push(AppRoutes.settingsManageAssociates),
             ),
+          if (canJoinFirm) ...[
+            const SizedBox(height: AppSpacing.sm),
+            SettingsMenuCard(
+              key: const ValueKey('firm-join'),
+              icon: Icons.group_add_outlined,
+              title: l.manageAssociates_joinFirm,
+              subtitle: l.settingsFirm_joinFirmSubtitle,
+              onTap: () => startJoinFirm(context, ref),
+            ),
+          ],
           // The queue is every firm member's, directly after Manage Firm.
           if (firmExists) ...[
             if (showManageAssociates) const SizedBox(height: AppSpacing.sm),

@@ -1,11 +1,11 @@
-/// A full-screen crop step for the profile picture and the chamber logo.
+/// The "Select Image" page for the profile picture and the firm logo.
 ///
-/// The picked image is shown in the shape the app will use — a circle for the
-/// profile picture, the firm card's 148:100 rounded frame for the logo — with
-/// everything outside that shape dimmed. Pinch zooms, dragging moves the
-/// picture, and **Use** returns the selected area as a [CropRect] against the
-/// normalized source. The caller then processes that rectangle at the target
-/// aspect, so the stored image is exactly the area the user chose.
+/// The picked image is shown whole, on black, under a **fixed frame** in the
+/// shape the app will use — a circle for the profile picture, the firm card's
+/// 148:100 rounded rectangle for the logo. Dragging moves that frame over the
+/// image; everything outside it is dimmed. A rotate button turns the image a
+/// quarter clockwise, and Save returns the frame's area (in the rotated image)
+/// so the caller stores exactly what the user selected.
 library;
 
 import 'dart:math' as math;
@@ -17,21 +17,28 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../data/avatar_image_processor.dart';
 
-/// What the crop screen returns: its normalized source and the chosen rectangle.
+/// What the selection page returns.
 class CropSelection {
   /// Creates a selection.
-  const CropSelection({required this.source, required this.rect});
+  const CropSelection({
+    required this.source,
+    required this.rect,
+    this.rotationQuarterTurns = 0,
+  });
 
-  /// The upright source the crop screen displayed.
+  /// The upright source the page displayed.
   final CropSource source;
 
-  /// The selected area in that source's pixels.
+  /// The selected area, in the **rotated** image's pixels.
   final CropRect rect;
+
+  /// Quarter turns clockwise the user applied with the rotate button.
+  final int rotationQuarterTurns;
 }
 
-/// The crop page for one image.
+/// The selection page for one image.
 class ImageCropScreen extends StatefulWidget {
-  /// Creates the crop page.
+  /// Creates the page.
   const ImageCropScreen({
     required this.source,
     required this.aspectRatio,
@@ -40,10 +47,10 @@ class ImageCropScreen extends StatefulWidget {
     super.key,
   });
 
-  /// The upright, downscaled image to crop.
+  /// The upright, downscaled image to select from.
   final CropSource source;
 
-  /// Width divided by height of the area the app will show.
+  /// Width divided by height of the frame the app will show.
   final double aspectRatio;
 
   /// A circle (profile) rather than the logo's rounded rectangle.
@@ -56,22 +63,54 @@ class ImageCropScreen extends StatefulWidget {
   State<ImageCropScreen> createState() => _ImageCropScreenState();
 }
 
+/// Where the image and its frame sit on screen.
+class _CropLayout {
+  const _CropLayout({
+    required this.display,
+    required this.scale,
+    required this.rotatedWidth,
+    required this.rotatedHeight,
+    required this.frameSize,
+    required this.center,
+  });
+
+  /// The image's rectangle on screen, after rotation.
+  final Rect display;
+
+  /// Source pixels to screen pixels.
+  final double scale;
+
+  /// The image's dimensions after the current quarter turns.
+  final int rotatedWidth;
+  final int rotatedHeight;
+
+  /// The fixed frame's size on screen.
+  final Size frameSize;
+
+  /// The frame's centre on screen.
+  final Offset center;
+
+  Rect get frameRect => Rect.fromCenter(
+    center: center,
+    width: frameSize.width,
+    height: frameSize.height,
+  );
+
+  double get minCenterX => display.left + frameSize.width / 2;
+  double get maxCenterX => display.right - frameSize.width / 2;
+  double get minCenterY => display.top + frameSize.height / 2;
+  double get maxCenterY => display.bottom - frameSize.height / 2;
+}
+
 class _ImageCropScreenState extends State<ImageCropScreen> {
   ui.Image? _image;
   bool _failed = false;
 
-  /// The on-screen box the crop covers.
-  Size _viewport = Size.zero;
+  /// Quarter turns clockwise, 0..3.
+  int _turns = 0;
 
-  /// Scale at which the image exactly covers the viewport.
-  double _coverScale = 1;
-  double _scale = 1;
-  Offset _offset = Offset.zero;
-  bool _initialized = false;
-
-  double _startScale = 1;
-  Offset _startOffset = Offset.zero;
-  Offset _startFocal = Offset.zero;
+  Offset? _frameCenter;
+  _CropLayout? _layout;
 
   @override
   void initState() {
@@ -100,74 +139,109 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     super.dispose();
   }
 
-  /// Sets the initial cover/centre whenever the viewport is first measured or
-  /// changes shape. No `setState`: this runs from the build that needs it.
-  void _ensureInitialized(Size viewport) {
-    if (_initialized && _viewport == viewport) return;
+  /// Measures the image and the fixed frame for [available], and clamps the
+  /// existing frame centre into the new display.
+  void _ensureLayout(Size available) {
     final image = _image;
     if (image == null) return;
-    _viewport = viewport;
-    _coverScale = math.max(
-      viewport.width / image.width,
-      viewport.height / image.height,
+    final rotatedWidth = _turns.isOdd ? image.height : image.width;
+    final rotatedHeight = _turns.isOdd ? image.width : image.height;
+
+    final inner = (Offset.zero & available).deflate(16);
+    final scale = math.min(
+      inner.width / rotatedWidth,
+      inner.height / rotatedHeight,
     );
-    _scale = _coverScale;
-    _offset = Offset(
-      (viewport.width - image.width * _scale) / 2,
-      (viewport.height - image.height * _scale) / 2,
+    final display = Rect.fromCenter(
+      center: Offset(available.width / 2, available.height / 2),
+      width: rotatedWidth * scale,
+      height: rotatedHeight * scale,
     );
-    _initialized = true;
+
+    // The frame is fixed in size: the largest shape of the target ratio that
+    // fits inside the displayed image, with a little breathing room.
+    final maxWidth = math.max(display.width - 24, 1.0);
+    final maxHeight = math.max(display.height - 24, 1.0);
+    var frameWidth = maxWidth;
+    var frameHeight = frameWidth / widget.aspectRatio;
+    if (frameHeight > maxHeight) {
+      frameHeight = maxHeight;
+      frameWidth = frameHeight * widget.aspectRatio;
+    }
+    final frameSize = Size(math.max(frameWidth, 1), math.max(frameHeight, 1));
+
+    final previous = _frameCenter ?? display.center;
+    final center = Offset(
+      previous.dx.clamp(
+        display.left + frameSize.width / 2,
+        display.right - frameSize.width / 2,
+      ),
+      previous.dy.clamp(
+        display.top + frameSize.height / 2,
+        display.bottom - frameSize.height / 2,
+      ),
+    );
+    _frameCenter = center;
+    _layout = _CropLayout(
+      display: display,
+      scale: scale,
+      rotatedWidth: rotatedWidth,
+      rotatedHeight: rotatedHeight,
+      frameSize: frameSize,
+      center: center,
+    );
   }
 
-  void _onScaleStart(ScaleStartDetails details) {
-    _startScale = _scale;
-    _startOffset = _offset;
-    _startFocal = details.localFocalPoint;
-  }
-
-  void _onScaleUpdate(ScaleUpdateDetails details, Size viewport) {
-    final newScale = (_startScale * details.scale).clamp(
-      _coverScale,
-      _coverScale * 4,
-    );
-    final imagePoint = (_startOffset - _startFocal) / _startScale;
-    final raw = details.localFocalPoint - imagePoint * newScale;
-    final image = _image;
-    if (image == null) return;
-    final scaledWidth = image.width * newScale;
-    final scaledHeight = image.height * newScale;
+  void _onPanUpdate(DragUpdateDetails details) {
+    final layout = _layout;
+    final center = _frameCenter;
+    if (layout == null || center == null) return;
+    final next = center + details.delta;
     setState(() {
-      _scale = newScale;
-      _offset = Offset(
-        raw.dx.clamp(viewport.width - scaledWidth, 0.0),
-        raw.dy.clamp(viewport.height - scaledHeight, 0.0),
+      _frameCenter = Offset(
+        next.dx.clamp(layout.minCenterX, layout.maxCenterX),
+        next.dy.clamp(layout.minCenterY, layout.maxCenterY),
       );
     });
   }
 
-  /// Turns the visible viewport into a source-pixel rectangle and returns it.
-  void _confirm() {
-    final image = _image;
-    if (image == null) return;
-    final left = (-_offset.dx / _scale).clamp(0.0, image.width.toDouble());
-    final top = (-_offset.dy / _scale).clamp(0.0, image.height.toDouble());
-    final right = ((_viewport.width - _offset.dx) / _scale).clamp(
+  void _rotate() {
+    setState(() {
+      _turns = (_turns + 1) % 4;
+      _layout = null;
+    });
+  }
+
+  void _save() {
+    final layout = _layout;
+    if (layout == null) return;
+    final frame = layout.frameRect;
+    final left = ((frame.left - layout.display.left) / layout.scale).clamp(
       0.0,
-      image.width.toDouble(),
+      layout.rotatedWidth.toDouble(),
     );
-    final bottom = ((_viewport.height - _offset.dy) / _scale).clamp(
+    final top = ((frame.top - layout.display.top) / layout.scale).clamp(
       0.0,
-      image.height.toDouble(),
+      layout.rotatedHeight.toDouble(),
     );
-    final x = left.round().clamp(0, image.width - 1);
-    final y = top.round().clamp(0, image.height - 1);
-    final width = (right.round() - x).clamp(1, image.width - x);
-    final height = (bottom.round() - y).clamp(1, image.height - y);
+    final right = ((frame.right - layout.display.left) / layout.scale).clamp(
+      0.0,
+      layout.rotatedWidth.toDouble(),
+    );
+    final bottom = ((frame.bottom - layout.display.top) / layout.scale).clamp(
+      0.0,
+      layout.rotatedHeight.toDouble(),
+    );
+    final x = left.round().clamp(0, layout.rotatedWidth - 1);
+    final y = top.round().clamp(0, layout.rotatedHeight - 1);
+    final width = (right.round() - x).clamp(1, layout.rotatedWidth - x);
+    final height = (bottom.round() - y).clamp(1, layout.rotatedHeight - y);
 
     Navigator.of(context).pop(
       CropSelection(
         source: widget.source,
         rect: CropRect(x: x, y: y, width: width, height: height),
+        rotationQuarterTurns: _turns,
       ),
     );
   }
@@ -175,6 +249,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final image = _image;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -182,27 +257,13 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Text(
           widget.title,
           style: AppTypography.titleLg.copyWith(color: Colors.white),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: l.sharedActions_cancel,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _image == null || _failed ? null : _confirm,
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            child: Text(
-              l.imageCrop_use,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
       ),
-      body: _image == null
+      body: image == null
           ? Center(
               child: _failed
                   ? Text(
@@ -212,109 +273,129 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                     )
                   : const CircularProgressIndicator(),
             )
-          : SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final maxWidth = math.max(constraints.maxWidth - 32, 1.0);
-                  final maxHeight = math.max(constraints.maxHeight - 96, 1.0);
-                  var width = maxWidth;
-                  var height = width / widget.aspectRatio;
-                  if (height > maxHeight) {
-                    height = maxHeight;
-                    width = height * widget.aspectRatio;
-                  }
-                  final viewport = Size(
-                    math.max(width, 1),
-                    math.max(height, 1),
-                  );
-                  _ensureInitialized(viewport);
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: viewport.width,
-                        height: viewport.height,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onScaleStart: _onScaleStart,
-                          onScaleUpdate: (details) =>
-                              _onScaleUpdate(details, viewport),
-                          child: CustomPaint(
-                            key: const ValueKey('image-crop-canvas'),
-                            painter: _CropPainter(
-                              image: _image!,
-                              scale: _scale,
-                              offset: _offset,
-                              circular: widget.circular,
+          : Column(
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      _ensureLayout(constraints.biggest);
+                      final layout = _layout!;
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanUpdate: _onPanUpdate,
+                        child: CustomPaint(
+                          key: const ValueKey('image-crop-canvas'),
+                          painter: _CropPainter(
+                            image: image,
+                            turns: _turns,
+                            layout: layout,
+                            circular: widget.circular,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(l.sharedActions_cancel),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          l.imageCrop_hint,
-                          textAlign: TextAlign.center,
-                          style: AppTypography.bodySm.copyWith(
-                            color: Colors.white70,
+                        IconButton(
+                          key: const ValueKey('image-crop-rotate'),
+                          tooltip: l.imageCrop_rotate,
+                          onPressed: _rotate,
+                          icon: const Icon(
+                            Icons.rotate_right,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              key: const ValueKey('image-crop-save'),
+                              onPressed: _save,
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(l.imageCrop_save),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
     );
   }
 }
 
-/// Paints the image under the crop, dims everything outside the crop shape,
-/// and draws its border.
+/// Draws the rotated image, dims everything outside the fixed frame, and draws
+/// the frame's border.
 class _CropPainter extends CustomPainter {
   _CropPainter({
     required this.image,
-    required this.scale,
-    required this.offset,
+    required this.turns,
+    required this.layout,
     required this.circular,
   });
 
   final ui.Image image;
-  final double scale;
-  final Offset offset;
+  final int turns;
+  final _CropLayout layout;
   final bool circular;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final viewport = Offset.zero & size;
+    final display = layout.display;
     canvas.save();
-    canvas.clipRect(viewport);
+    canvas.translate(display.center.dx, display.center.dy);
+    canvas.rotate(turns * math.pi / 2);
     canvas.drawImageRect(
       image,
       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      Rect.fromLTWH(
-        offset.dx,
-        offset.dy,
-        image.width * scale,
-        image.height * scale,
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: image.width * layout.scale,
+        height: image.height * layout.scale,
       ),
       Paint()..filterQuality = FilterQuality.high,
     );
     canvas.restore();
 
+    final frame = layout.frameRect;
     final shape = circular
         ? (Path()..addOval(
             Rect.fromCircle(
-              center: viewport.center,
-              radius: math.min(size.width, size.height) / 2,
+              center: frame.center,
+              radius: math.min(frame.width, frame.height) / 2,
             ),
           ))
         : (Path()..addRRect(
-            RRect.fromRectAndRadius(viewport, const Radius.circular(8)),
+            RRect.fromRectAndRadius(frame, const Radius.circular(8)),
           ));
     final mask = Path()
-      ..addRect(viewport)
+      ..addRect(display)
       ..addPath(shape, Offset.zero)
       ..fillType = PathFillType.evenOdd;
     canvas.drawPath(
@@ -331,9 +412,5 @@ class _CropPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _CropPainter oldDelegate) =>
-      oldDelegate.image != image ||
-      oldDelegate.scale != scale ||
-      oldDelegate.offset != offset ||
-      oldDelegate.circular != circular;
+  bool shouldRepaint(covariant _CropPainter oldDelegate) => true;
 }

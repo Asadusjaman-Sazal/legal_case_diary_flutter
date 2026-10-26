@@ -1645,13 +1645,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharedActions_cancel => 'Cancel';
 
   @override
-  String get imageCrop_title => 'Crop Image';
+  String get imageCrop_title => 'Select Image';
 
   @override
-  String get imageCrop_hint => 'Pinch to zoom and drag to move.';
+  String get imageCrop_save => 'Save';
 
   @override
-  String get imageCrop_use => 'Use';
+  String get imageCrop_rotate => 'Rotate';
+
+  @override
+  String get profilePicture_title => 'Profile Picture';
+
+  @override
+  String get firmLogo_title => 'Firm Logo';
+
+  @override
+  String get imageSource_gallery => 'Gallery';
+
+  @override
+  String get imageSource_files => 'Files';
 
   @override
   String get sharedActions_delete => 'Delete';

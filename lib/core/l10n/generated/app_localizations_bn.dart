@@ -1650,13 +1650,25 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedActions_cancel => 'বাতিল';
 
   @override
-  String get imageCrop_title => 'ছবি কাটা';
+  String get imageCrop_title => 'ছবি নির্বাচন';
 
   @override
-  String get imageCrop_hint => 'জুম করতে পিঞ্চ করুন এবং সরাতে টেনে নিন।';
+  String get imageCrop_save => 'সংরক্ষণ';
 
   @override
-  String get imageCrop_use => 'ব্যবহার করুন';
+  String get imageCrop_rotate => 'ঘোরান';
+
+  @override
+  String get profilePicture_title => 'প্রোফাইল ছবি';
+
+  @override
+  String get firmLogo_title => 'ফার্ম লোগো';
+
+  @override
+  String get imageSource_gallery => 'গ্যালারি';
+
+  @override
+  String get imageSource_files => 'ফাইল';
 
   @override
   String get sharedActions_delete => 'মুছুন';

@@ -178,4 +178,31 @@ void main() {
     expect(corner.g, greaterThan(230));
     expect(corner.b, greaterThan(230));
   });
+
+  test('a quarter turn is applied before the crop', () async {
+    final image = img.Image(width: 100, height: 200);
+    for (var y = 0; y < 200; y++) {
+      for (var x = 0; x < 100; x++) {
+        image.setPixel(
+          x,
+          y,
+          y < 100 ? img.ColorRgb8(255, 0, 0) : img.ColorRgb8(0, 0, 255),
+        );
+      }
+    }
+    final prepared = await prepareCropSource(img.encodeJpg(image));
+
+    final bytes = await processCroppedImage(
+      prepared,
+      const CropRect(x: 0, y: 0, width: 50, height: 50),
+      targetWidth: 32,
+      targetHeight: 32,
+      rotationQuarterTurns: 1,
+    );
+
+    // Clockwise: the original bottom-left quarter becomes the new top-left.
+    final centre = img.decodeJpg(bytes)!.getPixel(16, 16);
+    expect(centre.b, greaterThan(200));
+    expect(centre.r, lessThan(60));
+  });
 }

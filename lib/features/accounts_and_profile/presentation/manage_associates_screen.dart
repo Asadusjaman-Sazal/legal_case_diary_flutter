@@ -29,14 +29,11 @@
 library;
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -65,6 +62,8 @@ import '../data/firm_logo_repository.dart';
 import '../data/firm_logo_store.dart';
 import '../data/firm_logo_sync.dart';
 import 'image_crop_screen.dart';
+import 'image_source_sheet.dart';
+import 'picture_viewer_screen.dart';
 import '../data/firm_repository.dart';
 import '../data/profile_repository.dart' show AccountRole;
 
@@ -201,8 +200,7 @@ class _ManageAssociatesScreenState
         ],
         _FirmCard(
           name: firmName,
-          onChange: _busy || firm == null ? null : _pickFirmLogo,
-          onRemove: _busy || firm == null ? null : _removeFirmLogo,
+          onOpenPicture: () => _openLogoViewer(context),
           onRename: _busy || firm == null ? null : _renameFirm,
         ),
         if (capacity != null) ...[
@@ -616,15 +614,17 @@ class _ManageAssociatesScreenState
     });
   }
 
-  /// Picks a chamber logo, crops it to the card frame's 148:100 shape, shrinks
-  /// it to 50 KB, and stores it locally first.
+  /// Picks a chamber logo through the source chooser, selects its 148:100 area,
+  /// shrinks it to 50 KB, and stores it locally first.
   ///
   /// The upload is detached: a save must never wait on the network, and a
   /// failure leaves the local picture waiting for the next refresh. A known
   /// lapsed entitlement is told up front; an entitlement still loading is
   /// allowed to try, because the bucket's policy is the boundary either way.
-  Future<void> _pickFirmLogo() async {
-    final l = AppLocalizations.of(context);
+  Future<void> _pickFirmLogo(BuildContext viewerContext) async {
+    final l = AppLocalizations.of(viewerContext);
+    final navigator = Navigator.of(viewerContext);
+    if (_busy) return;
     if (ref.read(premiumAccessProvider).value == false) {
       _say(context, l.manageAssociates_logoNeedsPlan);
       return;
@@ -632,19 +632,13 @@ class _ManageAssociatesScreenState
     final firmId = ref.read(accountFirmProvider).value?.id;
     if (firmId == null) return;
 
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 90,
-    );
-    if (picked == null || !mounted) return;
+    final bytes = await pickPictureBytes(viewerContext);
+    if (bytes == null || !mounted) return;
 
     try {
-      final bytes = await File(picked.path).readAsBytes();
       final source = await prepareCropSource(bytes);
       if (!mounted) return;
-      final selection = await Navigator.of(context).push<CropSelection>(
+      final selection = await navigator.push<CropSelection>(
         MaterialPageRoute(
           builder: (_) => ImageCropScreen(
             source: source,
@@ -664,6 +658,7 @@ class _ManageAssociatesScreenState
         targetHeight:
             (avatarMaxSide * _firmLogoFrameHeight / _firmLogoFrameWidth)
                 .round(),
+        rotationQuarterTurns: selection.rotationQuarterTurns,
       );
       await ref.read(firmLogoProvider.notifier).setBytes(processed, firmId);
       if (!mounted) return;
@@ -674,6 +669,45 @@ class _ManageAssociatesScreenState
       recordFailure(ref.read(errorLogProvider), 'firm.logo', error);
       if (mounted) _say(context, l.shared_avatarUnreadable);
     }
+  }
+
+  void _openLogoViewer(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => PictureViewerScreen(
+          title: l.firmLogo_title,
+          hasImage: (ref) => ref.watch(firmLogoProvider) != null,
+          editTooltip: l.sharedActions_edit,
+          onEdit: _pickFirmLogo,
+          onDelete: _removeFirmLogo,
+          body: Consumer(
+            builder: (context, ref, _) {
+              final logo = ref.watch(firmLogoProvider);
+              if (logo != null) {
+                return Image.file(logo, fit: BoxFit.contain);
+              }
+              return Center(
+                child: Container(
+                  width: 360,
+                  height: 243,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                    border: Border.all(color: AppColors.outlineVariant),
+                  ),
+                  child: const Icon(
+                    Icons.apartment_outlined,
+                    color: AppColors.primary,
+                    size: 96,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   /// Removes the chamber logo, locally at once and from Storage when possible.
@@ -892,33 +926,25 @@ class _OverviewPoint extends StatelessWidget {
   );
 }
 
-/// The chamber's identity: its logo in a rectangular frame, the two picture
-/// actions under it, and the firm's name in bold beneath them.
+/// The chamber's identity: its logo in a rectangular frame and the firm's name
+/// in bold beneath it.
 ///
-/// Rebuilt at the user's request (0.0.653): the small round avatar and the
-/// words *Add Logo* / *Change Logo* / *Remove Logo* are gone — the frame shows
-/// the firm's current logo and the pencil/bin buttons are the Profile screen's
-/// own, so the chamber is presented the same way a lawyer's own picture is.
-///
-/// The card shows the local copy immediately (the provider is synchronous), so
-/// a newly chosen logo appears before its upload finishes. Delete is offered
-/// only when there is something to delete, exactly as on Profile.
+/// The picture is the control (user request): the frame opens the full-screen
+/// viewer, whose header carries Edit and Delete. The separate round picture
+/// buttons under the frame are gone. The name keeps its own pencil, because it
+/// is a field rather than a picture.
 class _FirmCard extends ConsumerWidget {
   const _FirmCard({
     required this.name,
-    required this.onChange,
-    required this.onRemove,
+    required this.onOpenPicture,
     required this.onRename,
   });
 
   /// The firm's name, drawn bold and centred under the frame.
   final String name;
 
-  /// Picks or replaces the logo; null while a server call is in flight.
-  final VoidCallback? onChange;
-
-  /// Removes the logo; null while a server call is in flight.
-  final VoidCallback? onRemove;
+  /// Opens the full-screen logo viewer.
+  final VoidCallback onOpenPicture;
 
   /// Opens the rename window (0.0.654, user request); null while a call runs.
   final VoidCallback? onRename;
@@ -936,55 +962,35 @@ class _FirmCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
-            child: Container(
-              key: const ValueKey('firm-logo-frame'),
-              width: _firmLogoFrameWidth,
-              height: _firmLogoFrameHeight,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-                border: Border.all(color: AppColors.outlineVariant),
-                image: hasLogo
-                    ? DecorationImage(image: FileImage(logo), fit: BoxFit.cover)
-                    : null,
-              ),
-              // The fallback the round avatar used to draw: the chamber is a
-              // firm with no picture yet, not a missing image.
-              child: hasLogo
-                  ? null
-                  : const Icon(
-                      Icons.apartment_outlined,
-                      color: AppColors.primary,
-                      size: 32,
-                    ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          // The Profile screen's two picture buttons, side by side under the
-          // frame: a black pencil, and a red bin only when there is a logo.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _PictureAction(
-                key: const ValueKey('firm-logo-change'),
-                icon: Icons.edit,
-                color: AppColors.primary,
-                tooltip: hasLogo
-                    ? l.manageAssociates_changeLogo
-                    : l.manageAssociates_addLogo,
-                onTap: onChange,
-              ),
-              if (hasLogo) ...[
-                const SizedBox(width: AppSpacing.md),
-                _PictureAction(
-                  key: const ValueKey('firm-logo-remove'),
-                  icon: Icons.delete,
-                  color: AppColors.error,
-                  tooltip: l.manageAssociates_removeLogo,
-                  onTap: onRemove,
+            child: GestureDetector(
+              key: const ValueKey('firm-logo-open'),
+              onTap: onOpenPicture,
+              child: Container(
+                key: const ValueKey('firm-logo-frame'),
+                width: _firmLogoFrameWidth,
+                height: _firmLogoFrameHeight,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                  border: Border.all(color: AppColors.outlineVariant),
+                  image: hasLogo
+                      ? DecorationImage(
+                          image: FileImage(logo),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-              ],
-            ],
+                // The fallback the round avatar used to draw: the chamber is a
+                // firm with no picture yet, not a missing image.
+                child: hasLogo
+                    ? null
+                    : const Icon(
+                        Icons.apartment_outlined,
+                        color: AppColors.primary,
+                        size: 32,
+                      ),
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           // The same round pencil the logo carries, beside the name: the name

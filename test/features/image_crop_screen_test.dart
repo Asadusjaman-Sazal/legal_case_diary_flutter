@@ -1,8 +1,9 @@
 /// The "Select Image" page for the profile picture and firm logo.
 ///
-/// The page shows the whole image under a fixed frame; dragging moves the frame,
-/// rotating turns the image, and Save returns the frame's area in the rotated
-/// image. These pin the two shapes, the drag, the rotation, Save and Cancel.
+/// The page shows the whole image under a frame; dragging moves it, dragging a
+/// corner resizes it, rotating turns the image, and Save returns the frame's
+/// area in the rotated image. These pin the two shapes, the move, the resize
+/// limits, the rotation, Save and Cancel.
 library;
 
 import 'package:flutter/material.dart';
@@ -25,6 +26,15 @@ CropSource _source() {
   // Made synchronously: `Isolate.run` does not complete inside a widget test's
   // fake clock, and the page only needs the bytes and their size.
   return CropSource(bytes: img.encodeJpg(image), width: 200, height: 100);
+}
+
+/// A 1600 x 1200 source, large enough that the frame can shrink to its floor.
+CropSource _largeSource() {
+  return CropSource(
+    bytes: img.encodeJpg(img.Image(width: 1600, height: 1200)),
+    width: 1600,
+    height: 1200,
+  );
 }
 
 void main() {
@@ -123,7 +133,7 @@ void main() {
     expect(rect.y, closeTo((100 - rect.height) / 2, 3));
   });
 
-  testWidgets('dragging moves the fixed frame', (tester) async {
+  testWidgets('dragging moves the frame', (tester) async {
     final centred = await openCrop(
       tester,
       source: _source(),
@@ -150,6 +160,64 @@ void main() {
     expect(dragged, isNotNull);
     expect(dragged!.rect.x, greaterThan(centred!.rect.x));
     expect(dragged.rect.y, greaterThan(centred.rect.y));
+  });
+
+  testWidgets('a corner drag shrinks the frame no smaller than 512 px', (
+    tester,
+  ) async {
+    final selection = await openCrop(
+      tester,
+      source: _largeSource(),
+      aspectRatio: 1,
+      circular: true,
+      save: true,
+      gesture: (tester) async {
+        final handle = find.byKey(
+          const ValueKey('image-crop-handle-bottomRight'),
+        );
+        expect(handle, findsOneWidget);
+        await tester.drag(handle, const Offset(-400, -400));
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(selection, isNotNull);
+    // The floor is the 512 source pixels the stored picture is made from.
+    expect(selection!.rect.width, closeTo(512, 2));
+    expect(selection.rect.height, closeTo(512, 2));
+  });
+
+  testWidgets('a corner drag cannot pull the frame off the image', (
+    tester,
+  ) async {
+    final selection = await openCrop(
+      tester,
+      source: _largeSource(),
+      aspectRatio: 1,
+      circular: true,
+      save: true,
+      gesture: (tester) async {
+        // Shrink first, then drag the freed corner far past the image's edge.
+        await tester.drag(
+          find.byKey(const ValueKey('image-crop-handle-bottomRight')),
+          const Offset(-300, -300),
+        );
+        await tester.pumpAndSettle();
+        await tester.drag(
+          find.byKey(const ValueKey('image-crop-handle-topLeft')),
+          const Offset(-2000, -2000),
+        );
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(selection, isNotNull);
+    final rect = selection!.rect;
+    expect(rect.x, greaterThanOrEqualTo(0));
+    expect(rect.y, greaterThanOrEqualTo(0));
+    expect(rect.x + rect.width, lessThanOrEqualTo(1600));
+    expect(rect.y + rect.height, lessThanOrEqualTo(1200));
+    expect(rect.width / rect.height, closeTo(1, 0.03));
   });
 
   testWidgets('the rotate button turns the saved image a quarter', (

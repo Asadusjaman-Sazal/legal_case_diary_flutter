@@ -1,11 +1,12 @@
 /// The "Select Image" page for the profile picture and the firm logo.
 ///
-/// The picked image is shown whole, on black, under a **fixed frame** in the
-/// shape the app will use — a circle for the profile picture, the firm card's
-/// 148:100 rounded rectangle for the logo. Dragging moves that frame over the
-/// image; everything outside it is dimmed. A rotate button turns the image a
-/// quarter clockwise, and Save returns the frame's area (in the rotated image)
-/// so the caller stores exactly what the user selected.
+/// The picked image is shown whole, on black, under a frame in the shape the
+/// app will use — a circle for the profile picture, the firm card's 148:100
+/// rounded rectangle for the logo. Dragging moves that frame over the image and
+/// dragging a corner resizes it (down to the 512 px the stored picture needs);
+/// everything outside it is dimmed. A rotate button turns the image a quarter
+/// clockwise, and Save returns the frame's area (in the rotated image) so the
+/// caller stores exactly what the user selected.
 library;
 
 import 'dart:math' as math;
@@ -44,6 +45,7 @@ class ImageCropScreen extends StatefulWidget {
     required this.aspectRatio,
     required this.circular,
     required this.title,
+    this.minSourceSide = 512,
     super.key,
   });
 
@@ -59,6 +61,10 @@ class ImageCropScreen extends StatefulWidget {
   /// The page title, localized by the caller.
   final String title;
 
+  /// The smallest selected side, in source pixels, that still feeds the stored
+  /// target without upscaling — the 512 px avatar/logo.
+  final int minSourceSide;
+
   @override
   State<ImageCropScreen> createState() => _ImageCropScreenState();
 }
@@ -72,6 +78,8 @@ class _CropLayout {
     required this.rotatedHeight,
     required this.frameSize,
     required this.center,
+    required this.minFrameWidth,
+    required this.maxFrameWidth,
   });
 
   /// The image's rectangle on screen, after rotation.
@@ -84,11 +92,16 @@ class _CropLayout {
   final int rotatedWidth;
   final int rotatedHeight;
 
-  /// The fixed frame's size on screen.
+  /// The frame's current size on screen.
   final Size frameSize;
 
   /// The frame's centre on screen.
   final Offset center;
+
+  /// The smallest frame width the 512 px target can be fed from, and the
+  /// largest that fits the image.
+  final double minFrameWidth;
+  final double maxFrameWidth;
 
   Rect get frameRect => Rect.fromCenter(
     center: center,
@@ -102,6 +115,9 @@ class _CropLayout {
   double get maxCenterY => display.bottom - frameSize.height / 2;
 }
 
+/// Which corner a resize drag belongs to.
+enum _CropCorner { topLeft, topRight, bottomLeft, bottomRight }
+
 class _ImageCropScreenState extends State<ImageCropScreen> {
   ui.Image? _image;
   bool _failed = false;
@@ -110,7 +126,15 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   int _turns = 0;
 
   Offset? _frameCenter;
+
+  /// The frame's current width on screen; null until the first layout, when it
+  /// starts at the largest size that fits.
+  double? _frameWidth;
   _CropLayout? _layout;
+
+  final GlobalKey _stackKey = GlobalKey();
+  Offset? _resizeAnchor;
+  _CropCorner? _resizeCorner;
 
   @override
   void initState() {
@@ -139,8 +163,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     super.dispose();
   }
 
-  /// Measures the image and the fixed frame for [available], and clamps the
-  /// existing frame centre into the new display.
+  /// Measures the image and the frame for [available], and clamps the existing
+  /// frame size and centre into the new display.
   void _ensureLayout(Size available) {
     final image = _image;
     if (image == null) return;
@@ -158,17 +182,27 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       height: rotatedHeight * scale,
     );
 
-    // The frame is fixed in size: the largest shape of the target ratio that
-    // fits inside the displayed image, with a little breathing room.
+    // The largest frame of the target ratio that fits inside the displayed
+    // image, with a little breathing room for the corner handles.
     final maxWidth = math.max(display.width - 24, 1.0);
     final maxHeight = math.max(display.height - 24, 1.0);
-    var frameWidth = maxWidth;
-    var frameHeight = frameWidth / widget.aspectRatio;
-    if (frameHeight > maxHeight) {
-      frameHeight = maxHeight;
-      frameWidth = frameHeight * widget.aspectRatio;
+    var maxFrameWidth = maxWidth;
+    if (maxFrameWidth / widget.aspectRatio > maxHeight) {
+      maxFrameWidth = maxHeight * widget.aspectRatio;
     }
-    final frameSize = Size(math.max(frameWidth, 1), math.max(frameHeight, 1));
+    maxFrameWidth = math.max(maxFrameWidth, 1.0);
+    // Never below the source pixels the stored 512 px picture needs; a smaller
+    // image simply caps at its own size.
+    final minFrameWidth = math.min(
+      maxFrameWidth,
+      math.max(widget.minSourceSide * scale, 1.0),
+    );
+    final frameWidth = (_frameWidth ?? maxFrameWidth).clamp(
+      minFrameWidth,
+      maxFrameWidth,
+    );
+    final frameHeight = frameWidth / widget.aspectRatio;
+    final frameSize = Size(frameWidth, math.max(frameHeight, 1.0));
 
     final previous = _frameCenter ?? display.center;
     final center = Offset(
@@ -181,6 +215,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
         display.bottom - frameSize.height / 2,
       ),
     );
+    _frameWidth = frameWidth;
     _frameCenter = center;
     _layout = _CropLayout(
       display: display,
@@ -189,6 +224,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       rotatedHeight: rotatedHeight,
       frameSize: frameSize,
       center: center,
+      minFrameWidth: minFrameWidth,
+      maxFrameWidth: maxFrameWidth,
     );
   }
 
@@ -205,9 +242,73 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     });
   }
 
+  void _onResizeStart(_CropCorner corner) {
+    final layout = _layout;
+    if (layout == null) return;
+    // The opposite corner stays put so the frame grows or shrinks from the
+    // corner the user grabbed.
+    final frame = layout.frameRect;
+    _resizeAnchor = switch (corner) {
+      _CropCorner.topLeft => frame.bottomRight,
+      _CropCorner.topRight => frame.bottomLeft,
+      _CropCorner.bottomLeft => frame.topRight,
+      _CropCorner.bottomRight => frame.topLeft,
+    };
+    _resizeCorner = corner;
+  }
+
+  void _onResizeUpdate(DragUpdateDetails details) {
+    final layout = _layout;
+    final anchor = _resizeAnchor;
+    final corner = _resizeCorner;
+    final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (layout == null || anchor == null || corner == null || box == null) {
+      return;
+    }
+    final pointer = box.globalToLocal(details.globalPosition);
+    final growsRight =
+        corner == _CropCorner.topRight || corner == _CropCorner.bottomRight;
+    final growsDown =
+        corner == _CropCorner.topLeft || corner == _CropCorner.bottomRight;
+    final signX = growsRight ? 1.0 : -1.0;
+    final signY = growsDown ? 1.0 : -1.0;
+
+    // The frame cannot leave the image: cap the width at the room left between
+    // the fixed corner and the image edge, in both directions.
+    final roomX = growsRight
+        ? layout.display.right - anchor.dx
+        : anchor.dx - layout.display.left;
+    final roomY = growsDown
+        ? layout.display.bottom - anchor.dy
+        : anchor.dy - layout.display.top;
+    final maxWidth = math.min(
+      layout.maxFrameWidth,
+      math.min(roomX, roomY * widget.aspectRatio),
+    );
+    final minWidth = math.min(layout.minFrameWidth, maxWidth);
+
+    // Fixed ratio: the corner follows the larger of the two drag components.
+    final requested = math.max(
+      (pointer.dx - anchor.dx) * signX,
+      (pointer.dy - anchor.dy) * signY * widget.aspectRatio,
+    );
+    final width = requested.clamp(minWidth, maxWidth);
+    final height = width / widget.aspectRatio;
+
+    setState(() {
+      _frameWidth = width;
+      _frameCenter = Offset(
+        anchor.dx + signX * width / 2,
+        anchor.dy + signY * height / 2,
+      );
+    });
+  }
+
   void _rotate() {
     setState(() {
       _turns = (_turns + 1) % 4;
+      // A new orientation starts from the largest frame that fits it.
+      _frameWidth = null;
       _layout = null;
     });
   }
@@ -246,6 +347,40 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     );
   }
 
+  /// A drag handle centred on one [corner] of the frame, with a 44 px touch
+  /// area around the small visible dot.
+  Widget _cornerHandle(_CropCorner corner, Rect frame) {
+    const touchSize = 44.0;
+    final center = switch (corner) {
+      _CropCorner.topLeft => frame.topLeft,
+      _CropCorner.topRight => frame.topRight,
+      _CropCorner.bottomLeft => frame.bottomLeft,
+      _CropCorner.bottomRight => frame.bottomRight,
+    };
+    return Positioned(
+      left: center.dx - touchSize / 2,
+      top: center.dy - touchSize / 2,
+      width: touchSize,
+      height: touchSize,
+      child: GestureDetector(
+        key: ValueKey('image-crop-handle-${corner.name}'),
+        behavior: HitTestBehavior.opaque,
+        onPanStart: (_) => _onResizeStart(corner),
+        onPanUpdate: _onResizeUpdate,
+        child: Center(
+          child: Container(
+            width: 14,
+            height: 14,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -280,19 +415,29 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                     builder: (context, constraints) {
                       _ensureLayout(constraints.biggest);
                       final layout = _layout!;
-                      return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onPanUpdate: _onPanUpdate,
-                        child: CustomPaint(
-                          key: const ValueKey('image-crop-canvas'),
-                          painter: _CropPainter(
-                            image: image,
-                            turns: _turns,
-                            layout: layout,
-                            circular: widget.circular,
+                      final frame = layout.frameRect;
+                      return Stack(
+                        key: _stackKey,
+                        children: [
+                          Positioned.fill(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onPanUpdate: _onPanUpdate,
+                              child: CustomPaint(
+                                key: const ValueKey('image-crop-canvas'),
+                                painter: _CropPainter(
+                                  image: image,
+                                  turns: _turns,
+                                  layout: layout,
+                                  circular: widget.circular,
+                                ),
+                                child: const SizedBox.expand(),
+                              ),
+                            ),
                           ),
-                          child: const SizedBox.expand(),
-                        ),
+                          for (final corner in _CropCorner.values)
+                            _cornerHandle(corner, frame),
+                        ],
                       );
                     },
                   ),

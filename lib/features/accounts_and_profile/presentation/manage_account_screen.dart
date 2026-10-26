@@ -351,6 +351,11 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        // The Exit App window's 8 px corner (user request), so every window on
+        // this screen that can destroy something is cut alike.
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+        ),
         title: Text(l.settingsManageAccount_deleteDialogTitle),
         content: Text(
           premium

@@ -37,6 +37,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/presentation/mana
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/data/local_auth_service.dart';
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/features/settings/data/backup_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
@@ -311,6 +312,90 @@ void main() {
 
     await tester.tap(find.widgetWithText(TextButton, l.sharedActions_cancel));
     await tester.pumpAndSettle();
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the two destructive windows share the Exit App corner', (
+    tester,
+  ) async {
+    await pumpManageAccount(tester);
+
+    /// The corner the window on screen is drawn with.
+    BorderRadius windowCorner() {
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      return (dialog.shape! as RoundedRectangleBorder).borderRadius
+          as BorderRadius;
+    }
+
+    // The Delete Account warning…
+    final card = find.text(l.settingsManageAccount_deleteAccount);
+    await tester.ensureVisible(card);
+    await tester.pumpAndSettle();
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    expect(windowCorner(), BorderRadius.circular(AppSpacing.cardRadius * 2));
+
+    await tester.tap(find.widgetWithText(TextButton, l.sharedActions_cancel));
+    await tester.pumpAndSettle();
+
+    // …and the Delete Data tick list wear the Exit App window's own corner:
+    // `AppSpacing.cardRadius * 2`, which is the 8 px that window is cut with.
+    await tester.ensureVisible(
+      find.text(l.settingsManageAccount_deleteLocalData),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(l.settingsManageAccount_deleteLocalDataTitle),
+      findsOneWidget,
+    );
+    expect(windowCorner(), BorderRadius.circular(AppSpacing.cardRadius * 2));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the seed row\'s tick rides its title, not its hint', (
+    tester,
+  ) async {
+    // The defect this pins: the Custom Seed Data row is the one two-line row in
+    // the tick list, and its tick was centred against the whole tile — so it
+    // lined up with the hint under the title instead of with the title itself
+    // (user request).
+    await pumpManageAccount(tester);
+
+    await tester.ensureVisible(
+      find.text(l.settingsManageAccount_deleteLocalData),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.settingsManageAccount_deleteLocalData));
+    await tester.pumpAndSettle();
+
+    final row = find.byKey(const ValueKey('data-deletion-customSeedData'));
+    final tick = find.descendant(of: row, matching: find.byType(Checkbox));
+    final title = find.descendant(
+      of: row,
+      matching: find.text(l.settingsManageAccount_deleteDataCustomSeedData),
+    );
+    final hint = find.descendant(
+      of: row,
+      matching: find.text(l.settingsManageAccount_deleteDataCustomSeedDataHint),
+    );
+
+    expect(
+      (tester.getCenter(tick).dy - tester.getCenter(title).dy).abs(),
+      lessThanOrEqualTo(1),
+      reason: 'the tick lines up with the Custom Seed Data title',
+    );
+    expect(
+      tester.getCenter(hint).dy,
+      greaterThan(tester.getCenter(title).dy),
+      reason: 'and the hint stays where it belongs, under the title',
+    );
+    // The hint starts where the title starts, so the row still reads as one
+    // label with its own note rather than a note floating beside a tick.
+    expect(tester.getTopLeft(hint).dx, tester.getTopLeft(title).dx);
 
     await unmountApp(tester);
   });

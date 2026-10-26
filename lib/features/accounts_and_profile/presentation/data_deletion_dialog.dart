@@ -56,6 +56,11 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return AlertDialog(
+      // The Exit App window's 8 px corner (user request), so this window and
+      // the Delete Account warning beside it read as the same family.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
       title: Text(
         widget.cloud
             ? l.settingsManageAccount_deleteDataTitle
@@ -111,10 +116,27 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
     );
   }
 
+  /// Where the hint starts: the tick's own 48 px tap target plus the 8 px gap a
+  /// `dense` tile leaves before its title. Both numbers are the tile's internals
+  /// rather than ours, so the suite pins the result instead of trusting this:
+  /// the hint's left edge must land on the title's own.
+  static const double _hintInset = 48 + 8;
+
   /// One tick row: the kind of data, and — for the seed data — what it holds.
-  Widget _row(AppLocalizations l, DataDeletionCategory category) =>
+  ///
+  /// The hint sits **under the tile** rather than inside it (user request).
+  /// Inside, it made the seed row the one two-line tile in the list, so its tick
+  /// was centred against the whole tile and lined up with the hint instead of
+  /// with the **Custom Seed Data** title above it. Every row is now a single-line
+  /// tick, so every tick rides its own title, and the hint keeps its place under
+  /// the title it explains.
+  Widget _row(AppLocalizations l, DataDeletionCategory category) => Column(
+    // The key names the whole row, hint included, so a test (or a future
+    // caller) can measure the row as one thing.
+    key: ValueKey('data-deletion-${category.name}'),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
       CheckboxListTile(
-        key: ValueKey('data-deletion-${category.name}'),
         value: _selected.contains(category),
         onChanged: (checked) => setState(() {
           if (checked ?? false) {
@@ -127,15 +149,22 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
         contentPadding: EdgeInsets.zero,
         dense: true,
         title: Text(_title(l, category), style: AppTypography.titleMd),
-        subtitle: category == DataDeletionCategory.customSeedData
-            ? Text(
-                l.settingsManageAccount_deleteDataCustomSeedDataHint,
-                style: AppTypography.bodySm.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              )
-            : null,
-      );
+      ),
+      if (category == DataDeletionCategory.customSeedData)
+        Padding(
+          padding: const EdgeInsets.only(
+            left: _hintInset,
+            bottom: AppSpacing.xs,
+          ),
+          child: Text(
+            l.settingsManageAccount_deleteDataCustomSeedDataHint,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ),
+    ],
+  );
 
   /// The row's title, one label per kind of data.
   String _title(AppLocalizations l, DataDeletionCategory category) =>

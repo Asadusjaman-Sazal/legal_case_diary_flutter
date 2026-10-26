@@ -2093,6 +2093,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFirm_title => 'Firm';
 
   @override
+  String get settingsFirm_joinFirmSubtitle =>
+      'Join a firm with an invitation code from its owner';
+
+  @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
       'Manage your firm, its associates, and permissions';
 
@@ -4680,7 +4684,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_errorPremiumRequired =>
-      'Firm Mode Requires An Active Premium Subscription.';
+      'Firm mode requires an active premium subscription.';
 
   @override
   String get firm_errorTierRequired =>

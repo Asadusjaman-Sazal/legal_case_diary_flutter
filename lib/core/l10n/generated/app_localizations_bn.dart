@@ -2097,6 +2097,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsFirm_title => 'ফার্ম';
 
   @override
+  String get settingsFirm_joinFirmSubtitle =>
+      'ফার্মের মালিকের আমন্ত্রণ কোড দিয়ে ফার্মে যোগ দিন';
+
+  @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
       'আপনার ফার্ম, সহকারী ও অনুমতিগুলো পরিচালনা করুন';
 

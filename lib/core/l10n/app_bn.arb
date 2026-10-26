@@ -1036,6 +1036,7 @@
   "settingsAccountProfile_subscriptionHistorySubtitle": "প্রতিটি ক্রয়, অনুমোদন ও বাতিল",
   "@@_section_settingsFirm": "SETTINGS - FIRM MENU  |  lib/features/accounts_and_profile/presentation/firm_menu_screen.dart",
   "settingsFirm_title": "ফার্ম",
+  "settingsFirm_joinFirmSubtitle": "ফার্মের মালিকের আমন্ত্রণ কোড দিয়ে ফার্মে যোগ দিন",
   "settingsAccountProfile_manageAssociatesSubtitle": "আপনার ফার্ম, সহকারী ও অনুমতিগুলো পরিচালনা করুন",
   "settingsAccountProfile_createFirmSubtitle": "ফার্ম তৈরি করুন ও সহকারীদের আমন্ত্রণ জানান",
   "settingsAccountProfile_deleteRequestsSubtitle": "অনুরোধ পর্যালোচনা করুন ও সিদ্ধান্ত জানুন",

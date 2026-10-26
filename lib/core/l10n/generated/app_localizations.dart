@@ -3730,6 +3730,12 @@ abstract class AppLocalizations {
   /// **'Firm'**
   String get settingsFirm_title;
 
+  /// No description provided for @settingsFirm_joinFirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a firm with an invitation code from its owner'**
+  String get settingsFirm_joinFirmSubtitle;
+
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
   /// In en, this message translates to:
@@ -7999,7 +8005,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_errorPremiumRequired.
   ///
   /// In en, this message translates to:
-  /// **'Firm Mode Requires An Active Premium Subscription.'**
+  /// **'Firm mode requires an active premium subscription.'**
   String get auth_errorPremiumRequired;
 
   /// No description provided for @firm_errorTierRequired.

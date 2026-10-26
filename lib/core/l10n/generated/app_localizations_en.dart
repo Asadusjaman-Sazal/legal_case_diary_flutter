@@ -4876,7 +4876,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_joinFirmCodeLabel => 'Invitation Code';
 
   @override
-  String get manageAssociates_joinFirmSend => 'Send';
+  String get manageAssociates_joinFirmSend => 'Join';
 
   @override
   String get manageAssociates_joinFirmPlanTitle => 'Join a Firm?';

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.664 - Join a Firm is now a card on the Firm page instead of a button on the create-firm page, and the create page's premium line is sentence case.
+Version: 0.0.665 - The Join a Firm window's action now reads Join instead of Send.
 --------------------------------------
 
 ## Version History Log:
@@ -678,3 +678,4 @@ Version: 0.0.661 - The Select Image page's frame now resizes from its corners, s
 Version: 0.0.662 - Firm Logo frame resizing now works: a sideways corner pull resizes the wide frame, the left corners drag in the right vertical direction, and the 512 px floor, edge limit and 50 KB cap are unchanged.
 Version: 0.0.663 - Firm now has its own Settings entry, offered to every account, holding Manage Firm/Create a Firm and Delete Requests with their previous visibility; Account & Profile keeps Profile, Account and Subscription.
 Version: 0.0.664 - Join a Firm is now a card on the Firm page instead of a button on the create-firm page, and the create page's premium line is sentence case.
+Version: 0.0.665 - The Join a Firm window's action now reads Join instead of Send.

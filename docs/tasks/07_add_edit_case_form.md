@@ -68,6 +68,8 @@ Implement the **Update button pop-up** (quick date & step update window styled a
 
 **AD/HCD update-window swap:** Appellate/High Court Division cases have no seeded Steps, so the Update window hides the Step multi-select and instead shows a `Result` (`result`) text field, persisted on save. Lower-court cases keep the Step control and omit Result.
 
+**Update-window title band (0.0.671, user request):** the quick update pop-up's title background is the app's black — `AppColors.secondary` (`#000000`), the same ink the buttons, the side menu and the day-offset title bar wear — rather than the ink navy `AppColors.primary` the headers otherwise carry. The band is drawn inline in `QuickUpdateCaseDialog` and carries the key `quick-update-title`, so the acceptance test pins its colour; nothing else in the window moved.
+
 **Phase 3 completion:** `flutter analyze` clean. Update `docs/version_history.md`.
 
 ## Phase 4 — Next Date picker refinements (`date_picker_helper.dart`)

@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The Update window's title band takes the app's black — COMPLETE (0.0.671)
+
+- **What was asked.** Only in the Update window: make the title background the app's primary black.
+- **What changed.** The Quick Update window's title band moved from the ink navy `AppColors.primary` (`#0F172A`) to **`AppColors.secondary` (`#000000`)** — the app's one black, which the buttons, the side menu and the day-offset title bar already wear (0.0.583 met the same request for that shared picker header, and it used the same token). The title *Update* and the close icon stay white on it. Nothing else in the window moved — the summary card, the fields, the day offsets, the notification row and the Save action are as they were — and no other window or header changed, because this band is drawn inline in `QuickUpdateCaseDialog` rather than shared.
+- **Checks.** `flutter analyze` clean; `task07_acceptance_test.dart` passes **22 cases**, with its Quick Update window case now also asserting the band's colour; that assertion was proved to have teeth — with the old navy restored it fails and with black it passes; full `flutter test` **2,138 passed**; `python tool/record_version.py --check` clean.
+- **Mockup.** None owed — the quick update pop-up is a window inside the case screens and has no mockup of its own (rule 9).
+- **Resume point.** Nothing outstanding.
+
 ### 2026-10-26 — The deletion-request window is titled Request Deletion — COMPLETE (0.0.670)
 
 - **What was asked.** Change that window's title to **Request Deletion**.

@@ -2371,8 +2371,12 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // The title band is the app's black (#000000) — the same black the
+              // buttons and the side menu wear — rather than the ink navy the
+              // headers otherwise use (user request).
               Container(
-                color: AppColors.primary,
+                key: const ValueKey('quick-update-title'),
+                color: AppColors.secondary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.md,

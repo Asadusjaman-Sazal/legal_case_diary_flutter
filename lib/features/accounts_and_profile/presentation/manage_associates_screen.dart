@@ -1033,7 +1033,9 @@ class _PictureAction extends StatelessWidget {
       child: Opacity(
         opacity: onTap == null ? 0.4 : 1,
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          // The Profile picture edit/delete buttons' own padding (user request:
+          // the firm's logo and name actions must match their size).
+          padding: const EdgeInsets.all(AppSpacing.xs),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color,

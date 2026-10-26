@@ -520,6 +520,28 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the firm picture actions take the Profile edit button size', (
+    tester,
+  ) async {
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    // The Profile picture button is an 18 px icon, xs padding on each side and
+    // a 2 px rim on each edge; the firm logo and name actions must be that same
+    // box.
+    final side = 18 + AppSpacing.xs * 2 + 2 * 2;
+    final expected = Size(side, side);
+    expect(
+      tester.getSize(find.byKey(const ValueKey('firm-logo-change'))),
+      expected,
+    );
+    expect(
+      tester.getSize(find.byKey(const ValueKey('firm-name-change'))),
+      expected,
+    );
+
+    await unmountApp(tester);
+  });
+
   testWidgets('the name pencil sits beside a short firm name', (tester) async {
     // A short name on purpose: the test font is the fixed-width Ahem face, so
     // "Rahman & Associates" is already too wide to share a line with the pen.

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.661 - The Select Image page's frame now resizes from its corners, shape held and kept inside the image, down to the 512 source pixels the stored picture needs; move, rotate, Save and the 50 KB cap are unchanged.
+Version: 0.0.662 - Firm Logo frame resizing now works: a sideways corner pull resizes the wide frame, the left corners drag in the right vertical direction, and the 512 px floor, edge limit and 50 KB cap are unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -675,3 +675,4 @@ Version: 0.0.658 - Profile and firm pictures open full-screen viewers with heade
 Version: 0.0.659 - The picture viewer's Delete and Edit sit slightly left with a 50% wider gap, and the Files source row now matches the Gallery's plain black icon-and-text style.
 Version: 0.0.660 - The Files source row now sits directly under Gallery and aligns with it, instead of at the bottom right.
 Version: 0.0.661 - The Select Image page's frame now resizes from its corners, shape held and kept inside the image, down to the 512 source pixels the stored picture needs; move, rotate, Save and the 50 KB cap are unchanged.
+Version: 0.0.662 - Firm Logo frame resizing now works: a sideways corner pull resizes the wide frame, the left corners drag in the right vertical direction, and the 512 px floor, edge limit and 50 KB cap are unchanged.

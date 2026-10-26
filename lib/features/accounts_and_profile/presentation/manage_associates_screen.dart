@@ -1472,8 +1472,10 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
               ),
               const SizedBox(height: AppSpacing.md),
             ],
-            SettingsSectionLabel(l.manageAssociates_permissionsTitle),
-            const SizedBox(height: AppSpacing.sm),
+            // The sheet opens on the role, then on the permissions the role
+            // governs (user request): the label that heads the switches sits
+            // after the role rather than above it, and wears the same small
+            // style as the role's own label so the two read as one pair.
             Text(
               l.manageAssociates_roleLabel,
               style: AppTypography.labelMd.copyWith(
@@ -1504,7 +1506,14 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l.manageAssociates_permissionsTitle,
+              style: AppTypography.labelMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
             _PermissionToggle(
               label: l.manageAssociates_permissionAdd,
               value: _canAdd,
@@ -1554,14 +1563,31 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
               ),
             ],
             const SizedBox(height: AppSpacing.sm),
+            // Removal is the destructive action of this sheet, so it wears the
+            // app's red fill with white ink, at the Save button's own height and
+            // shape (user request) — the same reading the Dissolve action
+            // carries on the page behind this sheet.
             SizedBox(
               width: double.infinity,
-              child: TextButton.icon(
+              child: FilledButton.icon(
                 key: const ValueKey('member-remove'),
                 onPressed: _busy ? null : _remove,
-                icon: const Icon(Icons.person_remove_alt_1_outlined, size: 18),
+                icon: const Icon(Icons.person_remove_alt_1_outlined, size: 20),
                 label: Text(l.manageAssociates_removeAssociate),
-                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: AppColors.onError,
+                  disabledBackgroundColor: AppColors.error.withValues(
+                    alpha: 0.38,
+                  ),
+                  textStyle: AppTypography.titleMd,
+                  minimumSize: const Size.fromHeight(
+                    settingsPrimaryButtonHeight,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                  ),
+                ),
               ),
             ),
           ],

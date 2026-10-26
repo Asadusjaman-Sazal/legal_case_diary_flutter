@@ -1196,6 +1196,26 @@ void main() {
     // nothing writes nothing surprising.
     expect(find.text(l.manageAssociates_permissionsTitle), findsOneWidget);
 
+    // The role comes first and the permissions label heads the switches below
+    // it (user request), rather than sitting above a role it does not describe.
+    expect(
+      tester.getTopLeft(find.text(l.manageAssociates_permissionsTitle)).dy,
+      greaterThan(tester.getTopLeft(find.text(l.manageAssociates_roleLabel)).dy),
+    );
+    // And each switch names the kinds of record the flag covers, not cases
+    // alone: the same flag governs notes, the history entries and the
+    // references (user request).
+    expect(l.manageAssociates_permissionAdd, 'Add Cases, Notes etc');
+    expect(l.manageAssociates_permissionEdit, 'Edit Cases, Notes etc');
+    expect(l.manageAssociates_permissionDelete, 'Delete Cases, Notes etc');
+    for (final label in <String>[
+      l.manageAssociates_permissionAdd,
+      l.manageAssociates_permissionEdit,
+      l.manageAssociates_permissionDelete,
+    ]) {
+      expect(find.text(label), findsOneWidget);
+    }
+
     await tester.tap(find.byKey(const ValueKey('member-role-viewer')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(l.manageAssociates_permissionDelete));
@@ -1255,6 +1275,61 @@ void main() {
 
     expect(harness.firm.removedMemberIds, ['user-2']);
     expect(find.text(l.manageAssociates_associateRemoved), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the removal action is red-filled, white-inked and lower case', (
+    tester,
+  ) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Adv. Karim',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-member-user-2')),
+    );
+    await tester.pumpAndSettle();
+
+    // The wording is the user's own — a minor preposition stays lower case.
+    expect(l.manageAssociates_removeAssociate, 'Remove from Firm');
+    final remove = tester.widget<FilledButton>(
+      find.ancestor(
+        of: find.text(l.manageAssociates_removeAssociate),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    expect(
+      remove.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+      reason: 'a removal is the destructive action of this sheet',
+    );
+    expect(
+      remove.style?.foregroundColor?.resolve(<WidgetState>{}),
+      AppColors.onError,
+    );
+    // The Save button's own height and shape, so the pair reads as one column.
+    expect(
+      remove.style?.minimumSize?.resolve(<WidgetState>{}),
+      const Size.fromHeight(settingsPrimaryButtonHeight),
+    );
 
     await unmountApp(tester);
   });

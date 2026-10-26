@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Files sits under Gallery — COMPLETE (0.0.660)
+
+- **What was asked.** Move the Files choice under the Gallery button so it aligns with it, rather than sitting at the bottom right.
+- **What changed.** The Files row is now a second `ListTile` directly below Gallery: same leading icon, black title, 16 px content padding and full-width tap area, no background. The bottom-right `Align` and the custom row are gone; the chooser is one aligned two-row list.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,133 passed**; the source-sheet case now asserts Files starts below Gallery and shares its left edge, while keeping the same black icon/text style and no button chrome.
+- **No mockup** — the source sheet is new and has none.
+
+### 2026-10-26 — Picture viewer spacing and the Files row — COMPLETE (0.0.659)
+
+- **What was asked.** In the Profile Picture / Firm Logo viewer, move Delete and Edit slightly left and widen the gap between them by 50%. In the Gallery/Files chooser, make Files match the Gallery's plain style — no background, icon and black text only.
+- **What changed.** The viewer's header actions are now one group with a **12 px** right inset and a **6 px** gap (the old gap was 4, so +50%); both circles sit further from the edge. The Files row is no longer a `TextButton`: it is a plain `InkWell` with a 24 px black folder icon and 16 px black text, 16 px padding on each side, the same size and colours as the Gallery ListTile (whose icon/text are now explicitly black too), still at the bottom right of the sheet.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,133 passed**; the Profile viewer case now measures the 6 px gap and the right inset, and a new source-sheet case checks the Files row has no button chrome and shares the Gallery's icon/text colour and size.
+- **No mockup** — the viewer and the source sheet are new screens with none.
+
 ### 2026-10-26 — Pictures open a viewer and a simpler selection page — COMPLETE (0.0.658)
 
 - **What was asked.** The frame selection was too complicated, and the overlaying edit/delete buttons add clutter. Tapping the profile picture or firm logo should open a full-screen viewer with a sub-page header (back, Delete, Edit), Edit should offer Gallery and a Files button, and the selection page should show a fixed frame dragged over a whole image with Cancel / rotate / Save.

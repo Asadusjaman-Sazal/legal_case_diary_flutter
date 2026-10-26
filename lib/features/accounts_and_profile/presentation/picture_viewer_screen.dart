@@ -54,21 +54,33 @@ class PictureViewerScreen extends ConsumerWidget {
       // A picture is not a syncing list: the viewer must not pull-to-sync.
       pullToSync: false,
       actions: [
-        if (canDelete)
-          _headerAction(
-            icon: Icons.delete,
-            color: AppColors.error,
-            tooltip: l.sharedActions_delete,
-            onTap: () async {
-              await onDelete!();
-              if (context.mounted) Navigator.of(context).pop();
-            },
+        // The pair sits a little further from the edge, with 50% more space
+        // between them than the old 4 px (user request).
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (canDelete) ...[
+                _headerAction(
+                  icon: Icons.delete,
+                  color: AppColors.error,
+                  tooltip: l.sharedActions_delete,
+                  onTap: () async {
+                    await onDelete!();
+                    if (context.mounted) Navigator.of(context).pop();
+                  },
+                ),
+                const SizedBox(width: 6),
+              ],
+              _headerAction(
+                icon: Icons.edit,
+                color: AppColors.primary,
+                tooltip: editTooltip,
+                onTap: () => onEdit(context),
+              ),
+            ],
           ),
-        _headerAction(
-          icon: Icons.edit,
-          color: AppColors.primary,
-          tooltip: editTooltip,
-          onTap: () => onEdit(context),
         ),
       ],
       child: ColoredBox(
@@ -84,21 +96,18 @@ class PictureViewerScreen extends ConsumerWidget {
     required Color color,
     required String tooltip,
     required VoidCallback onTap,
-  }) => Padding(
-    padding: const EdgeInsets.only(right: 4),
-    child: Tooltip(
-      message: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          child: Icon(icon, color: Colors.white, size: 20),
+  }) => Tooltip(
+    message: tooltip,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color,
+          border: Border.all(color: Colors.white, width: 2),
         ),
+        child: Icon(icon, color: Colors.white, size: 20),
       ),
     ),
   );

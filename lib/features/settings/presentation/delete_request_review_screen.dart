@@ -169,6 +169,16 @@ class _DeleteRequestReviewScreenState
     super.dispose();
   }
 
+  /// Empties the note box and hands the keyboard back (user request).
+  ///
+  /// One action for the cross in the box's own trailing slot, so the wipe and
+  /// the focus change cannot get out of step, and so the box's state is settled
+  /// before the frame the empty field is painted in.
+  void _clearNote() {
+    _noteController.clear();
+    _noteFocus.unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -266,15 +276,15 @@ class _DeleteRequestReviewScreenState
               labelText: l.deleteRequests_noteLabel,
               hintText: l.deleteRequests_noteHint,
               // The cross rides the keyboard: it appears while the box holds the
-              // focus and closes it on tap (user request), and it never clears
-              // the note — what the reviewer typed is the review's content, so a
-              // stray tap must not wipe it.
+              // focus, and on tap it empties the box and closes the keyboard
+              // (user request — the clearing was added after the closing, so
+              // the one tap both wipes the note and puts the keyboard away).
               suffixIcon: _noteFocused
                   ? IconButton(
                       key: const ValueKey('delete-review-note-close'),
                       icon: const Icon(Icons.close),
-                      tooltip: l.deleteRequests_noteCloseKeyboard,
-                      onPressed: _noteFocus.unfocus,
+                      tooltip: l.deleteRequests_noteClearText,
+                      onPressed: _clearNote,
                     )
                   : null,
               border: OutlineInputBorder(

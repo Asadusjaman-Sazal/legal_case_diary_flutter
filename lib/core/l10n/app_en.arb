@@ -2440,7 +2440,7 @@
   "deleteRequests_snapshot": "Requested Record",
   "deleteRequests_noteLabel": "Review Note (Optional)",
   "deleteRequests_noteHint": "Add A Reason",
-  "deleteRequests_noteCloseKeyboard": "Close Keyboard",
+  "deleteRequests_noteClearText": "Clear texts",
   "deleteRequests_approve": "Approve",
   "deleteRequests_reconfirm": "Reconfirm",
   "deleteRequests_reject": "Reject",

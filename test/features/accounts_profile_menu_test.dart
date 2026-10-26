@@ -287,7 +287,13 @@ void main() {
       findsOneWidget,
     );
 
-    expect(find.text(l.manageAssociates_title), findsOneWidget);
+    // The firm row is the teaser an individual sees: no firm yet, so it offers
+    // to create one (0.0.654, user request).
+    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(
+      find.text(l.settingsAccountProfile_createFirmSubtitle),
+      findsOneWidget,
+    );
     // Eight rows in total; Change Password is not offered from here.
     expect(find.byType(SettingsMenuCard), findsNWidgets(8));
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
@@ -442,14 +448,18 @@ void main() {
     },
   );
 
-  testWidgets('hides the Firm section when Manage Associates is hidden', (
+  testWidgets('a free individual sees the Create a Firm teaser, and no queue', (
     tester,
   ) async {
-    // An empty "Firm" header must never dangle above nothing.
+    // The firm row is open to every individual (0.0.654, user request): the
+    // screen behind it explains what a firm is and links to the firm plans, and
+    // the create action itself sends a free account to the Paywall. The queue
+    // stays away — it belongs to a firm this account does not have.
     await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    expect(find.text(l.manageAssociates_title), findsNothing);
-    expect(find.text(l.settingsAccountProfile_sectionFirm), findsNothing);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+    expect(find.text(l.deleteRequests_title), findsNothing);
     // A free individual has no multi-device support either.
     expect(find.text(l.devices_title), findsNothing);
 
@@ -457,12 +467,13 @@ void main() {
   });
 
   testWidgets('the Account section offers no Security row', (tester) async {
-    // A free individual sees six cards — Profile, Manage Account, App Lock,
-    // Manage Plan, Subscription Plans, Subscription History — so none is a
-    // Security entry that only lost its label, and Devices is not offered.
+    // A free individual sees seven cards — Profile, Manage Account, App Lock,
+    // Manage Plan, Subscription Plans, Subscription History and the Create a
+    // Firm teaser — so none is a Security entry that only lost its label, and
+    // Devices is not offered.
     await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(6));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(7));
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
     expect(find.text(l.settingsAppLock_title), findsOneWidget);
     expect(find.text(l.devices_title), findsNothing);

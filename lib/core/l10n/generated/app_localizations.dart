@@ -3691,8 +3691,14 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage Associates, Invites, And Firm Permissions'**
+  /// **'Manage your firm, its associates, and permissions'**
   String get settingsAccountProfile_manageAssociatesSubtitle;
+
+  /// No description provided for @settingsAccountProfile_createFirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a firm and invite your associates'**
+  String get settingsAccountProfile_createFirmSubtitle;
 
   /// No description provided for @settingsAccountProfile_deleteRequestsSubtitle.
   ///
@@ -8125,13 +8131,13 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_title.
   ///
   /// In en, this message translates to:
-  /// **'Manage Associates'**
+  /// **'Manage Firm'**
   String get manageAssociates_title;
 
   /// No description provided for @manageAssociates_ownerOnly.
   ///
   /// In en, this message translates to:
-  /// **'Only The Firm Owner Can Manage Associates.'**
+  /// **'Only the firm owner can manage the firm.'**
   String get manageAssociates_ownerOnly;
 
   /// No description provided for @manageAssociates_sectionMembers.
@@ -8259,6 +8265,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go Premium'**
   String get manageAssociates_goPremium;
+
+  /// No description provided for @manageAssociates_joinFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Firm'**
+  String get manageAssociates_joinFirm;
+
+  /// No description provided for @manageAssociates_joinFirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Firm'**
+  String get manageAssociates_joinFirmTitle;
+
+  /// No description provided for @manageAssociates_joinFirmIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the invitation code provided by your firm owner.'**
+  String get manageAssociates_joinFirmIntro;
+
+  /// No description provided for @manageAssociates_joinFirmCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation Code'**
+  String get manageAssociates_joinFirmCodeLabel;
+
+  /// No description provided for @manageAssociates_joinFirmSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get manageAssociates_joinFirmSend;
+
+  /// No description provided for @manageAssociates_joinFirmPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Firm?'**
+  String get manageAssociates_joinFirmPlanTitle;
+
+  /// No description provided for @manageAssociates_joinFirmPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your individual plan will not be paused. While you are in the firm, the firm\'s plan covers your access, and the paid time on your own plan stays with your account and applies again if you leave the firm.'**
+  String get manageAssociates_joinFirmPlanBody;
+
+  /// No description provided for @manageAssociates_joinFirmContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get manageAssociates_joinFirmContinue;
+
+  /// No description provided for @manageAssociates_changeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Firm Name'**
+  String get manageAssociates_changeName;
+
+  /// No description provided for @manageAssociates_changeNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Firm Name'**
+  String get manageAssociates_changeNameTitle;
+
+  /// No description provided for @manageAssociates_nameUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm name updated.'**
+  String get manageAssociates_nameUpdated;
 
   /// No description provided for @manageAssociates_inviteTitle.
   ///

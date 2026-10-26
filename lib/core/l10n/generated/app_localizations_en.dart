@@ -2073,7 +2073,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
-      'Manage Associates, Invites, And Firm Permissions';
+      'Manage your firm, its associates, and permissions';
+
+  @override
+  String get settingsAccountProfile_createFirmSubtitle =>
+      'Create a firm and invite your associates';
 
   @override
   String get settingsAccountProfile_deleteRequestsSubtitle =>
@@ -4759,11 +4763,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_sessionExpiredAction => 'Sign In';
 
   @override
-  String get manageAssociates_title => 'Manage Associates';
+  String get manageAssociates_title => 'Manage Firm';
 
   @override
   String get manageAssociates_ownerOnly =>
-      'Only The Firm Owner Can Manage Associates.';
+      'Only the firm owner can manage the firm.';
 
   @override
   String get manageAssociates_sectionMembers => 'Associates';
@@ -4832,6 +4836,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_goPremium => 'Go Premium';
+
+  @override
+  String get manageAssociates_joinFirm => 'Join a Firm';
+
+  @override
+  String get manageAssociates_joinFirmTitle => 'Join a Firm';
+
+  @override
+  String get manageAssociates_joinFirmIntro =>
+      'Enter the invitation code provided by your firm owner.';
+
+  @override
+  String get manageAssociates_joinFirmCodeLabel => 'Invitation Code';
+
+  @override
+  String get manageAssociates_joinFirmSend => 'Send';
+
+  @override
+  String get manageAssociates_joinFirmPlanTitle => 'Join a Firm?';
+
+  @override
+  String get manageAssociates_joinFirmPlanBody =>
+      'Your individual plan will not be paused. While you are in the firm, the firm\'s plan covers your access, and the paid time on your own plan stays with your account and applies again if you leave the firm.';
+
+  @override
+  String get manageAssociates_joinFirmContinue => 'Continue';
+
+  @override
+  String get manageAssociates_changeName => 'Change Firm Name';
+
+  @override
+  String get manageAssociates_changeNameTitle => 'Change Firm Name';
+
+  @override
+  String get manageAssociates_nameUpdated => 'Firm name updated.';
 
   @override
   String get manageAssociates_inviteTitle => 'Invite Code';

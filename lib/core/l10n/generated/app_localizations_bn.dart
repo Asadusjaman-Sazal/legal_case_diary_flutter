@@ -2077,7 +2077,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
-      'সহকারী, আমন্ত্রণ ও ফার্মের অনুমতি পরিচালনা করুন';
+      'আপনার ফার্ম, সহকারী ও অনুমতিগুলো পরিচালনা করুন';
+
+  @override
+  String get settingsAccountProfile_createFirmSubtitle =>
+      'ফার্ম তৈরি করুন ও সহকারীদের আমন্ত্রণ জানান';
 
   @override
   String get settingsAccountProfile_deleteRequestsSubtitle =>
@@ -4778,11 +4782,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auth_sessionExpiredAction => 'সাইন ইন';
 
   @override
-  String get manageAssociates_title => 'সহকারী ব্যবস্থাপনা';
+  String get manageAssociates_title => 'ফার্ম পরিচালনা';
 
   @override
   String get manageAssociates_ownerOnly =>
-      'শুধু ফার্মের মালিক সহকারী ব্যবস্থাপনা করতে পারেন।';
+      'শুধু ফার্মের মালিক ফার্ম পরিচালনা করতে পারেন।';
 
   @override
   String get manageAssociates_sectionMembers => 'সহকারীরা';
@@ -4853,6 +4857,41 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_goPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get manageAssociates_joinFirm => 'ফার্মে যোগ দিন';
+
+  @override
+  String get manageAssociates_joinFirmTitle => 'ফার্মে যোগ দিন';
+
+  @override
+  String get manageAssociates_joinFirmIntro =>
+      'আপনার ফার্মের মালিকের দেওয়া আমন্ত্রণ কোডটি লিখুন।';
+
+  @override
+  String get manageAssociates_joinFirmCodeLabel => 'আমন্ত্রণ কোড';
+
+  @override
+  String get manageAssociates_joinFirmSend => 'পাঠান';
+
+  @override
+  String get manageAssociates_joinFirmPlanTitle => 'ফার্মে যোগ দেবেন?';
+
+  @override
+  String get manageAssociates_joinFirmPlanBody =>
+      'আপনার ব্যক্তিগত প্ল্যান বিরত থাকবে না। ফার্মে থাকাকালীন ফার্মের প্ল্যানই আপনার অ্যাক্সেস চালাবে, আর আপনার নিজের প্ল্যানের পরিশোধিত সময় আপনার অ্যাকাউন্টেই থাকবে—ফার্ম ছাড়লে আবার কার্যকর হবে।';
+
+  @override
+  String get manageAssociates_joinFirmContinue => 'চালিয়ে যান';
+
+  @override
+  String get manageAssociates_changeName => 'ফার্মের নাম পরিবর্তন করুন';
+
+  @override
+  String get manageAssociates_changeNameTitle => 'ফার্মের নাম পরিবর্তন করুন';
+
+  @override
+  String get manageAssociates_nameUpdated => 'ফার্মের নাম হালনাগাদ হয়েছে।';
 
   @override
   String get manageAssociates_inviteTitle => 'আমন্ত্রণ কোড';

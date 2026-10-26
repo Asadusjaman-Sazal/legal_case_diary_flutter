@@ -47,11 +47,13 @@ import '../../../core/providers/print_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/providers/database_provider.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/auth_widgets.dart';
+import '../../cases/data/local/cases_dao.dart';
 import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
@@ -65,7 +67,21 @@ import '../data/firm_logo_sync.dart';
 import '../data/firm_repository.dart';
 import '../data/profile_repository.dart' show AccountRole;
 
-/// Manage Associates: firm creation, invites and the roster.
+/// The account's own live case count — the "empty diary" qualification for
+/// joining a firm (0.0.654).
+///
+/// Scoped exactly as `join_firm` scopes its refusal: the rows an individual
+/// holds, with no firm. A count that has not arrived yet is null, and the join
+/// button is not offered on a guess.
+final _ownCaseCountProvider = StreamProvider<int>((ref) async* {
+  final db = await ref.watch(databaseProvider.future);
+  yield* CasesDao(db).watchNonDeletedCaseCount();
+});
+
+/// The firm screen: firm creation, invites and the roster.
+///
+/// Named **Manage Firm** once the account has one and **Create a Firm** until
+/// then, in its own title and on its menu row (0.0.654, user request).
 class ManageAssociatesScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const ManageAssociatesScreen({super.key});
@@ -120,7 +136,14 @@ class _ManageAssociatesScreenState
       body = _MessageBody(l.manageAssociates_ownerOnly);
     }
 
-    return SettingsSubPageModal(title: l.manageAssociates_title, child: body);
+    return SettingsSubPageModal(
+      // Titled by the account's own state, like its menu row: an individual is
+      // here to create a firm, an owner to manage one.
+      title: ref.watch(firmModeProvider)
+          ? l.manageAssociates_title
+          : l.manageAssociates_createFirmTitle,
+      child: body,
+    );
   }
 
   /// The owner's view: the firm, the invite action, the roster and the invites.
@@ -179,6 +202,7 @@ class _ManageAssociatesScreenState
           name: firmName,
           onChange: _busy || firm == null ? null : _pickFirmLogo,
           onRemove: _busy || firm == null ? null : _removeFirmLogo,
+          onRename: _busy || firm == null ? null : _renameFirm,
         ),
         if (capacity != null) ...[
           const SizedBox(height: AppSpacing.gutter),
@@ -301,6 +325,9 @@ class _ManageAssociatesScreenState
   Widget _firmSetupBody(AppLocalizations l) {
     final premium = ref.watch(premiumAccessProvider);
     final free = premium.value == false;
+    // The join path needs an empty diary: `join_firm` refuses an account that
+    // already holds its own rows, so a non-zero count offers nothing.
+    final ownCaseCount = ref.watch(_ownCaseCountProvider).value;
     final canSubmit =
         !_busy &&
         !premium.isLoading &&
@@ -323,9 +350,12 @@ class _ManageAssociatesScreenState
         const _FirmOverview(),
         const SizedBox(height: AppSpacing.lg),
         // The form's own heading, in the explainer's title size, so the page
-        // reads as two sections rather than one long card chain.
+        // reads as two sections rather than one long card chain. It shares its
+        // words with the page title while the account has no firm, so it is
+        // keyed for anyone measuring the page (0.0.654).
         Text(
           l.manageAssociates_createFirmTitle,
+          key: const ValueKey('firm-form-title'),
           style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -377,8 +407,80 @@ class _ManageAssociatesScreenState
               : l.manageAssociates_createFirm,
           onPressed: canSubmit ? _createFirm : null,
         ),
+        // The other way into a firm (0.0.654, user request): an account that
+        // signed up with its own diary can still join a colleague's chamber by
+        // redeeming an owner's code, while that diary is empty.
+        if (ownCaseCount == 0) ...[
+          const SizedBox(height: AppSpacing.md),
+          _SecondaryButton(
+            key: const ValueKey('manage-associates-join-firm'),
+            icon: Icons.group_add_outlined,
+            label: l.manageAssociates_joinFirm,
+            onPressed: _busy ? null : _joinFirm,
+          ),
+        ],
       ],
     );
+  }
+
+  /// Starts the join path: a paying individual is warned about their own plan
+  /// first, then the code is asked for.
+  ///
+  /// The warning is not ceremony: joining does not pause or cancel the plan. It
+  /// is **ignored** while the account holds a firm — only the firm's expiry
+  /// counts there — and the paid time stays on the account and applies again if
+  /// it leaves (plan, *A Member May Not Buy A Personal Plan*).
+  Future<void> _joinFirm() async {
+    final l = AppLocalizations.of(context);
+    if (ref.read(premiumAccessProvider).value == true) {
+      final proceed = await _confirm(
+        context: context,
+        title: l.manageAssociates_joinFirmPlanTitle,
+        body: l.manageAssociates_joinFirmPlanBody,
+        confirmLabel: l.manageAssociates_joinFirmContinue,
+        // The Exit App-styled window the rest of this screen's windows use, in
+        // the primary colour: this is a step forward, not a deletion.
+        matchesInviteCodeWindow: true,
+        destructive: false,
+      );
+      if (!proceed || !mounted) return;
+    }
+
+    final redemption = await showDialog<InviteRedemption>(
+      context: context,
+      builder: (_) => const _JoinFirmDialog(),
+    );
+    if (!mounted || redemption == null) return;
+    _say(
+      context,
+      redemption.status == InviteRedemptionStatus.alreadyMember
+          ? l.auth_errorAlreadyMember
+          : l.auth_joinedFirm,
+    );
+  }
+
+  /// Renames the firm, through a window carrying its current name.
+  ///
+  /// The write is the owner's one client-writable column on `firms`, and the
+  /// refresh behind it is what brings the new name into the cache this card
+  /// reads — the row itself is not this device's to keep.
+  Future<void> _renameFirm() async {
+    final l = AppLocalizations.of(context);
+    final current = ref.read(accountFirmProvider).value;
+    if (current == null) return;
+
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => _FirmNameDialog(initialName: current.name),
+    );
+    if (name == null || !mounted) return;
+
+    await _run(() async {
+      await ref.read(firmRepositoryProvider).updateFirmName(name);
+      await ref.read(accountRefreshProvider)();
+      if (!mounted) return;
+      _say(context, l.manageAssociates_nameUpdated);
+    });
   }
 
   /// Creates the firm and shows the first invite code.
@@ -782,6 +884,7 @@ class _FirmCard extends ConsumerWidget {
     required this.name,
     required this.onChange,
     required this.onRemove,
+    required this.onRename,
   });
 
   /// The firm's name, drawn bold and centred under the frame.
@@ -792,6 +895,9 @@ class _FirmCard extends ConsumerWidget {
 
   /// Removes the logo; null while a server call is in flight.
   final VoidCallback? onRemove;
+
+  /// Opens the rename window (0.0.654, user request); null while a call runs.
+  final VoidCallback? onRename;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -863,6 +969,15 @@ class _FirmCard extends ConsumerWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
+          ),
+          // The name is the owner's to change, and this is the only place it is
+          // shown (0.0.654, user request).
+          Center(
+            child: TextButton(
+              key: const ValueKey('firm-name-change'),
+              onPressed: onRename,
+              child: Text(l.manageAssociates_changeName),
+            ),
           ),
         ],
       ),
@@ -1504,6 +1619,7 @@ Future<bool> _confirm({
   required String confirmLabel,
   required BuildContext context,
   bool matchesInviteCodeWindow = false,
+  bool destructive = true,
 }) async {
   final l = AppLocalizations.of(context);
   final actionSize = matchesInviteCodeWindow ? const Size(112, 48) : null;
@@ -1542,7 +1658,12 @@ Future<bool> _confirm({
         ),
         FilledButton(
           style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error,
+            // Red only where the action destroys something: the join warning's
+            // *Continue* is a step forward and keeps the primary colour.
+            backgroundColor: destructive ? AppColors.error : AppColors.primary,
+            foregroundColor: destructive
+                ? AppColors.onError
+                : AppColors.onPrimary,
             minimumSize: actionSize,
             textStyle: matchesInviteCodeWindow ? actionText : null,
           ),
@@ -1671,6 +1792,38 @@ class _InfoRow extends StatelessWidget {
     child: Text(
       text,
       style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
+    ),
+  );
+}
+
+/// A secondary action at the primary button's size: the same height and corner,
+/// outlined instead of filled, so it reads as the other half of a pair rather
+/// than a lesser link (0.0.654).
+class _SecondaryButton extends StatelessWidget {
+  const _SecondaryButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    onPressed: onPressed,
+    icon: Icon(icon, size: 20),
+    label: Text(label),
+    style: OutlinedButton.styleFrom(
+      foregroundColor: AppColors.primary,
+      textStyle: AppTypography.titleMd,
+      side: const BorderSide(color: AppColors.primary),
+      minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      ),
     ),
   );
 }
@@ -1810,11 +1963,13 @@ class _InviteCodeDialogState extends ConsumerState<_InviteCodeDialog> {
             const SizedBox(height: AppSpacing.lg),
             // The Exit App window's action size (112 x 48 at 16 pt), in a Wrap
             // so the narrow window stacks them instead of overflowing — and so
-            // a longer Bengali label grows rather than clipping.
+            // a longer Bengali label grows rather than clipping. The rows are
+            // spaced exactly as the code box and the buttons above them are
+            // (0.0.654, user request), so the window reads as one column.
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 12,
-              runSpacing: AppSpacing.sm,
+              runSpacing: AppSpacing.lg,
               children: [
                 OutlinedButton(
                   key: const ValueKey('invite-code-copy'),
@@ -1894,6 +2049,260 @@ class _InviteCodeDialogState extends ConsumerState<_InviteCodeDialog> {
       case AppShareOutcome.dismissed:
         break;
     }
+  }
+}
+
+/// The Join a Firm window: the owner's invitation code, and the two actions.
+///
+/// Built like the Invite Code window — the same panel, corner and action size —
+/// so the app's firm windows read as one family. A refusal is shown **in** the
+/// window rather than behind it, so a mistyped code can be corrected without
+/// reopening anything.
+class _JoinFirmDialog extends ConsumerStatefulWidget {
+  const _JoinFirmDialog();
+
+  @override
+  ConsumerState<_JoinFirmDialog> createState() => _JoinFirmDialogState();
+}
+
+class _JoinFirmDialogState extends ConsumerState<_JoinFirmDialog> {
+  final TextEditingController _code = TextEditingController();
+
+  bool _busy = false;
+  Object? _failure;
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final canSend = !_busy && _code.text.trim().isNotEmpty;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.lg,
+      ),
+      backgroundColor: AppColors.surfaceContainerLowest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.manageAssociates_joinFirmTitle,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleLg,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l.manageAssociates_joinFirmIntro,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              key: const ValueKey('join-firm-code'),
+              controller: _code,
+              enabled: !_busy,
+              autofocus: true,
+              textCapitalization: TextCapitalization.characters,
+              style: AppTypography.bodyLg,
+              // The Send button reads the field, so a keystroke must rebuild it.
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: l.manageAssociates_joinFirmCodeLabel,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+              ),
+            ),
+            if (_failure != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                failureText(l, _failure) ?? l.auth_errorUnknown,
+                key: const ValueKey('join-firm-error'),
+                textAlign: TextAlign.center,
+                style: AppTypography.bodySm.copyWith(color: AppColors.error),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: AppSpacing.lg,
+              children: [
+                TextButton(
+                  key: const ValueKey('join-firm-cancel'),
+                  onPressed: _busy
+                      ? null
+                      : () => Navigator.of(context).maybePop(),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: Text(l.sharedActions_cancel),
+                ),
+                FilledButton(
+                  key: const ValueKey('join-firm-send'),
+                  onPressed: canSend ? _send : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: Text(l.manageAssociates_joinFirmSend),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Redeems the code and closes with the server's answer.
+  ///
+  /// The membership is the server's to grant, so nothing local is written here:
+  /// the profile refresh caches the new firm and role, and the delta pull that
+  /// follows (detached, because the join has already succeeded) brings the
+  /// chamber's rows. A joining account has no rows of its own, which is why the
+  /// pull cannot overwrite anything.
+  Future<void> _send() async {
+    setState(() {
+      _busy = true;
+      _failure = null;
+    });
+    try {
+      final redemption = await ref
+          .read(firmRepositoryProvider)
+          .redeemInvite(_code.text.trim());
+      await ref.read(accountRefreshProvider)();
+      unawaited(ref.read(syncServiceProvider).syncNow(force: true, pull: true));
+      if (!mounted) return;
+      Navigator.of(context).maybePop(redemption);
+    } on Object catch (error) {
+      if (!mounted) return;
+      // Recorded here for the same reason the screen records its own: a refused
+      // code is exactly what the diagnostics log has to be able to answer.
+      recordFailure(ref.read(errorLogProvider), 'firm.join', error);
+      setState(() {
+        _busy = false;
+        _failure = error;
+      });
+    }
+  }
+}
+
+/// The rename window: the firm's current name, editable, with Cancel and Save.
+class _FirmNameDialog extends StatefulWidget {
+  const _FirmNameDialog({required this.initialName});
+
+  /// The name the window opens on.
+  final String initialName;
+
+  @override
+  State<_FirmNameDialog> createState() => _FirmNameDialogState();
+}
+
+class _FirmNameDialogState extends State<_FirmNameDialog> {
+  late final TextEditingController _name = TextEditingController(
+    text: widget.initialName,
+  );
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final canSave = _name.text.trim().isNotEmpty;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.lg,
+      ),
+      backgroundColor: AppColors.surfaceContainerLowest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.manageAssociates_changeNameTitle,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleLg,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              key: const ValueKey('firm-name-input'),
+              controller: _name,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              style: AppTypography.bodyLg,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: l.manageAssociates_firmNameLabel,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: AppSpacing.lg,
+              children: [
+                TextButton(
+                  key: const ValueKey('firm-name-cancel'),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: Text(l.sharedActions_cancel),
+                ),
+                FilledButton(
+                  key: const ValueKey('firm-name-save'),
+                  onPressed: canSave
+                      ? () => Navigator.of(context).maybePop(_name.text.trim())
+                      : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    minimumSize: const Size(112, 48),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  child: Text(l.sharedActions_save),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

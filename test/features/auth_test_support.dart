@@ -142,10 +142,7 @@ class FakeAuthRepository implements AuthRepository {
     signInPasswords.add(password);
     final failure = signInError;
     if (failure != null) throw failure;
-    return identity = AuthIdentity(
-      userId: signInUserId,
-      email: email.trim(),
-    );
+    return identity = AuthIdentity(userId: signInUserId, email: email.trim());
   }
 
   @override
@@ -172,7 +169,8 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthIdentity> signInWithGoogle() async {    googleCalls++;
+  Future<AuthIdentity> signInWithGoogle() async {
+    googleCalls++;
     final failure = googleError;
     if (failure != null) throw failure;
     return identity = const AuthIdentity(
@@ -301,6 +299,12 @@ class FakeFirmRepository implements FirmRepository {
   /// Names handed to [ensureFirm].
   final List<String> ensuredFirmNames = <String>[];
 
+  /// Names handed to [updateFirmName].
+  final List<String> renamedFirmNames = <String>[];
+
+  /// Error to throw from [updateFirmName]; null to succeed.
+  Object? renameError;
+
   /// Number of [createInvite] calls.
   int createInviteCalls = 0;
 
@@ -326,7 +330,8 @@ class FakeFirmRepository implements FirmRepository {
   Object? invitesError;
 
   /// Every permission write [updateMemberPermissions] made, in call order.
-  final List<MemberPermissionWrite> permissionWrites = <MemberPermissionWrite>[];
+  final List<MemberPermissionWrite> permissionWrites =
+      <MemberPermissionWrite>[];
 
   /// Error to throw from [updateMemberPermissions]; null to succeed.
   Object? permissionsError;
@@ -443,6 +448,13 @@ class FakeFirmRepository implements FirmRepository {
   }
 
   @override
+  Future<void> updateFirmName(String name) async {
+    renamedFirmNames.add(name);
+    final failure = renameError;
+    if (failure != null) throw failure;
+  }
+
+  @override
   Future<bool> abandonOnboarding() async {
     abandonCalls++;
     final failure = abandonError;
@@ -552,9 +564,7 @@ Widget _authShell({
   required Locale locale,
   required Widget Function(Locale active) builder,
 }) => followLocale
-    ? Consumer(
-        builder: (context, ref, _) => builder(ref.watch(localeProvider)),
-      )
+    ? Consumer(builder: (context, ref, _) => builder(ref.watch(localeProvider)))
     : Builder(builder: (_) => builder(locale));
 
 /// Where a screen that leaves the auth routes lands, in [pumpAuthRouter].

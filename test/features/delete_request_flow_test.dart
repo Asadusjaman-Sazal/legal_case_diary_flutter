@@ -363,6 +363,10 @@ void main() {
     // The requester's own cached name rides on the request, so a reviewer can
     // read who asked even before the request reaches the server.
     expect(request['requesterName'], 'Adv. Karim');
+    // The toast is a sentence, so only its first word is capitalised, and it
+    // names no role: the request reaches whoever in the chamber may delete, not
+    // necessarily its owner, and no admin screen shows these at all.
+    expect(l.deleteRequest_sent, 'Deletion request sent for approval.');
     expect(find.text(l.deleteRequest_sent), findsOneWidget);
 
     await unmountApp(tester);

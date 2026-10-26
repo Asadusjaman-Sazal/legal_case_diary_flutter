@@ -8713,7 +8713,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequest_sent.
   ///
   /// In en, this message translates to:
-  /// **'Deletion Request Sent To Admin/Owner.'**
+  /// **'Deletion request sent for approval.'**
   String get deleteRequest_sent;
 
   /// No description provided for @deleteRequest_failed.

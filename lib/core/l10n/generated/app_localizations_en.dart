@@ -5097,7 +5097,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequest_confirmSend => 'Send';
 
   @override
-  String get deleteRequest_sent => 'Deletion Request Sent To Admin/Owner.';
+  String get deleteRequest_sent => 'Deletion request sent for approval.';
 
   @override
   String get deleteRequest_failed => 'Could Not Send The Deletion Request.';

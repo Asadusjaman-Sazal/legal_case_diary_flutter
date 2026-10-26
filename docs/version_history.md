@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.680 - The Delete Account and Delete Data windows take the Exit App corner, and the seed row's tick now lines up with its title instead of its hint.
+Version: 0.0.682 - The delete-request toast now reads Deletion request sent for approval., naming no role, since any member with delete permission may act.
 --------------------------------------
 
 ## Version History Log:
@@ -694,3 +694,5 @@ Version: 0.0.677 - The permission sheet puts its Permissions heading under Role,
 Version: 0.0.678 - The Awaiting Your Review cards now name who asked instead of dating the request; the requester's own list keeps its date.
 Version: 0.0.679 - The empty Outstanding Invitation Codes list now reads No unused invites., in sentence case.
 Version: 0.0.680 - The Delete Account and Delete Data windows take the Exit App corner, and the seed row's tick now lines up with its title instead of its hint.
+Version: 0.0.681 - The deletion-request confirmation toast now reads Deletion request sent to admin/owner., in sentence case.
+Version: 0.0.682 - The delete-request toast now reads Deletion request sent for approval., naming no role, since any member with delete permission may act.

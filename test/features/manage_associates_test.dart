@@ -10,10 +10,11 @@
 /// not even through the deep link that the hidden menu entry would normally be
 /// the only way into.
 ///
-/// The entry itself has its own rule (0.0.384): a **free individual** is not
-/// offered it at all — `ensure_firm` would refuse them, so the row could only
-/// advertise the Paywall — while a **lapsed owner** keeps it, because the server
-/// still lets an owner manage the firm they already have.
+/// The entry itself has its own rule (0.0.384, revised at 0.0.654 and 0.0.663):
+/// it sits on the Firm page behind its own Settings row, offered to every
+/// individual — a free account sees the teaser, whose create action is the
+/// Paywall's job — while a **lapsed owner** keeps it, because the server still
+/// lets an owner manage the firm they already have.
 library;
 
 import 'dart:convert';
@@ -38,7 +39,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/firm_reposit
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
-import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/presentation/firm_menu_screen.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_associates_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart'
     show settingsPrimaryButtonHeight;
@@ -151,9 +152,9 @@ void main() {
     }
   }
 
-  /// Pumps the Accounts & Profile menu on its own route.
+  /// Pumps the Firm page behind its own Settings row.
   ///
-  /// The menu asks two cache questions — may this account manage associates at
+  /// The page asks two cache questions — may this account manage associates at
   /// all, and is the entry worth offering — so each test seeds the profile that
   /// answers them.
   Future<void> pumpMenu(WidgetTester tester) async {
@@ -162,12 +163,12 @@ void main() {
 
     await pumpSettingsRouter(
       tester,
-      location: AppRoutes.settingsAccountProfile,
+      location: AppRoutes.settingsFirm,
       overrides: await harness.setUp(),
       routes: [
         GoRoute(
-          path: AppRoutes.settingsAccountProfile,
-          builder: (_, _) => const AccountsProfileMenuScreen(),
+          path: AppRoutes.settingsFirm,
+          builder: (_, _) => const FirmMenuScreen(),
         ),
       ],
     );
@@ -1086,8 +1087,9 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu hides Manage Associates from an '
-      'associate', (tester) async {
+  testWidgets('the Firm page hides Manage Firm from an associate', (
+    tester,
+  ) async {
     // The entry is the only intended way in, and an associate's taps would only
     // be refused server-side — the roster, the invites and the permission
     // toggles are owner-only there.
@@ -1515,7 +1517,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu offers the Create a Firm teaser to a '
+  testWidgets('the Firm page offers the Create a Firm teaser to a '
       'premium individual', (tester) async {
     // Adding the first associate is what creates the firm, so an individual must
     // be able to open the screen — and with no firm yet the row offers to create
@@ -1534,8 +1536,9 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu offers Create a Firm to a free '
-      'individual', (tester) async {
+  testWidgets('the Firm page offers Create a Firm to a free individual', (
+    tester,
+  ) async {
     // The teaser is open to every individual (0.0.654, user request): the screen
     // it opens explains what a firm is and links to the firm plans, while the
     // create action itself sends a free account to the Paywall.
@@ -1544,13 +1547,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
-    expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+    expect(find.text(l.settingsFirm_title), findsOneWidget);
+    expect(find.text(l.deleteRequests_title), findsNothing);
 
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu keeps Manage Associates for a '
-      'lapsed owner', (tester) async {
+  testWidgets('the Firm page keeps Manage Firm for a lapsed owner', (
+    tester,
+  ) async {
     // Plan §6: a lapsed owner keeps the firm they already have, and the server
     // still lets an owner manage its roster — only *creating* a firm is
     // premium-gated — so the entry must not disappear with the subscription.

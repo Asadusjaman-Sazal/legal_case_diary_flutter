@@ -66,6 +66,18 @@ void main() {
       entry(entries, l.manageAssociates_dissolveFirm).route,
       AppRoutes.settingsManageAssociates,
     );
+    // Firm is its own Settings entry, and its deep actions carry that path.
+    final firm = entry(entries, l.settingsFirm_title);
+    expect(firm.route, AppRoutes.settingsFirm);
+    expect(firm.path, <String>[l.settingsScreen_title]);
+    expect(
+      entry(entries, l.manageAssociates_dissolveFirm).path,
+      <String>[
+        l.settingsScreen_title,
+        l.settingsFirm_title,
+        l.manageAssociates_title,
+      ],
+    );
   });
 
   test('a direct label outranks a parent path', () {
@@ -146,6 +158,11 @@ void main() {
     );
     expect(
       member.any((e) => e.label == l.settingsManageAccount_changePassword),
+      isTrue,
+    );
+    // The Firm entry itself is offered to every account (0.0.663).
+    expect(
+      member.any((e) => e.label == l.settingsFirm_title),
       isTrue,
     );
   });

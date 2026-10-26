@@ -3688,12 +3688,6 @@ abstract class AppLocalizations {
   /// **'Account'**
   String get settingsAccountProfile_sectionAccount;
 
-  /// No description provided for @settingsAccountProfile_sectionFirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Firm'**
-  String get settingsAccountProfile_sectionFirm;
-
   /// No description provided for @settingsAccountProfile_profileSubtitle.
   ///
   /// In en, this message translates to:
@@ -3729,6 +3723,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Every purchase, approval, and cancellation'**
   String get settingsAccountProfile_subscriptionHistorySubtitle;
+
+  /// No description provided for @settingsFirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm'**
+  String get settingsFirm_title;
 
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///

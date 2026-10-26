@@ -2070,9 +2070,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsAccountProfile_sectionAccount => 'অ্যাকাউন্ট';
 
   @override
-  String get settingsAccountProfile_sectionFirm => 'ফার্ম';
-
-  @override
   String get settingsAccountProfile_profileSubtitle =>
       'আপনার নাম, বার অ্যাসোসিয়েশন ও সদস্যপদ সংক্রান্ত তথ্য';
 
@@ -2095,6 +2092,9 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsAccountProfile_subscriptionHistorySubtitle =>
       'প্রতিটি ক্রয়, অনুমোদন ও বাতিল';
+
+  @override
+  String get settingsFirm_title => 'ফার্ম';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>

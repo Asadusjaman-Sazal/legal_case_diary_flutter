@@ -15,6 +15,7 @@ import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/admin/presentation/admin_payment_requests_screen.dart';
 import '../../features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
 import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
+import '../../features/accounts_and_profile/presentation/firm_menu_screen.dart';
 import '../../features/accounts_and_profile/presentation/delete_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_account_screen.dart';
 import '../../features/accounts_and_profile/presentation/manage_associates_screen.dart';
@@ -111,6 +112,9 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String settingsLanguage = '/settings/language';
   static const String settingsAccountProfile = '/settings/account-profile';
+
+  /// The Firm menu, offered directly by the Settings list (0.0.663).
+  static const String settingsFirm = '/settings/firm';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
 
@@ -624,6 +628,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsAccountProfile,
     builder: (context, state) => const AccountsProfileMenuScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsFirm,
+    builder: (context, state) => const FirmMenuScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsProfile,

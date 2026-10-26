@@ -2066,9 +2066,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAccountProfile_sectionAccount => 'Account';
 
   @override
-  String get settingsAccountProfile_sectionFirm => 'Firm';
-
-  @override
   String get settingsAccountProfile_profileSubtitle =>
       'Your name, bar association, and membership details';
 
@@ -2091,6 +2088,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsAccountProfile_subscriptionHistorySubtitle =>
       'Every purchase, approval, and cancellation';
+
+  @override
+  String get settingsFirm_title => 'Firm';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>

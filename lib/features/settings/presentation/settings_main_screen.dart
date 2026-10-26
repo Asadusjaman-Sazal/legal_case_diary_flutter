@@ -105,6 +105,15 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.person_outline,
         route: AppRoutes.settingsAccountProfile,
       ),
+      // Firm sits beside the account, offered to every account (0.0.663, user
+      // request): the page behind it shows only the rows that account may use,
+      // so a free individual sees the create teaser and an associate sees the
+      // requests queue. Formerly the Firm section of Account & Profile.
+      _SettingsItem(
+        title: l.settingsFirm_title,
+        icon: Icons.apartment_outlined,
+        route: AppRoutes.settingsFirm,
+      ),
       _SettingsItem(
         title: l.settingsScreen_onlineSync,
         icon: Icons.sync_outlined,

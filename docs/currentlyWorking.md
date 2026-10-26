@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Firm gets its own Settings entry — COMPLETE (0.0.663)
+
+- **What was asked.** The firm sub-menus were buried inside Account & Profile. Move them to a Settings entry named **Firm**, visible to every account (Free, individual plans and firm plans), keeping the visibility of the rows inside it unchanged.
+- **What changed.** The Settings General list now carries **Firm** directly after Account & Profile, for every account. It opens a new page (`/settings/firm`, `firm_menu_screen.dart`) titled **Firm** holding the two rows that used to be the Firm section with their rules intact: **Manage Firm** / **Create a Firm** wherever `canOpenManageAssociates` allows it (every individual, and a firm owner), and **Delete Requests** in firm mode only, with its waiting-count pill, directly after Manage Firm. Account & Profile is now three sections — Profile, Account and Subscription. Settings search indexes the Firm row and rebreadcrumbs the firm actions as Settings > Firm > Manage Firm. Subscription stays where it was: the side menu's Current Plan row already reaches it from every screen.
+- **Checks.** `flutter analyze` clean; new `firm_menu_screen_test` (owner order, associate queue-only, both destinations, the count); the menu, search, drawer and Manage Firm suites updated and passing; full `flutter test` **2,136 passed**.
+- **Mockups.** `settings_main` gains the Firm row and `settings_accountProfile` loses its Firm section (rule 9).
+
 ### 2026-10-26 — Crop corners resize in every direction — COMPLETE (0.0.662)
 
 - **What was reported.** Dragging a corner did not resize the frame on the Firm Logo page.

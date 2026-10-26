@@ -2401,7 +2401,7 @@
   "deleteRequest_confirmTitle": "Request Deletion",
   "deleteRequest_confirmBody": "A firm member with delete permission has to approve it before the record is removed.",
   "deleteRequest_confirmSend": "Send",
-  "deleteRequest_sent": "Deletion Request Sent To Admin/Owner.",
+  "deleteRequest_sent": "Deletion request sent for approval.",
   "deleteRequest_failed": "Could Not Send The Deletion Request.",
   "@@_section_deleteRequests": "DELETE REQUESTS (REVIEWER)  |  lib/features/settings/presentation/delete_requests_screen.dart",
   "deleteRequests_title": "Delete Requests",

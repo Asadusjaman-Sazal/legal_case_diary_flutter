@@ -5120,8 +5120,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequest_confirmSend => 'পাঠান';
 
   @override
-  String get deleteRequest_sent =>
-      'ডিলিট অনুরোধ অ্যাডমিন/মালিকের কাছে পাঠানো হয়েছে।';
+  String get deleteRequest_sent => 'ডিলিট অনুরোধ অনুমোদনের জন্য পাঠানো হয়েছে।';
 
   @override
   String get deleteRequest_failed => 'ডিলিট অনুরোধ পাঠানো যায়নি।';

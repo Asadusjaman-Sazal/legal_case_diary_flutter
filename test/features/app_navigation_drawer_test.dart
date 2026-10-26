@@ -51,6 +51,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/features/settings/data/update_metadata_store.dart';
 import 'package:legal_case_diary/features/settings/data/update_release.dart';
 import 'package:legal_case_diary/features/settings/data/update_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/delete_requests_viewmodel.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_controls.dart';
 import 'package:legal_case_diary/shared/widgets/app_navigation_drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,6 +69,10 @@ const CurrentPlan quarterlyPlan = (
 /// Markers rendered by the stand-in screens the two plan rows open.
 const String subscriptionDetailsMarker = 'Subscription Details Screen';
 const String subscriptionPlansMarker = 'Subscription Plans Screen';
+
+/// Markers rendered by the two stand-in firm screens the Manage Firm row opens.
+const String firmPageMarker = 'Firm Page Screen';
+const String manageFirmMarker = 'Manage Firm Screen';
 
 /// Markers rendered by the stand-in screens the account popover opens.
 const String profileMarker = 'Profile Screen';
@@ -103,6 +108,17 @@ Firm firmRow({String name = 'Rahman & Associates'}) => Firm(
       .millisecondsSinceEpoch,
   tier: 'firm',
   logoVersion: 0,
+  createdAt: 0,
+);
+
+/// An individual's cached profile, with no chamber.
+Profile individualProfile() => Profile(
+  id: 'drawer-test-user',
+  fullName: 'Rahim Uddin',
+  avatarVersion: 0,
+  role: 'individual',
+  subscriptionStatus: 'free',
+  tier: 'free',
   createdAt: 0,
 );
 
@@ -282,6 +298,7 @@ void main() {
     LogoutFlow? logoutFlow,
     int? adminBadgeCount,
     AdminRepository? adminRepository,
+    int? firmBadgeCount,
     bool firmMember = false,
     SubscriptionTier? tier,
     Profile? profile,
@@ -330,6 +347,18 @@ void main() {
             path: AppRoutes.login,
             builder: (_, _) => const Scaffold(body: Text(loginMarker)),
           ),
+        // The two firm screens the Manage Firm row opens, each with its own
+        // marker, so a test can tell which one a tap landed on.
+        if (route != AppRoutes.settingsFirm)
+          GoRoute(
+            path: AppRoutes.settingsFirm,
+            builder: (_, _) => const Scaffold(body: Text(firmPageMarker)),
+          ),
+        if (route != AppRoutes.settingsManageAssociates)
+          GoRoute(
+            path: AppRoutes.settingsManageAssociates,
+            builder: (_, _) => const Scaffold(body: Text(manageFirmMarker)),
+          ),
       ],
     );
     addTearDown(router.dispose);
@@ -374,6 +403,10 @@ void main() {
             adminStatusProvider.overrideWith((_) async => true),
             adminRepositoryProvider.overrideWithValue(adminRepository),
           ],
+          // The requests waiting on this account: what the firm row badges, and
+          // what decides where its tap lands.
+          if (firmBadgeCount != null)
+            deleteRequestsBadgeCountProvider.overrideWithValue(firmBadgeCount),
         ],
         child: MaterialApp.router(
           routerConfig: router,
@@ -631,10 +664,7 @@ void main() {
     expect(captionY, lessThan(tester.getTopLeft(drawerText(l.nav_print)).dy));
 
     // Collapsed, neither destination is offered yet.
-    expect(
-      drawerText(l.settingsSubscription_managePlanTitle),
-      findsNothing,
-    );
+    expect(drawerText(l.settingsSubscription_managePlanTitle), findsNothing);
     expect(drawerText(l.paywall_title), findsNothing);
 
     await tester.tap(drawerText(l.paywall_planProQuarterly));
@@ -643,10 +673,7 @@ void main() {
     // Expanding is not navigating: the app is still on the screen the drawer
     // was opened from.
     expect(router.state.matchedLocation, AppRoutes.dailyCauseList);
-    expect(
-      drawerText(l.settingsSubscription_managePlanTitle),
-      findsOneWidget,
-    );
+    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
     expect(drawerText(l.paywall_title), findsOneWidget);
   });
 
@@ -698,10 +725,7 @@ void main() {
     await tester.tap(drawerText(l.settingsSubscription_currentPlan));
     await tester.pumpAndSettle();
 
-    expect(
-      drawerText(l.settingsSubscription_managePlanTitle),
-      findsOneWidget,
-    );
+    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
     expect(drawerText(l.paywall_title), findsOneWidget);
   });
 
@@ -746,10 +770,7 @@ void main() {
       route: AppRoutes.settingsSubscriptionDetails,
     );
 
-    expect(
-      drawerText(l.settingsSubscription_managePlanTitle),
-      findsOneWidget,
-    );
+    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
     final blackTiles = find.descendant(
       of: find.byType(Drawer),
       matching: find.byWidgetPredicate(
@@ -1395,6 +1416,114 @@ void main() {
     expect(
       find.descendant(of: find.byType(Badge), matching: find.text('1')),
       findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'Manage Firm sits in its own section between Notes and Settings',
+    (tester) async {
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      await pumpDrawerOnRouter(
+        tester,
+        profile: firmProfile(role: 'owner'),
+        firm: firmRow(),
+      );
+
+      // An owner's row names what they do there, and it sits after Notes and
+      // before Settings (user request).
+      final rowY = tester.getTopLeft(drawerText(l.manageAssociates_title)).dy;
+      final notesY = tester.getTopLeft(drawerText(l.nav_notes)).dy;
+      final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
+      expect(rowY, greaterThan(notesY));
+      expect(rowY, lessThan(settingsY));
+
+      // A section of its own, like the Admin Panel's: a divider on either side.
+      final dividers = drawerDividerYs(tester);
+      expect(dividers.where((y) => y > notesY && y < rowY), isNotEmpty);
+      expect(dividers.where((y) => y > rowY && y < settingsY), isNotEmpty);
+    },
+  );
+
+  testWidgets('an individual without a firm is offered Create a Firm', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(tester, profile: individualProfile());
+
+    // The row keeps the words of the row it points at, so an account that has
+    // still to make a firm is not sent to a page named for managing one.
+    expect(drawerText(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(drawerText(l.manageAssociates_title), findsNothing);
+  });
+
+  testWidgets('the firm row badges what is waiting and opens the firm page', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final router = await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+      firmBadgeCount: 2,
+    );
+
+    expect(
+      find.descendant(of: find.byType(Badge), matching: find.text('2')),
+      findsOneWidget,
+    );
+
+    // The count is the reason to tap, so the tap lands where the request can be
+    // read: the firm page, one tap from its own Delete Requests row.
+    await tester.tap(drawerText(l.manageAssociates_title));
+    await tester.pumpAndSettle();
+    expect(router.state.matchedLocation, AppRoutes.settingsFirm);
+  });
+
+  testWidgets('with nothing waiting the firm row opens Manage Firm itself', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final router = await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+    );
+
+    expect(find.byType(Badge), findsNothing);
+    await tester.tap(drawerText(l.manageAssociates_title));
+    await tester.pumpAndSettle();
+    expect(router.state.matchedLocation, AppRoutes.settingsManageAssociates);
+  });
+
+  testWidgets('a member who is not the owner gets no firm row', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(tester, profile: firmProfile(), firm: firmRow());
+
+    // The roster, the invites and the permission toggles are owner-only, so an
+    // associate is offered no row — the firm page's own rule.
+    expect(drawerText(l.manageAssociates_title), findsNothing);
+    expect(drawerText(l.manageAssociates_createFirmTitle), findsNothing);
+  });
+
+  testWidgets('for an admin the firm row follows the Admin Panel', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+      adminBadgeCount: 1,
+    );
+
+    final adminY = tester.getTopLeft(drawerText(l.nav_adminPanel)).dy;
+    final rowY = tester.getTopLeft(drawerText(l.manageAssociates_title)).dy;
+    expect(rowY, greaterThan(adminY));
+
+    // One section, not two: nothing separates the panel from the row under it.
+    expect(
+      drawerDividerYs(tester).where((y) => y > adminY && y < rowY),
+      isEmpty,
     );
   });
 

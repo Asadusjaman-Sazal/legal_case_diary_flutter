@@ -606,7 +606,7 @@ void main() {
       await unmountApp(tester);
     });
 
-    testWidgets('the note box offers a cross that closes the keyboard', (
+    testWidgets('the note box offers a cross that clears it and closes the keyboard', (
       tester,
     ) async {
       final overrides = await openScope();
@@ -630,19 +630,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(cross, findsOneWidget);
 
+      // Its accessible name says what the tap does, and it is the wording the
+      // user asked for.
+      expect(find.byTooltip('Clear texts'), findsOneWidget);
+
       await tester.enterText(note, 'Still needed for the appeal.');
       await tester.pumpAndSettle();
       await tester.tap(cross);
       await tester.pumpAndSettle();
 
-      // The cross takes the keyboard away and leaves the note alone: the words
-      // the reviewer typed are the review's own content, not a query string.
+      // The cross empties the note and takes the keyboard away with it.
       expect(cross, findsNothing);
       expect(tester.widget<TextField>(note).focusNode!.hasFocus, isFalse);
-      expect(
-        tester.widget<TextField>(note).controller!.text,
-        'Still needed for the appeal.',
-      );
+      expect(tester.widget<TextField>(note).controller!.text, isEmpty);
 
       await unmountApp(tester);
     });

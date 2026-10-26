@@ -1158,6 +1158,8 @@ void main() {
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
+    // The wording is the user's own, in sentence case per rule 11.
+    expect(l.manageAssociates_noInvites, 'No unused invites.');
     expect(find.text(l.manageAssociates_noInvites), findsOneWidget);
 
     await unmountApp(tester);

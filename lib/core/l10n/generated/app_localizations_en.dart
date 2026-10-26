@@ -4929,7 +4929,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_sectionInvites => 'Outstanding Invitation Codes';
 
   @override
-  String get manageAssociates_noInvites => 'No Unused Invites.';
+  String get manageAssociates_noInvites => 'No unused invites.';
 
   @override
   String manageAssociates_inviteCreated(String date) {

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.678 - The Awaiting Your Review cards now name who asked instead of dating the request; the requester's own list keeps its date.
+Version: 0.0.679 - The empty Outstanding Invitation Codes list now reads No unused invites., in sentence case.
 --------------------------------------
 
 ## Version History Log:
@@ -692,3 +692,4 @@ Version: 0.0.675 - Delete requests now carry the requester's name: a server-deri
 Version: 0.0.676 - The Review Note box's cross now clears the note as well as closing the keyboard, and its accessible name reads Clear texts.
 Version: 0.0.677 - The permission sheet puts its Permissions heading under Role, names each flag's record kinds (Cases, Notes etc) and paints Remove from Firm red with white ink.
 Version: 0.0.678 - The Awaiting Your Review cards now name who asked instead of dating the request; the requester's own list keeps its date.
+Version: 0.0.679 - The empty Outstanding Invitation Codes list now reads No unused invites., in sentence case.

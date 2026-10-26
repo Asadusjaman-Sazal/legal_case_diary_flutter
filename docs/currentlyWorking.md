@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The empty invite list says No unused invites. — COMPLETE (0.0.679)
+
+- **What was asked.** In Manage Firm only: under **Outstanding Invitation Codes**, show *No unused invites* in place of the current text.
+- **What changed.** The one line the list shows when nothing is outstanding — `manageAssociates_noInvites` — now reads **No unused invites.** instead of *No Unused Invites.*: the same meaning, written as the general sentence it is per the casing rule. This is the line drawn both when the owner has never generated a code and when every code has been used or revoked. **The Bengali needed no change** — *কোনো অব্যবহৃত আমন্ত্রণ নেই।* already reads as that sentence, and Bengali has no letter case. Nothing else on the screen moved: the invite rows, their codes, Revoke, the count-qualified wording and the invite window are all as they were, and no server work was needed. One punctuation note: I kept the app's full stop at the end of the line, which every neighbouring info line in this list carries — say the word and it can be dropped.
+- **Checks.** `flutter analyze` clean; `manage_associates_test.dart` passes its **40 cases**, with *no outstanding invites says so* now also asserting the literal wording in sentence case; full `flutter test` **2,151 passed**; `python tool/record_version.py --check` clean at **0.0.679**.
+- **Resume point.** Nothing outstanding.
+
 ### 2026-10-26 — A queued request names who asked, not when — COMPLETE (0.0.678)
 
 - **What was asked.** In Delete Requests only: under **Awaiting Your Review**, each card showed case number, item type and date — show the **requester's name** where the date is.

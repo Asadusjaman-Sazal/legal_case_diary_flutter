@@ -8437,7 +8437,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_noInvites.
   ///
   /// In en, this message translates to:
-  /// **'No Unused Invites.'**
+  /// **'No unused invites.'**
   String get manageAssociates_noInvites;
 
   /// No description provided for @manageAssociates_inviteCreated.

@@ -14,10 +14,12 @@ library;
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -278,6 +280,68 @@ void main() {
     // The request wording, never the delete one: nothing is removed yet.
     expect(find.text(l.deleteRequest_confirmTitle), findsOneWidget);
     expect(find.text(l.sharedDialogs_confirmDeleteTitle), findsNothing);
+
+    // The action is worded literally, so a later edit to the label cannot pass
+    // unnoticed; the wording itself is the request's, and nothing else changes.
+    expect(find.text('Send'), findsOneWidget);
+
+    // The title is worded literally, so a later edit to it cannot pass
+    // unnoticed, and it is centred; the sentence below it is sentence case —
+    // the first word only — and likewise pinned literally.
+    expect(find.text('Request Deletion'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text(l.deleteRequest_confirmTitle)).textAlign,
+      TextAlign.center,
+    );
+    expect(
+      find.text(
+        'A firm member with delete permission has to approve it before the '
+        'record is removed.',
+      ),
+      findsOneWidget,
+    );
+    // The sentence reaches both edges in this window only (user request),
+    // read from the painted paragraph rather than the widget's own argument.
+    expect(
+      tester
+          .renderObject<RenderParagraph>(find.text(l.deleteRequest_confirmBody))
+          .textAlign,
+      TextAlign.justify,
+    );
+
+    // The Exit App window's geometry: its 8 px corner, its centred actions and
+    // its 112 x 48 buttons at 16 pt.
+    final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+    expect(
+      (dialog.shape! as RoundedRectangleBorder).borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius * 2),
+    );
+    expect(dialog.actionsAlignment, MainAxisAlignment.center);
+    // The Exit App window's action style — a 112 x 48 minimum at 16 pt — is
+    // asserted on the style the window asks for rather than on the laid-out
+    // pixels: this harness runs the app's `VisualDensity.compact` theme, which
+    // shaves the same 8 px off both buttons as it does off the Exit window's.
+    final cancelButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, l.sharedActions_cancel),
+    );
+    final sendButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, l.deleteRequest_confirmSend),
+    );
+    for (final style in <ButtonStyle>[cancelButton.style!, sendButton.style!]) {
+      expect(style.minimumSize!.resolve(<WidgetState>{}), const Size(112, 48));
+      expect(style.textStyle!.resolve(<WidgetState>{})!.fontSize, 16);
+    }
+    // Both actions are the same height, one Cancel and one Send.
+    expect(
+      tester
+          .getSize(find.widgetWithText(TextButton, l.sharedActions_cancel))
+          .height,
+      tester
+          .getSize(
+            find.widgetWithText(FilledButton, l.deleteRequest_confirmSend),
+          )
+          .height,
+    );
 
     await tester.tap(find.text(l.deleteRequest_confirmSend));
     await tester.pumpAndSettle();

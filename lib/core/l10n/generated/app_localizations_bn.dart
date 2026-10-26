@@ -5109,14 +5109,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get membershipRevoked_retry => 'আবার চেষ্টা করুন';
 
   @override
-  String get deleteRequest_confirmTitle => 'মুছে ফেলার অনুরোধ পাঠাবেন?';
+  String get deleteRequest_confirmTitle => 'মুছে ফেলার অনুরোধ করুন';
 
   @override
   String get deleteRequest_confirmBody =>
       'রেকর্ডটি মুছে ফেলার আগে ডিলিট অনুমতি আছে এমন একজন ফার্ম সদস্যকে এটি অনুমোদন করতে হবে।';
 
   @override
-  String get deleteRequest_confirmSend => 'অনুরোধ পাঠান';
+  String get deleteRequest_confirmSend => 'পাঠান';
 
   @override
   String get deleteRequest_sent =>

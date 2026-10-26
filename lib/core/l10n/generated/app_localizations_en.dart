@@ -5087,14 +5087,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get membershipRevoked_retry => 'Try Again';
 
   @override
-  String get deleteRequest_confirmTitle => 'Send A Deletion Request?';
+  String get deleteRequest_confirmTitle => 'Request Deletion';
 
   @override
   String get deleteRequest_confirmBody =>
-      'A Firm Member With Delete Permission Has To Approve It Before The Record Is Removed.';
+      'A firm member with delete permission has to approve it before the record is removed.';
 
   @override
-  String get deleteRequest_confirmSend => 'Send Request';
+  String get deleteRequest_confirmSend => 'Send';
 
   @override
   String get deleteRequest_sent => 'Deletion Request Sent To Admin/Owner.';

@@ -123,6 +123,10 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               l: l,
               locale: locale,
               showStatusChip: false,
+              // Who asked, in place of the date (user request): the question a
+              // queued request puts to its reviewer is *who wants this gone*,
+              // and the moment it was raised is on the review screen itself.
+              requesterName: _requesterName(request, l),
               onTap: () => context.push(
                 AppRoutes.deleteRequestReviewPath(request.id),
               ),
@@ -131,6 +135,23 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
           ],
       ],
     );
+  }
+
+  /// Who asked for one queued request.
+  ///
+  /// Read exactly as the review screen reads it: the name the request carries
+  /// (the server derives it from `profiles`, and the requester's own phone
+  /// writes it on the way out), else this device's own profile cache for that
+  /// account, else the neutral label — so the row needs no network read and
+  /// never invents a name.
+  String _requesterName(DeleteRequest request, AppLocalizations l) {
+    final stored = request.requesterName?.trim() ?? '';
+    if (stored.isNotEmpty) return stored;
+    final cached = ref
+        .watch(deleteRequestRequesterNameProvider(request.requestedBy))
+        .value;
+    final name = cached?.trim() ?? '';
+    return name.isEmpty ? l.deleteRequests_unknownRequester : name;
   }
 
   /// The requester's list: their own requests and what the reviewer decided.
@@ -274,7 +295,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   }
 }
 
-/// One request as a row: what it is, when it was asked, and its state.
+/// One request as a row: what it is, who asked (or when), and its state.
 class _RequestRow extends StatelessWidget {
   const _RequestRow({
     required this.request,
@@ -282,11 +303,19 @@ class _RequestRow extends StatelessWidget {
     required this.locale,
     required this.onTap,
     required this.showStatusChip,
+    this.requesterName,
   });
 
   final DeleteRequest request;
   final AppLocalizations l;
   final String locale;
+
+  /// Who asked, when the row should name them instead of dating the request.
+  ///
+  /// The reviewer's queue passes it (user request); the requester's own list
+  /// leaves it null and keeps the date, because their own name would tell them
+  /// nothing they do not already know, and the date orders their list.
+  final String? requesterName;
 
   /// Opens the row's destination: a review, or the requester's own actions.
   /// Null on a row that has nothing left to do.
@@ -327,8 +356,16 @@ class _RequestRow extends StatelessWidget {
                   style: AppTypography.bodyLg,
                 ),
                 Text(
-                  '${deleteRequestEntityLabel(l, request.entityType)} \u00b7 '
-                  '${AppDateUtils.formatDateDDMMYYYY(request.createdAt, locale: locale)}',
+                  [
+                    deleteRequestEntityLabel(l, request.entityType),
+                    // The reviewer's queue names the person; every other row
+                    // dates the request.
+                    requesterName ??
+                        AppDateUtils.formatDateDDMMYYYY(
+                          request.createdAt,
+                          locale: locale,
+                        ),
+                  ].join(' \u00b7 '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.bodySm.copyWith(

@@ -135,6 +135,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   final GlobalKey _stackKey = GlobalKey();
   Offset? _resizeAnchor;
   _CropCorner? _resizeCorner;
+  Offset? _resizeStartPointer;
+  double? _resizeStartWidth;
 
   @override
   void initState() {
@@ -242,9 +244,10 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     });
   }
 
-  void _onResizeStart(_CropCorner corner) {
+  void _onResizeStart(_CropCorner corner, Offset globalPointer) {
     final layout = _layout;
-    if (layout == null) return;
+    final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (layout == null || box == null) return;
     // The opposite corner stays put so the frame grows or shrinks from the
     // corner the user grabbed.
     final frame = layout.frameRect;
@@ -255,21 +258,30 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       _CropCorner.bottomRight => frame.topLeft,
     };
     _resizeCorner = corner;
+    _resizeStartPointer = box.globalToLocal(globalPointer);
+    _resizeStartWidth = frame.width;
   }
 
   void _onResizeUpdate(DragUpdateDetails details) {
     final layout = _layout;
     final anchor = _resizeAnchor;
     final corner = _resizeCorner;
+    final startPointer = _resizeStartPointer;
+    final startWidth = _resizeStartWidth;
     final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (layout == null || anchor == null || corner == null || box == null) {
+    if (layout == null ||
+        anchor == null ||
+        corner == null ||
+        startPointer == null ||
+        startWidth == null ||
+        box == null) {
       return;
     }
     final pointer = box.globalToLocal(details.globalPosition);
     final growsRight =
         corner == _CropCorner.topRight || corner == _CropCorner.bottomRight;
     final growsDown =
-        corner == _CropCorner.topLeft || corner == _CropCorner.bottomRight;
+        corner == _CropCorner.bottomLeft || corner == _CropCorner.bottomRight;
     final signX = growsRight ? 1.0 : -1.0;
     final signY = growsDown ? 1.0 : -1.0;
 
@@ -287,12 +299,14 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     );
     final minWidth = math.min(layout.minFrameWidth, maxWidth);
 
-    // Fixed ratio: the corner follows the larger of the two drag components.
-    final requested = math.max(
-      (pointer.dx - anchor.dx) * signX,
-      (pointer.dy - anchor.dy) * signY * widget.aspectRatio,
-    );
-    final width = requested.clamp(minWidth, maxWidth);
+    // Fixed ratio, and the corner follows the drag's dominant direction: a
+    // horizontal pull changes the width directly instead of being held back by
+    // the untouched vertical side (what a wide logo frame used to do).
+    final alongX = (pointer.dx - startPointer.dx) * signX;
+    final alongY =
+        (pointer.dy - startPointer.dy) * signY * widget.aspectRatio;
+    final delta = alongX.abs() >= alongY.abs() ? alongX : alongY;
+    final width = (startWidth + delta).clamp(minWidth, maxWidth);
     final height = width / widget.aspectRatio;
 
     setState(() {
@@ -365,7 +379,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       child: GestureDetector(
         key: ValueKey('image-crop-handle-${corner.name}'),
         behavior: HitTestBehavior.opaque,
-        onPanStart: (_) => _onResizeStart(corner),
+        onPanStart: (details) =>
+            _onResizeStart(corner, details.globalPosition),
         onPanUpdate: _onResizeUpdate,
         child: Center(
           child: Container(

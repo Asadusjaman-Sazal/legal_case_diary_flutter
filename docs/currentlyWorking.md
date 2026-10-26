@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — Crop corners resize in every direction — COMPLETE (0.0.662)
+
+- **What was reported.** Dragging a corner did not resize the frame on the Firm Logo page.
+- **Why.** Two faults in the corner math. The left corners read a downward drag as growth (the vertical direction was inverted), and the new width was taken from whichever axis was further from the pinned corner — so on the wide 148:100 logo frame a sideways pull was held at its starting width by the untouched vertical side.
+- **What changed.** The width now follows the drag's dominant direction measured from where the drag began: a sideways pull changes a wide frame's width directly and a vertical pull does the same through the shape's ratio. The left corners' vertical direction is corrected. The pinned opposite corner, the 512 px floor, the image-edge limit, moving the frame, rotate, Save and the 50 KB cap are unchanged.
+- **Checks.** `flutter analyze` clean; crop suite **9 passed** (new: a sideways logo pull and all four corners), Profile and Manage Firm suites pass, full `flutter test` **2,137 passed**.
+- **No mockup** — the Select Image page has none.
+
 ### 2026-10-26 — The crop frame resizes by its corners — COMPLETE (0.0.661)
 
 - **What was asked.** Let the user resize the selection frame by dragging a corner, like an ordinary cropper, while the stored picture stays under the same 50 KB cap. Set a sensible minimum so the 512 px target still gets enough source pixels, and change nothing else that already works.

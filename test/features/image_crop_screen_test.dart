@@ -220,6 +220,80 @@ void main() {
     expect(rect.width / rect.height, closeTo(1, 0.03));
   });
 
+  testWidgets('the logo frame resizes sideways, holding its wide ratio', (
+    tester,
+  ) async {
+    final initial = await openCrop(
+      tester,
+      source: _largeSource(),
+      aspectRatio: 148 / 100,
+      circular: false,
+      save: true,
+    );
+    final smaller = await openCrop(
+      tester,
+      source: _largeSource(),
+      aspectRatio: 148 / 100,
+      circular: false,
+      save: true,
+      gesture: (tester) async {
+        // A purely sideways pull: the untouched vertical side must not pin the
+        // width at its starting value (the 0.0.661 defect).
+        await tester.drag(
+          find.byKey(const ValueKey('image-crop-handle-bottomRight')),
+          const Offset(-150, 0),
+        );
+        await tester.pumpAndSettle();
+      },
+    );
+
+    expect(initial, isNotNull);
+    expect(smaller, isNotNull);
+    expect(smaller!.rect.width, lessThan(initial!.rect.width - 50));
+    expect(smaller.rect.width / smaller.rect.height, closeTo(148 / 100, 0.03));
+  });
+
+  testWidgets('all four corners resize the frame', (tester) async {
+    final initial = await openCrop(
+      tester,
+      source: _largeSource(),
+      aspectRatio: 1,
+      circular: true,
+      save: true,
+    );
+    expect(initial, isNotNull);
+
+    // Each corner pulled toward the frame's centre must shrink it.
+    const pulls = <String, Offset>{
+      'topLeft': Offset(120, 40),
+      'topRight': Offset(-120, 40),
+      'bottomLeft': Offset(120, -40),
+      'bottomRight': Offset(-120, -40),
+    };
+    for (final entry in pulls.entries) {
+      final selection = await openCrop(
+        tester,
+        source: _largeSource(),
+        aspectRatio: 1,
+        circular: true,
+        save: true,
+        gesture: (tester) async {
+          await tester.drag(
+            find.byKey(ValueKey('image-crop-handle-${entry.key}')),
+            entry.value,
+          );
+          await tester.pumpAndSettle();
+        },
+      );
+      expect(selection, isNotNull, reason: entry.key);
+      expect(
+        selection!.rect.width,
+        lessThan(initial!.rect.width - 50),
+        reason: entry.key,
+      );
+    }
+  });
+
   testWidgets('the rotate button turns the saved image a quarter', (
     tester,
   ) async {

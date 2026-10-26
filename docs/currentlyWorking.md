@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The crop frame resizes by its corners — COMPLETE (0.0.661)
+
+- **What was asked.** Let the user resize the selection frame by dragging a corner, like an ordinary cropper, while the stored picture stays under the same 50 KB cap. Set a sensible minimum so the 512 px target still gets enough source pixels, and change nothing else that already works.
+- **What changed.** In `image_crop_screen.dart` the frame is no longer fixed. Each corner carries a 44 px drag area around a small white dot; a drag resizes the frame with the **opposite corner pinned**, the shape held (square for the profile, 148:100 for the logo) and the frame kept inside the displayed image. The floor is the width that still feeds the stored 512 px output — 512 source pixels times the display scale, capped by the image's own size — so a 1600 x 1200 picture can shrink to 512 px and a small picture cannot shrink at all. Rotating restarts from the largest frame for the new orientation. Moving the frame, rotating, Cancel/Save, the saved-area mapping and the 50 KB/512 px pipeline are unchanged.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,135 passed**. New cases: a bottom-right drag on a 1600 x 1200 source stops at 512 source pixels, and a corner dragged far past the image edge leaves the saved area fully inside the image. The existing crop, processor, Profile and Manage Firm suites still pass.
+- **No mockup** — the Select Image page is new and has none.
+
 ### 2026-10-26 — Files sits under Gallery — COMPLETE (0.0.660)
 
 - **What was asked.** Move the Files choice under the Gallery button so it aligns with it, rather than sitting at the bottom right.

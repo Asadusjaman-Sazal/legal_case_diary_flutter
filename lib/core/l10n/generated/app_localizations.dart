@@ -3736,6 +3736,12 @@ abstract class AppLocalizations {
   /// **'Join a firm with an invitation code from its owner'**
   String get settingsFirm_joinFirmSubtitle;
 
+  /// No description provided for @settingsFirm_viewFirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View your firm and its associates'**
+  String get settingsFirm_viewFirmSubtitle;
+
   /// No description provided for @settingsAccountProfile_manageAssociatesSubtitle.
   ///
   /// In en, this message translates to:

@@ -9,7 +9,10 @@
 /// until a firm exists, *Manage Firm* after. **Join a Firm** (0.0.664, user
 /// request) sits directly under the create entry for the one account
 /// `join_firm` accepts — an individual whose own diary is still empty — and
-/// opens the invitation-code window the create page used to carry.
+/// opens the invitation-code window the create page used to carry. A **member**
+/// of somebody else's chamber gets a row named after that chamber instead
+/// (0.0.666, user request), which opens the same page as a read-only view of
+/// it.
 library;
 
 import 'package:flutter/material.dart';
@@ -39,6 +42,12 @@ class FirmMenuScreen extends ConsumerWidget {
     final showManageAssociates = ref.watch(canOpenManageAssociatesProvider);
     // The firm exists, so the row offers management, and the queue belongs to it.
     final firmExists = ref.watch(firmModeProvider);
+    // An associate (or viewer) of somebody else's chamber reads it instead of
+    // managing it, and the row is named after the chamber itself (0.0.666, user
+    // request). The name falls back to the plain *Firm* while the row has not
+    // been pulled yet, so the entry is never blank.
+    final member = firmExists && !showManageAssociates;
+    final firmName = ref.watch(accountFirmProvider).value?.name ?? '';
     final deleteRequestsCount = ref.watch(deleteRequestsBadgeCountProvider);
     // The other way into a chamber (0.0.664, user request): an individual can
     // still join a colleague's firm by redeeming an owner's code, while their
@@ -55,6 +64,7 @@ class FirmMenuScreen extends ConsumerWidget {
         children: [
           if (showManageAssociates)
             SettingsMenuCard(
+              key: const ValueKey('firm-manage'),
               icon: Icons.groups_outlined,
               title: firmExists
                   ? l.manageAssociates_title
@@ -62,6 +72,14 @@ class FirmMenuScreen extends ConsumerWidget {
               subtitle: firmExists
                   ? l.settingsAccountProfile_manageAssociatesSubtitle
                   : l.settingsAccountProfile_createFirmSubtitle,
+              onTap: () => context.push(AppRoutes.settingsManageAssociates),
+            ),
+          if (member)
+            SettingsMenuCard(
+              key: const ValueKey('firm-view'),
+              icon: Icons.apartment_outlined,
+              title: firmName.isEmpty ? l.settingsFirm_title : firmName,
+              subtitle: l.settingsFirm_viewFirmSubtitle,
               onTap: () => context.push(AppRoutes.settingsManageAssociates),
             ),
           if (canJoinFirm) ...[

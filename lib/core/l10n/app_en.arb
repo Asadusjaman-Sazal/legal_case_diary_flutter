@@ -1082,6 +1082,7 @@
   "@@_section_settingsFirm": "SETTINGS - FIRM MENU  |  lib/features/accounts_and_profile/presentation/firm_menu_screen.dart",
   "settingsFirm_title": "Firm",
   "settingsFirm_joinFirmSubtitle": "Join a firm with an invitation code from its owner",
+  "settingsFirm_viewFirmSubtitle": "View your firm and its associates",
   "settingsAccountProfile_manageAssociatesSubtitle": "Manage your firm, its associates, and permissions",
   "settingsAccountProfile_createFirmSubtitle": "Create a firm and invite your associates",
   "settingsAccountProfile_deleteRequestsSubtitle": "Review requests and track their decisions",

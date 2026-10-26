@@ -16,6 +16,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/firm_menu_screen.dart';
@@ -118,6 +119,22 @@ void main() {
         ),
       );
 
+  /// The chamber's own row, as the account's pull would have cached it.
+  Future<void> seedFirm(
+    AppDatabase db, {
+    String name = 'Rahman & Associates',
+  }) => FirmsDao(db).upsert(
+    FirmsCompanion(
+      id: const Value('firm-1'),
+      name: Value(name),
+      ownerId: const Value('user-1'),
+      tier: const Value('firm'),
+      subscriptionStatus: const Value('active'),
+      subscriptionExpiry: Value(_premiumExpiryMs),
+      createdAt: const Value(1),
+    ),
+  );
+
   testWidgets('the owner sees Manage Firm, then Delete Requests', (
     tester,
   ) async {
@@ -141,6 +158,37 @@ void main() {
       tester.getTopLeft(find.text(l.deleteRequests_title)).dy,
       greaterThan(tester.getTopLeft(find.text(l.manageAssociates_title)).dy),
     );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an associate sees a row named after their firm, opening it', (
+    tester,
+  ) async {
+    await pumpFirm(
+      tester,
+      seed: (db) async {
+        await seedFirmMember(db, role: AccountRole.associate);
+        await seedFirm(db);
+      },
+    );
+
+    // The read-only view of somebody else's chamber is named after that chamber
+    // (0.0.666, user request) and sits where Manage Firm would.
+    final row = find.byKey(const ValueKey('firm-view'));
+    expect(row, findsOneWidget);
+    expect(find.text('Rahman & Associates'), findsOneWidget);
+    expect(
+      tester.widget<SettingsMenuCard>(row).subtitle,
+      l.settingsFirm_viewFirmSubtitle,
+    );
+    expect(find.byKey(const ValueKey('firm-manage')), findsNothing);
+    // The queue is still theirs.
+    expect(find.text(l.deleteRequests_title), findsOneWidget);
+
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    expect(find.text(manageFirmMarker), findsOneWidget);
 
     await unmountApp(tester);
   });

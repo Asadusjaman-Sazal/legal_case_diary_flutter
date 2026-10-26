@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/providers/contact_providers.dart';
@@ -678,6 +679,12 @@ void main() {
         tester.widget<Dialog>(find.byType(Dialog)).shape
             as RoundedRectangleBorder;
     expect(windowShape.borderRadius, BorderRadius.circular(8));
+
+    // Its title band wears the app's black, not the ink navy headers use.
+    final titleBand = tester.widget<Container>(
+      find.byKey(const ValueKey('quick-update-title')),
+    );
+    expect(titleBand.color, AppColors.secondary);
 
     await tester.tap(find.byKey(const ValueKey('quick-update-day-offset')));
     await tester.pumpAndSettle();
@@ -1613,7 +1620,6 @@ Future<void> _pickNotificationTime(
   await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
 }
-
 
 /// Records the URI the automated client message asks to open.
 class _UriLauncher implements ContactLauncher {

@@ -198,6 +198,7 @@ The application adheres to the custom **Justice Ledger** corporate design system
   - **Line 3:** **Name of the Court** (e.g., "Magistrate Court, Dhaka")
   - **Line 4:** Left: **Next Date** (formatted as `DD/MM/YYYY`) | Right: **last_step** (current procedural stage)
   - **Line 5:** **Phone** icon/button, **Message** icon/button, and **Update** button (presents a quick date and step update pop-up window like the Update button pop-up window of 'mockup_html_screens\dailyCauseList\code.html` file).
+    - **(0.0.671, user request)** That quick update pop-up's title band wears the app's black — `AppColors.secondary` (`#000000`), the ink the buttons, the side menu and the day-offset title bar already share — instead of the ink navy `AppColors.primary` the app's headers otherwise carry. The band is drawn inline in `QuickUpdateCaseDialog`, so no other window or header moved.
   ### 1.1 Add/Edit Case Form (`AddEditCaseSheet`)
   - Create `lib/shared/widgets/add_edit_case_sheet.dart`
 A full-screen modal sheet for adding a new case or editing an existing one.

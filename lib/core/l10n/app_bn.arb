@@ -2247,7 +2247,7 @@
   "deleteRequests_statusApproved": "অনুমোদিত",
   "deleteRequests_statusRejected": "প্রত্যাখ্যাত",
   "deleteRequests_statusStale": "পুনরায় নিশ্চিতকরণ প্রয়োজন",
-  "deleteRequests_requestedBy": "অনুরোধ করেছেন {name}",
+  "deleteRequests_requestedBy": "অনুরোধ করেছেন: {name}",
   "@deleteRequests_requestedBy": {
       "placeholders": {
           "name": {
@@ -2255,7 +2255,7 @@
           }
       }
   },
-  "deleteRequests_requestedOn": "অনুরোধের তারিখ {date}",
+  "deleteRequests_requestedOn": "অনুরোধের তারিখ: {date}",
   "@deleteRequests_requestedOn": {
       "placeholders": {
           "date": {

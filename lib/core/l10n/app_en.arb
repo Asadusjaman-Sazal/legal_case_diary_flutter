@@ -2414,7 +2414,7 @@
   "deleteRequests_statusApproved": "Approved",
   "deleteRequests_statusRejected": "Rejected",
   "deleteRequests_statusStale": "Needs Reconfirmation",
-  "deleteRequests_requestedBy": "Requested By {name}",
+  "deleteRequests_requestedBy": "Requested by: {name}",
   "@deleteRequests_requestedBy": {
       "placeholders": {
           "name": {
@@ -2422,7 +2422,7 @@
           }
       }
   },
-  "deleteRequests_requestedOn": "Requested On {date}",
+  "deleteRequests_requestedOn": "Requested on: {date}",
   "@deleteRequests_requestedOn": {
       "placeholders": {
           "date": {

@@ -34,6 +34,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -145,6 +146,7 @@ void main() {
     int updatedAt = 2000,
     int version = 4,
     String? reviewedBy,
+    Map<String, dynamic>? snapshot,
   }) async {
     await DeleteRequestsDao(db).insert(
       DeleteRequestsCompanion(
@@ -152,7 +154,9 @@ void main() {
         firmId: const Value('firm-1'),
         entityType: Value(entityType),
         entityId: Value(entityId),
-        entitySnapshot: Value(jsonEncode({'id': entityId, 'title': title})),
+        entitySnapshot: Value(
+          jsonEncode(snapshot ?? {'id': entityId, 'title': title}),
+        ),
         targetBaseVersion: const Value(2),
         requestedBy: Value(requestedBy),
         status: Value(status),
@@ -422,6 +426,140 @@ void main() {
       final payload = jsonDecode(queue.single.payload) as Map<String, dynamic>;
       expect(payload['status'], 'rejected');
       expect(payload['review_note'], 'Still needed for the appeal.');
+
+      await unmountApp(tester);
+    });
+  });
+
+  group('The record a review shows', () {
+    /// The snapshot a real case request carries.
+    const caseSnapshot = <String, dynamic>{
+      'case_type': 'Civil Appeal-',
+      'case_number': '345/25',
+      'petitioner': 'Alice',
+      'respondent': 'Bob',
+    };
+
+    /// A case request, raised by the colleague whose name the screen prints.
+    Future<void> seedCaseRequest() async {
+      // The requester's own cached profile: the name on the screen comes from
+      // it, never from the network.
+      await ProfilesDao(db).upsert(
+        ProfilesCompanion(
+          id: const Value('user-2'),
+          fullName: const Value('Jannatul Ferdousi Rekha'),
+          role: const Value('associate'),
+          firmId: const Value('firm-1'),
+          subscriptionStatus: const Value('premium'),
+          createdAt: const Value(1),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        entityType: 'case',
+        entityId: 'case-1',
+        requestedBy: 'user-2',
+        snapshot: caseSnapshot,
+      );
+    }
+
+    testWidgets('a case reads as its type and number, with who asked and when', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedCaseRequest();
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // The type and the number are one reading under **Case Number**, the way
+      // the app writes a case everywhere else, instead of a separate row.
+      expect(find.text('Civil Appeal- 345/25'), findsOneWidget);
+      expect(find.text(l.deleteRequests_fieldCaseType), findsNothing);
+      // The parties keep their own rows in the same card.
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text('Bob'), findsOneWidget);
+
+      // The card that headed this screen is gone: the entity chip it carried
+      // is nowhere on the screen now.
+      expect(find.text(l.deleteRequests_entityCase), findsNothing);
+      expect(
+        find.text(l.deleteRequests_requestedBy('Jannatul Ferdousi Rekha')),
+        findsOneWidget,
+      );
+
+      // The other line carries the date **and** the clock, in the app's
+      // `DD/MM/YYYY, hh:mm AM/PM` form rather than a bare date.
+      final on = tester.widget<Text>(
+        find.byKey(const ValueKey('delete-review-requested-on')),
+      );
+      expect(
+        on.data,
+        matches(
+          RegExp(r'^Requested on: \d{2}/\d{2}/\d{4}, \d{2}:\d{2} (AM|PM)$'),
+        ),
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets("the Reject button matches Approve's size, in white ink", (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedCaseRequest();
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final approve = find.byKey(const ValueKey('delete-review-approve'));
+      final reject = find.byKey(const ValueKey('delete-review-reject'));
+      expect(tester.getSize(reject), tester.getSize(approve));
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.descendant(of: reject, matching: find.byType(FilledButton)),
+            )
+            .style
+            ?.foregroundColor
+            ?.resolve(<WidgetState>{}),
+        AppColors.onPrimary,
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a case in the queue reads as its type and number', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedCaseRequest();
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      // The list row is read before the request is opened, so it carries the
+      // same reading the record does.
+      expect(find.text('Civil Appeal- 345/25'), findsOneWidget);
 
       await unmountApp(tester);
     });

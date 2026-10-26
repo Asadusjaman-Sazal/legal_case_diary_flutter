@@ -1645,6 +1645,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sharedActions_cancel => 'Cancel';
 
   @override
+  String get imageCrop_title => 'Crop Image';
+
+  @override
+  String get imageCrop_hint => 'Pinch to zoom and drag to move.';
+
+  @override
+  String get imageCrop_use => 'Use';
+
+  @override
   String get sharedActions_delete => 'Delete';
 
   @override

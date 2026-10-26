@@ -4918,7 +4918,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get manageAssociates_sectionInvites => 'অব্যবহৃত আমন্ত্রণ';
+  String get manageAssociates_sectionInvites => 'অব্যবহৃত আমন্ত্রণ কোড';
 
   @override
   String get manageAssociates_noInvites => 'কোনো অব্যবহৃত আমন্ত্রণ নেই।';

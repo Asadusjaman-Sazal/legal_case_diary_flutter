@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.654 - The firm row and page read Create a Firm or Manage Firm by the account's own state, an empty individual diary can join a firm by code, and the owner can rename the firm.
+Version: 0.0.655 - Manage Firm: Revoke is black with white text, the invite codes heading is spelled out, and the firm name carries the logo's pencil beside it, below a long name.
 --------------------------------------
 
 ## Version History Log:
@@ -668,3 +668,4 @@ Version: 0.0.651 - The Invite Code is a centred pop-over with Exit App button si
 Version: 0.0.652 - The Invite Code pop-over is wider so Copy Code and Share sit on one row with Close beneath them.
 Version: 0.0.653 - Manage Associates: firm logo frame with Profile-style edit and delete, Device Usage title, invite codes shown and tappable to copy, and red Revoke and Dissolve actions.
 Version: 0.0.654 - The firm row and page read Create a Firm or Manage Firm by the account's own state, an empty individual diary can join a firm by code, and the owner can rename the firm.
+Version: 0.0.655 - Manage Firm: Revoke is black with white text, the invite codes heading is spelled out, and the firm name carries the logo's pencil beside it, below a long name.

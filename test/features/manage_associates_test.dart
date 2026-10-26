@@ -195,6 +195,7 @@ void main() {
     AppDatabase db, {
     String role = AccountRole.owner,
     bool premium = true,
+    String firmName = 'Rahman & Associates',
   }) async {
     // A member's entitlement is the chamber's expiry, so a lapsed owner needs a
     // lapsed **firm** row as well — otherwise every firm account still reads
@@ -219,7 +220,7 @@ void main() {
     await FirmsDao(db).upsert(
       FirmsCompanion(
         id: const Value('firm-1'),
-        name: const Value('Rahman & Associates'),
+        name: Value(firmName),
         ownerId: const Value('user-1'),
         subscriptionStatus: Value(premium ? 'active' : 'free'),
         subscriptionExpiry: Value(expiry),
@@ -515,6 +516,50 @@ void main() {
     expect(name.textAlign, TextAlign.center);
     expect(name.style?.fontWeight, FontWeight.w700);
     expect(find.text(l.settingsManageAccount_firm), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the name pencil sits beside a short firm name', (tester) async {
+    // A short name on purpose: the test font is the fixed-width Ahem face, so
+    // "Rahman & Associates" is already too wide to share a line with the pen.
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedOwner(db, firmName: 'Rahman'),
+    );
+
+    final pencil = find.byKey(const ValueKey('firm-name-change'));
+    expect(pencil, findsOneWidget);
+    // The same round pencil the logo carries, with no visible label.
+    expect(
+      find.descendant(of: pencil, matching: find.byIcon(Icons.edit)),
+      findsOneWidget,
+    );
+    expect(find.text(l.manageAssociates_changeName), findsNothing);
+    // Beside, not below: the two share a line.
+    final name = find.text('Rahman');
+    expect(
+      (tester.getCenter(pencil).dy - tester.getCenter(name).dy).abs(),
+      lessThan(16),
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a long firm name moves the name pencil below it', (
+    tester,
+  ) async {
+    const longName = 'Rahman, Chowdhury & Associates International Law Chamber';
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedOwner(db, firmName: longName),
+    );
+
+    final pencil = tester.getRect(
+      find.byKey(const ValueKey('firm-name-change')),
+    );
+    final name = tester.getRect(find.text(longName));
+    expect(pencil.top, greaterThanOrEqualTo(name.bottom));
 
     await unmountApp(tester);
   });
@@ -1131,7 +1176,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Revoke is red-filled and Dissolve is tall and red', (
+  testWidgets('Revoke is black-filled and Dissolve is tall and red', (
     tester,
   ) async {
     harness.firm.invites = [
@@ -1145,11 +1190,11 @@ void main() {
     );
     expect(
       revoke.style?.backgroundColor?.resolve(<WidgetState>{}),
-      AppColors.error,
+      AppColors.primary,
     );
     expect(
       revoke.style?.foregroundColor?.resolve(<WidgetState>{}),
-      AppColors.onError,
+      AppColors.onPrimary,
     );
 
     // Dissolve is a full-height red button, not an outlined one.

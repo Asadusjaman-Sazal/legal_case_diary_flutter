@@ -8377,7 +8377,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_sectionInvites.
   ///
   /// In en, this message translates to:
-  /// **'Outstanding Invites'**
+  /// **'Outstanding Invitation Codes'**
   String get manageAssociates_sectionInvites;
 
   /// No description provided for @manageAssociates_noInvites.

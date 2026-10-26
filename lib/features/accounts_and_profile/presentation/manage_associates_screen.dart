@@ -963,21 +963,32 @@ class _FirmCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.titleLg.copyWith(fontWeight: FontWeight.w700),
-          ),
-          // The name is the owner's to change, and this is the only place it is
-          // shown (0.0.654, user request).
-          Center(
-            child: TextButton(
-              key: const ValueKey('firm-name-change'),
-              onPressed: onRename,
-              child: Text(l.manageAssociates_changeName),
-            ),
+          // The same round pencil the logo carries, beside the name: the name
+          // takes the line when it needs it, and the pencil drops to the next
+          // line rather than squeezing a long chamber name (user request).
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            children: [
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.titleLg.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              _PictureAction(
+                key: const ValueKey('firm-name-change'),
+                icon: Icons.edit,
+                color: AppColors.primary,
+                tooltip: l.manageAssociates_changeName,
+                onTap: onRename,
+              ),
+            ],
           ),
         ],
       ),
@@ -1306,15 +1317,16 @@ class _InviteRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        // Red fill with white text (user request): a revocation is the one
-        // destructive action in this list, so it wears the colour everywhere
-        // the app uses for one.
+        // Black fill with white text (user request): the revoke action is the
+        // list's one control, and it wears the app's primary action colour.
         FilledButton(
           key: ValueKey('manage-associates-revoke-$id'),
           onPressed: onRevoke,
           style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
+            disabledForegroundColor: AppColors.onPrimary,
             minimumSize: const Size(0, 40),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           ),

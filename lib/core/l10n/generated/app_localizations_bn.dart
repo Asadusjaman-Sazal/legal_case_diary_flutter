@@ -2101,6 +2101,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্মের মালিকের আমন্ত্রণ কোড দিয়ে ফার্মে যোগ দিন';
 
   @override
+  String get settingsFirm_viewFirmSubtitle => 'আপনার ফার্ম ও সহকারীদের দেখুন';
+
+  @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
       'আপনার ফার্ম, সহকারী ও অনুমতিগুলো পরিচালনা করুন';
 

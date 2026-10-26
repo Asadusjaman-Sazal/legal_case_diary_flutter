@@ -68,7 +68,10 @@ import '../data/profile_repository.dart' show AccountRole;
 /// The firm screen: firm creation, invites and the roster.
 ///
 /// Named **Manage Firm** once the account has one and **Create a Firm** until
-/// then, in its own title and on its menu row (0.0.654, user request).
+/// then, in its own title and on its menu row (0.0.654, user request). A member
+/// of somebody else's chamber reads the same page as a **chamber-named,
+/// read-only** view of it (0.0.666, user request): the firm's identity and its
+/// people, with no control anywhere on it.
 class ManageAssociatesScreen extends ConsumerStatefulWidget {
   /// Creates the screen.
   const ManageAssociatesScreen({super.key});
@@ -115,6 +118,10 @@ class _ManageAssociatesScreenState
       body = _rosterBody(l);
     } else if (ref.watch(canOpenManageAssociatesProvider)) {
       body = _firmSetupBody(l);
+    } else if (ref.watch(firmMemberProvider)) {
+      // An associate or viewer of somebody else's chamber: what the firm is and
+      // who is in it, with nothing to change (0.0.666, user request).
+      body = _memberBody(l);
     } else {
       // A firm member who is not the owner: the entry point hides this screen,
       // and a deep link into it must not offer a create-firm form either — the
@@ -125,8 +132,11 @@ class _ManageAssociatesScreenState
 
     return SettingsSubPageModal(
       // Titled by the account's own state, like its menu row: an individual is
-      // here to create a firm, an owner to manage one.
-      title: ref.watch(firmModeProvider)
+      // here to create a firm, an owner to manage one, and a member to read the
+      // chamber they belong to — which is the chamber's own name.
+      title: ref.watch(firmMemberProvider)
+          ? _firmTitle(l)
+          : ref.watch(firmModeProvider)
           ? l.manageAssociates_title
           : l.manageAssociates_createFirmTitle,
       child: body,
@@ -187,6 +197,7 @@ class _ManageAssociatesScreenState
         ],
         _FirmCard(
           name: firmName,
+          readOnly: false,
           onOpenPicture: () => _openLogoViewer(context),
           onRename: _busy || firm == null ? null : _renameFirm,
         ),
@@ -302,6 +313,61 @@ class _ManageAssociatesScreenState
           onPressed: membersLeft == 0 && !pendingWrites && !_busy
               ? _dissolveFirm
               : null,
+        ),
+      ],
+    );
+  }
+
+  /// The chamber's own name, or the plain *Firm* while its row has not been
+  /// pulled yet — a header is never left empty.
+  String _firmTitle(AppLocalizations l) {
+    final name = ref.watch(accountFirmProvider).value?.name ?? '';
+    return name.isEmpty ? l.settingsFirm_title : name;
+  }
+
+  /// A member's view of the chamber: its identity, then its people, read-only.
+  ///
+  /// There is nothing here to act on and that is the whole point: inviting,
+  /// permission toggles, renaming, dissolving and the capacity card are the
+  /// owner's (and the capacity card's number is not even readable by a member —
+  /// the server hands an account only its own devices). The roster is the same
+  /// live read the owner's body uses, which the server's own rules already
+  /// allow for every member of the chamber, and every row is drawn without a
+  /// tap so the page cannot look like the owner's.
+  Widget _memberBody(AppLocalizations l) {
+    final members = ref.watch(firmMembersListProvider);
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.edgeMargin,
+        AppSpacing.md,
+        AppSpacing.edgeMargin,
+        AppSpacing.xl,
+      ),
+      children: [
+        _FirmCard(name: _firmTitle(l), readOnly: true),
+        const SizedBox(height: AppSpacing.gutter),
+        SettingsSectionLabel(l.manageAssociates_sectionMembers),
+        const SizedBox(height: AppSpacing.sm),
+        members.when(
+          data: (rows) => rows.isEmpty
+              ? _InfoRow(text: l.manageAssociates_noMembers)
+              : Column(
+                  children: [
+                    for (final member in rows) ...[
+                      _MemberRow(member: member, l: l),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+                  ],
+                ),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(AppSpacing.lg),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          // A failed read says so rather than showing an empty chamber.
+          error: (error, _) => AuthErrorBanner(
+            text: failureText(l, error) ?? l.auth_errorUnknown,
+          ),
         ),
       ],
     );
@@ -872,15 +938,20 @@ class _OverviewPoint extends StatelessWidget {
 class _FirmCard extends ConsumerWidget {
   const _FirmCard({
     required this.name,
-    required this.onOpenPicture,
-    required this.onRename,
+    required this.readOnly,
+    this.onOpenPicture,
+    this.onRename,
   });
 
   /// The firm's name, drawn bold and centred under the frame.
   final String name;
 
+  /// A member's copy: the frame and the name are shown, but neither is a
+  /// control and the name carries no pencil (0.0.666, user request).
+  final bool readOnly;
+
   /// Opens the full-screen logo viewer.
-  final VoidCallback onOpenPicture;
+  final VoidCallback? onOpenPicture;
 
   /// Opens the rename window (0.0.654, user request); null while a call runs.
   final VoidCallback? onRename;
@@ -889,7 +960,7 @@ class _FirmCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final logo = ref.watch(firmLogoProvider);
-    final hasLogo = logo != null;
+    final frame = _firmLogoFrame(logo == null ? null : FileImage(logo));
 
     return Container(
       decoration: settingsCardDecoration(),
@@ -898,35 +969,16 @@ class _FirmCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
-            child: GestureDetector(
-              key: const ValueKey('firm-logo-open'),
-              onTap: onOpenPicture,
-              child: Container(
-                key: const ValueKey('firm-logo-frame'),
-                width: _firmLogoFrameWidth,
-                height: _firmLogoFrameHeight,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-                  border: Border.all(color: AppColors.outlineVariant),
-                  image: hasLogo
-                      ? DecorationImage(
-                          image: FileImage(logo),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                // The fallback the round avatar used to draw: the chamber is a
-                // firm with no picture yet, not a missing image.
-                child: hasLogo
-                    ? null
-                    : const Icon(
-                        Icons.apartment_outlined,
-                        color: AppColors.primary,
-                        size: 32,
-                      ),
-              ),
-            ),
+            // A member may look at the chamber's picture, not change it: the
+            // frame is a plain picture for them and the viewer's Edit and Delete
+            // therefore never open (0.0.666, user request).
+            child: readOnly
+                ? frame
+                : GestureDetector(
+                    key: const ValueKey('firm-logo-open'),
+                    onTap: onOpenPicture,
+                    child: frame,
+                  ),
           ),
           const SizedBox(height: AppSpacing.md),
           // The same round pencil the logo carries, beside the name: the name
@@ -947,13 +999,14 @@ class _FirmCard extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              _PictureAction(
-                key: const ValueKey('firm-name-change'),
-                icon: Icons.edit,
-                color: AppColors.primary,
-                tooltip: l.manageAssociates_changeName,
-                onTap: onRename,
-              ),
+              if (!readOnly)
+                _PictureAction(
+                  key: const ValueKey('firm-name-change'),
+                  icon: Icons.edit,
+                  color: AppColors.primary,
+                  tooltip: l.manageAssociates_changeName,
+                  onTap: onRename,
+                ),
             ],
           ),
         ],
@@ -961,6 +1014,32 @@ class _FirmCard extends ConsumerWidget {
     );
   }
 }
+
+/// The chamber's logo frame: the picture when one is saved, the apartment
+/// glyph until then. Extracted so the member's read-only card can draw the
+/// very same frame as a plain picture (0.0.666).
+Widget _firmLogoFrame(ImageProvider? logo) => Container(
+  key: const ValueKey('firm-logo-frame'),
+  width: _firmLogoFrameWidth,
+  height: _firmLogoFrameHeight,
+  decoration: BoxDecoration(
+    color: AppColors.surfaceContainerLow,
+    borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+    border: Border.all(color: AppColors.outlineVariant),
+    image: logo == null
+        ? null
+        : DecorationImage(image: logo, fit: BoxFit.cover),
+  ),
+  // The fallback the round avatar used to draw: the chamber is a firm with no
+  // picture yet, not a missing image.
+  child: logo != null
+      ? null
+      : const Icon(
+          Icons.apartment_outlined,
+          color: AppColors.primary,
+          size: 32,
+        ),
+);
 
 /// Width of the firm's rectangular logo frame.
 const double _firmLogoFrameWidth = 148;

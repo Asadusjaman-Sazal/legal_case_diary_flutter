@@ -2097,6 +2097,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join a firm with an invitation code from its owner';
 
   @override
+  String get settingsFirm_viewFirmSubtitle =>
+      'View your firm and its associates';
+
+  @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
       'Manage your firm, its associates, and permissions';
 

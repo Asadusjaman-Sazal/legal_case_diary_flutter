@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.665 - The Join a Firm window's action now reads Join instead of Send.
+Version: 0.0.666 - An associate now gets a read-only view of their firm in Settings > Firm: a row named after the chamber, its identity card and its associates.
 --------------------------------------
 
 ## Version History Log:
@@ -679,3 +679,4 @@ Version: 0.0.662 - Firm Logo frame resizing now works: a sideways corner pull re
 Version: 0.0.663 - Firm now has its own Settings entry, offered to every account, holding Manage Firm/Create a Firm and Delete Requests with their previous visibility; Account & Profile keeps Profile, Account and Subscription.
 Version: 0.0.664 - Join a Firm is now a card on the Firm page instead of a button on the create-firm page, and the create page's premium line is sentence case.
 Version: 0.0.665 - The Join a Firm window's action now reads Join instead of Send.
+Version: 0.0.666 - An associate now gets a read-only view of their firm in Settings > Firm: a row named after the chamber, its identity card and its associates.

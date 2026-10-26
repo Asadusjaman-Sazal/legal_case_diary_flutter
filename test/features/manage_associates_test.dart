@@ -868,6 +868,56 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets(
+    'an associate reads the firm and its people, with nothing to edit',
+    (tester) async {
+      harness.firm.members = const <FirmMemberSummary>[
+        FirmMemberSummary(
+          userId: 'user-1',
+          role: AccountRole.owner,
+          fullName: 'Adv. Rahim Uddin',
+          canAdd: true,
+          canEdit: true,
+          canDelete: true,
+        ),
+        FirmMemberSummary(
+          userId: 'user-2',
+          role: AccountRole.associate,
+          fullName: 'Adv. Karim',
+          canAdd: true,
+          canEdit: true,
+          canDelete: false,
+        ),
+      ];
+
+      await pumpManageAssociates(
+        tester,
+        seed: (db) => seedOwner(db, role: AccountRole.associate),
+      );
+
+      // The chamber's own name, as the header and on the card (0.0.666, user
+      // request).
+      expect(find.text('Rahman & Associates'), findsWidgets);
+      // Everyone is listed, each with their own label.
+      expect(find.text('Adv. Karim'), findsOneWidget);
+      expect(find.text(l.settingsManageAccount_roleOwner), findsOneWidget);
+      expect(find.text(l.settingsManageAccount_roleAssociate), findsOneWidget);
+      // Nothing to act on: no invitation, no permission editing, no rename, no
+      // dissolve, and no member row that opens anything.
+      expect(find.text(l.manageAssociates_addAssociate), findsNothing);
+      expect(find.text(l.manageAssociates_sectionInvites), findsNothing);
+      expect(find.text(l.manageAssociates_dissolveFirm), findsNothing);
+      expect(find.byKey(const ValueKey('firm-name-change')), findsNothing);
+      expect(find.byKey(const ValueKey('firm-logo-open')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('manage-associates-member-user-2')),
+        findsNothing,
+      );
+
+      await unmountApp(tester);
+    },
+  );
+
   testWidgets('an associate is never offered a create-firm form', (
     tester,
   ) async {
@@ -876,30 +926,36 @@ void main() {
       seed: (db) => seedOwner(db, role: AccountRole.associate),
     );
 
-    expect(find.text(l.manageAssociates_ownerOnly), findsOneWidget);
+    // 0.0.666: an associate reads the chamber they belong to instead of being
+    // told they may not manage it. What must still never appear is anything
+    // that creates a firm or edits the chamber.
     expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
+    expect(
+      find.byKey(const ValueKey('manage-associates-firm-name')),
+      findsNothing,
+    );
     expect(find.text(l.manageAssociates_addAssociate), findsNothing);
 
     await unmountApp(tester);
   });
 
-  testWidgets('the Firm page hides Manage Firm from an associate', (
-    tester,
-  ) async {
-    // The entry is the only intended way in, and an associate's taps would only
-    // be refused server-side — the roster, the invites and the permission
-    // toggles are owner-only there.
-    await pumpMenu(tester);
-    await seedOwner(harness.db, role: AccountRole.associate);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'the Firm page offers an associate their firm instead of Manage Firm',
+    (tester) async {
+      // An associate has no firm of their own to create and no right to manage the
+      // one they are in, so the row that manages it is hidden — the read-only row
+      // named after the chamber takes its place (0.0.666, user request).
+      await pumpMenu(tester);
+      await seedOwner(harness.db, role: AccountRole.associate);
+      await tester.pumpAndSettle();
 
-    // Neither label: an associate has no firm of their own to create and no
-    // right to manage the one they are in (0.0.654, user ruling).
-    expect(find.text(l.manageAssociates_title), findsNothing);
-    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
+      expect(find.text(l.manageAssociates_title), findsNothing);
+      expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
+      expect(find.byKey(const ValueKey('firm-view')), findsOneWidget);
 
-    await unmountApp(tester);
-  });
+      await unmountApp(tester);
+    },
+  );
 
   testWidgets('the owner sees the outstanding invites and can revoke one', (
     tester,

@@ -100,6 +100,15 @@ abstract final class AppDateUtils {
     );
   }
 
+  /// Format as `DD/MM/YYYY, HH:MM AM/PM` — a date together with the clock of
+  /// the same Bangladesh instant, for a timestamp that needs both (the
+  /// delete-request screen's *Requested on* line).
+  static String formatDateTimeDDMMYYYY(int epochMs, {required String locale}) {
+    return DateFormat('dd/MM/yyyy, hh:mm a', locale).format(
+      bangladeshDateTime(epochMs),
+    );
+  }
+
   /// Format as `DD/MM/YY | DDD` for the Daily Cause List calendar control.
   ///
   /// The weekday abbreviation is localized (e.g. English "Tue", Bengali "মঙ্গল").

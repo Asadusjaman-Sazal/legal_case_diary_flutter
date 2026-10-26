@@ -8785,13 +8785,13 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_requestedBy.
   ///
   /// In en, this message translates to:
-  /// **'Requested By {name}'**
+  /// **'Requested by: {name}'**
   String deleteRequests_requestedBy(String name);
 
   /// No description provided for @deleteRequests_requestedOn.
   ///
   /// In en, this message translates to:
-  /// **'Requested On {date}'**
+  /// **'Requested on: {date}'**
   String deleteRequests_requestedOn(String date);
 
   /// No description provided for @deleteRequests_unnamed.

@@ -27,6 +27,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/print/print_document.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
 import '../../auth/presentation/auth_widgets.dart';
@@ -66,8 +67,14 @@ Map<String, dynamic> deleteRequestSnapshotMap(DeleteRequest request) {
 /// reference's page — so a queue row is readable without opening it.
 String deleteRequestSummary(DeleteRequest request, AppLocalizations l) {
   final snapshot = deleteRequestSnapshotMap(request);
+  String value(String key) => (snapshot[key] ?? '').toString().trim();
   final candidate = switch (request.entityType) {
-    'case' => snapshot['case_number'],
+    // A case reads as the app writes one everywhere else — the type's own
+    // trailing dash then the number, `Civil Appeal- 345/25` (user request: the
+    // type was missing from this list). `caseTypeAndCaseNumber` is the one
+    // writer of that reading, so the printouts, the client message and this
+    // list can never disagree.
+    'case' => caseTypeAndCaseNumber(value('case_type'), value('case_number')),
     'case_history' => snapshot['last_step'] ?? snapshot['note_result'],
     'note' => snapshot['title'],
     'reference' =>
@@ -94,8 +101,13 @@ List<(String, String)> deleteRequestDetailRows(
 
   switch (request.entityType) {
     case 'case':
-      add(l.deleteRequests_fieldCaseNumber, value('case_number'));
-      add(l.deleteRequests_fieldCaseType, value('case_type'));
+      // The type and the number are one reading under the number's own label
+      // (user request): *Case Number* over `Civil Appeal- 345/25`, rather than
+      // two rows the reviewer has to join up by eye.
+      add(
+        l.deleteRequests_fieldCaseNumber,
+        caseTypeAndCaseNumber(value('case_type'), value('case_number')),
+      );
       add(l.deleteRequests_fieldPetitioner, value('petitioner'));
       add(l.deleteRequests_fieldRespondent, value('respondent'));
     case 'case_history':
@@ -180,24 +192,44 @@ class _DeleteRequestReviewScreenState
           AppSpacing.xl,
         ),
         children: [
-          _HeaderCard(
-            request: request,
-            l: l,
-            locale: locale,
-            requester: requester ?? l.deleteRequests_unknownRequester,
-          ),
-          // The stale warning sits above the details on purpose: it is the one
-          // thing that changes what this screen is asking the reviewer to do.
+          // The request's own card is gone (user request): it repeated the
+          // record below and the two facts under it, so the screen now opens
+          // on the warning that changes what is being asked, or on the record.
+          // That warning sits above the details on purpose.
           if (stale) ...[
-            const SizedBox(height: AppSpacing.md),
             AuthErrorBanner(
-              text: '${l.deleteRequests_staleTitle}. ${l.deleteRequests_staleBody}',
+              text:
+                  '${l.deleteRequests_staleTitle}. ${l.deleteRequests_staleBody}',
             ),
+            const SizedBox(height: AppSpacing.md),
           ],
-          const SizedBox(height: AppSpacing.lg),
           SettingsSectionLabel(l.deleteRequests_snapshot),
           const SizedBox(height: AppSpacing.sm),
           _SnapshotCard(rows: deleteRequestDetailRows(request, l)),
+          const SizedBox(height: AppSpacing.sm),
+          // Who asked and when, directly under the record they are asking to
+          // delete (user request).
+          Text(
+            l.deleteRequests_requestedBy(
+              requester ?? l.deleteRequests_unknownRequester,
+            ),
+            key: const ValueKey('delete-review-requester'),
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            l.deleteRequests_requestedOn(
+              AppDateUtils.formatDateTimeDDMMYYYY(
+                request.createdAt,
+                locale: locale,
+              ),
+            ),
+            key: const ValueKey('delete-review-requested-on'),
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(height: AppSpacing.lg),
           TextField(
             key: const ValueKey('delete-review-note'),
@@ -231,18 +263,15 @@ class _DeleteRequestReviewScreenState
             onPressed: _busy ? null : () => _decide(approve: true),
           ),
           const SizedBox(height: AppSpacing.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              key: const ValueKey('delete-review-reject'),
-              onPressed: _busy ? null : () => _decide(approve: false),
-              icon: const Icon(Icons.close, size: 18),
-              label: Text(l.deleteRequests_reject),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                foregroundColor: AppColors.onSurface,
-              ),
-            ),
+          // The same button and the same size as Approve, in the app's black
+          // rather than Approve's error red, so the two read as one pair of
+          // outcomes and still tell themselves apart (user request: the size
+          // matched and the label white).
+          _PrimaryButton(
+            key: const ValueKey('delete-review-reject'),
+            icon: Icons.close,
+            label: l.deleteRequests_reject,
+            onPressed: _busy ? null : () => _decide(approve: false),
           ),
         ],
       ),
@@ -260,7 +289,9 @@ class _DeleteRequestReviewScreenState
       title: approve
           ? l.deleteRequests_approveTitle
           : l.deleteRequests_rejectTitle,
-      body: approve ? l.deleteRequests_approveBody : l.deleteRequests_rejectBody,
+      body: approve
+          ? l.deleteRequests_approveBody
+          : l.deleteRequests_rejectBody,
       confirmLabel: approve
           ? l.deleteRequests_approve
           : l.deleteRequests_reject,
@@ -301,69 +332,6 @@ class _DeleteRequestReviewScreenState
       if (mounted) setState(() => _busy = false);
     }
   }
-}
-
-/// The request's identity: what it is, who asked and when.
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({
-    required this.request,
-    required this.l,
-    required this.locale,
-    required this.requester,
-  });
-
-  final DeleteRequest request;
-  final AppLocalizations l;
-  final String locale;
-  final String requester;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    decoration: settingsCardDecoration(),
-    padding: const EdgeInsets.all(AppSpacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainer,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-              ),
-              child: Text(
-                deleteRequestEntityLabel(l, request.entityType),
-                style: AppTypography.labelMd.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(deleteRequestSummary(request, l), style: AppTypography.bodyLg),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          l.deleteRequests_requestedBy(requester),
-          style: AppTypography.bodySm.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
-        Text(
-          l.deleteRequests_requestedOn(
-            AppDateUtils.formatDateDDMMYYYY(request.createdAt, locale: locale),
-          ),
-          style: AppTypography.bodySm.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 /// The snapshot's fields as labelled rows, or a note when there are none.

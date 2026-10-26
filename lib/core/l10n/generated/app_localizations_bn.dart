@@ -5159,12 +5159,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String deleteRequests_requestedBy(String name) {
-    return 'অনুরোধ করেছেন $name';
+    return 'অনুরোধ করেছেন: $name';
   }
 
   @override
   String deleteRequests_requestedOn(String date) {
-    return 'অনুরোধের তারিখ $date';
+    return 'অনুরোধের তারিখ: $date';
   }
 
   @override

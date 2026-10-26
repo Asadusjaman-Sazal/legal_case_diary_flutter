@@ -5137,12 +5137,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteRequests_requestedBy(String name) {
-    return 'Requested By $name';
+    return 'Requested by: $name';
   }
 
   @override
   String deleteRequests_requestedOn(String date) {
-    return 'Requested On $date';
+    return 'Requested on: $date';
   }
 
   @override

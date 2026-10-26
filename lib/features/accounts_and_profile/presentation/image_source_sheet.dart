@@ -12,7 +12,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 
 enum _PictureSource { gallery, files }
@@ -39,21 +41,34 @@ Future<Uint8List?> pickPictureBytes(BuildContext context) async {
           children: [
             ListTile(
               key: const ValueKey('image-source-gallery'),
-              leading: const Icon(Icons.photo_library_outlined),
-              title: Text(l.imageSource_gallery),
+              leading: const Icon(
+                Icons.photo_library_outlined,
+                color: AppColors.onSurface,
+              ),
+              title: Text(
+                l.imageSource_gallery,
+                style: AppTypography.bodyLg.copyWith(
+                  color: AppColors.onSurface,
+                ),
+              ),
               onTap: () =>
                   Navigator.of(sheetContext).pop(_PictureSource.gallery),
             ),
-            // Bottom right, as requested: the file manager beside the gallery.
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                key: const ValueKey('image-source-files'),
-                onPressed: () =>
-                    Navigator.of(sheetContext).pop(_PictureSource.files),
-                icon: const Icon(Icons.folder_open, size: 18),
-                label: Text(l.imageSource_files),
+            // The same plain icon-and-black-text row as Gallery, directly under
+            // it and aligned with it (user request).
+            ListTile(
+              key: const ValueKey('image-source-files'),
+              leading: const Icon(
+                Icons.folder_open,
+                color: AppColors.onSurface,
               ),
+              title: Text(
+                l.imageSource_files,
+                style: AppTypography.bodyLg.copyWith(
+                  color: AppColors.onSurface,
+                ),
+              ),
+              onTap: () => Navigator.of(sheetContext).pop(_PictureSource.files),
             ),
           ],
         ),

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.658 - Profile and firm pictures open full-screen viewers with header Edit and Delete; Edit offers Gallery and Files, and the Select Image page drags a fixed frame, rotates the image and saves.
+Version: 0.0.660 - The Files source row now sits directly under Gallery and aligns with it, instead of at the bottom right.
 --------------------------------------
 
 ## Version History Log:
@@ -672,3 +672,5 @@ Version: 0.0.655 - Manage Firm: Revoke is black with white text, the invite code
 Version: 0.0.656 - The firm logo's edit and delete buttons and the firm-name pencil now use the Profile picture edit button's 30 px size instead of the larger padding.
 Version: 0.0.657 - Profile pictures and firm logos now open a crop step — pinch and drag inside a circle or the firm card's 148:100 frame — and store exactly the selected area.
 Version: 0.0.658 - Profile and firm pictures open full-screen viewers with header Edit and Delete; Edit offers Gallery and Files, and the Select Image page drags a fixed frame, rotates the image and saves.
+Version: 0.0.659 - The picture viewer's Delete and Edit sit slightly left with a 50% wider gap, and the Files source row now matches the Gallery's plain black icon-and-text style.
+Version: 0.0.660 - The Files source row now sits directly under Gallery and aligns with it, instead of at the bottom right.

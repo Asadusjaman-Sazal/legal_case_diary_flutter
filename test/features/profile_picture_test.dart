@@ -127,6 +127,14 @@ void main() {
     expect(find.byTooltip(l.sharedActions_delete), findsOneWidget);
     expect(find.byTooltip(l.sharedActions_edit), findsOneWidget);
 
+    // The two header actions keep a 6 px gap (50% more than the old 4) and sit
+    // 12 px in from the app bar's right edge.
+    final deleteRect = tester.getRect(find.byTooltip(l.sharedActions_delete));
+    final editRect = tester.getRect(find.byTooltip(l.sharedActions_edit));
+    expect(editRect.left - deleteRect.right, closeTo(6, 0.5));
+    final appBarRect = tester.getRect(find.byType(AppBar));
+    expect(appBarRect.right - editRect.right, greaterThanOrEqualTo(10));
+
     await tester.tap(find.byTooltip(l.sharedActions_delete));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 20)),

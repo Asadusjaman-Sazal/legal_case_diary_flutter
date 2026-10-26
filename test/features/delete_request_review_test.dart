@@ -38,6 +38,7 @@ import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
@@ -590,7 +591,17 @@ void main() {
       final overrides = await openScope();
       db = harness.db;
       await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
-      await seedCaseRequest();
+      // The request carries the name and **no** colleague profile is seeded, so
+      // only the request's own name can fill the row — the cache lookup this
+      // screen used before cannot satisfy it.
+      await seedRequest(
+        id: 'r1',
+        entityType: 'case',
+        entityId: 'case-1',
+        requestedBy: 'user-2',
+        requesterName: 'Jannatul Ferdousi Rekha',
+        snapshot: caseSnapshot,
+      );
 
       await pumpAuthScreen(
         tester,
@@ -599,9 +610,22 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
       // The list row is read before the request is opened, so it carries the
       // same reading the record does.
       expect(find.text('Civil Appeal- 345/25'), findsOneWidget);
+      // Its second line names who asked rather than dating the request (user
+      // request): the reviewer's question is who wants this gone, and the
+      // moment it was raised is on the review screen.
+      expect(
+        find.text('${l.deleteRequests_entityCase} \u00b7 Jannatul Ferdousi Rekha'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(AppDateUtils.formatDateDDMMYYYY(1000, locale: 'en')),
+        findsNothing,
+        reason: 'the queue row shows a person where the list used to show a date',
+      );
 
       await unmountApp(tester);
     });
@@ -668,6 +692,16 @@ void main() {
       await tester.pumpAndSettle();
 
       final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // This list still dates its rows: the requester's own name would tell
+      // them nothing, and the date is what orders the list (user request — the
+      // name replaced the date in the reviewer's queue only).
+      expect(
+        find.textContaining(
+          AppDateUtils.formatDateDDMMYYYY(1000, locale: 'en'),
+        ),
+        findsOneWidget,
+      );
+
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
       await tester.pumpAndSettle();
 

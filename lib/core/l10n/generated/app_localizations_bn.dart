@@ -5198,6 +5198,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_noteHint => 'একটি কারণ যোগ করুন';
 
   @override
+  String get deleteRequests_noteCloseKeyboard => 'কীবোর্ড বন্ধ করুন';
+
+  @override
   String get deleteRequests_approve => 'অনুমোদন';
 
   @override

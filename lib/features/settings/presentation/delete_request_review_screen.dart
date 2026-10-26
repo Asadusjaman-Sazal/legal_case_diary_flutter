@@ -147,8 +147,24 @@ class _DeleteRequestReviewScreenState
   /// Set when the last write failed; cleared when a new attempt starts.
   bool _failed = false;
 
+  /// Whether the note box is holding the keyboard, which is what shows its
+  /// cross (user request).
+  bool _noteFocused = false;
+
+  /// The note box's own focus, so the cross can hand the keyboard back.
+  final FocusNode _noteFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _noteFocus.addListener(
+      () => setState(() => _noteFocused = _noteFocus.hasFocus),
+    );
+  }
+
   @override
   void dispose() {
+    _noteFocus.dispose();
     _noteController.dispose();
     super.dispose();
   }
@@ -234,6 +250,7 @@ class _DeleteRequestReviewScreenState
           TextField(
             key: const ValueKey('delete-review-note'),
             controller: _noteController,
+            focusNode: _noteFocus,
             enabled: !_busy,
             maxLines: 3,
             minLines: 2,
@@ -241,6 +258,18 @@ class _DeleteRequestReviewScreenState
             decoration: InputDecoration(
               labelText: l.deleteRequests_noteLabel,
               hintText: l.deleteRequests_noteHint,
+              // The cross rides the keyboard: it appears while the box holds the
+              // focus and closes it on tap (user request), and it never clears
+              // the note — what the reviewer typed is the review's content, so a
+              // stray tap must not wipe it.
+              suffixIcon: _noteFocused
+                  ? IconButton(
+                      key: const ValueKey('delete-review-note-close'),
+                      icon: const Icon(Icons.close),
+                      tooltip: l.deleteRequests_noteCloseKeyboard,
+                      onPressed: _noteFocus.unfocus,
+                    )
+                  : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),

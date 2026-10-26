@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-26 — The firm picture actions match the Profile button size — COMPLETE (0.0.656)
+
+- **What was asked.** The firm logo's edit and delete buttons and the firm-name pencil should be the same size as the Profile picture edit button.
+- **What changed.** `_PictureAction` now uses `AppSpacing.xs` padding, the Profile picture edit/delete buttons' own value, instead of `AppSpacing.sm`. Its 18 px icon and 2 px rim were already the same, so the three firm actions are now the Profile button's **30 × 30** box instead of 38 × 38. No copy, layout or behaviour changed.
+- **Checks.** `flutter analyze` clean; full `flutter test` **2,120 passed**; a new case measures the firm logo pencil and the firm-name pencil against the Profile formula (18 px icon + 4 px padding each side + 2 px rim each edge); the Manage Firm suite passes 42 cases.
+- **Note.** The firm logo's red bin shares the same `_PictureAction`, so it takes the same size; no separate change was needed. No mockup is owed (Manage Firm has none).
+
 ### 2026-10-26 — The Manage Firm card and invite list — COMPLETE (0.0.655)
 
 - **What was asked.** On Manage Firm: the Revoke button black with white text; **Outstanding Invites** changed to **Outstanding Invitation Codes**; the **Change Firm Name** button removed and the logo's round pencil placed beside the firm name with a little space, dropping below the name when it is long.

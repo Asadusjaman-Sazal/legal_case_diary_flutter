@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.671 - The Update window's title band now wears the app's black (AppColors.secondary) instead of the ink navy the headers use.
+Version: 0.0.672 - The side menu gains Manage Firm (after Notes, or after the Admin Panel for admins) with the delete-request count, opening the firm page when requests wait.
 --------------------------------------
 
 ## Version History Log:
@@ -685,3 +685,4 @@ Version: 0.0.668 - The Send A Deletion Request window's title is centred and its
 Version: 0.0.669 - The Send A Deletion Request window's body sentence is justified, in that window only.
 Version: 0.0.670 - The Send A Deletion Request window is now titled Request Deletion.
 Version: 0.0.671 - The Update window's title band now wears the app's black (AppColors.secondary) instead of the ink navy the headers use.
+Version: 0.0.672 - The side menu gains Manage Firm (after Notes, or after the Admin Panel for admins) with the delete-request count, opening the firm page when requests wait.

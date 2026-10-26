@@ -55,6 +55,7 @@ import '../../features/auth/presentation/auth_viewmodel.dart';
 import '../../features/auth/presentation/logout_dialogs.dart';
 import '../../features/payments/presentation/current_plan.dart';
 import '../../features/settings/data/update_metadata_store.dart';
+import '../../features/settings/presentation/delete_requests_viewmodel.dart';
 import '../../features/settings/presentation/settings_controls.dart';
 import '../../features/settings/presentation/update_flow.dart';
 
@@ -346,6 +347,40 @@ class AppNavigationDrawer extends ConsumerWidget {
     // Task 22: the Admin Panel row exists only for an account the server has
     // confirmed as an admin, and false while that answer is still loading.
     final isAdmin = ref.watch(adminStatusProvider).value ?? false;
+    // The firm entry in the side menu (user request, 0.0.672). It is offered to
+    // the account the firm page offers it to — any individual, whatever their
+    // plan, and a chamber's owner. A member who is not the owner has no such row
+    // on that page either, because the roster, the invites and the permission
+    // toggles are all owner-only server-side.
+    final canOpenFirm = ref.watch(canOpenManageAssociatesProvider);
+    // What is waiting on this account: a reviewer's queue, or a requester's
+    // unread decisions. An individual is never in firm mode, so this is 0 and
+    // the row carries no count — the same reading the firm page's own badge
+    // uses, rather than a second count invented here.
+    final firmRequests = ref.watch(deleteRequestsBadgeCountProvider);
+    // With something waiting, the row opens the firm page, where the Delete
+    // Requests row and its own count stand in front of the user; with nothing
+    // waiting it is the shortcut to Manage Firm itself (user request).
+    final firmRoute = firmRequests > 0
+        ? AppRoutes.settingsFirm
+        : AppRoutes.settingsManageAssociates;
+    final firmActive = currentRoute == firmRoute;
+    final Widget? firmTile = !canOpenFirm
+        ? null
+        : _DrawerNavTile(
+            icon: Icons.groups_outlined,
+            // The words the row it points at wears, so the two can never
+            // disagree: an account without a firm is still creating one.
+            label: isFirm
+                ? l.manageAssociates_title
+                : l.manageAssociates_createFirmTitle,
+            active: firmActive,
+            badgeCount: firmRequests,
+            onTap: () {
+              Navigator.of(context).pop();
+              if (!firmActive) context.push(firmRoute);
+            },
+          );
     return _AdminCountsRefresh(
       child: Drawer(
         backgroundColor: AppColors.surfaceContainerLowest,
@@ -446,6 +481,9 @@ class AppNavigationDrawer extends ConsumerWidget {
                     ..._toolItems.map(
                       (item) => _buildItem(context, l, item, isAdmin: isAdmin),
                     ),
+                    // Manage Firm has a section of its own, like the Admin Panel —
+                    // and, for an admin, a place inside that same section but
+                    // after the panel (user request).
                     if (isAdmin) ...[
                       const _DrawerDivider(),
                       // The count of what is waiting inside the panel, over the
@@ -457,6 +495,10 @@ class AppNavigationDrawer extends ConsumerWidget {
                         isAdmin: true,
                         badgeCount: ref.watch(adminPendingCountProvider),
                       ),
+                      ?firmTile,
+                    ] else if (firmTile != null) ...[
+                      const _DrawerDivider(),
+                      firmTile,
                     ],
                     const _DrawerDivider(),
                     // Settings leads the bottom group, directly above the plan

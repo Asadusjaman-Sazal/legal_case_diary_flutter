@@ -1,10 +1,10 @@
 /// Accounts profile menu screen: main sub-menu for Accounts & Profile.
 /// UI shell (Task 12 Phase 2); full account wiring in Part B / Task 17.
 ///
-/// The body is grouped into four labelled sections — **Profile**, **Account**,
-/// **Subscription** and **Firm** — using the shared [SettingsSectionLabel] the other sectioned
-/// Settings screens use, so the menu reads as a set of account-level groups
-/// rather than one flat list. Every entry still renders through
+/// The body is grouped into three labelled sections — **Profile**, **Account**
+/// and **Subscription** — using the shared [SettingsSectionLabel] the other
+/// sectioned Settings screens use, so the menu reads as a set of account-level
+/// groups rather than one flat list. Every entry still renders through
 /// [SettingsMenuCard], the shared card the other sub-menus use, which is what
 /// keeps this screen the size reference for the whole Settings surface.
 ///
@@ -14,60 +14,32 @@
 /// is where Change Password came back to (0.0.411): the Security sub-page that
 /// briefly held it is gone, because a whole screen for one row earned nothing.
 ///
-/// Task 20 Phase 1 adds the final entry, the firm row, and it is conditional on
-/// purpose: an **individual** sees it whatever their plan (0.0.654 — a free
-/// account is shown it too, because the screen behind it explains what a firm is
-/// and where the firm plans are sold, and `ensure_firm` is the server's gate
-/// rather than the row's), a firm owner sees it (the server still lets an owner
-/// manage the firm they already have), and an associate or viewer does not — the
-/// screen behind it is owner-only server-side. The **Firm** section label is
-/// drawn only with its rows, so a hidden row never leaves a bare header.
-///
-/// Its label follows the account, not the app: an account with no firm reads
-/// **Create a Firm**, and the same row reads **Manage Firm** once a firm exists
-/// (0.0.654, user request).
-///
-/// **Delete Requests** moved here from the main Settings list (0.0.649, user
-/// request), directly after Manage Associates: the queue belongs to the firm it
-/// is raised in, not among the app's own preferences. It keeps the rule it had —
-/// offered in firm mode only, because an individual owns their own diary and has
-/// nobody to ask — and it keeps its badge, which counts what is waiting on this
-/// account: the reviewer's queue, or the requester's unread decisions.
+/// **Firm** moved out to its own Settings entry at 0.0.663 (user request): the
+/// Settings list now offers **Firm** to every account, and its page
+/// (`firm_menu_screen.dart`) keeps the rows' old visibility — Manage Firm /
+/// Create a Firm for an individual or owner, Delete Requests in firm mode.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
-import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../payments/data/payment_plans.dart';
-import '../../settings/presentation/delete_requests_viewmodel.dart';
 import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
 
-/// Accounts & Profile menu, grouped into Profile, Account and Firm sections.
+/// Accounts & Profile menu, grouped into Profile, Account and Subscription.
 class AccountsProfileMenuScreen extends ConsumerWidget {
   const AccountsProfileMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    // Every individual is offered the entry now (0.0.654, user request): a free
-    // account opens the same screen as a paying one, where the *What Is a Firm?*
-    // card and the plan link act as the teaser — the create action itself sends a
-    // free account to the Paywall, which is the polite half of the gate
-    // `ensure_firm` enforces. A firm owner keeps it after a lapse, because the
-    // firm and its roster are still theirs. An associate still gets no row: the
-    // screen behind it is owner-only server-side.
-    final showManageAssociates = ref.watch(canOpenManageAssociatesProvider);
-    // The row's own subject: a team to create, or a firm to manage.
-    final firmExists = ref.watch(firmModeProvider);
     // App Lock and Devices live here with the account they belong to (0.0.611,
     // user request). Devices is only worth a row where the plan holds more than
     // one device: Free has no sync and Starter holds one, so it starts at Pro.
@@ -77,11 +49,6 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
     // request), and the ledger is the account's own, so History is the one
     // Subscription row a member is not offered.
     final isMember = ref.watch(firmMemberProvider);
-    // Delete Requests belongs to the firm and is offered to every member of one
-    // (0.0.649): a reviewer opens the queue in front of them, a member without
-    // delete permission opens their own requests and the decisions on them.
-    final showDeleteRequests = ref.watch(firmModeProvider);
-    final deleteRequestsCount = ref.watch(deleteRequestsBadgeCountProvider);
 
     return SettingsSubPageModal(
       title: l.settingsScreen_accountAndProfile,
@@ -152,81 +119,8 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.settingsSubscriptionHistory),
             ),
           ],
-          if (showManageAssociates || showDeleteRequests) ...[
-            const SizedBox(height: AppSpacing.lg),
-            // Firm: only meaningful with a row below it.
-            SettingsSectionLabel(l.settingsAccountProfile_sectionFirm),
-            const SizedBox(height: AppSpacing.sm),
-            if (showManageAssociates)
-              SettingsMenuCard(
-                icon: Icons.groups_outlined,
-                title: firmExists
-                    ? l.manageAssociates_title
-                    : l.manageAssociates_createFirmTitle,
-                subtitle: firmExists
-                    ? l.settingsAccountProfile_manageAssociatesSubtitle
-                    : l.settingsAccountProfile_createFirmSubtitle,
-                onTap: () => context.push(AppRoutes.settingsManageAssociates),
-              ),
-            // Directly after Manage Associates (user request, 0.0.649).
-            if (showDeleteRequests) ...[
-              if (showManageAssociates) const SizedBox(height: AppSpacing.sm),
-              SettingsMenuCard(
-                icon: Icons.delete_outline,
-                title: l.deleteRequests_title,
-                // Every card on this page carries a line saying what it holds,
-                // so this one does too (user request).
-                subtitle: l.settingsAccountProfile_deleteRequestsSubtitle,
-                // The badge travels with the row: it is the count of what is
-                // waiting on this account, and the screen it opens is where it
-                // is cleared. Passed as the trailing widget so the chevron it
-                // replaces is drawn back beside it.
-                trailing: deleteRequestsCount > 0
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _CountPill(count: deleteRequestsCount),
-                          const SizedBox(width: AppSpacing.sm),
-                          const Icon(
-                            Icons.chevron_right,
-                            color: AppColors.tertiary,
-                          ),
-                        ],
-                      )
-                    : null,
-                onTap: () => context.push(AppRoutes.settingsDeleteRequests),
-              ),
-            ],
-          ],
         ],
       ),
     );
   }
-}
-
-/// The count pill on a menu card that is waiting for the user.
-///
-/// Moved here with the Delete Requests row from the main Settings list, where it
-/// was the only badge in that list.
-class _CountPill extends StatelessWidget {
-  const _CountPill({required this.count});
-
-  /// How many things are waiting.
-  final int count;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.error,
-      borderRadius: BorderRadius.circular(AppSpacing.md),
-    ),
-    child: Text(
-      '$count',
-      style: AppTypography.labelMd.copyWith(color: AppColors.onError),
-    ),
-  );
 }

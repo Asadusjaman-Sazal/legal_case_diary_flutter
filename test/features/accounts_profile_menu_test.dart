@@ -1,17 +1,17 @@
 /// Accounts & Profile menu — the sectioned layout.
 ///
-/// The menu is grouped under four labelled headers: **Profile** (Profile),
-/// **Account** (Manage Account, App Lock, Devices), **Subscription** (Manage
-/// Plan, Subscription Plans, Subscription History) and **Firm** (Manage
-/// Associates, shown only when that entry is offered). The Subscription section
+/// The menu is grouped under three labelled headers: **Profile** (Profile),
+/// **Account** (Manage Account, App Lock, Devices) and **Subscription** (Manage
+/// Plan, Subscription Plans, Subscription History). The Subscription section
 /// replaced the one intermediate Subscription screen at 0.0.624; a chamber
 /// member sees Manage Plan and the read-only plans but not History (0.0.626).
 /// Devices is offered
 /// only where the plan holds more than one device — Pro and the chamber tiers —
-/// so Free and Starter never see it. These tests pin that structure: section
+/// so Free and Starter never see it. **Firm** moved to its own Settings entry at
+/// 0.0.663; its rows and visibility rules are pinned in `firm_menu_screen_test`.
+/// These tests pin this structure: section
 /// labels, rows, their order, the Devices rule, the member rule and each row's
-/// destination. The Manage Associates visibility rules stay in
-/// `manage_associates_test.dart`.
+/// destination.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -28,7 +28,6 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/local/profil
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
-import 'package:legal_case_diary/sync/delete_requests_dao.dart';
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 
 import 'auth_test_support.dart';
@@ -40,7 +39,6 @@ const String plansMarker = 'Subscription Plans Route';
 const String historyMarker = 'Subscription History Route';
 const String appLockMarker = 'App Lock Route';
 const String devicesMarker = 'Devices Route';
-const String deleteRequestsMarker = 'Delete Requests Route';
 
 /// Epoch ms 30 days from now: an active premium entitlement for the caches.
 int get _premiumExpiryMs =>
@@ -104,10 +102,6 @@ void main() {
           path: AppRoutes.settingsDevices,
           builder: (_, _) => const Scaffold(body: Text(devicesMarker)),
         ),
-        GoRoute(
-          path: AppRoutes.settingsDeleteRequests,
-          builder: (_, _) => const Scaffold(body: Text(deleteRequestsMarker)),
-        ),
       ],
     );
     l = await AppLocalizations.delegate.load(const Locale('en'));
@@ -135,116 +129,7 @@ void main() {
     ),
   );
 
-  /// A cached profile that belongs to a chamber, which is what firm mode reads.
-  Future<void> seedFirmMember(
-    AppDatabase db, {
-    String role = AccountRole.owner,
-  }) => ProfilesDao(db).upsert(
-    ProfilesCompanion(
-      id: const Value('user-1'),
-      fullName: const Value('Adv. Rahim Uddin'),
-      role: Value(role),
-      firmId: const Value('firm-1'),
-      tier: const Value('firm'),
-      subscriptionStatus: const Value('active'),
-      subscriptionExpiry: Value(_premiumExpiryMs),
-      createdAt: const Value(1),
-    ),
-  );
-
-  testWidgets(
-    'Delete Requests sits in the Firm section after Manage Associates',
-    (tester) async {
-      await pumpMenu(tester, seed: (db) => seedFirmMember(db));
-
-      expect(find.text(l.manageAssociates_title), findsOneWidget);
-      expect(find.text(l.deleteRequests_title), findsOneWidget);
-      expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
-      // Every card on this page carries a line under its title, so a bare card
-      // reads as a mistake (user report).
-      expect(
-        find.text(l.settingsAccountProfile_deleteRequestsSubtitle),
-        findsOneWidget,
-      );
-      for (final card in tester.widgetList<SettingsMenuCard>(
-        find.byType(SettingsMenuCard),
-      )) {
-        expect(card.subtitle, isNotNull, reason: card.title);
-      }
-      // Directly after Manage Associates, inside the same section.
-      expect(
-        tester.getTopLeft(find.text(l.deleteRequests_title)).dy,
-        greaterThan(tester.getTopLeft(find.text(l.manageAssociates_title)).dy),
-      );
-
-      await unmountApp(tester);
-    },
-  );
-
-  testWidgets(
-    'an associate is offered Delete Requests but not Manage Associates',
-    (tester) async {
-      await pumpMenu(
-        tester,
-        seed: (db) => seedFirmMember(db, role: AccountRole.associate),
-      );
-
-      // The queue is every member's; firm administration is the owner's alone.
-      expect(find.text(l.deleteRequests_title), findsOneWidget);
-      expect(find.text(l.manageAssociates_title), findsNothing);
-      expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
-
-      await unmountApp(tester);
-    },
-  );
-
-  testWidgets('the row carries the count of what is waiting on the account', (
-    tester,
-  ) async {
-    await pumpMenu(
-      tester,
-      seed: (db) async {
-        await seedFirmMember(db);
-        // A colleague's pending request, which is the reviewer's queue: the
-        // owner holds delete permission, so this is what is waiting on them.
-        await DeleteRequestsDao(db).insert(
-          DeleteRequestsCompanion(
-            id: const Value('req-1'),
-            firmId: const Value('firm-1'),
-            entityType: const Value('note'),
-            entityId: const Value('note-1'),
-            entitySnapshot: const Value('{}'),
-            targetBaseVersion: const Value(2),
-            requestedBy: const Value('user-2'),
-            status: const Value('pending'),
-            createdAt: const Value(1000),
-            updatedAt: const Value(2000),
-            version: const Value(4),
-            lastModifiedBy: const Value('user-2'),
-            isDeleted: const Value(false),
-          ),
-        );
-      },
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('1'), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('Delete Requests opens its own screen', (tester) async {
-    await pumpMenu(tester, seed: (db) => seedFirmMember(db));
-
-    await tester.tap(find.text(l.deleteRequests_title));
-    await tester.pumpAndSettle();
-
-    expect(find.text(deleteRequestsMarker), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('groups the rows under Profile, Account, Subscription and Firm', (
+  testWidgets('groups the rows under Profile, Account and Subscription', (
     tester,
   ) async {
     await pumpMenu(
@@ -259,7 +144,8 @@ void main() {
     );
     expect(find.text(l.settingsAccountProfile_sectionAccount), findsOneWidget);
     expect(find.text(l.settingsSubscription_title), findsOneWidget);
-    expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
+    // Firm is its own Settings entry now (0.0.663), so no Firm section here.
+    expect(find.text(l.settingsFirm_title), findsNothing);
 
     // Account rows.
     expect(find.text(l.settingsAccountProfile_profileSubtitle), findsOneWidget);
@@ -287,15 +173,9 @@ void main() {
       findsOneWidget,
     );
 
-    // The firm row is the teaser an individual sees: no firm yet, so it offers
-    // to create one (0.0.654, user request).
-    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
-    expect(
-      find.text(l.settingsAccountProfile_createFirmSubtitle),
-      findsOneWidget,
-    );
-    // Eight rows in total; Change Password is not offered from here.
-    expect(find.byType(SettingsMenuCard), findsNWidgets(8));
+    // Seven rows in total; Change Password is not offered from here, and the
+    // firm rows live behind their own Settings entry.
+    expect(find.byType(SettingsMenuCard), findsNWidgets(7));
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);
@@ -326,9 +206,6 @@ void main() {
         .getTopLeft(find.text(l.settingsManageAccount_purchaseNewSubscription))
         .dy;
     final historyY = tester.getTopLeft(find.text(l.payments_historyTitle)).dy;
-    final firmY = tester
-        .getTopLeft(find.text(l.settingsAccountProfile_sectionFirm))
-        .dy;
 
     expect(manageY, greaterThan(accountY));
     expect(lockY, greaterThan(manageY));
@@ -337,7 +214,6 @@ void main() {
     expect(planY, greaterThan(subscriptionY));
     expect(plansY, greaterThan(planY));
     expect(historyY, greaterThan(plansY));
-    expect(firmY, greaterThan(historyY));
 
     await unmountApp(tester);
   });
@@ -448,32 +324,13 @@ void main() {
     },
   );
 
-  testWidgets('a free individual sees the Create a Firm teaser, and no queue', (
-    tester,
-  ) async {
-    // The firm row is open to every individual (0.0.654, user request): the
-    // screen behind it explains what a firm is and links to the firm plans, and
-    // the create action itself sends a free account to the Paywall. The queue
-    // stays away — it belongs to a firm this account does not have.
-    await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
-
-    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
-    expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
-    expect(find.text(l.deleteRequests_title), findsNothing);
-    // A free individual has no multi-device support either.
-    expect(find.text(l.devices_title), findsNothing);
-
-    await unmountApp(tester);
-  });
-
   testWidgets('the Account section offers no Security row', (tester) async {
-    // A free individual sees seven cards — Profile, Manage Account, App Lock,
-    // Manage Plan, Subscription Plans, Subscription History and the Create a
-    // Firm teaser — so none is a Security entry that only lost its label, and
-    // Devices is not offered.
+    // A free individual sees six cards — Profile, Manage Account, App Lock,
+    // Manage Plan, Subscription Plans and Subscription History — so none is a
+    // Security entry that only lost its label, and Devices is not offered.
     await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(7));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(6));
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
     expect(find.text(l.settingsAppLock_title), findsOneWidget);
     expect(find.text(l.devices_title), findsNothing);

@@ -138,6 +138,8 @@ void main() {
 
     await pumpSettings(tester);
     expect(find.text(l.settingsScreen_backupAndRestore), findsOneWidget);
+    // The Firm entry is offered to every account (0.0.663, user request).
+    expect(find.text(l.settingsFirm_title), findsOneWidget);
     await unmount(tester);
 
     // The same screen for a member: the entry is the owner's and an individual
@@ -147,6 +149,7 @@ void main() {
     expect(find.text(l.settingsScreen_backupAndRestore), findsNothing);
     // The rest of the General group is untouched by the bar.
     expect(find.text(l.settingsScreen_accountAndProfile), findsOneWidget);
+    expect(find.text(l.settingsFirm_title), findsOneWidget);
     await unmount(tester);
   });
 
@@ -173,7 +176,11 @@ void main() {
     // user reaches for, and two taps deep inside About cost them the most.
     await pumpSettings(tester);
 
+    // The General group's Firm row pushes App Info below the fold on a short
+    // viewport: the lazy list must build the row, then scroll it fully in.
     await tester.scrollUntilVisible(find.text('Support'), 200);
+    await tester.ensureVisible(find.text('Support'));
+    await tester.pumpAndSettle();
     expect(find.text('Support'), findsOneWidget);
     // It is a row of the App Info group, beside Guidelines & FAQs and About.
     expect(find.text('Guidelines & FAQs'), findsOneWidget);

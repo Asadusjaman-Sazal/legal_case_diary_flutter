@@ -414,7 +414,8 @@ owner device. Use §12.4 for the grace and §12.5 for the expired state.
       owner is an individual; the chamber’s ledger is the owner’s own; the plan
       remains.
 - [ ] The capacity card, Manage Associates and the firm header are gone; the
-      owner’s Account & Profile no longer shows a Firm section.
+      owner's **Settings → Firm** now offers **Create a Firm** instead of
+      **Manage Firm** (the Firm entry itself stays for every account).
 
 ### Scenario 14 — Legacy over-capacity is not mass-signed-out
 

@@ -85,7 +85,7 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
   final devices = l.devices_title;
   final subscription = l.settingsSubscription_title;
   final managePlan = l.settingsSubscription_managePlanTitle;
-  final firmSection = l.settingsAccountProfile_sectionFirm;
+  final firm = l.settingsFirm_title;
   final associates = l.manageAssociates_title;
   final notifications = l.settingsScreen_notifications;
   final language = l.settingsScreen_language;
@@ -161,11 +161,14 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
         account,
         subscription,
       ]),
+    // Firm is its own Settings entry, offered to every account.
+    e(l.settingsFirm_title, Icons.apartment_outlined, AppRoutes.settingsFirm, [
+      settings,
+    ]),
     if (canOpenManageAssociates)
       e(l.manageAssociates_title, Icons.groups_outlined, AppRoutes.settingsManageAssociates, [
         settings,
-        account,
-        firmSection,
+        firm,
       ]),
 
     // Manage Plan actions
@@ -266,56 +269,56 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
         l.manageAssociates_addAssociate,
         Icons.person_add_alt_1_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
         keywords: const ['invite'],
       ),
       e(
         l.manageAssociates_changeLogo,
         Icons.image_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_removeLogo,
         Icons.hide_image_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_dissolveFirm,
         Icons.group_off_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_permissionsTitle,
         Icons.admin_panel_settings_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_capacitySignOut,
         Icons.logout_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_capacityAdmit,
         Icons.login_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_removeAssociate,
         Icons.person_remove_alt_1_outlined,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
       e(
         l.manageAssociates_revokeInvite,
         Icons.link_off,
         AppRoutes.settingsManageAssociates,
-        [settings, account, firmSection, associates],
+        [settings, firm, associates],
       ),
     ],
 

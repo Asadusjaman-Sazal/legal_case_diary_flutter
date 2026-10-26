@@ -4897,7 +4897,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get manageAssociates_sectionInvites => 'Outstanding Invites';
+  String get manageAssociates_sectionInvites => 'Outstanding Invitation Codes';
 
   @override
   String get manageAssociates_noInvites => 'No Unused Invites.';

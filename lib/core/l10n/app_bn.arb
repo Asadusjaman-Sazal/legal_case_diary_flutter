@@ -2160,7 +2160,7 @@
       }
   },
   "@@_section_manageAssociatesPermissions": "MANAGE ASSOCIATES - INVITES AND PERMISSIONS  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
-  "manageAssociates_sectionInvites": "অব্যবহৃত আমন্ত্রণ",
+  "manageAssociates_sectionInvites": "অব্যবহৃত আমন্ত্রণ কোড",
   "manageAssociates_noInvites": "কোনো অব্যবহৃত আমন্ত্রণ নেই।",
   "manageAssociates_inviteCreated": "তৈরি {date}",
   "@manageAssociates_inviteCreated": {

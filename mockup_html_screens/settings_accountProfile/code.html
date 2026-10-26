@@ -143,8 +143,9 @@
 </header>
 
 <!-- Three labelled sections of SettingsMenuCards, sized by the shared card
-     contract. The Firm section is drawn only when Manage Associates is offered
-     (a firm owner, or a premium individual adding their first associate). -->
+     contract. The Firm section is drawn for any individual and for a firm owner
+     (0.0.654: a free account sees the row too, since the screen behind it
+     explains what a firm is), and never for an associate. -->
 <main class="max-w-lg mx-auto w-full px-md pt-md pb-xl">
   <!-- PROFILE -->
   <p class="font-label-md text-label-md font-semibold text-tertiary">Profile</p>
@@ -230,14 +231,18 @@
     </button>
   </div>
 
-  <!-- FIRM (conditional) -->
+  <!-- FIRM (conditional). The row follows the account (0.0.654, user request):
+       drawn as "Create a Firm" while the account has no firm, and as "Manage
+       Firm" once it has one. This drawing is the firm-less state; a firm owner
+       sees the second label with "Manage your firm, its associates, and
+       permissions" under it. Delete Requests follows this row for an owner. -->
   <p class="mt-lg font-label-md text-label-md font-semibold text-tertiary">Firm</p>
   <div class="mt-sm">
     <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
       <span class="material-symbols-outlined text-primary text-[28px]">groups</span>
       <div class="ml-md flex-1">
-        <p class="font-body-lg text-body-lg text-on-surface">Manage Associates</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Manage Associates, Invites, And Firm Permissions</p>
+        <p class="font-body-lg text-body-lg text-on-surface">Create a Firm</p>
+        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Create a firm and invite your associates</p>
       </div>
       <span class="material-symbols-outlined text-tertiary">chevron_right</span>
     </button>

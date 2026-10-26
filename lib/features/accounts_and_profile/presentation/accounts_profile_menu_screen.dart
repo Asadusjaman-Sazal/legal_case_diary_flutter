@@ -14,13 +14,18 @@
 /// is where Change Password came back to (0.0.411): the Security sub-page that
 /// briefly held it is gone, because a whole screen for one row earned nothing.
 ///
-/// Task 20 Phase 1 adds the final entry, **Manage Associates**, and it is
-/// conditional on purpose: a **premium** individual sees it (adding the first
-/// associate is what creates the firm, and that transition is premium
-/// server-side), a firm owner sees it whatever their plan (the server still lets
-/// an owner manage the firm they already have), and an associate or viewer does
-/// not — the screen behind it is owner-only server-side. The **Firm** section
-/// label is drawn only with its rows, so a hidden row never leaves a bare header.
+/// Task 20 Phase 1 adds the final entry, the firm row, and it is conditional on
+/// purpose: an **individual** sees it whatever their plan (0.0.654 — a free
+/// account is shown it too, because the screen behind it explains what a firm is
+/// and where the firm plans are sold, and `ensure_firm` is the server's gate
+/// rather than the row's), a firm owner sees it (the server still lets an owner
+/// manage the firm they already have), and an associate or viewer does not — the
+/// screen behind it is owner-only server-side. The **Firm** section label is
+/// drawn only with its rows, so a hidden row never leaves a bare header.
+///
+/// Its label follows the account, not the app: an account with no firm reads
+/// **Create a Firm**, and the same row reads **Manage Firm** once a firm exists
+/// (0.0.654, user request).
 ///
 /// **Delete Requests** moved here from the main Settings list (0.0.649, user
 /// request), directly after Manage Associates: the queue belongs to the firm it
@@ -53,14 +58,16 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    // A free individual is not offered the entry: `ensure_firm` refuses a
-    // non-premium caller, so the row could only advertise something the account
-    // cannot do. A firm owner keeps it after a lapse, because the firm and its
-    // roster are still theirs — only a *new* firm is premium-gated.
-    final showManageAssociates =
-        ref.watch(canOpenManageAssociatesProvider) &&
-        (ref.watch(firmModeProvider) ||
-            ref.watch(premiumAccessProvider).value == true);
+    // Every individual is offered the entry now (0.0.654, user request): a free
+    // account opens the same screen as a paying one, where the *What Is a Firm?*
+    // card and the plan link act as the teaser — the create action itself sends a
+    // free account to the Paywall, which is the polite half of the gate
+    // `ensure_firm` enforces. A firm owner keeps it after a lapse, because the
+    // firm and its roster are still theirs. An associate still gets no row: the
+    // screen behind it is owner-only server-side.
+    final showManageAssociates = ref.watch(canOpenManageAssociatesProvider);
+    // The row's own subject: a team to create, or a firm to manage.
+    final firmExists = ref.watch(firmModeProvider);
     // App Lock and Devices live here with the account they belong to (0.0.611,
     // user request). Devices is only worth a row where the plan holds more than
     // one device: Free has no sync and Starter holds one, so it starts at Pro.
@@ -153,8 +160,12 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
             if (showManageAssociates)
               SettingsMenuCard(
                 icon: Icons.groups_outlined,
-                title: l.manageAssociates_title,
-                subtitle: l.settingsAccountProfile_manageAssociatesSubtitle,
+                title: firmExists
+                    ? l.manageAssociates_title
+                    : l.manageAssociates_createFirmTitle,
+                subtitle: firmExists
+                    ? l.settingsAccountProfile_manageAssociatesSubtitle
+                    : l.settingsAccountProfile_createFirmSubtitle,
                 onTap: () => context.push(AppRoutes.settingsManageAssociates),
               ),
             // Directly after Manage Associates (user request, 0.0.649).

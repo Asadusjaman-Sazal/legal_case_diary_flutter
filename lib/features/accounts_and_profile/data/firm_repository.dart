@@ -266,12 +266,19 @@ InviteRedemption parseInviteRedemption(Object? response) {
       count: (result['seats'] as num?)?.toInt(),
     ),
     'firm_lapsed' => throw const InviteRefusal(InviteRefusalKind.firmLapsed),
-    'already_in_firm' => throw const InviteRefusal(InviteRefusalKind.alreadyInFirm),
-    'invalid_code' => throw const FirmFailure(FirmFailureKind.invalidInviteCode),
+    'already_in_firm' => throw const InviteRefusal(
+      InviteRefusalKind.alreadyInFirm,
+    ),
+    'invalid_code' => throw const FirmFailure(
+      FirmFailureKind.invalidInviteCode,
+    ),
     // The RPC falls back to a status rather than raising when it cannot see a
     // caller; a redemption always happens signed in, so this is a bug state, not
     // something to explain to the user.
-    _ => throw FirmFailure(FirmFailureKind.unknown, cause: result['status'] as String?),
+    _ => throw FirmFailure(
+      FirmFailureKind.unknown,
+      cause: result['status'] as String?,
+    ),
   };
 }
 
@@ -364,6 +371,15 @@ abstract class FirmRepository {
   /// server-owned, so an owner who needs a firm to invite into cannot create one
   /// from the client. Idempotent — calling it again returns the same firm.
   Future<String> ensureFirm(String name);
+
+  /// Renames the caller's own firm.
+  ///
+  /// The one client write `firms` admits: the `firms_update_owner` policy
+  /// requires the caller to own the firm, and the Phase 3 column privileges
+  /// grant `update (name)` and nothing else — the entitlement and the owner link
+  /// stay the server's. The caller's profile refresh is what brings the new name
+  /// into the local cache.
+  Future<void> updateFirmName(String name);
 
   /// The caller's firm roster, read live from the server.
   ///
@@ -586,6 +602,10 @@ class UnavailableFirmRepository implements FirmRepository {
       throw const FirmFailure(FirmFailureKind.unavailable);
 
   @override
+  Future<void> updateFirmName(String name) async =>
+      throw const FirmFailure(FirmFailureKind.unavailable);
+
+  @override
   Future<List<FirmMemberSummary>> listMembers() async =>
       throw const FirmFailure(FirmFailureKind.unavailable);
 
@@ -689,7 +709,10 @@ class SupabaseFirmRepository implements FirmRepository {
       // Owner-side calls only ever happen behind a session, so this is a bug
       // state rather than something to explain: it deliberately gets no copy of
       // its own.
-      throw const FirmFailure(FirmFailureKind.unknown, cause: 'createInvite: no session');
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'createInvite: no session',
+      );
     }
 
     try {
@@ -706,7 +729,10 @@ class SupabaseFirmRepository implements FirmRepository {
       if (firmId == null) {
         // Individual mode: `ensureFirm` comes first, so there is nothing to
         // invite into yet.
-        throw const FirmFailure(FirmFailureKind.unknown, cause: 'createInvite: no firm');
+        throw const FirmFailure(
+          FirmFailureKind.unknown,
+          cause: 'createInvite: no firm',
+        );
       }
 
       final code = generateInviteCode();
@@ -769,7 +795,10 @@ class SupabaseFirmRepository implements FirmRepository {
     if (trimmed.isEmpty) {
       // The server refuses an empty name on purpose — it will not invent
       // user-facing copy — so the round trip is not worth making.
-      throw const FirmFailure(FirmFailureKind.unknown, cause: 'ensureFirm: empty name');
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'ensureFirm: empty name',
+      );
     }
 
     await _requireOnline();
@@ -790,14 +819,63 @@ class SupabaseFirmRepository implements FirmRepository {
       // member-of-another-firm guard — has no copy of its own, because the
       // client gate hides this path first and the server check is the
       // authoritative one behind it.
-      throw FirmFailure(
-        switch (status) {
-          'premium_required' => FirmFailureKind.premiumRequired,
-          'firm_tier_required' => FirmFailureKind.firmTierRequired,
-          _ => FirmFailureKind.unknown,
-        },
-        cause: status,
+      throw FirmFailure(switch (status) {
+        'premium_required' => FirmFailureKind.premiumRequired,
+        'firm_tier_required' => FirmFailureKind.firmTierRequired,
+        _ => FirmFailureKind.unknown,
+      }, cause: status);
+    } catch (error) {
+      throw mapFirmFailure(error);
+    }
+  }
+
+  /// Renames the caller's own firm (user request, 0.0.654).
+  ///
+  /// A plain PATCH rather than an RPC: `firms_update_owner` already limits the
+  /// row to the owner, and the Phase 3 column privileges grant `update (name)`
+  /// on `firms` and nothing else, so the name is the one column the client may
+  /// move. The firm id comes from the caller's own profile — the same read
+  /// [createInvite] makes — so a stale or foreign id can never be named.
+  @override
+  Future<void> updateFirmName(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      // The server refuses an empty name on purpose, so the round trip is not
+      // worth making.
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'updateFirmName: empty name',
       );
+    }
+
+    await _requireOnline();
+
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'updateFirmName: no session',
+      );
+    }
+
+    try {
+      final profile = await _client
+          .from('profiles')
+          .select('firm_id')
+          .eq('id', userId)
+          .maybeSingle();
+      final firmId = profile?['firm_id'] as String?;
+      if (firmId == null) {
+        throw const FirmFailure(
+          FirmFailureKind.unknown,
+          cause: 'updateFirmName: no firm',
+        );
+      }
+
+      await _client
+          .from('firms')
+          .update(<String, dynamic>{'name': trimmed})
+          .eq('id', firmId);
     } catch (error) {
       throw mapFirmFailure(error);
     }
@@ -812,7 +890,10 @@ class SupabaseFirmRepository implements FirmRepository {
       // Owner-side calls only ever happen behind a session, so this is a bug
       // state rather than something to explain: it deliberately gets no copy of
       // its own.
-      throw const FirmFailure(FirmFailureKind.unknown, cause: 'listMembers: no session');
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'listMembers: no session',
+      );
     }
 
     try {
@@ -906,7 +987,10 @@ class SupabaseFirmRepository implements FirmRepository {
 
     final firmId = await _ownFirmId();
     if (firmId == null) {
-      throw const FirmFailure(FirmFailureKind.unknown, cause: 'updateMemberPermissions: no firm');
+      throw const FirmFailure(
+        FirmFailureKind.unknown,
+        cause: 'updateMemberPermissions: no firm',
+      );
     }
 
     try {
@@ -1004,9 +1088,7 @@ class SupabaseFirmRepository implements FirmRepository {
     await _requireOnline();
 
     try {
-      final result = decodeRpcMap(
-        await _client.rpc<dynamic>('dissolve_firm'),
-      );
+      final result = decodeRpcMap(await _client.rpc<dynamic>('dissolve_firm'));
       final status = result['status'] as String?;
       if (status == 'dissolved') return;
       // A member joined between the roster read and the tap: the count is what

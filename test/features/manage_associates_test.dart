@@ -235,7 +235,12 @@ void main() {
 
     expect(find.text(l.auth_errorFirmAdminOffline), findsOneWidget);
     expect(find.text(l.manageAssociates_addAssociate), findsNothing);
-    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
+    // The page title itself says *Create a Firm* while there is none (0.0.654),
+    // so the form is what is looked for rather than those words.
+    expect(
+      find.byKey(const ValueKey('manage-associates-firm-name')),
+      findsNothing,
+    );
 
     await unmountApp(tester);
   });
@@ -376,10 +381,12 @@ void main() {
       ),
     );
     // The section's own title sits between the explainer and the name box, in
-    // place of the sentence it replaced.
-    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    // place of the sentence it replaced. It shares its words with the page
+    // title now (0.0.654), so it is found by key.
+    final formTitle = find.byKey(const ValueKey('firm-form-title'));
+    expect(formTitle, findsOneWidget);
     expect(
-      tester.getTopLeft(find.text(l.manageAssociates_createFirmTitle)).dy,
+      tester.getTopLeft(formTitle).dy,
       lessThan(
         tester
             .getTopLeft(
@@ -669,6 +676,18 @@ void main() {
       greaterThan(copyY),
     );
 
+    // The second row of buttons is spaced exactly as the code box and the first
+    // row are (0.0.654, user request), so the window reads as one column.
+    final wrap = tester.widget<Wrap>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('invite-code-copy')),
+            matching: find.byType(Wrap),
+          )
+          .first,
+    );
+    expect(wrap.runSpacing, AppSpacing.lg);
+
     // Copying confirms itself inside the window, where the user can see it.
     // The clipboard channel is answered so the copy settles like it does on a
     // device.
@@ -687,6 +706,285 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('invite-code-copy')));
     await tester.pumpAndSettle();
     expect(find.text(l.manageAssociates_codeCopied), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the owner\'s page is Manage Firm, and the name can be changed', (
+    tester,
+  ) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    // A firm exists, so the page and its menu row offer to manage it rather than
+    // to create one (0.0.654, user request).
+    expect(find.text(l.manageAssociates_title), findsOneWidget);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
+    expect(find.text('Rahman & Associates'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('firm-name-change')));
+    await tester.pumpAndSettle();
+
+    // The window opens on the current name, so a correction is an edit rather
+    // than a retype.
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text(l.manageAssociates_changeNameTitle),
+      ),
+      findsOneWidget,
+    );
+    final field = tester.widget<TextField>(
+      find.byKey(const ValueKey('firm-name-input')),
+    );
+    expect(field.controller?.text, 'Rahman & Associates');
+
+    await tester.enterText(
+      find.byKey(const ValueKey('firm-name-input')),
+      'Rahman & Partners',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('firm-name-save')));
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.renamedFirmNames, ['Rahman & Partners']);
+    expect(find.text(l.manageAssociates_nameUpdated), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a failed rename is reported, never applied', (tester) async {
+    harness.firm.renameError = const FirmFailure(FirmFailureKind.network);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(find.byKey(const ValueKey('firm-name-change')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('firm-name-input')),
+      'Rahman & Partners',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('firm-name-save')));
+    await tester.pumpAndSettle();
+
+    // The failure is the screen's own banner, worded by the shared map.
+    expect(find.text(l.auth_errorNetwork), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an empty individual diary is offered the join, and it redeems', (
+    tester,
+  ) async {
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedIndividual(db, premium: false),
+      surfaceSize: const Size(420, 1400),
+    );
+
+    final join = find.byKey(const ValueKey('manage-associates-join-firm'));
+    await tester.scrollUntilVisible(
+      join,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(join);
+    await tester.pumpAndSettle();
+
+    // The window, its one sentence, and the two actions the request named.
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text(l.manageAssociates_joinFirmTitle),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(l.manageAssociates_joinFirmIntro), findsOneWidget);
+    expect(find.text(l.sharedActions_cancel), findsOneWidget);
+    // An empty code cannot be sent: the server would only refuse it.
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const ValueKey('join-firm-send')))
+          .onPressed,
+      isNull,
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('join-firm-code')),
+      'k3m9p2',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('join-firm-send')));
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.redeemedCodes, ['k3m9p2']);
+    expect(find.byType(Dialog), findsNothing);
+    expect(find.text(l.auth_joinedFirm), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a diary with a case is not offered the join', (tester) async {
+    // `join_firm` refuses an account that already holds its own rows, and the
+    // seat has to be empty — so a non-zero diary offers nothing.
+    await pumpManageAssociates(
+      tester,
+      seed: (db) async {
+        await seedIndividual(db, premium: false);
+        // The case's court is a real row: the local schema enforces the
+        // reference chain, and the count is what the test is really about.
+        await db
+            .into(db.courtCategories)
+            .insert(
+              CourtCategoriesCompanion.insert(
+                id: 'join-category',
+                nameKey: 'join_category',
+                courtLevel: 'lower_courts',
+                orderIndex: 0,
+                updatedAt: 1,
+              ),
+            );
+        await db
+            .into(db.courts)
+            .insert(
+              const CourtsCompanion(
+                id: Value('court-1'),
+                courtName: Value('Join Court'),
+                higherLowerCourts: Value('lower_courts'),
+                courtCategoryId: Value('join-category'),
+                updatedAt: Value(1),
+              ),
+            );
+        await db
+            .into(db.onBehalfs)
+            .insert(
+              const OnBehalfsCompanion(
+                id: Value('on-behalf-1'),
+                courtCategoryId: Value('join-category'),
+                name: Value('Petitioner'),
+                orderIndex: Value(0),
+                updatedAt: Value(1),
+              ),
+            );
+        await db
+            .into(db.cases)
+            .insert(
+              CasesCompanion.insert(
+                id: 'case-1',
+                userId: 'user-1',
+                courtId: 'court-1',
+                caseType: 'Civil',
+                caseNumber: 'JOIN/2026',
+                petitioner: 'Alice',
+                respondent: 'Bob',
+                onBehalfId: 'on-behalf-1',
+                createdAt: 1,
+                updatedAt: 1,
+              ),
+            );
+      },
+      surfaceSize: const Size(420, 1400),
+    );
+
+    expect(
+      find.byKey(const ValueKey('manage-associates-join-firm')),
+      findsNothing,
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a paying individual is warned about their plan before joining', (
+    tester,
+  ) async {
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedIndividual(db, premium: true),
+      surfaceSize: const Size(420, 1400),
+    );
+
+    final join = find.byKey(const ValueKey('manage-associates-join-firm'));
+    await tester.scrollUntilVisible(
+      join,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(join);
+    await tester.pumpAndSettle();
+
+    // Joining neither pauses nor cancels the plan, and the window says so before
+    // the code is asked for (user request).
+    expect(find.text(l.manageAssociates_joinFirmPlanTitle), findsOneWidget);
+    expect(find.text(l.manageAssociates_joinFirmPlanBody), findsOneWidget);
+
+    // Declining opens no code window and redeems nothing.
+    await tester.tap(find.text(l.sharedActions_cancel));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('join-firm-code')), findsNothing);
+    expect(harness.firm.redeemedCodes, isEmpty);
+
+    // Continuing reaches it.
+    await tester.tap(join);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.manageAssociates_joinFirmContinue));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('join-firm-code')), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a refusal in the join window is shown in the window', (
+    tester,
+  ) async {
+    harness.firm.redeemError = const FirmFailure(
+      FirmFailureKind.invalidInviteCode,
+    );
+
+    await pumpManageAssociates(
+      tester,
+      seed: (db) => seedIndividual(db, premium: false),
+      surfaceSize: const Size(420, 1400),
+    );
+
+    final join = find.byKey(const ValueKey('manage-associates-join-firm'));
+    await tester.scrollUntilVisible(
+      join,
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(join);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('join-firm-code')),
+      'WRONGCODE1',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('join-firm-send')));
+    await tester.pumpAndSettle();
+
+    // The window stays open with the sentence, so the code can be corrected.
+    expect(find.byKey(const ValueKey('join-firm-code')), findsOneWidget);
+    expect(
+      find.text(l.auth_errorInvalidCode),
+      findsOneWidget,
+      reason: 'worded in the window, not behind it',
+    );
 
     await unmountApp(tester);
   });
@@ -729,7 +1027,10 @@ void main() {
     await seedOwner(harness.db, role: AccountRole.associate);
     await tester.pumpAndSettle();
 
+    // Neither label: an associate has no firm of their own to create and no
+    // right to manage the one they are in (0.0.654, user ruling).
     expect(find.text(l.manageAssociates_title), findsNothing);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
 
     await unmountApp(tester);
   });
@@ -1146,29 +1447,36 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu offers Manage Associates to a '
+  testWidgets('the Accounts & Profile menu offers the Create a Firm teaser to a '
       'premium individual', (tester) async {
     // Adding the first associate is what creates the firm, so an individual must
-    // be able to open the screen — while their plan is active.
+    // be able to open the screen — and with no firm yet the row offers to create
+    // one rather than to manage one (0.0.654, user request).
     await pumpMenu(tester);
     await seedIndividual(harness.db, premium: true);
     await tester.pumpAndSettle();
 
-    expect(find.text(l.manageAssociates_title), findsOneWidget);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(
+      find.text(l.settingsAccountProfile_createFirmSubtitle),
+      findsOneWidget,
+    );
+    expect(find.text(l.manageAssociates_title), findsNothing);
 
     await unmountApp(tester);
   });
 
-  testWidgets('the Accounts & Profile menu hides Manage Associates from a '
-      'free individual', (tester) async {
-    // Regression: the entry was offered to every individual, so a free account
-    // was shown a door that could only lead to the Paywall — `ensure_firm`
-    // refuses a non-premium caller server-side.
+  testWidgets('the Accounts & Profile menu offers Create a Firm to a free '
+      'individual', (tester) async {
+    // The teaser is open to every individual (0.0.654, user request): the screen
+    // it opens explains what a firm is and links to the firm plans, while the
+    // create action itself sends a free account to the Paywall.
     await pumpMenu(tester);
     await seedIndividual(harness.db, premium: false);
     await tester.pumpAndSettle();
 
-    expect(find.text(l.manageAssociates_title), findsNothing);
+    expect(find.text(l.manageAssociates_createFirmTitle), findsOneWidget);
+    expect(find.text(l.settingsAccountProfile_sectionFirm), findsOneWidget);
 
     await unmountApp(tester);
   });

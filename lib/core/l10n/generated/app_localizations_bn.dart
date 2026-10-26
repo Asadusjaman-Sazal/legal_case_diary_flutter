@@ -1650,6 +1650,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedActions_cancel => 'বাতিল';
 
   @override
+  String get imageCrop_title => 'ছবি কাটা';
+
+  @override
+  String get imageCrop_hint => 'জুম করতে পিঞ্চ করুন এবং সরাতে টেনে নিন।';
+
+  @override
+  String get imageCrop_use => 'ব্যবহার করুন';
+
+  @override
   String get sharedActions_delete => 'মুছুন';
 
   @override

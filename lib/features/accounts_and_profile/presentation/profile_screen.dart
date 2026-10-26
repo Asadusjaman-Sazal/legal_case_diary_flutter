@@ -32,6 +32,7 @@ import '../data/avatar_image_processor.dart';
 import '../data/profile_avatar_sync.dart';
 import '../data/profile_name_store.dart';
 import '../data/profile_picture_store.dart';
+import 'image_crop_screen.dart';
 
 /// Profile screen matching `settings_profile\code.html`.
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -61,7 +62,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  /// Picks an image, shrinks it to 50 KB, and saves it locally first.
+  /// Picks an image, lets the user crop it in a circle, shrinks it to 50 KB,
+  /// and saves it locally first.
   ///
   /// A premium individual or chamber owner then gets the detached cloud copy;
   /// for everyone else the local file is the whole picture. An image that
@@ -77,7 +79,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (picked == null || !mounted) return;
 
     try {
-      await ref.read(profilePictureProvider.notifier).setFromPath(picked.path);
+      final bytes = await File(picked.path).readAsBytes();
+      final source = await prepareCropSource(bytes);
+      if (!mounted) return;
+      final selection = await Navigator.of(context).push<CropSelection>(
+        MaterialPageRoute(
+          builder: (_) => ImageCropScreen(
+            source: source,
+            aspectRatio: 1,
+            circular: true,
+            title: l.imageCrop_title,
+          ),
+        ),
+      );
+      if (selection == null || !mounted) return;
+      final processed = await processCroppedImage(
+        selection.source,
+        selection.rect,
+        targetWidth: avatarMaxSide,
+        targetHeight: avatarMaxSide,
+      );
+      await ref.read(profilePictureProvider.notifier).setBytes(processed);
       if (!mounted) return;
       unawaited(ref.read(profileAvatarSyncProvider)());
     } on AvatarImageException {

@@ -95,4 +95,87 @@ void main() {
       throwsA(isA<AvatarImageException>()),
     );
   });
+
+  test(
+    'the crop source is upright, capped at 1600, and still a JPEG',
+    () async {
+      final prepared = await prepareCropSource(
+        img.encodeJpg(_gradient(1800, 900)),
+      );
+
+      expect(prepared.width, 1600);
+      expect(prepared.height, 800);
+      expect(prepared.bytes.sublist(0, 2), <int>[0xFF, 0xD8]);
+    },
+  );
+
+  test('the chosen area is the area processed', () async {
+    final source = img.Image(width: 200, height: 100);
+    for (final pixel in source) {
+      final red = pixel.x < 100;
+      pixel
+        ..r = red ? 255 : 0
+        ..g = 0
+        ..b = red ? 0 : 255;
+    }
+    final prepared = await prepareCropSource(img.encodeJpg(source));
+
+    final left = img.decodeJpg(
+      await processCroppedImage(
+        prepared,
+        const CropRect(x: 0, y: 0, width: 100, height: 100),
+        targetWidth: 64,
+        targetHeight: 64,
+      ),
+    )!;
+    expect(left.width, 64);
+    expect(left.height, 64);
+    final centre = left.getPixel(32, 32);
+    expect(centre.r, greaterThan(200));
+    expect(centre.b, lessThan(60));
+  });
+
+  test('the logo keeps its wide ratio and the 50 KB cap', () async {
+    final prepared = await prepareCropSource(img.encodeJpg(_noise(900, 600)));
+
+    final bytes = await processCroppedImage(
+      prepared,
+      const CropRect(x: 0, y: 0, width: 900, height: 600),
+      targetWidth: 512,
+      targetHeight: 346,
+    );
+
+    expect(bytes.length, lessThanOrEqualTo(avatarMaxBytes));
+    final decoded = img.decodeJpg(bytes)!;
+    expect(decoded.width, lessThanOrEqualTo(512));
+    expect(decoded.height, lessThanOrEqualTo(346));
+    // The ladder shrinks both sides together, so the wide frame's ratio stays.
+    expect(decoded.width / decoded.height, closeTo(512 / 346, 0.02));
+  });
+
+  test('a corrupt source cannot be prepared for the crop', () async {
+    await expectLater(
+      prepareCropSource(Uint8List.fromList(<int>[1, 2, 3, 4, 5])),
+      throwsA(isA<AvatarImageException>()),
+    );
+  });
+
+  test('a transparent source is white after the crop step too', () async {
+    final transparent = img.Image(width: 300, height: 300, numChannels: 4);
+    img.fill(transparent, color: img.ColorRgba8(0, 0, 0, 0));
+
+    final prepared = await prepareCropSource(img.encodePng(transparent));
+    final bytes = await processCroppedImage(
+      prepared,
+      const CropRect(x: 0, y: 0, width: 300, height: 300),
+      targetWidth: 64,
+      targetHeight: 64,
+    );
+
+    final decoded = img.decodeJpg(bytes)!;
+    final corner = decoded.getPixel(0, 0);
+    expect(corner.r, greaterThan(230));
+    expect(corner.g, greaterThan(230));
+    expect(corner.b, greaterThan(230));
+  });
 }

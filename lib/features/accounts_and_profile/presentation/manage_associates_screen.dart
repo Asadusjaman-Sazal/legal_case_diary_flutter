@@ -64,6 +64,7 @@ import '../data/firm_invite_code_store.dart';
 import '../data/firm_logo_repository.dart';
 import '../data/firm_logo_store.dart';
 import '../data/firm_logo_sync.dart';
+import 'image_crop_screen.dart';
 import '../data/firm_repository.dart';
 import '../data/profile_repository.dart' show AccountRole;
 
@@ -615,7 +616,8 @@ class _ManageAssociatesScreenState
     });
   }
 
-  /// Picks a chamber logo, shrinks it to 50 KB, and stores it locally first.
+  /// Picks a chamber logo, crops it to the card frame's 148:100 shape, shrinks
+  /// it to 50 KB, and stores it locally first.
   ///
   /// The upload is detached: a save must never wait on the network, and a
   /// failure leaves the local picture waiting for the next refresh. A known
@@ -640,7 +642,29 @@ class _ManageAssociatesScreenState
 
     try {
       final bytes = await File(picked.path).readAsBytes();
-      final processed = await processAvatar(bytes);
+      final source = await prepareCropSource(bytes);
+      if (!mounted) return;
+      final selection = await Navigator.of(context).push<CropSelection>(
+        MaterialPageRoute(
+          builder: (_) => ImageCropScreen(
+            source: source,
+            // The firm card's wide frame, so the logo shows exactly the area
+            // the user chose (user ruling 2026-10-26).
+            aspectRatio: _firmLogoFrameWidth / _firmLogoFrameHeight,
+            circular: false,
+            title: l.imageCrop_title,
+          ),
+        ),
+      );
+      if (selection == null || !mounted) return;
+      final processed = await processCroppedImage(
+        selection.source,
+        selection.rect,
+        targetWidth: avatarMaxSide,
+        targetHeight:
+            (avatarMaxSide * _firmLogoFrameHeight / _firmLogoFrameWidth)
+                .round(),
+      );
       await ref.read(firmLogoProvider.notifier).setBytes(processed, firmId);
       if (!mounted) return;
       unawaited(ref.read(firmLogoSyncProvider)());

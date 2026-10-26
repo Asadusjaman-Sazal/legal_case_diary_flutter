@@ -2919,6 +2919,24 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get sharedActions_cancel;
 
+  /// No description provided for @imageCrop_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Image'**
+  String get imageCrop_title;
+
+  /// No description provided for @imageCrop_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinch to zoom and drag to move.'**
+  String get imageCrop_hint;
+
+  /// No description provided for @imageCrop_use.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get imageCrop_use;
+
   /// No description provided for @sharedActions_delete.
   ///
   /// In en, this message translates to:

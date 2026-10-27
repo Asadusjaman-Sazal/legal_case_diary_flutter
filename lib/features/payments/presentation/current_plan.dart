@@ -23,7 +23,9 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
+import '../data/payment_local_store.dart';
 import '../data/payment_plans.dart';
+import '../data/payment_repository.dart';
 import 'payment_plan_labels.dart';
 
 /// The account's plan: whether entitlement has landed, whether it is premium
@@ -46,7 +48,10 @@ typedef CurrentPlan = ({bool known, bool premium, String? planKey});
 ///   tell them a plan is running that is not. *Premium* is the word for that
 ///   case rather than a repeated tier name. The owner is not a member and keeps
 ///   naming the plan they bought, because that purchase is the chamber's
-///   renewal.
+///   renewal. **Offline**, the ledger cannot name a plan at all, so the key this
+///   device last saw running stands in ([runningPlanCacheProvider]) — used only
+///   while the cached row still holds the tier it was recorded for, and never
+///   for a member.
 final currentPlanProvider = Provider<CurrentPlan>((ref) {
   final premium = ref.watch(premiumAccessProvider);
   String? approvedPlan;
@@ -61,15 +66,24 @@ final currentPlanProvider = Provider<CurrentPlan>((ref) {
     // *Scheduled* line. Legacy `pro` keys answer Starter, which is what their
     // stored tier became.
     final storedTier = ref.watch(currentTierProvider);
-    final submissions =
-        ref.watch(myPaymentSubmissionsProvider).value ?? const [];
-    for (final submission in submissions) {
-      if (submission.status == 'approved' &&
-          planTier(submission.planType) == storedTier) {
-        approvedPlan = submission.planType;
-        break;
-      }
-    }
+    final ledger = ref.watch(myPaymentSubmissionsProvider);
+    final live = runningPlanKey(
+      (ledger.value ?? const <PaymentSubmission>[])
+          .where((row) => row.status == 'approved')
+          .map((row) => row.planType),
+      storedTier,
+    );
+    // Offline the ledger never lands, and the plan key alone is what makes the
+    // label a name rather than the generic *Premium* — so the device's own copy
+    // stands in. It is used only while it was recorded for the tier the cached
+    // profile (or firm) row still holds, which is what keeps a queued change
+    // from leaving the old plan's name on screen (user report, 0.0.683).
+    final cached = ref.watch(runningPlanCacheProvider);
+    approvedPlan =
+        live ??
+        (!ledger.hasValue && cached != null && cached.tier == storedTier
+            ? cached.planKey
+            : null);
   }
   return (
     known: ref.watch(entitlementKnownProvider) && !premium.isLoading,
@@ -202,10 +216,7 @@ class CurrentPlanLabel extends ConsumerWidget {
     final tier = ref.watch(allowanceTierProvider);
     final base = style ?? AppTypography.bodyMd;
     final limited =
-        showTag &&
-        plan.known &&
-        !plan.premium &&
-        tier != SubscriptionTier.free;
+        showTag && plan.known && !plan.premium && tier != SubscriptionTier.free;
     if (!limited) {
       return Text(
         currentPlanLabel(l, plan, tier: tier),

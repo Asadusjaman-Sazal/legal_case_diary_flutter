@@ -485,6 +485,28 @@ SubscriptionTier? planTier(String? planKey) {
 bool isLegacyStarterPlan(String? planKey) =>
     legacyStarterPlanKeys.contains(planKey);
 
+/// The plan key the account is running: the newest **approved** purchase of
+/// [tier] among [approvedPlanKeysNewestFirst], or null when none names it.
+///
+/// A purchase of a different tier is queued and starts only when the current
+/// period ends, which is why the label looks for the newest approval whose tier
+/// is the tier in force rather than the newest purchase outright. Legacy `pro`
+/// keys answer Starter through [planTier], which is what their stored tier
+/// became.
+///
+/// Two readers share this one rule: the live label (`currentPlanProvider`) and
+/// the copy this device keeps for offline use (`runningPlanCacheProvider`), so
+/// the remembered name can never disagree with the online one.
+String? runningPlanKey(
+  Iterable<String> approvedPlanKeysNewestFirst,
+  SubscriptionTier tier,
+) {
+  for (final key in approvedPlanKeysNewestFirst) {
+    if (planTier(key) == tier) return key;
+  }
+  return null;
+}
+
 /// Every sellable plan of [tier], shortest term first.
 List<SubscriptionPlan> plansForTier(SubscriptionTier tier) => subscriptionPlans
     .where((plan) => plan.tier == tier)

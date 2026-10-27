@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.682 - The delete-request toast now reads Deletion request sent for approval., naming no role, since any member with delete permission may act.
+Version: 0.0.683 - Offline, the side menu and Manage Plan now name the plan the account holds: its key and tier are cached on the device instead of falling back to Premium.
 --------------------------------------
 
 ## Version History Log:
@@ -696,3 +696,4 @@ Version: 0.0.679 - The empty Outstanding Invitation Codes list now reads No unus
 Version: 0.0.680 - The Delete Account and Delete Data windows take the Exit App corner, and the seed row's tick now lines up with its title instead of its hint.
 Version: 0.0.681 - The deletion-request confirmation toast now reads Deletion request sent to admin/owner., in sentence case.
 Version: 0.0.682 - The delete-request toast now reads Deletion request sent for approval., naming no role, since any member with delete permission may act.
+Version: 0.0.683 - Offline, the side menu and Manage Plan now name the plan the account holds: its key and tier are cached on the device instead of falling back to Premium.

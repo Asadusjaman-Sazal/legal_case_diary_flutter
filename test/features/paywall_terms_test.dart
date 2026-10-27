@@ -14,6 +14,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
@@ -21,6 +22,14 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/payments/data/payment_plans.dart';
 import 'package:legal_case_diary/features/payments/presentation/paywall_screen.dart';
+import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+
+/// A fresh preferences store: the screen reads the account's plan, and the
+/// offline copy of its name lives there (0.0.683).
+Future<SharedPreferences> _prefs() {
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+  return SharedPreferences.getInstance();
+}
 
 void main() {
   /// Opens the paywall over a free profile; only the term logic is under test.
@@ -38,9 +47,12 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
+    final prefs = await _prefs();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
           accountProfileProvider.overrideWith(
             (ref) => Stream.value(null),
           ),
@@ -242,9 +254,11 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
+    final prefs = await _prefs();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
           accountProfileProvider.overrideWith((ref) => Stream.value(null)),
           firmMemberProvider.overrideWithValue(false),
         ],
@@ -290,9 +304,11 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
+      final prefs = await _prefs();
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            sharedPreferencesProvider.overrideWithValue(prefs),
             accountProfileProvider.overrideWith((ref) => Stream.value(null)),
             firmMemberProvider.overrideWithValue(false),
           ],

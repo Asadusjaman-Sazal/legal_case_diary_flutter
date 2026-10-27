@@ -1,7 +1,8 @@
-/// Per-user local payments state: the checkout draft and the submission log.
+/// Per-user local payments state: the checkout draft, the submission log and
+/// the plan this device last saw running.
 ///
-/// Task 21 Phase 2 / Addendum. Two things must survive closing the app and must
-/// never leak between accounts, so both are keyed by the account id:
+/// Task 21 Phase 2 / Addendum. Three things must survive closing the app and
+/// must never leak between accounts, so all are keyed by the account id:
 ///
 ///   * the **checkout draft** — the form input, saved on every keystroke and
 ///     pre-filled on reopen, cleared only after a confirmed successful
@@ -11,20 +12,28 @@
 ///     submissions, used purely as a **UX** best-effort check of the 5-per-24h
 ///     rule. The authoritative gate is the server's `BEFORE INSERT` trigger, and
 ///     the client check exists only so the user sees the limit before typing
-///     rather than after a round trip.
+///     rather than after a round trip;
+///   * the **running plan** — the plan key this device last saw the account
+///     holding, with the tier it was chosen for, so the side menu's plan row and
+///     Manage Plan can still name it with no link (user report, 0.0.683).
 ///
-/// Neither is firm-shared: a checkout is personal (Addendum).
+/// None is firm-shared: a checkout is personal (Addendum), and the running plan
+/// is this account's own even when the chamber pays for it.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/providers/repository_providers.dart';
 import '../../../shared/providers/shared_preferences_provider.dart';
 import '../../accounts_and_profile/data/account_mode.dart'
-    show accountCacheUserIdProvider;
+    show accountCacheUserIdProvider, currentTierProvider, firmMemberProvider;
 import '../../auth/presentation/auth_viewmodel.dart' show authIdentityProvider;
+import 'payment_plans.dart';
+import 'payment_repository.dart';
 
 /// The window the local submission check counts over.
 const Duration paymentSubmissionWindow = Duration(hours: 24);
@@ -38,7 +47,8 @@ const int paymentLocalSubmissionLimit = 5;
 String paymentDraftKey(String userId) => 'payment_draft_$userId';
 
 /// Preference key for the local submission log, scoped to one account.
-String paymentSubmissionLogKey(String userId) => 'payment_submission_log_$userId';
+String paymentSubmissionLogKey(String userId) =>
+    'payment_submission_log_$userId';
 
 /// The checkout form's saved state.
 class PaymentDraft {
@@ -98,7 +108,9 @@ class PaymentDraftNotifier extends Notifier<PaymentDraft> {
     if (raw == null) return const PaymentDraft();
     try {
       final decoded = jsonDecode(raw);
-      if (decoded is Map<String, dynamic>) return PaymentDraft.fromJson(decoded);
+      if (decoded is Map<String, dynamic>) {
+        return PaymentDraft.fromJson(decoded);
+      }
     } on FormatException {
       // A corrupt draft is simply no draft.
     }
@@ -138,10 +150,7 @@ class PaymentSubmissionLogNotifier extends Notifier<List<int>> {
     _prefs = ref.watch(sharedPreferencesProvider);
     ref.watch(authIdentityProvider);
     final raw = _prefs.getStringList(paymentSubmissionLogKey(_userId));
-    return raw
-            ?.map(int.tryParse)
-            .whereType<int>()
-            .toList(growable: false) ??
+    return raw?.map(int.tryParse).whereType<int>().toList(growable: false) ??
         const <int>[];
   }
 
@@ -175,3 +184,93 @@ int localSubmissionsInWindow(List<int> timestamps, DateTime now) {
 /// Whether the local best-effort check should warn the user off submitting.
 bool isLocallyRateLimited(List<int> timestamps, DateTime now) =>
     localSubmissionsInWindow(timestamps, now) >= paymentLocalSubmissionLimit;
+
+/// The plan this device last saw running, and the tier it was chosen for.
+///
+/// A record, so two copies compare by value: the cache below skips a write it
+/// already holds.
+typedef RunningPlan = ({String planKey, SubscriptionTier tier});
+
+/// Preference key for the running plan's own key, scoped to one account.
+String runningPlanKeyCacheKey(String userId) => 'running_plan_$userId';
+
+/// Preference key for the tier the cached running plan was chosen for.
+String runningPlanTierCacheKey(String userId) => 'running_plan_tier_$userId';
+
+/// The plan this device last saw running for the current account, or null.
+///
+/// `payment_submissions` is server-managed and read live, so with no link the
+/// ledger cannot name a plan and the label fell back to the generic *Premium* —
+/// a premium user offline was never told which plan they hold (user report).
+/// This keeps one copy, written by every successful ledger read.
+///
+/// The **tier** is stored beside the key because it is what makes the copy safe
+/// to show: [currentPlanProvider] prints it only while the cached profile or
+/// firm row still holds that same tier, so a downgrade that has already started
+/// can never leave the old plan's name on screen.
+final runningPlanCacheProvider =
+    NotifierProvider<RunningPlanCacheNotifier, RunningPlan?>(
+      RunningPlanCacheNotifier.new,
+    );
+
+/// Mirrors the running plan into preferences and reads it back.
+///
+/// The write happens in [build], which re-runs whenever the ledger, the stored
+/// tier or the account changes — so every successful read refreshes the copy, a
+/// read that names no plan clears it, and an offline build leaves it untouched.
+class RunningPlanCacheNotifier extends Notifier<RunningPlan?> {
+  @override
+  RunningPlan? build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final userId = ref.watch(accountCacheUserIdProvider);
+    final ledger = ref.watch(myPaymentSubmissionsProvider);
+    // A chamber member's plan is the chamber's, and the ledger does not name
+    // it. Their own rows are deliberately not remembered (current_plan.dart).
+    if (ref.watch(firmMemberProvider)) return null;
+    // No answer yet (offline, or the first read still in flight): keep the copy.
+    if (!ledger.hasValue) return _readRunningPlan(prefs, userId);
+
+    final plan = _resolveRunningPlan(
+      ledger.value!,
+      ref.watch(currentTierProvider),
+    );
+    if (_readRunningPlan(prefs, userId) != plan) {
+      unawaited(_writeRunningPlan(prefs, userId, plan));
+    }
+    return plan;
+  }
+
+  RunningPlan? _resolveRunningPlan(
+    Iterable<PaymentSubmission> submissions,
+    SubscriptionTier tier,
+  ) {
+    final key = runningPlanKey(
+      submissions
+          .where((row) => row.status == 'approved')
+          .map((row) => row.planType),
+      tier,
+    );
+    return key == null ? null : (planKey: key, tier: tier);
+  }
+
+  RunningPlan? _readRunningPlan(SharedPreferences prefs, String userId) {
+    final planKey = prefs.getString(runningPlanKeyCacheKey(userId));
+    final tierKey = prefs.getString(runningPlanTierCacheKey(userId));
+    if (planKey == null || tierKey == null) return null;
+    return (planKey: planKey, tier: SubscriptionTier.fromKey(tierKey));
+  }
+
+  Future<void> _writeRunningPlan(
+    SharedPreferences prefs,
+    String userId,
+    RunningPlan? plan,
+  ) async {
+    if (plan == null) {
+      await prefs.remove(runningPlanKeyCacheKey(userId));
+      await prefs.remove(runningPlanTierCacheKey(userId));
+      return;
+    }
+    await prefs.setString(runningPlanKeyCacheKey(userId), plan.planKey);
+    await prefs.setString(runningPlanTierCacheKey(userId), plan.tier.key);
+  }
+}

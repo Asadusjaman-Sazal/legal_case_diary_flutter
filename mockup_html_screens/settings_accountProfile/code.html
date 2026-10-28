@@ -142,9 +142,10 @@
   </div>
 </header>
 
-<!-- Three labelled sections of SettingsMenuCards, sized by the shared card
-     contract. Firm moved to its own Settings entry at 0.0.663 (user request):
-     the row and its visibility now live on the Firm page. -->
+<!-- Two labelled sections of SettingsMenuCards, sized by the shared card
+     contract. Firm moved to its own Settings entry at 0.0.663 and Subscription
+     did the same at 0.0.701 (user requests): those rows and their visibility
+     now live on their own pages. -->
 <main class="max-w-lg mx-auto w-full px-md pt-md pb-xl">
   <!-- PROFILE -->
   <p class="font-label-md text-label-md font-semibold text-tertiary">Profile</p>
@@ -197,42 +198,10 @@
          Account, so a whole row for one action earned nothing. -->
   </div>
 
-  <!-- SUBSCRIPTION (0.0.624): the plan, the store and the ledger, moved out of
-       the intermediate Subscription screen. A chamber member sees Manage Plan
-       and Subscription History only; the plans are the owner's to buy.
-       0.0.698: for a chamber member this drawing's first row reads **Firm
-       Plan** (subtitle *Your firm's plan, usage, and expiry*) and the page it
-       opens is headed Firm Plan; the individual/owner state drawn here keeps
-       Manage Plan. -->
-  <p class="mt-lg font-label-md text-label-md font-semibold text-tertiary">Subscription</p>
-  <div class="mt-sm flex flex-col gap-sm">
-    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
-      <span class="material-symbols-outlined text-primary text-[28px]">star</span>
-      <div class="ml-md flex-1">
-        <p class="font-body-lg text-body-lg text-on-surface">Manage Plan</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Your plan, expiry, and cancellation</p>
-      </div>
-      <span class="material-symbols-outlined text-tertiary">chevron_right</span>
-    </button>
-
-    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
-      <span class="material-symbols-outlined text-primary text-[28px]">add_shopping_cart</span>
-      <div class="ml-md flex-1">
-        <p class="font-body-lg text-body-lg text-on-surface">Subscription Plans</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Compare plans and buy a new one</p>
-      </div>
-      <span class="material-symbols-outlined text-tertiary">chevron_right</span>
-    </button>
-
-    <button class="w-full bg-surface border border-surface-container rounded-xl p-md flex items-center hover:bg-secondary-hover transition-colors text-left">
-      <span class="material-symbols-outlined text-primary text-[28px]">history</span>
-      <div class="ml-md flex-1">
-        <p class="font-body-lg text-body-lg text-on-surface">Subscription History</p>
-        <p class="mt-xs font-body-sm text-body-sm text-on-surface">Every purchase, approval, and cancellation</p>
-      </div>
-      <span class="material-symbols-outlined text-tertiary">chevron_right</span>
-    </button>
-  </div>
+  <!-- SUBSCRIPTION moved out at 0.0.701 (user request): the plan, the plans and
+       the ledger now sit on their own page behind the Settings list's
+       Subscription row, directly under Firm. This page keeps Profile and
+       Account only. -->
 </main>
 </body>
 </html>

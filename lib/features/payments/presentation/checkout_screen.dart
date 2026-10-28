@@ -170,8 +170,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       //
       // The stack is rebuilt rather than pushed onto: the checkout is finished,
       // and leaving it under the history made Back reopen it (user request).
-      // The chain the user asked for is History → Account & Profile → Settings
-      // → the configured landing page, so all three sit beneath the history.
+      // The chain the user asked for is History → Subscription → Settings →
+      // the configured landing page, so all three sit beneath the history.
       _showMessage(l.payments_submitSuccess);
       // The payer is free until an admin approves, so no socket is open to hear
       // the change: watch the account for a short bounded window instead.
@@ -183,7 +183,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             AppRoutes.dailyCauseList;
         router.go(landing);
         router.push(AppRoutes.settings);
-        router.push(AppRoutes.settingsAccountProfile);
+        router.push(AppRoutes.settingsSubscription);
         router.push(AppRoutes.settingsSubscriptionHistory);
       }
     } else {

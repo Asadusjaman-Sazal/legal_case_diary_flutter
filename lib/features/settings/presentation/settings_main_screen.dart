@@ -114,6 +114,15 @@ class _SettingsMainScreenState extends ConsumerState<SettingsMainScreen> {
         icon: Icons.apartment_outlined,
         route: AppRoutes.settingsFirm,
       ),
+      // Subscription follows Firm (user request, 0.0.701): the plan, the plans
+      // and the ledger, one tap from Settings rather than two through the
+      // account menu. Every account is offered it; the page hides the rows a
+      // chamber member may not use.
+      _SettingsItem(
+        title: l.settingsSubscription_title,
+        icon: Icons.workspace_premium_outlined,
+        route: AppRoutes.settingsSubscription,
+      ),
       _SettingsItem(
         title: l.settingsScreen_onlineSync,
         icon: Icons.sync_outlined,

@@ -56,6 +56,7 @@ import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
 import '../../features/settings/presentation/subscription_history_screen.dart';
 import '../../features/settings/presentation/subscription_details_screen.dart';
+import '../../features/settings/presentation/subscription_menu_screen.dart';
 import '../../features/sync/presentation/sync_status_screen.dart';
 import '../../features/sync/presentation/review_conflict_screen.dart';
 import '../../features/sync/presentation/sync_conflict_banner.dart';
@@ -115,6 +116,9 @@ class AppRoutes {
 
   /// The Firm menu, offered directly by the Settings list (0.0.663).
   static const String settingsFirm = '/settings/firm';
+
+  /// The Subscription menu, directly under Firm on the Settings list (0.0.701).
+  static const String settingsSubscription = '/settings/subscription';
   static const String settingsProfile = '/settings/profile';
   static const String settingsManageAccount = '/settings/manage-account';
 
@@ -632,6 +636,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsFirm,
     builder: (context, state) => const FirmMenuScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsSubscription,
+    builder: (context, state) => const SubscriptionMenuScreen(),
   ),
   GoRoute(
     path: AppRoutes.settingsProfile,

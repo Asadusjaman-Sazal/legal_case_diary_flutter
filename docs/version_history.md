@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.691 - The associate's Withdraw Request button in Delete Requests now fills the card at the same height as the admin's Approve button; its colour, confirmation and write are unchanged.
+Version: 0.0.696 - The Daily Cause List's Today/Tomorrow bar now steps only its own text down (-1 to -3, like Font Size) on phones where it would overflow, and ellipsizes the date if -3 still cannot fit.
 --------------------------------------
 
 ## Version History Log:
@@ -705,3 +705,8 @@ Version: 0.0.688 - Long pressing the header's Sync icon now opens Settings > Onl
 Version: 0.0.689 - The Delete Requests cards act in place: a long press on a queued card offers Approve and Reject in one line, and a requester's pending card expands on tap to one red Withdraw Request button, with the chevron and Edit gone.
 Version: 0.0.690 - The side menu now gives a firm associate a Firm row that expands in place to the chamber and Delete Requests, and their Current Plan row is gone; owners and individuals are unchanged.
 Version: 0.0.691 - The associate's Withdraw Request button in Delete Requests now fills the card at the same height as the admin's Approve button; its colour, confirmation and write are unchanged.
+Version: 0.0.692 - The Withdraw This Deletion Request? window now takes the Exit App window's 8 px corner and 112 x 48 / 16 pt buttons, with its title centred and its body justified.
+Version: 0.0.693 - The Withdraw This Deletion Request? pop-over is 5% wider: its side inset drops from the dialog default 40 px to 32, with nothing inside it changed.
+Version: 0.0.694 - The Withdraw This Deletion Request? window stacks Cancel and Withdraw Request full width on one column when they no longer fit one line, measured from their labels.
+Version: 0.0.695 - The Reject Deletion Request? window now takes the Exit App window's 8 px corner and 112 x 48 / 16 pt buttons, on the review screen and the queue's quick Reject; Approve is unchanged.
+Version: 0.0.696 - The Daily Cause List's Today/Tomorrow bar now steps only its own text down (-1 to -3, like Font Size) on phones where it would overflow, and ellipsizes the date if -3 still cannot fit.

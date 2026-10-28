@@ -13,7 +13,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -24,6 +24,7 @@ import '../../../../core/providers/contact_providers.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/print/print_document.dart';
+import '../../../../core/theme/font_size_scope.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../data/case_search_scope.dart';
 import '../case_contact_actions.dart';
@@ -608,6 +609,9 @@ class _DateSwitcher extends StatelessWidget {
       selectedDate,
       locale: l.localeName,
     );
+    final textStyle = Theme.of(context).textTheme.labelMedium;
+    final ambientScaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
 
     return Container(
       color: AppColors.surface,
@@ -615,61 +619,107 @@ class _DateSwitcher extends StatelessWidget {
         vertical: AppSpacing.sm,
         horizontal: AppSpacing.md,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainer,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: AppColors.outlineVariant.withValues(alpha: 0.4),
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The bar fits at the design size on every phone where it can: only
+          // when it cannot, the group's text steps down exactly as Settings >
+          // View Settings > Font Size does, one logical pixel at a time, to
+          // -3. Past that the date itself gives way with an ellipsis
+          // (user request, 0.0.696).
+          final step = _fittedFontStep(
+            available: constraints.maxWidth,
+            ambient: ambientScaler,
+            style: textStyle,
+            direction: direction,
+            labels: <String>[
+              l.dailyCauseListScreen_today,
+              l.dailyCauseListScreen_tomorrow,
+              calendarLabel,
+            ],
+          );
+          return MediaQuery(
+            // Scoped to this group: everything else on screen keeps its size.
+            data: MediaQuery.of(context).copyWith(
+              textScaler: step == 0
+                  ? ambientScaler
+                  : SteppedTextScaler(ambientScaler, step),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _DatePill(
-                  label: l.dailyCauseListScreen_today,
-                  selected: isToday,
-                  onTap: onToday,
-                ),
-                _DatePill(
-                  label: l.dailyCauseListScreen_tomorrow,
-                  selected: isTomorrow,
-                  onTap: onTomorrow,
-                ),
-                Container(
-                  width: 1,
-                  height: 16,
-                  color: AppColors.outlineVariant,
-                  margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                ),
-                InkWell(
-                  onTap: onOpenCalendar,
-                  borderRadius: BorderRadius.circular(999),
+                Flexible(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: AppColors.surfaceContainer,
                       borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColors.outlineVariant.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: AppColors.onPrimary,
+                        _DatePill(
+                          label: l.dailyCauseListScreen_today,
+                          selected: isToday,
+                          onTap: onToday,
                         ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          calendarLabel,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(color: AppColors.onPrimary),
+                        _DatePill(
+                          label: l.dailyCauseListScreen_tomorrow,
+                          selected: isTomorrow,
+                          onTap: onTomorrow,
+                        ),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: AppColors.outlineVariant,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                          ),
+                        ),
+                        // The last piece to give: at -3 the date ellipsizes
+                        // rather than pushing the bar off the screen.
+                        Flexible(
+                          child: InkWell(
+                            onTap: onOpenCalendar,
+                            borderRadius: BorderRadius.circular(999),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.sm,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                    color: AppColors.onPrimary,
+                                  ),
+                                  const SizedBox(width: AppSpacing.xs),
+                                  Flexible(
+                                    child: Text(
+                                      calendarLabel,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium
+                                          ?.copyWith(
+                                            color: AppColors.onPrimary,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -677,12 +727,52 @@ class _DateSwitcher extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
+
+/// The font step (0, -1, -2 or -3) at which the date switcher fits [available].
+///
+/// 0 means the design size fits and nothing is scaled. -3 is returned when even
+/// that does not fit; the date then ellipsizes.
+int _fittedFontStep({
+  required double available,
+  required TextScaler ambient,
+  required TextStyle? style,
+  required TextDirection direction,
+  required List<String> labels,
+}) {
+  if (!available.isFinite) return 0;
+  for (final step in const <int>[0, -1, -2, -3]) {
+    final scaler = step == 0 ? ambient : SteppedTextScaler(ambient, step);
+    var textWidth = 0.0;
+    for (final label in labels) {
+      textWidth += TextPainter.computeWidth(
+        text: TextSpan(text: label, style: style),
+        textDirection: direction,
+        textScaler: scaler,
+        maxLines: 1,
+      );
+    }
+    if (textWidth + _dateSwitcherChrome <= available) return step;
+  }
+  return -3;
+}
+
+/// The switcher's widths a font step cannot change: the group's 4 px edge and
+/// 1 px hairline on each side, the two pills' 16 px sides, the divider and its
+/// margins, the chip's 16 px sides, the calendar icon and its gap.
+const double _dateSwitcherChrome =
+    (AppSpacing.xs + 1) * 2 +
+    AppSpacing.md * 4 +
+    AppSpacing.sm * 2 +
+    1 +
+    AppSpacing.md * 2 +
+    16 +
+    AppSpacing.xs;
 
 /// A pill button inside the date switcher.
 class _DatePill extends StatelessWidget {

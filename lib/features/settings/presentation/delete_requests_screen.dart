@@ -300,6 +300,8 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
       confirmLabel: approve
           ? l.deleteRequests_approve
           : l.deleteRequests_reject,
+      // The Reject window takes the Exit App's shape; Approve keeps its own.
+      exitWindow: !approve,
     );
     if (!confirmed || !mounted) return;
 
@@ -556,26 +558,42 @@ class _QuickButton extends StatelessWidget {
 }
 
 /// The quick decision's confirmation, the review screen's own window.
+///
+/// [exitWindow] gives the Reject window the **Exit App?** window's 8 px corner
+/// and its 112 x 48 / 16 pt actions (user request, 0.0.695); the Approve window
+/// keeps the default shape and button sizes.
 Future<bool> _confirmDecision({
   required BuildContext context,
   required String title,
   required String body,
   required String confirmLabel,
+  bool exitWindow = false,
 }) async {
   final l = AppLocalizations.of(context);
   final answer = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
+      shape: exitWindow
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+            )
+          : null,
       title: Text(title),
       content: Text(body),
       actions: [
         TextButton(
+          style: exitWindow ? _rejectActionStyle : null,
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(l.sharedActions_cancel),
         ),
         FilledButton(
           key: const ValueKey('delete-request-quick-confirm'),
-          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+          style: exitWindow
+              ? _rejectActionStyle.copyWith(
+                  backgroundColor: WidgetStatePropertyAll(AppColors.error),
+                  foregroundColor: WidgetStatePropertyAll(AppColors.onError),
+                )
+              : FilledButton.styleFrom(backgroundColor: AppColors.error),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(confirmLabel),
         ),
@@ -585,33 +603,115 @@ Future<bool> _confirmDecision({
   return answer ?? false;
 }
 
+/// The Exit App window's action size: 112 x 48 at 16 pt.
+final ButtonStyle _rejectActionStyle = TextButton.styleFrom(
+  minimumSize: const Size(112, 48),
+  textStyle: const TextStyle(fontSize: 16),
+);
+
 /// The withdrawal window.
 ///
 /// A confirmation rather than a plain tap because a withdrawal cannot be undone
 /// — the requester would have to raise the request again and the reviewer would
-/// see a new one.
+/// see a new one. It takes the **Exit App?** window's 8 px corner and its
+/// 112 x 48 / 16 pt actions (user request, 0.0.692), with a centred title and a
+/// justified body.
 Future<bool> _confirmWithdraw(BuildContext context, AppLocalizations l) async {
   final answer = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.deleteRequests_withdrawTitle),
-      content: Text(l.deleteRequests_withdrawBody),
-      actions: [
-        TextButton(
+    // Measured outside the dialog: AlertDialog asks its own subtree for
+    // intrinsic sizes, which a LayoutBuilder cannot answer.
+    builder: (context) => LayoutBuilder(
+      builder: (context, constraints) {
+        // One line while both labels fit; below that the pair stacks at full
+        // width instead of wrapping at their intrinsic sizes (user request,
+        // 0.0.694). Widths are measured from the labels at the buttons' own text
+        // style, because a longer Bengali label wraps where the shorter English
+        // one still fits; the room is this window's share of the route — the
+        // route less its 32 px side insets and the dialog's own edge.
+        final textStyle = (Theme.of(context).textTheme.labelLarge ??
+                const TextStyle())
+            .merge(_withdrawButtonStyle.textStyle!.resolve(<WidgetState>{}));
+        final scaler = MediaQuery.textScalerOf(context);
+        final direction = Directionality.of(context);
+        double buttonWidth(String label) {
+          final text = TextPainter.computeWidth(
+            text: TextSpan(text: label, style: textStyle),
+            textDirection: direction,
+            textScaler: scaler,
+            maxLines: 1,
+          );
+          // 48 px covers the buttons' own horizontal padding; 112 is the Exit
+          // App floor.
+          final padded = text + 48;
+          return padded < 112 ? 112 : padded;
+        }
+
+        const gap = 8.0;
+        final room = constraints.maxWidth - 32 * 2 - 48;
+        final oneLine =
+            buttonWidth(l.sharedActions_cancel) +
+                buttonWidth(l.deleteRequests_withdraw) +
+                gap <=
+            room;
+
+        final cancel = TextButton(
+          style: _withdrawButtonStyle,
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
+        );
+        final confirm = FilledButton(
           key: const ValueKey('delete-request-withdraw-confirm'),
-          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+          style: _withdrawButtonStyle.copyWith(
+            backgroundColor: WidgetStatePropertyAll(AppColors.error),
+            foregroundColor: WidgetStatePropertyAll(AppColors.onError),
+          ),
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(l.deleteRequests_withdraw),
-        ),
-      ],
+        );
+
+        return AlertDialog(
+          // The Exit App window's corner.
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+          ),
+          // 5% wider than the default 40 px inset on the app's phones
+          // (user request, 0.0.693).
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 32,
+            vertical: 24,
+          ),
+          title: Text(
+            l.deleteRequests_withdrawTitle,
+            textAlign: TextAlign.center,
+          ),
+          content: Text(
+            l.deleteRequests_withdrawBody,
+            textAlign: TextAlign.justify,
+          ),
+          // Two actions keep the dialog's own row and its 8 px gap when they
+          // fit; one child — the stacked pair — fills the window when they do
+          // not.
+          actions: oneLine
+              ? [cancel, confirm]
+              : [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [cancel, const SizedBox(height: gap), confirm],
+                  ),
+                ],
+        );
+      },
     ),
   );
   return answer ?? false;
 }
+
+/// The Exit App window's action size: 112 x 48 at 16 pt.
+final ButtonStyle _withdrawButtonStyle = TextButton.styleFrom(
+  minimumSize: const Size(112, 48),
+  textStyle: const TextStyle(fontSize: 16),
+);
 
 /// The status word for [status]; unknown values fall back to pending so a row
 /// never renders an empty chip.

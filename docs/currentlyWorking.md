@@ -1,5 +1,40 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — The Today/Tomorrow bar fits a narrow phone — COMPLETE (0.0.696)
+
+- **What was asked.** On slightly narrower phones the Daily Cause List's Today / Tomorrow / date bar overflowed to the right. Scale only that group down, only where it overflows — never on phones that fit — using the same steps as Settings > View Settings > Font Size: try −1, then −2, −3 at most; if −3 still overflows, make the date elastic and ellipsize it.
+- **What changed.** The switcher measures its three labels (Today, Tomorrow, the date) with the actual theme style and text scale against the bar's real width, then wraps **only that group** in a `MediaQuery` carrying the app's own `SteppedTextScaler` at 0, −1, −2 or −3. The first step that fits is used; a phone that fits at the design size is not scaled at all, and nothing else on the screen changes size. The measurement includes every fixed piece of the bar (the group's edge and hairline, both pills' sides, the divider, the chip's sides and icon), so it matches the layout. If even −3 cannot fit, the date chip and its text are flexible with `TextOverflow.ellipsis`, so the date shortens on one line instead of the bar running off.
+- **Checks.** `flutter analyze` clean; `daily_cause_list_test.dart` **8 passed**, with four new cases: a wide bar is never scaled, 500 px takes one step, 360 px stays at a step of 1–3 with no overflow, and 300 px ellipsizes the date; full `flutter test` **2,177 passed**.
+- **No mockup change** — the drawing is the same; only its size on phones that could not fit it (rule 9).
+
+### 2026-10-28 — The Reject window takes the Exit App's shape — COMPLETE (0.0.695)
+
+- **What was asked.** In the **Reject Deletion Request?** pop-over only: make the window corner and the button size the same as the **Exit App?** window.
+- **What changed.** Wherever that window opens — the review screen's Reject, and the reviewer's quick Reject from a queue card — it now uses the Exit App window's 8 px corner (`AppSpacing.cardRadius * 2`) and its 112 × 48 / 16 pt actions, with the red confirm fill kept. The shared confirmation helpers take an `exitWindow` flag that only the reject call sets, so the **Approve** windows and every other window are untouched.
+- **Checks.** `flutter analyze` clean; `delete_request_review_test.dart` **27 passed**, with the review screen's reject case and a new quick-reject case pinning the corner, both action sizes and the red fill; full `flutter test` **2,173 passed**.
+- **No mockup** — these windows have none (rule 9).
+
+### 2026-10-28 — The withdrawal actions stack full length when they must — COMPLETE (0.0.694)
+
+- **What was asked.** In the **Withdraw This Deletion Request?** window, when a smaller screen cannot show both buttons on one line, show them full length, one after another.
+- **What changed.** The window now decides from the two labels, measured at the buttons' own 16 pt style against its real width: while **Cancel** and **Withdraw Request** fit, the pair keeps their one line; below that they stack, each filling the window, with the same 8 px gap. The measurement sits in a `LayoutBuilder` outside the `AlertDialog`, because the dialog asks its own subtree for intrinsic sizes and a builder cannot answer that.
+- **Checks.** `flutter analyze` clean; `delete_request_review_test.dart` **26 passed**, with a new 320 px case pinning the stacked, equal-width pair and the wide case pinning the one-line pair; full `flutter test` **2,172 passed**.
+- **No mockup** — this list has none (rule 9).
+
+### 2026-10-28 — The withdrawal window is 5% wider — COMPLETE (0.0.693)
+
+- **What was asked.** Make the **Withdraw This Deletion Request?** pop-over 5% wider, and nothing else.
+- **What changed.** That window's side inset is now 32 px in place of the dialog default 40, which is about 5% more panel width on the app's phones (the same inset-to-width conversion the Cancel Subscription window used for 10%). Corner, title, body, buttons and the red fill are untouched.
+- **Checks.** `flutter analyze` clean; `delete_request_review_test.dart` **25 passed**, with the withdraw case now pinning the inset; full `flutter test` **2,171 passed**.
+- **No mockup** — this list has none (rule 9).
+
+### 2026-10-28 — The withdrawal window takes the Exit App's shape — COMPLETE (0.0.692)
+
+- **What was asked.** In the **Withdraw This Deletion Request?** window only: the corner and button size should match the **Exit App?** window, the title should be middle aligned and the body justified.
+- **What changed.** The window now uses the Exit App window's 8 px corner (`AppSpacing.cardRadius * 2`), its Cancel and Withdraw actions take the Exit App action size (112 × 48 at 16 pt), the title is centred and the body justified. The red confirm fill, both sentences and the withdrawal write are unchanged; no other window moved.
+- **Checks.** `flutter analyze` clean; `delete_request_review_test.dart` **25 passed**, with the withdraw case now pinning the corner, both title/body alignments, both action sizes and the red fill; full `flutter test` **2,171 passed**.
+- **No mockup** — this list has none (rule 9).
+
 ### 2026-10-28 — The withdraw button takes the full card width — COMPLETE (0.0.691)
 
 - **What was asked.** In Delete Requests, an associate's **Withdraw Request** button should run the full length of the card, at the same height as the admin's **Approve** button.

@@ -434,6 +434,59 @@ void main() {
       await unmountApp(tester);
     });
 
+    testWidgets('a quick rejection keeps the record, in the Exit App window', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(id: 'r1', title: 'Land Dispute Note');
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-request-reject-r1')));
+      await tester.pumpAndSettle();
+
+      // The same Exit App corner and action size the review screen's Reject
+      // window takes (user request).
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      final corner = (dialog.shape! as RoundedRectangleBorder).borderRadius;
+      expect((corner as BorderRadius).topLeft.x, AppSpacing.cardRadius * 2);
+      const actionSize = Size(112, 48);
+      final cancel = tester.widget<TextButton>(
+        find.widgetWithText(TextButton, l.sharedActions_cancel),
+      );
+      expect(
+        cancel.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      final confirm = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-request-quick-confirm')),
+      );
+      expect(
+        confirm.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      expect(confirm.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-quick-confirm')),
+      );
+      await tester.pumpAndSettle();
+
+      final request = await DeleteRequestsDao(db).getById('r1');
+      expect(request!.status, 'rejected');
+      expect(find.text(l.deleteRequests_reviewTitle), findsNothing);
+      expect(find.text(l.deleteRequests_rejected), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
     testWidgets('a stale row keeps the review screen, with no quick actions', (
       tester,
     ) async {
@@ -554,6 +607,35 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('delete-review-reject')));
       await tester.pumpAndSettle();
+
+      // The Reject window takes the Exit App window's corner and action size
+      // (user request); Approve keeps its own.
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      final corner = (dialog.shape! as RoundedRectangleBorder).borderRadius;
+      expect((corner as BorderRadius).topLeft.x, AppSpacing.cardRadius * 2);
+      const actionSize = Size(112, 48);
+      final cancel = tester.widget<TextButton>(
+        find.widgetWithText(TextButton, l.sharedActions_cancel),
+      );
+      expect(
+        cancel.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      expect(cancel.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+      final confirm = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-review-confirm')),
+      );
+      expect(
+        confirm.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      expect(confirm.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+      expect(
+        confirm.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+
       await tester.tap(find.byKey(const ValueKey('delete-review-confirm')));
       await tester.pumpAndSettle();
 
@@ -1015,6 +1097,53 @@ void main() {
       await unmountApp(tester);
     });
 
+    testWidgets('the withdrawal buttons stack full length on a narrow screen', (
+      tester,
+    ) async {
+      // A phone too narrow for both Exit App-sized buttons on one line: the
+      // pair stacks, each filling the window (user request).
+      await tester.binding.setSurfaceSize(const Size(320, 700));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(id: 'r1', requestedBy: 'user-1');
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      final cancel = find.widgetWithText(TextButton, l.sharedActions_cancel);
+      final confirm = find.byKey(
+        const ValueKey('delete-request-withdraw-confirm'),
+      );
+      // One under the other...
+      expect(
+        tester.getTopLeft(confirm).dy,
+        greaterThan(tester.getTopLeft(cancel).dy),
+      );
+      // ...and each at the full length of the window.
+      expect(
+        tester.getSize(confirm).width,
+        closeTo(tester.getSize(cancel).width, 0.5),
+      );
+      expect(tester.getSize(confirm).width, greaterThan(150));
+
+      await unmountApp(tester);
+    });
+
     testWidgets('the requester is told when the record changed', (tester) async {
       final overrides = await openScope();
       db = harness.db;
@@ -1090,6 +1219,66 @@ void main() {
       // Confirmed before it writes: the card's tap only opens the window.
       expect(find.text(l.deleteRequests_withdrawTitle), findsOneWidget);
       expect(await DeleteRequestsDao(db).getById('r1'), isNotNull);
+
+      // The Exit App window's corner, title alignment and action size (user
+      // request), with a justified body.
+      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      final corner = (dialog.shape! as RoundedRectangleBorder).borderRadius;
+      expect(
+        (corner as BorderRadius).topLeft.x,
+        AppSpacing.cardRadius * 2,
+      );
+      // 5% wider: the default 40 px inset gives way to 32 (user request).
+      expect(
+        dialog.insetPadding,
+        const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      );
+      expect(
+        tester.widget<Text>(find.text(l.deleteRequests_withdrawTitle)).textAlign,
+        TextAlign.center,
+      );
+      expect(
+        tester.widget<Text>(find.text(l.deleteRequests_withdrawBody)).textAlign,
+        TextAlign.justify,
+      );
+      const actionSize = Size(112, 48);
+      final cancel = tester.widget<TextButton>(
+        find.widgetWithText(TextButton, l.sharedActions_cancel),
+      );
+      expect(
+        cancel.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      expect(cancel.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+      final confirm = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-request-withdraw-confirm')),
+      );
+      expect(
+        confirm.style?.minimumSize?.resolve(<WidgetState>{}),
+        actionSize,
+      );
+      expect(confirm.style?.textStyle?.resolve(<WidgetState>{})?.fontSize, 16);
+      // Red, as the destructive half of the pair.
+      expect(
+        confirm.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+      // A wide window keeps the pair on one line.
+      expect(
+        tester
+            .getCenter(
+              find.byKey(const ValueKey('delete-request-withdraw-confirm')),
+            )
+            .dy,
+        closeTo(
+          tester
+              .getCenter(
+                find.widgetWithText(TextButton, l.sharedActions_cancel),
+              )
+              .dy,
+          1,
+        ),
+      );
 
       await tester.tap(
         find.byKey(const ValueKey('delete-request-withdraw-confirm')),

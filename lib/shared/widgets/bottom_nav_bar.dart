@@ -226,6 +226,12 @@ class BottomNavBar extends StatelessWidget {
     // no MediaQuery above there is no [FontSizeScope] either, so there is no
     // shipped default to take back out and the base scaler is left alone.
     final media = MediaQuery.maybeOf(context);
+    // Android 15 onward draws the app behind the system navigation bar, so the
+    // bar takes that inset itself (user report, 0.0.702). `viewPadding`, not
+    // `padding`, so the strip does not vanish while the keyboard's own inset is
+    // being applied. On phones that still inset the app window this is 0 and
+    // the bar is exactly the 64 px it has always been.
+    final bottomInset = media?.viewPadding.bottom ?? 0;
 
     return MediaQuery(
       data: (media ?? const MediaQueryData()).copyWith(
@@ -234,7 +240,10 @@ class BottomNavBar extends StatelessWidget {
             : SteppedTextScaler(media.textScaler, -defaultFontSizeStep),
       ),
       child: Container(
-        height: 64,
+        // The inset belongs to the bar, so its surface colour fills the strip
+        // instead of leaving a gap under it.
+        height: 64 + bottomInset,
+        padding: EdgeInsets.only(bottom: bottomInset),
         decoration: const BoxDecoration(
           color: AppColors.surface,
           border: Border(top: BorderSide(color: AppColors.outlineVariant)),

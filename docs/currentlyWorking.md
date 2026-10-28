@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — The bottom bar clears the system navigation panel — COMPLETE (0.0.702)
+
+- **What was reported.** On a vivo phone the app's bottom navigation bar was drawn under the phone's Back/Home/Recents panel; Redmi and Realme phones showed it above.
+- **Why.** The bar is a fixed 64 px strip mounted straight into the Scaffold, and the shell's `SafeArea` is deliberately `bottom: false`, so nothing took the system inset. The vivo runs newer Android, which draws the app edge-to-edge behind the system bars (Flutter 3.44 targets SDK 36 and Android 15 enforces it); the older Redmi/Realme phones inset the whole app window, so the same bar looked right there.
+- **What changed.** `BottomNavBar` now grows by `MediaQuery.viewPadding.bottom` and fills that strip with its own surface colour — one container, so the rounded top, border and colour stay put and there is no gap. `viewPadding` rather than `padding` keeps the strip while a keyboard's own inset is applied, and a phone reporting no bottom inset is exactly the 64 px bar it had.
+- **Checks.** `flutter analyze` clean; new `test/shared/widgets/bottom_nav_bar_test.dart` **3 passed** (48 px inset → 112 px bar; no inset → 64 px; the strip survives a zero `padding`); the suites that mount the bar and the full `flutter test` pass (**2,182 passed**).
+- **No mockup change** — the drawing is the same; only the height on edge-to-edge phones (rule 9).
+
 ### 2026-10-28 — Subscription gets its own Settings page — COMPLETE (0.0.701)
 
 - **What was asked.** Move the subscription sub-menus onto a **Subscription** entry in the main Settings page, directly under **Firm**, and reroute the screens, options and buttons that used the old location.

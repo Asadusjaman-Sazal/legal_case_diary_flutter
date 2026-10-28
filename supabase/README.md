@@ -272,7 +272,28 @@ What is verified now:
   and the owner still reads none of it. The `firms`, `firm_members` and
   `firm_invites` rows are gone, a code issued before the dissolve answers
   `invalid_code`, the owner's profile is individual again with his name, expiry
-  and tier untouched, and `delete_my_account()` answers `removed`.
+  and tier untouched,  and `delete_my_account()` answers `removed`.
+- `20261027100000_delete_request_review_firm_scope.sql`,
+  `20261027110000_delete_request_withdrawal_exit.sql`,
+  `20261027120000_delete_request_withdrawal_field_guard.sql` and
+  `20261027130000_push_changes_check_row_firm.sql` (delete-request review fix,
+  user report) — **pass** against the project in
+  `supabase/tests/delete_request_review_test.sql`, a rolled-back run printing
+  `REVIEW OK`: a reviewer's rejection, a requester's snapshot refresh and a
+  withdrawal all reach the server, an approval lands and hands the record's
+  tombstone back as `target`, a decided request can be neither withdrawn nor
+  reopened, the requester still cannot review, and `sync_can_write` stays
+  internal and reads the stored request's firm when the row names none. The
+  first two migrations make that rule read the **stored** request's `firm_id`
+  (`push_changes` strips `firm_id` before the check, and `delete_requests`
+  carries no permission trigger) and except a requester's own still-pending
+  request from the ordinary tombstone gate; the third is the correction the
+  proofs caught a minute after that apply (one condition asked every other
+  table for a column only `delete_requests` has, which would have broken every
+  delete in the app); the fourth weighs the permission verdict on the row **as
+  it exists**, so a firm row the caller did not author can still be edited or
+  deleted. **This file opens its own transaction, so it must be run wrapped:**
+  `printf 'begin;\n' | cat - supabase/tests/delete_request_review_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
 - Live state: 26 tables all with RLS on, 62 policies, 53 functions in `public`,
   52 recorded versions — the newest `20261017110000` — and the 1,442 seeded
   reference rows (1,016 courts).
@@ -353,6 +374,12 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_te
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_stored_tier_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_member_no_plan_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_dissolution_test.sql
+```
+
+The delete-request review proof opens its own transaction, so it is run wrapped:
+
+```bash
+printf 'begin;\n' | cat - supabase/tests/delete_request_review_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-
 ```
 
 ## Project settings this repo cannot set

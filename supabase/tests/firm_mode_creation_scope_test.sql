@@ -135,10 +135,16 @@ begin
      'authenticated', 'scope2-solo@example.test', now(), now(), now());
 
   -- The creator and the individual are premium; the chamber's own expiry is what
-  -- entitles its members.
+  -- entitles its members. The creator also carries the chamber tier itself: the
+  -- creation gate that landed after this proof asks for a plan at or above
+  -- `firm`, and an expiry alone no longer opens a chamber.
   update public.profiles
      set subscription_expiry = now() + interval '30 days'
    where id in (c_creator, c_solo);
+
+  update public.profiles
+     set tier = 'firm'
+   where id = c_creator;
 
   -- A chamber that already exists, owned by somebody else, so a row of the
   -- creator's that already belongs to a firm can be proved untouched.

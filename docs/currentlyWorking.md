@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — The setup guide shows each brand's own path — COMPLETE (0.0.703)
+
+- **What was reported.** The Battery & Autostart Setup Guide's two steps gave one generic path that is not true on all phones; the owner supplied the exact paths for Xiaomi, Realme and Vivo.
+- **What changed.** **Allow Auto-Start** now reads *App info > Permissions > Autostart* on Xiaomi/Redmi, *App info > Battery usage > Privacy Permissions > Allow auto launch* on Realme, and *Settings > Apps > Special app access > Autostart* on Vivo (with the note that Vivo has no autostart in App info). **Set Battery Usage to Unrestricted** reads *App info > Battery saver > No restriction*, *App info > Battery usage > Allow background activity* and *App info > Battery usage > Background power control > Allow background power usage* respectively. The screen picks the copy from the phone's manufacturer/brand — Realme by name, Xiaomi and Vivo by their families (Redmi/Poco and iQOO included) — and every other OEM keeps the generic wording, because the Realme path is not claimed for Oppo/OnePlus. Six new English/Bengali strings; Bengali keeps the Android menu names in English so they match the phone.
+- **Checks.** `flutter analyze` clean; `battery_setup_guide_test.dart` **21 passed** with per-brand cases for Xiaomi, Realme, Vivo, an Oppo phone on the generic copy, and a Bengali body; full `flutter test` **2,186 passed**.
+- **No mockup** — this screen has none (rule 9).
+
 ### 2026-10-28 — The bottom bar clears the system navigation panel — COMPLETE (0.0.702)
 
 - **What was reported.** On a vivo phone the app's bottom navigation bar was drawn under the phone's Back/Home/Recents panel; Redmi and Realme phones showed it above.

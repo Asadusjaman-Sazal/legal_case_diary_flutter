@@ -100,6 +100,14 @@ Future<void> _sendLifecycle(WidgetTester tester, String state) async {
 Color? _stepTitleColor(WidgetTester tester, String title) =>
     tester.widget<Text>(find.text(title)).style?.color;
 
+/// The generic bodies, for the phones whose path the owner could not verify.
+const String _genericAutoStart =
+    "In your phone's settings, open Auto-start (or Startup manager) and allow "
+    'Legal Case Diary to start by itself.';
+const String _genericBattery =
+    'Open Battery then App battery usage (or Battery optimization), choose '
+    'Legal Case Diary and select Unrestricted / No restrictions.';
+
 void main() {
   late FakeSettingsRepository repo;
   late FakeNotificationScheduler scheduler;
@@ -142,6 +150,97 @@ void main() {
     expect(find.text('Take Me There'), findsNWidgets(2));
   });
 
+  testWidgets('a Xiaomi phone reads the Xiaomi paths', (tester) async {
+    // Redmi shares MIUI's menus, so it reads the same path.
+    scheduler.device = const DeviceIdentity(
+      manufacturer: 'Xiaomi',
+      brand: 'Redmi',
+    );
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Permissions > Autostart, and '
+        'allow it.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Battery saver > No '
+        'restriction.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(_genericAutoStart), findsNothing);
+    expect(find.text(_genericBattery), findsNothing);
+  });
+
+  testWidgets('a Realme phone reads the Realme paths', (tester) async {
+    scheduler.device = const DeviceIdentity(
+      manufacturer: 'realme',
+      brand: 'RMX3785',
+    );
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Battery usage > Privacy '
+        'Permissions > Allow auto launch.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Battery usage > Allow '
+        'background activity.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(_genericAutoStart), findsNothing);
+    expect(find.text(_genericBattery), findsNothing);
+  });
+
+  testWidgets('a Vivo phone reads the Vivo paths and its autostart note', (
+    tester,
+  ) async {
+    scheduler.device = const DeviceIdentity(manufacturer: 'vivo', brand: 'V23');
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(
+      find.text(
+        'Open Settings > Apps > Special app access > Autostart and allow Legal '
+        'Case Diary. (Vivo has no autostart inside App info.)',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Battery usage > Background '
+        'power control > Allow background power usage.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(_genericAutoStart), findsNothing);
+    expect(find.text(_genericBattery), findsNothing);
+  });
+
+  testWidgets('an Oppo phone keeps the generic wording', (tester) async {
+    // The Realme path is not claimed for the rest of the ColorOS family.
+    scheduler.device = const DeviceIdentity(manufacturer: 'OPPO', brand: 'CPH');
+    await _pumpGuide(tester, repo: repo, scheduler: scheduler);
+
+    expect(find.text(_genericAutoStart), findsOneWidget);
+    expect(find.text(_genericBattery), findsOneWidget);
+    expect(
+      find.text(
+        'Open App info for Legal Case Diary, then Battery usage > Allow '
+        'background activity.',
+      ),
+      findsNothing,
+    );
+  });
+
   testWidgets('the steps read in Bengali under বাংলা', (tester) async {
     scheduler.device = const DeviceIdentity(manufacturer: 'Xiaomi');
     await _pumpGuide(
@@ -153,6 +252,12 @@ void main() {
 
     expect(find.text('অটো-স্টার্ট অনুমতি দিন'), findsOneWidget);
     expect(find.text('ব্যাটারি ব্যবহার সীমাহীন করুন'), findsOneWidget);
+    expect(
+      find.text(
+        'Legal Case Diary-এর App info খুলে Permissions > Autostart-এ অনুমতি দিন।',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('সেখানে নিয়ে যান'), findsNWidgets(3));
     expect(find.text('Allow Auto-Start'), findsNothing);
   });

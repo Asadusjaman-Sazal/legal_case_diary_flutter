@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.702 - The app's bottom navigation bar now takes the phone's bottom system inset, sitting above the navigation panel on Android 15+ while older phones keep the same 64 px bar.
+Version: 0.0.703 - The Battery & Autostart Setup Guide now spells out each brand's exact path — Xiaomi/Redmi, Realme and Vivo — for Auto-Start and unrestricted battery use; other OEMs keep the generic wording.
 --------------------------------------
 
 ## Version History Log:
@@ -716,3 +716,4 @@ Version: 0.0.699 - On the Firm Plan page, a chamber associate's summary card now
 Version: 0.0.700 - Notes and to-dos open read-only, with an Edit button beside Delete that the tick replaces when editing; new notes still open editable.
 Version: 0.0.701 - Subscription moved to its own Settings page directly under Firm, with Account & Profile now Profile and Account; the checkout stack, search breadcrumbs and both Settings mockups were rerouted.
 Version: 0.0.702 - The app's bottom navigation bar now takes the phone's bottom system inset, sitting above the navigation panel on Android 15+ while older phones keep the same 64 px bar.
+Version: 0.0.703 - The Battery & Autostart Setup Guide now spells out each brand's exact path — Xiaomi/Redmi, Realme and Vivo — for Auto-Start and unrestricted battery use; other OEMs keep the generic wording.

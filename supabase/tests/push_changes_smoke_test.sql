@@ -1092,8 +1092,13 @@ begin
     'the associate could not author a case and a request in their own firm'
   );
 
-  -- Control: authorship still lets a current member edit their own row, even
-  -- without can_edit — the rule the narrowing keeps.
+  -- Control: `can_edit` gates every non-tombstone update of a firm-scoped row,
+  -- **including the author's own** — the rule `20261016100000` states in
+  -- `enforce_member_permission()` ("an author exception would leave the owner's
+  -- toggle nearly meaningless"). This assertion read the other way round until
+  -- the migration landed; the editor below is the row's author and still a
+  -- member, and the refusal is `edit_not_permitted` carried out as a
+  -- `permission_denied` result, with the row left exactly as it was.
   v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
     'mutation_id', 'smoke-mut-removed-case-author-edit',
     'entity_type', 'case',
@@ -1105,10 +1110,13 @@ begin
     )
   )));
   perform pg_temp.assert_true(
-    v_out #>> '{results,0,status}' = 'accepted'
+    v_out #>> '{results,0,status}' = 'rejected'
+      and v_out #>> '{results,0,error_code}' = 'permission_denied'
+      and v_out #>> '{results,0,message}' = 'edit_not_permitted'
       and (select case_remarks from public.cases where id = 'smoke-removed-case')
-          = 'author edit',
-    'authoring a row no longer let a current member edit it'
+          is null
+      and (select version from public.cases where id = 'smoke-removed-case') = 1,
+    'the can_edit gate no longer refuses an author without it'
   );
 
   -- The owner removes the associate.
@@ -1124,7 +1132,9 @@ begin
   );
 
   -- The removed member pushes an update to the firm row they authored. Before
-  -- the fix this was accepted on user_id alone; it must now be refused.
+  -- the fix this was accepted on user_id alone; it must now be refused — the
+  -- row is at version 1, because the author's refused edit above never bumped
+  -- it, so the refusal below is about permission and not a version conflict.
   perform pg_temp.as_user(v_assoc);
   -- The refusal below must be the write-permission rule and nothing else: the
   -- removed member is scoped to no firm and may not edit the one they left.
@@ -1141,7 +1151,7 @@ begin
     'entity_type', 'case',
     'entity_id', 'smoke-removed-case',
     'operation', 'update',
-    'base_version', 2,
+    'base_version', 1,
     'payload', jsonb_build_object(
       'id', 'smoke-removed-case', 'case_remarks', 'after removal', 'updated_at', 2
     )
@@ -1153,7 +1163,7 @@ begin
   );
   perform pg_temp.assert_true(
     (select case_remarks from public.cases where id = 'smoke-removed-case')
-        = 'author edit',
+        is null,
     'a refused removed-member update still changed the row'
   );
 
@@ -1179,14 +1189,21 @@ begin
       'is_deleted', false
     )
   )));
+  -- The insert is not refused; it is **deflected**: `20261015110000` derives a
+  -- new row's firm from the caller's own profile, so a removed member's payload
+  -- naming the chamber it left is corrected to their own — null — scope. The
+  -- chamber never sees the row, which is the property that matters here (the
+  -- direct PostgREST door refuses the same insert outright, because the policy
+  -- compares the payload's firm against `current_firm_id()`).
   perform pg_temp.assert_true(
-    v_out #>> '{results,0,status}' = 'rejected'
-      and v_out #>> '{results,0,error_code}' = 'permission_denied',
-    'a removed member merged a queued insert into the firm'
+    v_out #>> '{results,0,status}' = 'accepted',
+    'a removed member''s queued insert did not land in their own scope'
+      || ' (status ' || coalesce(v_out #>> '{results,0,status}', 'null')
+      || ', code ' || coalesce(v_out #>> '{results,0,error_code}', 'null') || ')'
   );
   perform pg_temp.assert_true(
-    (select count(*) from public.cases where id = 'smoke-removed-case-2') = 0,
-    'a refused removed-member insert still wrote a row'
+    (select firm_id from public.cases where id = 'smoke-removed-case-2') is null,
+    'a removed member''s insert still entered the chamber'
   );
 
   -- ...and they cannot refresh the pending request they raised either.
@@ -1215,14 +1232,15 @@ begin
   );
 
   -- The firm still holds and may edit the record it kept: the narrowing must not
-  -- have blocked a current member.
+  -- have blocked a current member. The row is at version 1 — the author's refused
+  -- edit above never bumped it — so the owner's edit is based on that version.
   perform pg_temp.as_user(v_owner);
   v_out := public.push_changes(jsonb_build_array(jsonb_build_object(
     'mutation_id', 'smoke-mut-removed-case-owner-edit',
     'entity_type', 'case',
     'entity_id', 'smoke-removed-case',
     'operation', 'update',
-    'base_version', 2,
+    'base_version', 1,
     'payload', jsonb_build_object(
       'id', 'smoke-removed-case', 'case_remarks', 'owner edit', 'updated_at', 3
     )
@@ -1268,8 +1286,12 @@ select pg_temp.assert_true(
   'a removed member''s direct PATCH updated a firm row'
 );
 
--- A direct INSERT into the firm fails the WITH CHECK, which is an error rather
--- than an empty result — the same rule, stated so both shapes are pinned.
+-- A direct INSERT into the firm is refused as an error rather than filtered
+-- silently, so both shapes are pinned. The refusal that arrives first is
+-- `enforce_member_permission()`'s can_add gate (`20261016100000`) — a BEFORE
+-- trigger, so it raises before the WITH CHECK is evaluated. The policy refuses
+-- the same write; only a caller that bypasses the trigger, such as the service
+-- role, would see the policy's own message.
 select pg_temp.assert_raises(
   'insert into public.cases (id, user_id, firm_id, court_id, case_type, '
   'case_number, petitioner, respondent, on_behalf_id, next_date, created_at, '
@@ -1278,7 +1300,7 @@ select pg_temp.assert_raises(
   || current_setting('test.firm') || ''', ''smoke-court-new'', ''Civil'', '
   '''SMOKE-DIRECT'', ''Petitioner'', ''Respondent'', '''
   || current_setting('test.on_behalf') || ''', 1000, 0, 0, false)',
-  'row-level security policy'
+  'add_not_permitted'
 );
 
 -- The request they raised in the firm they left is out of reach the same way.

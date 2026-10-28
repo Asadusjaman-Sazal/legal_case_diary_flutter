@@ -59,8 +59,15 @@ void main() {
 
       expect(
         versions,
-        hasLength(73),
+        hasLength(77),
         reason:
+            'The delete-request review fix (2026-10-27) added four files: the '
+            'stored-firm rule for a reviewer\'s rejection, a requester\'s '
+            'refresh and a withdrawal, the withdrawal exit the tombstone gate '
+            'was missing, its field-guard correction after the proofs caught '
+            'the withdrawal refusing every other delete, and the permission '
+            'verdict now weighed on the row as it exists so a firm row the '
+            'caller did not author can still be edited or deleted. '
             'The requester-name column on delete requests (2026-10-26) added '
             'one file. '
             'Owner-designate device slots (2026-10-26) added one file. '
@@ -150,7 +157,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(73),
+        hasLength(77),
         reason: 'versions must be unique',
       );
       expect(
@@ -159,7 +166,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261026140000');
+      expect(versions.last, '20261027130000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

@@ -973,6 +973,66 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'that profile still holds no name, and the column is granted exactly '
         'like the rest of the row.',
   ),
+  LedgerSection(
+    file: '20261027100000_delete_request_review_firm_scope.sql',
+    version: '0.0.684',
+    label:
+        'The delete-request rule reads the firm the row actually has. '
+        '`push_changes` subtracts the scope columns from the row it hands '
+        '`sync_can_write`, which is harmless for every other table (a trigger '
+        'gates can_edit on the ten gated tables, and '
+        '`enforce_delete_transition()` reads `old.firm_id`), but '
+        '`delete_requests` has no permission trigger, so a reviewer\'s '
+        'rejection, a requester\'s snapshot refresh and a withdrawal were all '
+        'judged against a null firm and refused with `permission_denied` — the '
+        'client rolled each one back and claimed the user\'s permissions had '
+        'changed. The rule now reads the stored request\'s own firm_id when the '
+        'row names none; nothing else in the function changes.',
+  ),
+  LedgerSection(
+    file: '20261027110000_delete_request_withdrawal_exit.sql',
+    version: '0.0.684',
+    label:
+        'A requester may withdraw their own pending delete request. The '
+        'ordinary tombstone gate demands can_delete in the row\'s firm, and the '
+        'member who raises a delete request is exactly the member without it, '
+        'so the app\'s **Withdraw** action could never be applied once the '
+        'request had reached the server. `enforce_delete_transition()` now '
+        'excepts one carrying row — a delete request whose status is still '
+        'pending and whose requested_by is the caller — which is the rule '
+        '`delete_requests_update_scoped` already states; a decided request '
+        'still cannot be withdrawn.',
+  ),
+  LedgerSection(
+    file: '20261027120000_delete_request_withdrawal_field_guard.sql',
+    version: '0.0.684',
+    label:
+        'The withdrawal exit reads its two fields only on the table that has '
+        'them. `20261027110000` wrote the exception as one condition, and '
+        '`old.status` is resolved at run time on a generic record — so the '
+        'other eleven tables the trigger guards, which have no `status` '
+        'column, raised on every tombstone and could not delete at all. The '
+        'rule is unchanged; the two `delete_requests` fields are read inside '
+        'the table test, where nothing else can reach them. Caught by the two '
+        'proofs that tombstone a case and a reference row.',
+  ),
+  LedgerSection(
+    file: '20261027130000_push_changes_check_row_firm.sql',
+    version: '0.0.684',
+    label:
+        'The permission verdict is weighed on the row as it exists. '
+        '`push_changes_core` subtracts the scope columns before the write, and '
+        'handed that same stripped row to `sync_can_write`, so every rule that '
+        'needs the firm was weighed against a row with no firm: '
+        '`can_edit_firm(null)` is false and the authorship clause decided '
+        'alone — a chamber member could not edit a case, note or reference a '
+        'colleague had authored, including the firm\'s owner, while '
+        '`enforce_member_permission()` allows it because it reads '
+        '`new.firm_id`. The check now receives `v_final` with the stored firm '
+        'restored; the write still omits `firm_id`, so no payload can move a '
+        'row between scopes. The body is the newest shipped one with that one '
+        'statement changed.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1010,6 +1070,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.684': 'Delete Requests — A Rejection, A Refresh And A Withdrawal That Land',
   '0.0.604': 'Device Retention — Six Months Of Revoked Rows',
   '0.0.602': 'Device Revocation — A Realtime Push Instead Of Polling',
   '0.0.600': 'Device Registry — Unique Install Keys And Support Identity',

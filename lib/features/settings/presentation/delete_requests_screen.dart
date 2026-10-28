@@ -264,20 +264,21 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
     );
   }
 
-  /// The requester's one action, at the card's right edge.
-  Widget _withdrawAction(DeleteRequest request, AppLocalizations l) => Align(
-    alignment: Alignment.centerRight,
-    child: FilledButton(
-      key: ValueKey('delete-request-withdraw-${request.id}'),
-      onPressed: () => _withdrawRequest(request),
-      style: FilledButton.styleFrom(
-        backgroundColor: AppColors.error,
-        foregroundColor: AppColors.onError,
-        textStyle: AppTypography.titleMd,
-      ),
-      child: Text(l.deleteRequests_withdraw),
-    ),
-  );
+  /// The requester's one action, full width at the Settings button height —
+  /// the same box as the reviewer's Approve, in the app's red (user request,
+  /// 0.0.691).
+  Widget _withdrawAction(DeleteRequest request, AppLocalizations l) =>
+      FilledButton(
+        key: ValueKey('delete-request-withdraw-${request.id}'),
+        onPressed: () => _withdrawRequest(request),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.error,
+          foregroundColor: AppColors.onError,
+          textStyle: AppTypography.titleMd,
+          minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+        ),
+        child: Text(l.deleteRequests_withdraw),
+      );
 
   /// Decides one request without leaving the list.
   ///

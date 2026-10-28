@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — The withdraw button takes the full card width — COMPLETE (0.0.691)
+
+- **What was asked.** In Delete Requests, an associate's **Withdraw Request** button should run the full length of the card, at the same height as the admin's **Approve** button.
+- **What changed.** `_withdrawAction` is no longer right-aligned: it fills the card's footer and takes `settingsPrimaryButtonHeight`, the same minimum size `_QuickButton` (Approve/Reject) sets, so both render at the same height under the theme's compact density. Colour, label, confirmation and the write are unchanged.
+- **Checks.** `flutter analyze` clean; `delete_request_review_test.dart` **25 passed**, with the expanded-card case now pinning the full width and the shared height style; full `flutter test` **2,171 passed**.
+- **No mockup** — this list has none (rule 9).
+
 ### 2026-10-28 — Associates get a Firm cascade, without the plan row — COMPLETE (0.0.690)
 
 - **What was asked.** In the side menu, for an associate who is already part of a firm: show a **Firm** option that expands like **Current Plan** into the same two options as Settings → Firm, and stop showing **Current Plan** to them.

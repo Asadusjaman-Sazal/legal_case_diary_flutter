@@ -36,6 +36,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -53,6 +54,8 @@ import 'package:legal_case_diary/features/settings/presentation/delete_request_f
 import 'package:legal_case_diary/features/settings/presentation/delete_request_review_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_viewmodel.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart'
+    show settingsPrimaryButtonHeight;
 import 'package:legal_case_diary/sync/delete_requests_dao.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 
@@ -919,6 +922,20 @@ void main() {
         button.style?.foregroundColor?.resolve(<WidgetState>{}),
         AppColors.onError,
       );
+      // Full length, at the reviewer's Approve height (user request): the same
+      // minimum size `_QuickButton` sets, so the theme's compact density trims
+      // both to the same box.
+      expect(
+        button.style?.minimumSize?.resolve(<WidgetState>{}),
+        const Size.fromHeight(settingsPrimaryButtonHeight),
+      );
+      final size = tester.getSize(
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
+      );
+      final cardWidth = tester.getSize(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+      ).width;
+      expect(size.width, closeTo(cardWidth - AppSpacing.md * 2, 0.5));
 
       // A second tap closes it again.
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));

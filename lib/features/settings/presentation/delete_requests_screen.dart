@@ -8,11 +8,17 @@
 /// deletes directly and never raises a request — so this is one screen with two
 /// voices rather than two screens nobody can both reach.
 ///
-/// Both lists come from the same live local stream, and the reviewer's row opens
-/// [DeleteRequestReviewScreen] where the decision is actually made. The one thing
-/// this screen writes is the requester's own pending request: its row opens an
-/// actions sheet — **Edit Request** re-takes the snapshot, **Withdraw Request**
-/// cancels — and both go through [DeleteRequestsViewModel].
+/// Both lists come from the same live local stream. The reviewer's row opens
+/// [DeleteRequestReviewScreen] where the decision is actually made, and a long
+/// press expands it in place to the same **Approve** and **Reject** pair, in one
+/// line, for a quick decision (user request, 0.0.689); a stale request, whose
+/// record moved, keeps the trip to the review screen, because approving it
+/// blindly would judge a version nobody has seen.
+///
+/// The requester's own pending row expands on tap to a single red **Withdraw
+/// Request** button on the right (user request); the old actions sheet — Edit
+/// Request and Withdraw Request — is gone with the chevron, which promised a
+/// screen the tap never opened.
 library;
 
 import 'package:flutter/material.dart';
@@ -32,10 +38,8 @@ import '../../auth/presentation/auth_widgets.dart';
 import 'delete_request_review_screen.dart';
 import 'delete_requests_viewmodel.dart';
 import 'settings_controls.dart';
+import 'settings_menu_card.dart' show settingsPrimaryButtonHeight;
 import 'settings_sub_page_modal.dart';
-
-/// The two things a requester may do with their own still-pending request.
-enum _RequestAction { edit, withdraw }
 
 /// The Delete Requests list: a reviewer's queue or a requester's own requests.
 class DeleteRequestsScreen extends ConsumerStatefulWidget {
@@ -48,6 +52,12 @@ class DeleteRequestsScreen extends ConsumerStatefulWidget {
 }
 
 class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
+  /// The row whose actions are showing; one at a time keeps the list readable.
+  String? _expandedId;
+
+  /// The row a quick decision is being written for, so it cannot be tapped twice.
+  String? _busyId;
+
   /// Records that the reviewer's decisions on this account's requests have been
   /// read, so the Settings badge stops counting them.
   ///
@@ -127,6 +137,15 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               // queued request puts to its reviewer is *who wants this gone*,
               // and the moment it was raised is on the review screen itself.
               requesterName: _requesterName(request, l),
+              expanded: _expandedId == request.id,
+              // A stale request's record moved: quick approval would judge a
+              // version nobody has seen, so it keeps the review-screen trip.
+              onLongPress: request.status == 'pending'
+                  ? () => _toggleExpanded(request.id)
+                  : null,
+              actions: request.status == 'pending'
+                  ? _reviewActions(request, l)
+                  : null,
               onTap: () => context.push(
                 AppRoutes.deleteRequestReviewPath(request.id),
               ),
@@ -156,9 +175,9 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
 
   /// The requester's list: their own requests and what the reviewer decided.
   ///
-  /// A **pending** request is still the requester's own to change (Phase 3 item
-  /// 3), so its row opens the actions sheet; a decided one is audit history and
-  /// stays a plain row that only shows the outcome.
+  /// A **pending** request is still the requester's own to withdraw, so its card
+  /// expands on tap to one red button; a decided one is audit history and stays
+  /// a plain row that only shows the outcome.
   Widget _mineBody(AppLocalizations l) {
     final mine = ref.watch(myDeleteRequestsProvider);
     final locale = Localizations.localeOf(context).toString();
@@ -184,14 +203,21 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               // The requester's own list names the state of every row, because
               // both kinds sit in it; the reviewer's queue does not need to.
               showStatusChip: true,
+              // The card expands rather than opening a screen, so no chevron
+              // promises one (user request, 0.0.689).
+              showChevron: false,
               // The record moved under their request, as this device can tell.
               changed:
                   ref
                       .watch(deleteRequestTargetChangedProvider(request.id))
                       .value ??
                   false,
+              expanded: _expandedId == request.id,
+              actions: request.status == 'pending'
+                  ? _withdrawAction(request, l)
+                  : null,
               onTap: request.status == 'pending'
-                  ? () => _showRequestActions(request)
+                  ? () => _toggleExpanded(request.id)
                   : null,
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -200,85 +226,103 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
     );
   }
 
-  /// Offers the two actions a pending request allows, then runs the one chosen.
-  Future<void> _showRequestActions(DeleteRequest request) async {
-    final l = AppLocalizations.of(context);
-    // Read before the sheet opens so its explanation is part of the sheet, not
-    // something that arrives while it is already up.
-    final changed =
-        await ref.read(deleteRequestTargetChangedProvider(request.id).future);
-    if (!mounted) return;
-    final action = await showModalBottomSheet<_RequestAction>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Only when the record moved: tells the requester why a refresh is
-            // worth doing before a reviewer sees their request.
-            if (changed)
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Text(
-                  l.deleteRequests_changedBody,
-                  style: AppTypography.bodySm.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ListTile(
-              key: const ValueKey('delete-request-action-edit'),
-              leading: const Icon(Icons.edit_outlined),
-              title: Text(l.deleteRequests_edit),
-              onTap: () => Navigator.of(sheetContext).pop(_RequestAction.edit),
-            ),
-            ListTile(
-              key: const ValueKey('delete-request-action-withdraw'),
-              // The error colour, because withdrawing is the destructive one of
-              // the two: it throws away an action the requester already took.
-              leading: const Icon(Icons.close, color: AppColors.error),
-              title: Text(
-                l.deleteRequests_withdraw,
-                style: AppTypography.titleMd.copyWith(color: AppColors.error),
-              ),
-              onTap: () =>
-                  Navigator.of(sheetContext).pop(_RequestAction.withdraw),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (!mounted || action == null) return;
-    switch (action) {
-      case _RequestAction.edit:
-        await _editRequest(request);
-      case _RequestAction.withdraw:
-        await _withdrawRequest(request);
-    }
+  /// Expands one row, or collapses it when it is the open one.
+  void _toggleExpanded(String id) {
+    setState(() => _expandedId = _expandedId == id ? null : id);
   }
 
-  /// Re-takes the request's snapshot from the record it names.
-  ///
-  /// Nothing is confirmed first: a refresh deletes nothing, and the requester is
-  /// saying "this is what I am asking to delete now" about a request they can
-  /// refresh again at any time.
-  Future<void> _editRequest(DeleteRequest request) async {
-    final l = AppLocalizations.of(context);
-    // Captured before the write: the snackbar outlives the frame that reported
-    // it, and a rebuilt list no longer holds the context that was captured.
-    final messenger = ScaffoldMessenger.of(context);
-    final refreshed = await _write(
-      () => ref
-          .read(deleteRequestsViewModelProvider.notifier)
-          .refreshSnapshot(request.id),
-    );
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(
-          refreshed ? l.deleteRequests_updated : l.deleteRequests_updateFailed,
+  /// The reviewer's quick decision: the review screen's pair, side by side.
+  Widget _reviewActions(DeleteRequest request, AppLocalizations l) {
+    final busy = _busyId == request.id;
+    return Row(
+      children: [
+        Expanded(
+          child: _QuickButton(
+            key: ValueKey('delete-request-approve-${request.id}'),
+            icon: Icons.delete_outline,
+            label: l.deleteRequests_approve,
+            // Approving deletes data, so it wears the error colour, as on the
+            // review screen.
+            destructive: true,
+            onPressed: busy
+                ? null
+                : () => _decideFromRow(request, approve: true),
+          ),
         ),
-      ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: _QuickButton(
+            key: ValueKey('delete-request-reject-${request.id}'),
+            icon: Icons.close,
+            label: l.deleteRequests_reject,
+            onPressed: busy
+                ? null
+                : () => _decideFromRow(request, approve: false),
+          ),
+        ),
+      ],
     );
+  }
+
+  /// The requester's one action, at the card's right edge.
+  Widget _withdrawAction(DeleteRequest request, AppLocalizations l) => Align(
+    alignment: Alignment.centerRight,
+    child: FilledButton(
+      key: ValueKey('delete-request-withdraw-${request.id}'),
+      onPressed: () => _withdrawRequest(request),
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.error,
+        foregroundColor: AppColors.onError,
+        textStyle: AppTypography.titleMd,
+      ),
+      child: Text(l.deleteRequests_withdraw),
+    ),
+  );
+
+  /// Decides one request without leaving the list.
+  ///
+  /// The confirmation is the review screen's own, because an approval deletes
+  /// the record for the whole firm; the optional review note, which needs that
+  /// screen's box, is the only part left out of the quick path.
+  Future<void> _decideFromRow(
+    DeleteRequest request, {
+    required bool approve,
+  }) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await _confirmDecision(
+      context: context,
+      title: approve
+          ? l.deleteRequests_approveTitle
+          : l.deleteRequests_rejectTitle,
+      body: approve ? l.deleteRequests_approveBody : l.deleteRequests_rejectBody,
+      confirmLabel: approve
+          ? l.deleteRequests_approve
+          : l.deleteRequests_reject,
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _busyId = request.id);
+    try {
+      final viewModel = ref.read(deleteRequestsViewModelProvider.notifier);
+      if (approve) {
+        await viewModel.approve(request.id);
+      } else {
+        await viewModel.reject(request.id);
+      }
+      if (mounted) setState(() => _expandedId = null);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            approve ? l.deleteRequests_approved : l.deleteRequests_rejected,
+          ),
+        ),
+      );
+    } on Object {
+      messenger.showSnackBar(SnackBar(content: Text(l.deleteRequests_failed)));
+    } finally {
+      if (mounted) setState(() => _busyId = null);
+    }
   }
 
   /// Withdraws the request, after confirming it.
@@ -319,6 +363,10 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
 }
 
 /// One request as a row: what it is, who asked (or when), and its state.
+///
+/// A row with [actions] expands: the card keeps its own line and grows a footer
+/// with those actions, right-aligned, so a quick decision never covers the user
+/// and the record the request names (user request, 0.0.689).
 class _RequestRow extends StatelessWidget {
   const _RequestRow({
     required this.request,
@@ -328,6 +376,10 @@ class _RequestRow extends StatelessWidget {
     required this.showStatusChip,
     this.requesterName,
     this.changed = false,
+    this.onLongPress,
+    this.expanded = false,
+    this.actions,
+    this.showChevron = true,
   });
 
   final DeleteRequest request;
@@ -341,9 +393,22 @@ class _RequestRow extends StatelessWidget {
   /// nothing they do not already know, and the date orders their list.
   final String? requesterName;
 
-  /// Opens the row's destination: a review, or the requester's own actions.
-  /// Null on a row that has nothing left to do.
+  /// Opens the row's destination: a review, or the expanded card itself. Null
+  /// on a row that has nothing left to do.
   final VoidCallback? onTap;
+
+  /// Opens the card's quick actions on a long press. The reviewer's queue only.
+  final VoidCallback? onLongPress;
+
+  /// Whether the action footer is showing.
+  final bool expanded;
+
+  /// The card's footer, drawn when [expanded]. Null on a row with no actions.
+  final Widget? actions;
+
+  /// Whether a tappable row draws the chevron. False where the tap expands the
+  /// card instead of opening a screen, so the icon never promises one.
+  final bool showChevron;
 
   /// Whether the row carries its state as a pill. The requester's own list does,
   /// because pending and decided rows sit in it side by side; the reviewer's
@@ -356,71 +421,87 @@ class _RequestRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-            ),
-            child: const Icon(
-              Icons.delete_outline,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  deleteRequestSummary(request, l),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodyLg,
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
                 ),
-                Text(
-                  [
-                    deleteRequestEntityLabel(l, request.entityType),
-                    // The reviewer's queue names the person; every other row
-                    // dates the request.
-                    requesterName ??
-                        AppDateUtils.formatDateDDMMYYYY(
-                          request.createdAt,
-                          locale: locale,
-                        ),
-                  ].join(' \u00b7 '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodySm.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.primary,
                 ),
-                if (changed)
-                  Text(
-                    l.deleteRequests_changed,
-                    key: const ValueKey('delete-request-changed'),
-                    style: AppTypography.labelMd.copyWith(
-                      color: AppColors.error,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      deleteRequestSummary(request, l),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodyLg,
                     ),
-                  ),
-              ],
-            ),
+                    Text(
+                      [
+                        deleteRequestEntityLabel(l, request.entityType),
+                        // The reviewer's queue names the person; every other row
+                        // dates the request.
+                        requesterName ??
+                            AppDateUtils.formatDateDDMMYYYY(
+                              request.createdAt,
+                              locale: locale,
+                            ),
+                      ].join(' \u00b7 '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                    if (changed)
+                      Text(
+                        l.deleteRequests_changed,
+                        key: const ValueKey('delete-request-changed'),
+                        style: AppTypography.labelMd.copyWith(
+                          color: AppColors.error,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              if (showStatusChip)
+                _StatusChip(label: _statusLabel(l, request.status)),
+              // A tappable row says so; a static one has nothing more to add.
+              if (onTap != null && showChevron)
+                const Icon(Icons.chevron_right, color: AppColors.outline),
+            ],
           ),
-          const SizedBox(width: AppSpacing.sm),
-          if (showStatusChip) _StatusChip(label: _statusLabel(l, request.status)),
-          // A tappable row says so; a static one has nothing more to add.
-          if (onTap != null)
-            const Icon(Icons.chevron_right, color: AppColors.outline),
-        ],
-      ),
+        ),
+        if (expanded && actions != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              0,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            child: actions,
+          ),
+      ],
     );
 
-    if (onTap == null) {
+    if (onTap == null && onLongPress == null) {
       return Container(decoration: settingsCardDecoration(), child: content);
     }
     return Material(
@@ -433,17 +514,80 @@ class _RequestRow extends StatelessWidget {
       child: InkWell(
         key: ValueKey('delete-request-row-${request.id}'),
         onTap: onTap,
+        onLongPress: onLongPress,
         child: content,
       ),
     );
   }
 }
 
+/// One of the reviewer's quick decisions, styled as its review-screen twin.
+class _QuickButton extends StatelessWidget {
+  const _QuickButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.destructive = false,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+    onPressed: onPressed,
+    icon: Icon(icon, size: 20),
+    label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+    style: FilledButton.styleFrom(
+      backgroundColor: destructive ? AppColors.error : AppColors.primary,
+      foregroundColor: destructive ? AppColors.onError : AppColors.onPrimary,
+      textStyle: AppTypography.titleMd,
+      minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      ),
+    ),
+  );
+}
+
+/// The quick decision's confirmation, the review screen's own window.
+Future<bool> _confirmDecision({
+  required BuildContext context,
+  required String title,
+  required String body,
+  required String confirmLabel,
+}) async {
+  final l = AppLocalizations.of(context);
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          key: const ValueKey('delete-request-quick-confirm'),
+          style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(confirmLabel),
+        ),
+      ],
+    ),
+  );
+  return answer ?? false;
+}
+
 /// The withdrawal window.
 ///
-/// A confirmation rather than a plain tap because the two actions on the sheet
-/// are not equally reversible: an edit can be repeated, a withdrawal cannot —
-/// the requester would have to raise the request again and the reviewer would
+/// A confirmation rather than a plain tap because a withdrawal cannot be undone
+/// — the requester would have to raise the request again and the reviewer would
 /// see a new one.
 Future<bool> _confirmWithdraw(BuildContext context, AppLocalizations l) async {
   final answer = await showDialog<bool>(

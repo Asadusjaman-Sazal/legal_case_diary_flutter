@@ -15,10 +15,11 @@
 ///    re-decided rather than recreated, and says so on the button;
 ///  * the requester's notification — the decision reads off their list, and the
 ///    badge that announced it clears once the screen has been opened;
-///  * the requester's own writers (Phase 3 item 3) — a pending row offers edit
-///    and withdraw and a decided one offers neither, an edit re-takes the
-///    snapshot from the record as it stands on this device, and a withdrawal is
-///    confirmed before it writes.
+///  * the requester's own writer — a pending row expands on tap to one red
+///    **Withdraw Request** button (no chevron, no edit), and the withdrawal is
+///    confirmed before it writes;
+///  * the reviewer's quick path — a long press expands a pending card to the
+///    review screen's **Approve** and **Reject** pair, in one line.
 ///
 /// The network boundary is absent on purpose: every write here is the local,
 /// queued half that makes reviews offline-capable, and the server half is pinned
@@ -350,6 +351,111 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(l.deleteRequests_reviewTitle), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+    testWidgets('long pressing a queued row offers quick Approve and Reject', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(id: 'r1', title: 'Land Dispute Note');
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+      expect(
+        find.byKey(const ValueKey('delete-request-approve-r1')),
+        findsNothing,
+      );
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+      );
+      await tester.pumpAndSettle();
+
+      final approve = find.byKey(const ValueKey('delete-request-approve-r1'));
+      final reject = find.byKey(const ValueKey('delete-request-reject-r1'));
+      expect(approve, findsOneWidget);
+      expect(reject, findsOneWidget);
+      expect(find.text(l.deleteRequests_approve), findsOneWidget);
+      expect(find.text(l.deleteRequests_reject), findsOneWidget);
+      // One line: the pair shares a row, Approve first.
+      expect(
+        tester.getCenter(approve).dy,
+        closeTo(tester.getCenter(reject).dy, 1),
+      );
+      expect(
+        tester.getCenter(approve).dx,
+        lessThan(tester.getCenter(reject).dx),
+      );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a quick approval decides the request from the list', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(id: 'r1', title: 'Land Dispute Note');
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-approve-r1')),
+      );
+      await tester.pumpAndSettle();
+      // The review screen's own confirmation, because approving deletes.
+      expect(find.text(l.deleteRequests_approveTitle), findsOneWidget);
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-quick-confirm')),
+      );
+      await tester.pumpAndSettle();
+
+      final request = await DeleteRequestsDao(db).getById('r1');
+      expect(request!.status, 'approved');
+      expect(request.reviewedBy, 'user-1');
+      // Decided in place: the review screen was never opened, and the row left
+      // the queue.
+      expect(find.text(l.deleteRequests_reviewTitle), findsNothing);
+      expect(find.text('Land Dispute Note'), findsNothing);
+      expect(find.text(l.deleteRequests_approved), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a stale row keeps the review screen, with no quick actions', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(id: 'r1', status: 'stale_review_required');
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+      );
+      await tester.pumpAndSettle();
+
+      // Its record moved, so approving it blindly would judge a version nobody
+      // has seen; the trip to the review screen stays.
+      expect(
+        find.byKey(const ValueKey('delete-request-approve-r1')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('delete-request-reject-r1')),
+        findsNothing,
+      );
 
       await unmountApp(tester);
     });
@@ -755,7 +861,9 @@ void main() {
   });
 
   group("The requester's list", () {
-    testWidgets('a pending request offers edit and withdraw', (tester) async {
+    testWidgets('a pending row expands to one red withdraw action', (
+      tester,
+    ) async {
       final overrides = await openScope();
       db = harness.db;
       await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
@@ -783,17 +891,49 @@ void main() {
         ),
         findsOneWidget,
       );
+      // The card expands, so no chevron promises a screen (user request).
+      expect(find.byIcon(Icons.chevron_right), findsNothing);
+      // Nothing shows until the card is opened.
+      expect(
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
+        findsNothing,
+      );
 
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
       await tester.pumpAndSettle();
 
-      expect(find.text(l.deleteRequests_edit), findsOneWidget);
+      // One action, right-aligned, in the app's red: Edit Request is gone.
       expect(find.text(l.deleteRequests_withdraw), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('delete-request-action-edit')),
+        findsNothing,
+      );
+      final button = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
+      );
+      expect(
+        button.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+      expect(
+        button.style?.foregroundColor?.resolve(<WidgetState>{}),
+        AppColors.onError,
+      );
+
+      // A second tap closes it again.
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
+        findsNothing,
+      );
 
       await unmountApp(tester);
     });
 
-    testWidgets('a decided request offers neither action', (tester) async {
+    testWidgets('a decided request offers neither action nor a gesture', (
+      tester,
+    ) async {
       final overrides = await openScope();
       db = harness.db;
       await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
@@ -817,14 +957,9 @@ void main() {
       // Nothing to tap into: the row is audit history, so it is not even a
       // gesture target (the row's key belongs to the tappable form).
       expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
-      await tester.tap(find.text('Land Dispute Note'));
-      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.chevron_right), findsNothing);
       expect(
-        find.byKey(const ValueKey('delete-request-action-edit')),
-        findsNothing,
-      );
-      expect(
-        find.byKey(const ValueKey('delete-request-action-withdraw')),
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
         findsNothing,
       );
 
@@ -906,77 +1041,9 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
       await tester.pumpAndSettle();
-      // The sheet says what that means and points at the two things they have.
-      expect(find.text(l.deleteRequests_changedBody), findsOneWidget);
-
-      await unmountApp(tester);
-    });
-
-    testWidgets('editing re-takes the snapshot from the record', (tester) async {
-      final overrides = await openScope();
-      db = harness.db;
-      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
-      await seedMembership(canDelete: false);
-      // The record as it stands now: renamed and one version further on than the
-      // snapshot the request was raised with.
-      await NotesDao(db).insert(
-        NotesCompanion(
-          id: const Value('note-1'),
-          userId: const Value('user-1'),
-          firmId: const Value('firm-1'),
-          title: const Value('Renamed Note'),
-          body: const Value('Body'),
-          createdAt: const Value(1000),
-          updatedAt: const Value(1500),
-          version: const Value(7),
-          lastModifiedBy: const Value('user-1'),
-        ),
-      );
-      await seedRequest(
-        id: 'r1',
-        requestedBy: 'user-1',
-        entityType: 'note',
-        entityId: 'note-1',
-        title: 'Old Title',
-      );
-
-      await pumpAuthScreen(
-        tester,
-        const DeleteRequestsScreen(),
-        overrides: overrides,
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('delete-request-action-edit')));
-      await tester.pumpAndSettle();
-
-      final l = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(l.deleteRequests_updated), findsOneWidget);
-
-      final request = await DeleteRequestsDao(db).getById('r1');
-      final snapshot =
-          jsonDecode(request!.entitySnapshot) as Map<String, dynamic>;
-      expect(snapshot['title'], 'Renamed Note');
-      expect(request.targetBaseVersion, 7);
-      // Still the requester's own pending request — an edit refreshes it, it
-      // does not decide it.
-      expect(request.status, 'pending');
-
-      final queue = (await SyncQueueDao(db).getByEntity('delete_request', 'r1'))
-          .where((row) => row.state != 'resolved')
-          .toList(growable: false);
-      expect(queue, hasLength(1));
-      expect(queue.single.operation, 'update');
-      expect(
-        jsonDecode(queue.single.changedFields),
-        containsAll(<String>[
-          'entity_snapshot',
-          'target_base_version',
-          'updated_at',
-        ]),
-      );
+      // The card opens on its one action; the changed label above already says
+      // what the reviewer will see if it goes through.
+      expect(find.text(l.deleteRequests_withdraw), findsOneWidget);
 
       await unmountApp(tester);
     });
@@ -998,12 +1065,12 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
       await tester.pumpAndSettle();
       await tester.tap(
-        find.byKey(const ValueKey('delete-request-action-withdraw')),
+        find.byKey(const ValueKey('delete-request-withdraw-r1')),
       );
       await tester.pumpAndSettle();
 
       final l = await AppLocalizations.delegate.load(const Locale('en'));
-      // Confirmed before it writes: the sheet's tap only opens the window.
+      // Confirmed before it writes: the card's tap only opens the window.
       expect(find.text(l.deleteRequests_withdrawTitle), findsOneWidget);
       expect(await DeleteRequestsDao(db).getById('r1'), isNotNull);
 

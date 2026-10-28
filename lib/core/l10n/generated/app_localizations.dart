@@ -8962,12 +8962,6 @@ abstract class AppLocalizations {
   /// **'Changed'**
   String get deleteRequests_changed;
 
-  /// No description provided for @deleteRequests_changedBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This record changed since you asked. Refresh it to ask for the current version, or withdraw.'**
-  String get deleteRequests_changedBody;
-
   /// No description provided for @deleteRequests_editWarnTitle.
   ///
   /// In en, this message translates to:
@@ -9052,12 +9046,6 @@ abstract class AppLocalizations {
   /// **'A Firm Member'**
   String get deleteRequests_unknownRequester;
 
-  /// No description provided for @deleteRequests_edit.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Request'**
-  String get deleteRequests_edit;
-
   /// No description provided for @deleteRequests_withdraw.
   ///
   /// In en, this message translates to:
@@ -9081,18 +9069,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request Withdrawn.'**
   String get deleteRequests_withdrawn;
-
-  /// No description provided for @deleteRequests_updated.
-  ///
-  /// In en, this message translates to:
-  /// **'Request Updated.'**
-  String get deleteRequests_updated;
-
-  /// No description provided for @deleteRequests_updateFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Could Not Update The Request.'**
-  String get deleteRequests_updateFailed;
 
   /// No description provided for @deleteRequests_withdrawFailed.
   ///

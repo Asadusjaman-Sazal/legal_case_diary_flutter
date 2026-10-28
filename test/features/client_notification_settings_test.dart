@@ -53,12 +53,14 @@ void main() {
       .last
       .data!;
 
-  testWidgets('starts off, asking, on WhatsApp, Long and Short, no number', (
+  testWidgets('starts on, asking, on WhatsApp, Long and Short, no number', (
     tester,
   ) async {
     await pumpSection(tester);
 
-    expect(selected(tester, 'client-notification-enabled-off'), isTrue);
+    // Automation is on by default (user request, 0.0.697), and it asks before
+    // sending, so nothing leaves without a confirmation.
+    expect(selected(tester, 'client-notification-enabled-on'), isTrue);
     expect(selected(tester, 'client-notification-ask-yes'), isTrue);
     expect(
       selected(tester, 'client-notification-channel-whatsapp'),

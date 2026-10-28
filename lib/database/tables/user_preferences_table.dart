@@ -24,8 +24,12 @@ class UserPreferences extends Table {
   TextColumn get viewSettingsJson => text().nullable()();
 
   /// Master toggle for notifications.
+  ///
+  /// Defaults to true (user request, 0.0.697): an account that has never chosen
+  /// hears its hearing reminders, and can silence them here. A row written by
+  /// an older build keeps the value it stored.
   BoolColumn get notificationEnabled =>
-      boolean().withDefault(const Constant(false))();
+      boolean().withDefault(const Constant(true))();
 
   /// Preferred notification time of day (epoch ms or minutes-since-midnight;
   /// interpretation left to the notification task).

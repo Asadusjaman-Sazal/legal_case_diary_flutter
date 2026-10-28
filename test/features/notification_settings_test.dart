@@ -386,6 +386,32 @@ void main() {
   Override adminStatus(bool value) =>
       adminStatusProvider.overrideWith((ref) async => value);
 
+  testWidgets('the two notification switches start on for a fresh account', (
+    tester,
+  ) async {
+    useTallViewport(tester);
+    await pumpScreen(tester);
+
+    // Nothing has been stored yet: the device master switch and the automated
+    // client message both default to on (user request, 0.0.697).
+    expect(
+      tester
+          .widget<SettingsChoiceButton>(
+            find.byKey(const ValueKey('settings-notifications-status-on')),
+          )
+          .selected,
+      isTrue,
+    );
+    expect(
+      tester
+          .widget<SettingsChoiceButton>(
+            find.byKey(const ValueKey('client-notification-enabled-on')),
+          )
+          .selected,
+      isTrue,
+    );
+  });
+
   testWidgets('a non-administrator is not offered the payment-alert pair', (
     tester,
   ) async {

@@ -331,7 +331,9 @@ void main() {
 
     test('UserSettings carries the client-notification choices', () {
       const defaults = UserSettings();
-      expect(defaults.automatedNotificationEnabled, isFalse);
+      // Automation starts on (user request, 0.0.697), with Ask on, so a fresh
+      // account is prompted rather than messaged without a confirmation.
+      expect(defaults.automatedNotificationEnabled, isTrue);
       expect(defaults.automatedNotificationAskBeforeSending, isTrue);
       expect(
         defaults.automatedNotificationChannel,

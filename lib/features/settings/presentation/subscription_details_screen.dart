@@ -62,6 +62,9 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // A chamber member reads the chamber's plan, so the page and the row that
+    // opens it are named **Firm Plan** for them (user request, 0.0.698).
+    final isMember = ref.watch(firmMemberProvider);
     // The limitations are for a *known* Free plan only: an entitlement still in
     // flight reads a dash, which is neither Free nor premium.
     final plan = ref.watch(currentPlanProvider);
@@ -90,7 +93,9 @@ class SubscriptionDetailsScreen extends ConsumerWidget {
       top: true,
       bottom: false,
       child: SettingsSubPageModal(
-        title: l.settingsSubscription_managePlanTitle,
+        title: isMember
+            ? l.settingsSubscription_firmPlanTitle
+            : l.settingsSubscription_managePlanTitle,
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
             AppSpacing.edgeMargin,
@@ -147,6 +152,9 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     // landed lives there, so both surfaces tell the user the same thing.
     final plan = ref.watch(currentPlanProvider);
     final tier = ref.watch(allowanceTierProvider);
+    // A chamber member's own ledger names no plan, so the card names the
+    // chamber's tier instead of *Premium* (user request, 0.0.699).
+    final member = ref.watch(firmMemberProvider);
     final cancelledAt = ref.watch(subscriptionCancelledAtProvider);
     // *Free* only when it is known to be: an entitlement still in flight reads a
     // dash, and a dash is not Free — so neither the hidden expiry nor the
@@ -186,6 +194,7 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
                 child: CurrentPlanLabel(
                   style: AppTypography.titleLg,
                   showTag: false,
+                  firmPlanName: member,
                 ),
               ),
             ],
@@ -211,6 +220,7 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
                 color: AppColors.onSurface,
               ),
               textAlign: TextAlign.right,
+              firmPlanName: member,
             ),
             // A free plan has no expiry, so that row is gone and this is last.
             last: isFree,
@@ -486,7 +496,13 @@ class _ManageSubscriptionSection extends ConsumerWidget {
         const SizedBox(height: AppSpacing.sm),
         if (ref.watch(firmMemberProvider))
           SubscriptionCard(
-            child: Text(l.paywall_memberPlanBody, style: AppTypography.bodyMd),
+            // Justified, like a paragraph rather than a label (user request,
+            // 0.0.698).
+            child: Text(
+              l.paywall_memberPlanBody,
+              textAlign: TextAlign.justify,
+              style: AppTypography.bodyMd,
+            ),
           )
         else ...[
           SizedBox(

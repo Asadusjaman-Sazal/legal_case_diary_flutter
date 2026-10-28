@@ -2086,6 +2086,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার প্ল্যান, মেয়াদ ও বাতিল';
 
   @override
+  String get settingsAccountProfile_firmPlanSubtitle =>
+      'আপনার ফার্মের প্ল্যান, ব্যবহার ও মেয়াদ';
+
+  @override
   String get settingsAccountProfile_subscriptionPlansSubtitle =>
       'প্ল্যান তুলনা করে নতুন প্ল্যান কিনুন';
 
@@ -2427,6 +2431,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_managePlanTitle => 'প্ল্যান পরিচালনা';
+
+  @override
+  String get settingsSubscription_firmPlanTitle => 'ফার্ম প্ল্যান';
 
   @override
   String get settingsSubscription_planUsage => 'প্ল্যান ব্যবহার';

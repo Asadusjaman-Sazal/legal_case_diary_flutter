@@ -2082,6 +2082,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your plan, expiry, and cancellation';
 
   @override
+  String get settingsAccountProfile_firmPlanSubtitle =>
+      'Your firm\'s plan, usage, and expiry';
+
+  @override
   String get settingsAccountProfile_subscriptionPlansSubtitle =>
       'Compare plans and buy a new one';
 
@@ -2421,6 +2425,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSubscription_managePlanTitle => 'Manage Plan';
+
+  @override
+  String get settingsSubscription_firmPlanTitle => 'Firm Plan';
 
   @override
   String get settingsSubscription_planUsage => 'Plan Usage';

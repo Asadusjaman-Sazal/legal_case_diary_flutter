@@ -297,14 +297,24 @@ void main() {
   });
 
   testWidgets(
-    'a chamber member is offered Manage Plan and Plans but not History',
+    'a chamber member reads Firm Plan, keeps Plans and loses History',
     (tester) async {
       await pumpMenu(
         tester,
         extra: [firmMemberProvider.overrideWithValue(true)],
       );
 
-      expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
+      // The chamber's plan is the one they read, so the row and its line say
+      // so (user request, 0.0.698).
+      expect(find.text(l.settingsSubscription_firmPlanTitle), findsOneWidget);
+      expect(
+        find.text(l.settingsSubscription_managePlanTitle),
+        findsNothing,
+      );
+      expect(
+        find.text(l.settingsAccountProfile_firmPlanSubtitle),
+        findsOneWidget,
+      );
       expect(
         find.text(l.settingsManageAccount_purchaseNewSubscription),
         findsOneWidget,

@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — A chamber member's card names the firm plan — COMPLETE (0.0.699)
+
+- **What was asked.** In Account & Profile for an associate in a chamber, show the actual firm plan name instead of the generic **Premium**.
+- **What changed.** On the Firm Plan page, the summary card's heading and its **Current Plan** row now print the chamber's own tier — *Firm*, *Firm Plus* or *Enterprise* — through an opt-in `firmPlanName` flag on `CurrentPlanLabel`. The shared default still answers *Premium*, so nothing else that prints a plan changes; a chamber row whose tier is still `free` keeps *Premium* rather than inventing one, and the **Limited Access** tag is unchanged.
+- **Checks.** `flutter analyze` clean; `subscription_details_screen_test.dart` **23 passed**, with both member cases now seeding a Firm chamber and asserting *Firm* with no *Premium*; full `flutter test` **2,178 passed**.
+- **No mockup change** — the page has no mockup of its own, and the Account & Profile mockup draws the individual/owner state (rule 9).
+
+### 2026-10-28 — A chamber member's plan reads Firm Plan — COMPLETE (0.0.698)
+
+- **What was asked.** In Account & Profile for an associate of a chamber: rename **Manage Plan** (with fitting supporting text and the sub-page header) to **Firm Plan**, and justify the body text of the Manage Subscription section on that page.
+- **What changed.** The Subscription section's first row reads **Firm Plan** for a chamber member, with the new subtitle *Your firm's plan, usage, and expiry*, and the page it opens is headed **Firm Plan** too. Owners and individuals keep **Manage Plan** and *Your plan, expiry, and cancellation*. On that page, the member's Manage Subscription note (*This account is covered by the chamber's subscription…*) is now justified; nothing else on the page moved.
+- **Checks.** `flutter analyze` clean; `accounts_profile_menu_test.dart` (member row + subtitle) and `subscription_details_screen_test.dart` (Firm Plan header, no Manage Plan, justified note) pass; full `flutter test` **2,178 passed**.
+- **Mockup.** The Account & Profile mockup still draws the individual/owner state and carries a note about the member's Firm Plan variant (rule 9).
+
 ### 2026-10-28 — Both notification switches start on — COMPLETE (0.0.697)
 
 - **What was asked.** On Settings → Notifications, the Client Notification section's **Automated Notification** and the device card's **Default Notification Status** should default to on.

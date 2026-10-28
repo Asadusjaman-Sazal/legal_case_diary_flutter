@@ -35,6 +35,7 @@ import '../../features/cases/data/case_form_repository.dart';
 import '../../features/cases/presentation/client_notification_flow.dart';
 import '../../features/payments/presentation/lapse_allowance_ui.dart';
 import '../../features/settings/data/local/case_notification_preferences_dao.dart';
+import '../../features/settings/presentation/delete_request_flow.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
 import '../../features/settings/data/district_court_categories.dart';
 import '../../features/settings/data/notification_day_offsets.dart';
@@ -291,9 +292,24 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       _loadPermissions();
       _loadNotificationPreference();
     }
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _observeSheetEntrance(),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _observeSheetEntrance();
+      _warnIfRequestedForDeletion();
+    });
+  }
+
+  /// Warns when another member has asked to delete the case being edited, and
+  /// closes the sheet if the person backs out (user request).
+  Future<void> _warnIfRequestedForDeletion() async {
+    final existing = widget.initialCase;
+    if (existing == null || !mounted) return;
+    final proceed = await confirmEditOfRequestedRecord(
+      context,
+      ref,
+      entityType: 'case',
+      entityId: existing.id,
     );
+    if (!proceed && mounted) Navigator.of(context).maybePop();
   }
 
   void _observeSheetEntrance() {
@@ -1908,6 +1924,18 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     _noteController.text = widget.currentCase.notesResults ?? '';
     _resultController.text = widget.currentCase.result ?? '';
     _loadSteps();
+    // A quick update is still an edit: warn when another member has asked to
+    // delete this case (user request), and close the popup if they back out.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final proceed = await confirmEditOfRequestedRecord(
+        context,
+        ref,
+        entityType: 'case',
+        entityId: widget.currentCase.id,
+      );
+      if (!proceed && mounted) Navigator.of(context).maybePop();
+    });
   }
 
   @override

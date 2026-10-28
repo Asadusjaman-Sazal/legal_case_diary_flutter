@@ -184,6 +184,12 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               // The requester's own list names the state of every row, because
               // both kinds sit in it; the reviewer's queue does not need to.
               showStatusChip: true,
+              // The record moved under their request, as this device can tell.
+              changed:
+                  ref
+                      .watch(deleteRequestTargetChangedProvider(request.id))
+                      .value ??
+                  false,
               onTap: request.status == 'pending'
                   ? () => _showRequestActions(request)
                   : null,
@@ -197,12 +203,29 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   /// Offers the two actions a pending request allows, then runs the one chosen.
   Future<void> _showRequestActions(DeleteRequest request) async {
     final l = AppLocalizations.of(context);
+    // Read before the sheet opens so its explanation is part of the sheet, not
+    // something that arrives while it is already up.
+    final changed =
+        await ref.read(deleteRequestTargetChangedProvider(request.id).future);
+    if (!mounted) return;
     final action = await showModalBottomSheet<_RequestAction>(
       context: context,
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Only when the record moved: tells the requester why a refresh is
+            // worth doing before a reviewer sees their request.
+            if (changed)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Text(
+                  l.deleteRequests_changedBody,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ),
             ListTile(
               key: const ValueKey('delete-request-action-edit'),
               leading: const Icon(Icons.edit_outlined),
@@ -304,6 +327,7 @@ class _RequestRow extends StatelessWidget {
     required this.onTap,
     required this.showStatusChip,
     this.requesterName,
+    this.changed = false,
   });
 
   final DeleteRequest request;
@@ -325,6 +349,10 @@ class _RequestRow extends StatelessWidget {
   /// because pending and decided rows sit in it side by side; the reviewer's
   /// queue does not — everything in it is pending by definition.
   final bool showStatusChip;
+
+  /// Whether the record has changed since the request was made, as far as this
+  /// device can tell. Only the requester's own list passes a true value.
+  final bool changed;
 
   @override
   Widget build(BuildContext context) {
@@ -372,6 +400,14 @@ class _RequestRow extends StatelessWidget {
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
+                if (changed)
+                  Text(
+                    l.deleteRequests_changed,
+                    key: const ValueKey('delete-request-changed'),
+                    style: AppTypography.labelMd.copyWith(
+                      color: AppColors.error,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -438,6 +474,9 @@ String _statusLabel(AppLocalizations l, String status) => switch (status) {
   'approved' => l.deleteRequests_statusApproved,
   'rejected' => l.deleteRequests_statusRejected,
   'stale_review_required' => l.deleteRequests_statusStale,
+  // A request answered by someone else deleting the record: terminal, and the
+  // only status word that says the requester does not need to wait any more.
+  'already_deleted' => l.deleteRequests_statusAlreadyDeleted,
   _ => l.deleteRequests_statusPending,
 };
 

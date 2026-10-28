@@ -2403,6 +2403,7 @@
   "deleteRequest_confirmSend": "Send",
   "deleteRequest_sent": "Deletion request sent for approval.",
   "deleteRequest_failed": "Could Not Send The Deletion Request.",
+  "deleteRequest_alreadyOpen": "A deletion request for this record is already open.",
   "@@_section_deleteRequests": "DELETE REQUESTS (REVIEWER)  |  lib/features/settings/presentation/delete_requests_screen.dart",
   "deleteRequests_title": "Delete Requests",
   "deleteRequests_firmOnly": "Delete Requests Are Only Available To Firm Members.",
@@ -2414,6 +2415,7 @@
   "deleteRequests_statusApproved": "Approved",
   "deleteRequests_statusRejected": "Rejected",
   "deleteRequests_statusStale": "Needs Reconfirmation",
+  "deleteRequests_statusAlreadyDeleted": "Already Deleted",
   "deleteRequests_requestedBy": "Requested by: {name}",
   "@deleteRequests_requestedBy": {
       "placeholders": {
@@ -2452,7 +2454,24 @@
   "deleteRequests_rejected": "Deletion Request Rejected.",
   "deleteRequests_failed": "Could Not Complete The Review. Try Again.",
   "deleteRequests_staleTitle": "This Record Changed",
-  "deleteRequests_staleBody": "It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.",
+  "deleteRequests_staleBody": "It changed after the request was made. Reconfirm to delete the version that exists now.",
+  "deleteRequests_current": "As It Is Now",
+  "deleteRequests_original": "When the Request Was Made",
+  "deleteRequests_changed": "Changed",
+  "deleteRequests_changedBody": "This record changed since you asked. Refresh it to ask for the current version, or withdraw.",
+  "deleteRequests_editWarnTitle": "Requested for Deletion",
+  "deleteRequests_editWarnBody": "{name} asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.",
+  "@deleteRequests_editWarnBody": {
+      "placeholders": {
+          "name": {
+              "type": "String"
+          },
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "deleteRequests_editWarnContinue": "Continue Editing",
   "deleteRequests_fieldCaseNumber": "Case Number",
   "deleteRequests_fieldCaseType": "Case Type",
   "deleteRequests_fieldPetitioner": "Petitioner",

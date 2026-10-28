@@ -858,6 +858,74 @@ void main() {
     expect((await queue.getAll()).single.state, 'resolved');
   });
 
+  test('a decision on a request closed underneath it is adopted, not frozen',
+      () async {
+    await db.into(db.deleteRequests).insert(
+          DeleteRequestsCompanion.insert(
+            id: 'r1',
+            entityType: 'note',
+            entityId: 'n1',
+            entitySnapshot: '{}',
+            targetBaseVersion: 1,
+            requestedBy: 'user-1',
+            status: 'pending',
+            createdAt: 0,
+            updatedAt: 0,
+            firmId: const Value('firm-1'),
+          ),
+        );
+    await enqueue(
+      entityType: 'delete_request',
+      entityId: 'r1',
+      operation: 'update',
+      baseVersion: 1,
+      payload: {'id': 'r1', 'status': 'approved'},
+      mutationId: 'mut-review',
+    );
+
+    // Someone else deleted the record before this decision reached the server,
+    // so the server's row is already closed and the staged decision is stale.
+    transport.results = <Map<String, dynamic>>[
+      {
+        'mutation_id': 'mut-review',
+        'entity_type': 'delete_request',
+        'entity_id': 'r1',
+        'status': 'conflict',
+        'version': 2,
+        'row': <String, dynamic>{
+          'id': 'r1',
+          'firm_id': 'firm-1',
+          'entity_type': 'note',
+          'entity_id': 'n1',
+          'entity_snapshot': '{}',
+          'target_base_version': 1,
+          'requested_by': 'user-1',
+          'status': 'already_deleted',
+          'created_at': 0,
+          'updated_at': 9,
+          'version': 2,
+          'is_deleted': false,
+        },
+        'message': 'The server version changed since this edit was made.',
+      },
+    ];
+
+    final outcome = await worker().flushBatch();
+
+    expect(
+      outcome.conflicts,
+      0,
+      reason: 'the server answered the request; nothing is left to choose',
+    );
+    expect(await queue.db.select(queue.db.conflictLog).get(), isEmpty);
+    final request =
+        await (db.select(db.deleteRequests)..where((r) => r.id.equals('r1')))
+            .getSingle();
+    expect(request.status, 'already_deleted');
+    expect(request.version, 2);
+    expect((await queue.getAll()).single.state, 'resolved');
+  });
+
   group('decodePushResults', () {
     test('reads the results array from a decoded map', () {
       final results = decodePushResults(<String, dynamic>{

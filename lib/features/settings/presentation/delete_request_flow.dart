@@ -31,6 +31,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/repositories/base_local_repository.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 
@@ -111,6 +112,22 @@ Future<DeleteOutcome> deleteThroughFirmRules(
 
   try {
     final repository = await ref.read(deleteRequestsRepositoryProvider.future);
+    // One open request per record (the server enforces it with a unique index).
+    // Checked here first so the common case is a sentence rather than a refused
+    // push, and so two colleagues are never asked about one record.
+    final alreadyOpen = (await repository.listAll()).any(
+      (request) =>
+          request.entityType == entityType &&
+          request.entityId == entityId &&
+          (request.status == 'pending' ||
+              request.status == 'stale_review_required'),
+    );
+    if (alreadyOpen) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l.deleteRequest_alreadyOpen)),
+      );
+      return DeleteOutcome.cancelled;
+    }
     await repository.createRequest(
       entityType: entityType,
       entityId: entityId,
@@ -128,6 +145,91 @@ Future<DeleteOutcome> deleteThroughFirmRules(
     messenger.showSnackBar(SnackBar(content: Text(l.deleteRequest_failed)));
     return DeleteOutcome.failed;
   }
+}
+
+/// Warns before an edit, when someone else has asked to delete what is about to
+/// be edited.
+///
+/// Returns true when the editor may open — either nothing is open on this record
+/// or the person chose to continue — and false when they backed out, in which
+/// case the caller closes the editor it was about to show. It warns and never
+/// blocks: an edit is a normal thing to do, and the reviewer's reconfirm is what
+/// resolves the consequence.
+///
+/// [parentCaseId] covers a case step: approving a request on the case removes its
+/// steps too, so a step under a case someone asked to delete is worth the same
+/// warning. The requester's own request is skipped — they already know.
+Future<bool> confirmEditOfRequestedRecord(
+  BuildContext context,
+  WidgetRef ref, {
+  required String entityType,
+  required String entityId,
+  String? parentCaseId,
+}) async {
+  final l = AppLocalizations.of(context);
+  final userId = ref.read(accountCacheUserIdProvider);
+  final repository = await ref.read(deleteRequestsRepositoryProvider.future);
+  final requests = await repository.listAll();
+  if (!context.mounted) return true;
+
+  final open = requests
+      .where(
+        (request) =>
+            request.status == 'pending' ||
+            request.status == 'stale_review_required',
+      )
+      .where((request) => request.requestedBy != userId)
+      .where(
+        (request) =>
+            (request.entityType == entityType &&
+                request.entityId == entityId) ||
+            (parentCaseId != null &&
+                request.entityType == 'case' &&
+                request.entityId == parentCaseId),
+      )
+      .firstOrNull;
+  if (open == null) return true;
+
+  final storedName = open.requesterName?.trim() ?? '';
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+      ),
+      title: Text(l.deleteRequests_editWarnTitle, textAlign: TextAlign.center),
+      content: Text(
+        l.deleteRequests_editWarnBody(
+          storedName.isEmpty ? l.deleteRequests_unknownRequester : storedName,
+          AppDateUtils.formatDateTimeDDMMYYYY(
+            open.createdAt,
+            locale: Localizations.localeOf(context).toString(),
+          ),
+        ),
+        textAlign: TextAlign.justify,
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: _requestActionSize,
+            textStyle: _requestActionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.sharedActions_cancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            minimumSize: _requestActionSize,
+            textStyle: _requestActionTextStyle,
+          ),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.deleteRequests_editWarnContinue),
+        ),
+      ],
+    ),
+  );
+  return answer ?? false;
 }
 
 /// The Exit App window's action size, repeated here so this window's Cancel and

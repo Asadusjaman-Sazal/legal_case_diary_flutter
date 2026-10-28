@@ -8722,6 +8722,12 @@ abstract class AppLocalizations {
   /// **'Could Not Send The Deletion Request.'**
   String get deleteRequest_failed;
 
+  /// No description provided for @deleteRequest_alreadyOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'A deletion request for this record is already open.'**
+  String get deleteRequest_alreadyOpen;
+
   /// No description provided for @deleteRequests_title.
   ///
   /// In en, this message translates to:
@@ -8781,6 +8787,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Needs Reconfirmation'**
   String get deleteRequests_statusStale;
+
+  /// No description provided for @deleteRequests_statusAlreadyDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Already Deleted'**
+  String get deleteRequests_statusAlreadyDeleted;
 
   /// No description provided for @deleteRequests_requestedBy.
   ///
@@ -8929,8 +8941,50 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_staleBody.
   ///
   /// In en, this message translates to:
-  /// **'It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.'**
+  /// **'It changed after the request was made. Reconfirm to delete the version that exists now.'**
   String get deleteRequests_staleBody;
+
+  /// No description provided for @deleteRequests_current.
+  ///
+  /// In en, this message translates to:
+  /// **'As It Is Now'**
+  String get deleteRequests_current;
+
+  /// No description provided for @deleteRequests_original.
+  ///
+  /// In en, this message translates to:
+  /// **'When the Request Was Made'**
+  String get deleteRequests_original;
+
+  /// No description provided for @deleteRequests_changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed'**
+  String get deleteRequests_changed;
+
+  /// No description provided for @deleteRequests_changedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This record changed since you asked. Refresh it to ask for the current version, or withdraw.'**
+  String get deleteRequests_changedBody;
+
+  /// No description provided for @deleteRequests_editWarnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested for Deletion'**
+  String get deleteRequests_editWarnTitle;
+
+  /// No description provided for @deleteRequests_editWarnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.'**
+  String deleteRequests_editWarnBody(String name, String date);
+
+  /// No description provided for @deleteRequests_editWarnContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Editing'**
+  String get deleteRequests_editWarnContinue;
 
   /// No description provided for @deleteRequests_fieldCaseNumber.
   ///

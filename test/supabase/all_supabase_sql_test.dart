@@ -57,8 +57,12 @@ void main() {
       );
       expect(
         onDisk.length,
-        77,
+        78,
         reason:
+            'The delete-request closure (2026-10-28) added one file: the trigger '
+            'that closes a request when the record it names is deleted, the '
+            'backfill for requests already left hanging, and the one-open-request '
+            'index. '
             'The delete-request review fix (2026-10-27) added four files: the '
             'stored-firm rule for a reviewer\'s rejection, a requester\'s '
             'refresh and a withdrawal, the withdrawal exit the tombstone gate '

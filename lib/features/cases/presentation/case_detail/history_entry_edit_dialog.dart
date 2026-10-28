@@ -23,6 +23,7 @@ import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
 import '../../../../features/settings/data/local/courts_dao.dart';
 import '../../../../features/settings/data/local/steps_dao.dart';
+import '../../../../features/settings/presentation/delete_request_flow.dart';
 import '../../../../shared/providers/database_provider.dart';
 import '../../../../shared/widgets/custom_dropdown.dart';
 import '../../../../shared/widgets/date_picker_helper.dart';
@@ -82,6 +83,19 @@ class _HistoryEntryEditDialogState
     _noteController.text = widget.entry.noteResult ?? '';
     _resultController.text = widget.entry.result ?? '';
     _loadSteps();
+    // Warn before editing a step that, or whose case, someone else has asked to
+    // delete (user request): approving a request on the case removes its steps.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final proceed = await confirmEditOfRequestedRecord(
+        context,
+        ref,
+        entityType: 'case_history',
+        entityId: widget.entry.id,
+        parentCaseId: widget.caseData.id,
+      );
+      if (!proceed && mounted) Navigator.of(context).maybePop();
+    });
   }
 
   @override

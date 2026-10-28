@@ -37,7 +37,7 @@ migration is missing from the ledger, or if a section loses its label.
 
 ## Status of verification
 
-**Applied.** All seventy-two migrations are live on `lsthasywrdrhuuxnykau` and
+**Applied.** All seventy-eight migrations are live on `lsthasywrdrhuuxnykau` and
 recorded in `supabase_migrations.schema_migrations`, applied by
 `tool/apply_supabase_migrations.dart`. The first real apply found four defects
 that no amount of reading had caught, all fixed and re-applied; later phases
@@ -294,8 +294,18 @@ What is verified now:
   it exists**, so a firm row the caller did not author can still be edited or
   deleted. **This file opens its own transaction, so it must be run wrapped:**
   `printf 'begin;\n' | cat - supabase/tests/delete_request_review_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
-- Live state: 26 tables all with RLS on, 62 policies, 53 functions in `public`,
-  52 recorded versions — the newest `20261017110000` — and the 1,442 seeded
+- `supabase/tests/delete_request_closure_test.sql` — **passes** (`CLOSURE OK`): a
+  request never outlives its record. Tombstoning a case (through the app's own
+  `push_changes`), a case step, a note or a case reference closes every still-open
+  request for it as `already_deleted`, at the next version, stamped by the
+  deleter; a request parked as `stale_review_required` closes the same way; an
+  approval still ends `approved` rather than `already_deleted`, because it writes
+  after the tombstone it causes; a second open request for one record is refused
+  by `delete_requests_one_open_per_target`; and the function is internal and
+  attached to all four tables. **Opens its own transaction, so run it wrapped:**
+  `printf 'begin;\n' | cat - supabase/tests/delete_request_closure_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
+- Live state: 28 tables all with RLS on, 63 policies, 96 functions in `public`,
+  78 recorded versions — the newest `20261028100000` — and the 1,442 seeded
   reference rows (1,016 courts).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see

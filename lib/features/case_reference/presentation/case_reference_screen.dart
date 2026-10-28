@@ -522,6 +522,18 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     );
     _commentsController = TextEditingController(text: r?.commentsNotes ?? '');
     _isPinned = r?.isPinned ?? false;
+    // Warn before editing a reference someone else has asked to delete.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final existing = widget.reference;
+      if (existing == null || !mounted) return;
+      final proceed = await confirmEditOfRequestedRecord(
+        context,
+        ref,
+        entityType: 'reference',
+        entityId: existing.id,
+      );
+      if (!proceed && mounted) Navigator.of(context).maybePop();
+    });
   }
 
   @override

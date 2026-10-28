@@ -52,6 +52,9 @@ class _BatterySetupGuideScreenState
   /// Steps for this device; null until the manufacturer has been read.
   OemGuidePlan? _plan;
 
+  /// What the phone reported, kept for the brand-specific instructions.
+  DeviceIdentity? _identity;
+
   /// Whether exact alarms are already permitted: the phone's own answer.
   bool _exactAlarmsAllowed = false;
 
@@ -105,6 +108,7 @@ class _BatterySetupGuideScreenState
     final batteryUnrestricted = await scheduler.batteryOptimizationIgnored();
     if (!mounted) return;
     setState(() {
+      _identity = identity;
       _plan = oemGuidePlanFor(identity);
       _exactAlarmsAllowed = exactAllowed;
       _batteryUnrestricted = batteryUnrestricted;
@@ -176,6 +180,7 @@ class _BatterySetupGuideScreenState
                   _GuideStepCard(
                     number: index + 1,
                     step: step,
+                    brand: _guideBrand(_identity),
                     done: _isDone(step),
                     // Auto-start is the one step Android cannot read, so it is
                     // the one the user ticks (and un-ticks) themselves.
@@ -246,6 +251,42 @@ class _BatterySetupGuideScreenState
   }
 }
 
+/// Which brand's settings path the guide should spell out.
+enum _GuideBrand { xiaomi, realme, vivo, other }
+
+/// The brand whose instructions this phone should read.
+///
+/// Only the three brands the owner could verify get their own path; every other
+/// phone keeps the generic wording. Realme is checked by its own name because
+/// the OEM family groups it with Oppo/OnePlus, whose menus differ (0.0.703).
+_GuideBrand _guideBrand(DeviceIdentity? identity) {
+  if (identity == null) return _GuideBrand.other;
+  final haystack = '${identity.manufacturer ?? ''} ${identity.brand ?? ''}'
+      .toLowerCase();
+  if (haystack.contains('realme')) return _GuideBrand.realme;
+  return switch (oemFamilyFor(identity)) {
+    OemFamily.xiaomi => _GuideBrand.xiaomi,
+    OemFamily.vivo => _GuideBrand.vivo,
+    _ => _GuideBrand.other,
+  };
+}
+
+/// The auto-start path for [brand].
+String _autoStartBody(AppLocalizations l, _GuideBrand brand) => switch (brand) {
+  _GuideBrand.xiaomi => l.settingsBatteryGuide_autoStartXiaomi,
+  _GuideBrand.realme => l.settingsBatteryGuide_autoStartRealme,
+  _GuideBrand.vivo => l.settingsBatteryGuide_autoStartVivo,
+  _GuideBrand.other => l.settingsBatteryGuide_autoStartBody,
+};
+
+/// The battery path for [brand].
+String _batteryBody(AppLocalizations l, _GuideBrand brand) => switch (brand) {
+  _GuideBrand.xiaomi => l.settingsBatteryGuide_batteryXiaomi,
+  _GuideBrand.realme => l.settingsBatteryGuide_batteryRealme,
+  _GuideBrand.vivo => l.settingsBatteryGuide_batteryVivo,
+  _GuideBrand.other => l.settingsBatteryGuide_batteryBody,
+};
+
 /// One numbered step: what to do, why, and a button that opens the page.
 ///
 /// A done step is drawn in green — badge, title and the line that replaces the
@@ -256,6 +297,9 @@ class _GuideStepCard extends StatelessWidget {
 
   /// Which step this is.
   final OemGuideStepId step;
+
+  /// The phone's brand, for the two steps whose path differs per OEM.
+  final _GuideBrand brand;
 
   /// Whether the step is done, and so drawn in green.
   final bool done;
@@ -270,6 +314,7 @@ class _GuideStepCard extends StatelessWidget {
   const _GuideStepCard({
     required this.number,
     required this.step,
+    required this.brand,
     required this.done,
     required this.onToggleDone,
     required this.onTakeMeThere,
@@ -281,11 +326,11 @@ class _GuideStepCard extends StatelessWidget {
     final (title, body) = switch (step) {
       OemGuideStepId.autoStart => (
         l.settingsBatteryGuide_autoStartTitle,
-        l.settingsBatteryGuide_autoStartBody,
+        _autoStartBody(l, brand),
       ),
       OemGuideStepId.batteryUnrestricted => (
         l.settingsBatteryGuide_batteryTitle,
-        l.settingsBatteryGuide_batteryBody,
+        _batteryBody(l, brand),
       ),
       OemGuideStepId.exactAlarms => (
         l.settingsBatteryGuide_exactTitle,

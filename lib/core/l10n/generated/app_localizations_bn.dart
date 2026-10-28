@@ -3568,12 +3568,36 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফোনের সেটিংসে অটো-স্টার্ট (বা স্টার্টআপ ম্যানেজার) খুলে Legal Case Diary-কে নিজে চালু হতে অনুমতি দিন।';
 
   @override
+  String get settingsBatteryGuide_autoStartXiaomi =>
+      'Legal Case Diary-এর App info খুলে Permissions > Autostart-এ অনুমতি দিন।';
+
+  @override
+  String get settingsBatteryGuide_autoStartRealme =>
+      'Legal Case Diary-এর App info খুলে Battery usage > Privacy Permissions > Allow auto launch-এ অনুমতি দিন।';
+
+  @override
+  String get settingsBatteryGuide_autoStartVivo =>
+      'Settings > Apps > Special app access > Autostart খুলে Legal Case Diary-কে অনুমতি দিন। (Vivo-তে App info-র ভিতরে অটোস্টার্ট নেই।)';
+
+  @override
   String get settingsBatteryGuide_batteryTitle =>
       'ব্যাটারি ব্যবহার সীমাহীন করুন';
 
   @override
   String get settingsBatteryGuide_batteryBody =>
       'ব্যাটারি, তারপর অ্যাপ ব্যাটারি ব্যবহার (বা ব্যাটারি অপটিমাইজেশন) খুলে Legal Case Diary বেছে নিন এবং সীমাহীন / কোনো সীমাবদ্ধতা নেই নির্বাচন করুন।';
+
+  @override
+  String get settingsBatteryGuide_batteryXiaomi =>
+      'Legal Case Diary-এর App info খুলে Battery saver > No restriction বেছে নিন।';
+
+  @override
+  String get settingsBatteryGuide_batteryRealme =>
+      'Legal Case Diary-এর App info খুলে Battery usage > Allow background activity বেছে নিন।';
+
+  @override
+  String get settingsBatteryGuide_batteryVivo =>
+      'Legal Case Diary-এর App info খুলে Battery usage > Background power control > Allow background power usage বেছে নিন।';
 
   @override
   String get settingsBatteryGuide_exactTitle =>

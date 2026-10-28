@@ -3549,12 +3549,36 @@ class AppLocalizationsEn extends AppLocalizations {
       'In your phone\'s settings, open Auto-start (or Startup manager) and allow Legal Case Diary to start by itself.';
 
   @override
+  String get settingsBatteryGuide_autoStartXiaomi =>
+      'Open App info for Legal Case Diary, then Permissions > Autostart, and allow it.';
+
+  @override
+  String get settingsBatteryGuide_autoStartRealme =>
+      'Open App info for Legal Case Diary, then Battery usage > Privacy Permissions > Allow auto launch.';
+
+  @override
+  String get settingsBatteryGuide_autoStartVivo =>
+      'Open Settings > Apps > Special app access > Autostart and allow Legal Case Diary. (Vivo has no autostart inside App info.)';
+
+  @override
   String get settingsBatteryGuide_batteryTitle =>
       'Set Battery Usage to Unrestricted';
 
   @override
   String get settingsBatteryGuide_batteryBody =>
       'Open Battery then App battery usage (or Battery optimization), choose Legal Case Diary and select Unrestricted / No restrictions.';
+
+  @override
+  String get settingsBatteryGuide_batteryXiaomi =>
+      'Open App info for Legal Case Diary, then Battery saver > No restriction.';
+
+  @override
+  String get settingsBatteryGuide_batteryRealme =>
+      'Open App info for Legal Case Diary, then Battery usage > Allow background activity.';
+
+  @override
+  String get settingsBatteryGuide_batteryVivo =>
+      'Open App info for Legal Case Diary, then Battery usage > Background power control > Allow background power usage.';
 
   @override
   String get settingsBatteryGuide_exactTitle => 'Allow Exact Alarms';

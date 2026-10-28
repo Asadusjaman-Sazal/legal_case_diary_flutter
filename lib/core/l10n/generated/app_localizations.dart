@@ -6109,6 +6109,24 @@ abstract class AppLocalizations {
   /// **'In your phone\'s settings, open Auto-start (or Startup manager) and allow Legal Case Diary to start by itself.'**
   String get settingsBatteryGuide_autoStartBody;
 
+  /// No description provided for @settingsBatteryGuide_autoStartXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info for Legal Case Diary, then Permissions > Autostart, and allow it.'**
+  String get settingsBatteryGuide_autoStartXiaomi;
+
+  /// No description provided for @settingsBatteryGuide_autoStartRealme.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info for Legal Case Diary, then Battery usage > Privacy Permissions > Allow auto launch.'**
+  String get settingsBatteryGuide_autoStartRealme;
+
+  /// No description provided for @settingsBatteryGuide_autoStartVivo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings > Apps > Special app access > Autostart and allow Legal Case Diary. (Vivo has no autostart inside App info.)'**
+  String get settingsBatteryGuide_autoStartVivo;
+
   /// No description provided for @settingsBatteryGuide_batteryTitle.
   ///
   /// In en, this message translates to:
@@ -6120,6 +6138,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Battery then App battery usage (or Battery optimization), choose Legal Case Diary and select Unrestricted / No restrictions.'**
   String get settingsBatteryGuide_batteryBody;
+
+  /// No description provided for @settingsBatteryGuide_batteryXiaomi.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info for Legal Case Diary, then Battery saver > No restriction.'**
+  String get settingsBatteryGuide_batteryXiaomi;
+
+  /// No description provided for @settingsBatteryGuide_batteryRealme.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info for Legal Case Diary, then Battery usage > Allow background activity.'**
+  String get settingsBatteryGuide_batteryRealme;
+
+  /// No description provided for @settingsBatteryGuide_batteryVivo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info for Legal Case Diary, then Battery usage > Background power control > Allow background power usage.'**
+  String get settingsBatteryGuide_batteryVivo;
 
   /// No description provided for @settingsBatteryGuide_exactTitle.
   ///

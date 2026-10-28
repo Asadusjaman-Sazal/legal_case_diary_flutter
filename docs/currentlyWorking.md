@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — The header's Sync long press opens Online Sync — COMPLETE (0.0.688)
+
+- **What was asked.** In the app header, long pressing the Sync icon should open Settings → Online Sync instead of showing its current-info text.
+- **What changed.** The shared header `SyncButton` (every case screen and the Admin Panel) now opens `/settings/online-sync` on a long press. The state text is still there as the button's screen-reader label, but the tooltip no longer rises on a long press. It works for a **free** account too, whose tap is disabled but whose Online Sync screen still explains the entitlement. Tapping is unchanged — it still syncs and reloads the case list.
+- **Checks.** `flutter analyze` clean; `test/features/case_list_view_mode_test.dart` **43 passed**, including a new long-press case on a free account; the three cases that read the old button tooltip now read the `Tooltip` widget itself.
+- **No mockup change** — the icon, its states and the header drawing are unchanged.
+
 ### 2026-10-28 — Pending Sync says when it is working — COMPLETE (0.0.687)
 
 - **What was asked.** The Sync Status screen (Settings → Online Sync → Pending Sync) gets its header renamed to **Pending Sync**; its per-row **Sync Now** buttons have to show they are working and then say how the run ended; and **Discard** has to look like Sync Now.

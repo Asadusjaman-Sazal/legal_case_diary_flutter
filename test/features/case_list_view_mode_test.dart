@@ -28,6 +28,7 @@ import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -227,7 +228,14 @@ void main() {
     SyncService Function(Ref)? syncOverride,
   }) async {
     final router = GoRouter(
-      routes: [GoRoute(path: '/', builder: (_, _) => screen)],
+      routes: [
+        GoRoute(path: '/', builder: (_, _) => screen),
+        // The header's Sync long press opens Online Sync (0.0.688).
+        GoRoute(
+          path: AppRoutes.settingsOnlineSync,
+          builder: (_, _) => const Scaffold(body: Text('Online Sync Route')),
+        ),
+      ],
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
@@ -1750,10 +1758,15 @@ void main() {
     await enqueuePending();
     await pumpScreen(tester, const AllCasesScreen());
 
-    final button = tester.widget<IconButton>(
-      find.byKey(const ValueKey('cases-modal-sync-button')),
+    final tooltip = tester.widget<Tooltip>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('cases-modal-sync-button')),
+            matching: find.byType(Tooltip),
+          )
+          .first,
     );
-    expect(button.tooltip, isNot(contains('premium')));
+    expect(tooltip.message, isNot(contains('premium')));
     await unmount(tester);
   });
 
@@ -1855,10 +1868,15 @@ void main() {
     await enqueuePending();
     await pumpScreen(tester, const AllCasesScreen(), premium: false);
 
-    final button = tester.widget<IconButton>(
-      find.byKey(const ValueKey('cases-modal-sync-button')),
+    final tooltip = tester.widget<Tooltip>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('cases-modal-sync-button')),
+            matching: find.byType(Tooltip),
+          )
+          .first,
     );
-    expect(button.tooltip, l.sync_unavailable);
+    expect(tooltip.message, l.sync_unavailable);
     await unmount(tester);
   });
 
@@ -1876,11 +1894,33 @@ void main() {
       online: false,
     );
 
-    final button = tester.widget<IconButton>(
+    final tooltip = tester.widget<Tooltip>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('cases-modal-sync-button')),
+            matching: find.byType(Tooltip),
+          )
+          .first,
+    );
+    expect(tooltip.message, l.sync_unavailable);
+    expect(tooltip.message, isNot(l.sync_offline));
+    await unmount(tester);
+  });
+
+  testWidgets('long pressing the header sync button opens Online Sync', (
+    tester,
+  ) async {
+    // The long press used to raise the state label; it now opens the screen
+    // that explains the state (user request, 0.0.688). It works on a free
+    // account too, where the tap is inert but the screen still explains sync.
+    await pumpScreen(tester, const AllCasesScreen(), premium: false);
+
+    await tester.longPress(
       find.byKey(const ValueKey('cases-modal-sync-button')),
     );
-    expect(button.tooltip, l.sync_unavailable);
-    expect(button.tooltip, isNot(l.sync_offline));
+    await settle(tester);
+
+    expect(find.text('Online Sync Route'), findsOneWidget);
     await unmount(tester);
   });
 

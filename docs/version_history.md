@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.689 - The Delete Requests cards act in place: a long press on a queued card offers Approve and Reject in one line, and a requester's pending card expands on tap to one red Withdraw Request button, with the chevron and Edit gone.
+Version: 0.0.690 - The side menu now gives a firm associate a Firm row that expands in place to the chamber and Delete Requests, and their Current Plan row is gone; owners and individuals are unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -703,3 +703,4 @@ Version: 0.0.686 - The permissions-changed notice and the deletion-request warni
 Version: 0.0.687 - The Sync Status screen is headed Pending Sync, its Sync Now shows a spinner and then the run's real outcome, and Discard is a button styled like Sync Now.
 Version: 0.0.688 - Long pressing the header's Sync icon now opens Settings > Online Sync instead of showing its state tooltip, on free accounts too; tapping still syncs.
 Version: 0.0.689 - The Delete Requests cards act in place: a long press on a queued card offers Approve and Reject in one line, and a requester's pending card expands on tap to one red Withdraw Request button, with the chevron and Edit gone.
+Version: 0.0.690 - The side menu now gives a firm associate a Firm row that expands in place to the chamber and Delete Requests, and their Current Plan row is gone; owners and individuals are unchanged.

@@ -349,38 +349,52 @@ class AppNavigationDrawer extends ConsumerWidget {
     final isAdmin = ref.watch(adminStatusProvider).value ?? false;
     // The firm entry in the side menu (user request, 0.0.672). It is offered to
     // the account the firm page offers it to — any individual, whatever their
-    // plan, and a chamber's owner. A member who is not the owner has no such row
-    // on that page either, because the roster, the invites and the permission
-    // toggles are all owner-only server-side.
+    // plan, and a chamber's owner. A member who is not the owner has no Manage
+    // Firm row on that page either, because the roster, the invites and the
+    // permission toggles are all owner-only server-side.
     final canOpenFirm = ref.watch(canOpenManageAssociatesProvider);
+    // The associate of an existing chamber (0.0.690, user request): the firm
+    // page has two cards for them — the chamber, read-only, and the queue — and
+    // the drawer now mirrors that pair as a cascade. The plan row is not drawn
+    // for them: the plan is the chamber's, owned and renewed by its owner.
+    final firmAssociate = isFirm && !canOpenFirm;
     // What is waiting on this account: a reviewer's queue, or a requester's
     // unread decisions. An individual is never in firm mode, so this is 0 and
     // the row carries no count — the same reading the firm page's own badge
     // uses, rather than a second count invented here.
     final firmRequests = ref.watch(deleteRequestsBadgeCountProvider);
-    // With something waiting, the row opens the firm page, where the Delete
-    // Requests row and its own count stand in front of the user; with nothing
-    // waiting it is the shortcut to Manage Firm itself (user request).
-    final firmRoute = firmRequests > 0
-        ? AppRoutes.settingsFirm
-        : AppRoutes.settingsManageAssociates;
-    final firmActive = currentRoute == firmRoute;
-    final Widget? firmTile = !canOpenFirm
-        ? null
-        : _DrawerNavTile(
-            icon: Icons.groups_outlined,
-            // The words the row it points at wears, so the two can never
-            // disagree: an account without a firm is still creating one.
-            label: isFirm
-                ? l.manageAssociates_title
-                : l.manageAssociates_createFirmTitle,
-            active: firmActive,
-            badgeCount: firmRequests,
-            onTap: () {
-              Navigator.of(context).pop();
-              if (!firmActive) context.push(firmRoute);
-            },
-          );
+    final Widget? firmTile;
+    if (firmAssociate) {
+      firmTile = _FirmDrawerTile(
+        currentRoute: currentRoute,
+        firmName: firmName,
+        badgeCount: firmRequests,
+      );
+    } else if (canOpenFirm) {
+      // With something waiting, the row opens the firm page, where the Delete
+      // Requests row and its own count stand in front of the user; with nothing
+      // waiting it is the shortcut to Manage Firm itself (user request).
+      final firmRoute = firmRequests > 0
+          ? AppRoutes.settingsFirm
+          : AppRoutes.settingsManageAssociates;
+      final firmActive = currentRoute == firmRoute;
+      firmTile = _DrawerNavTile(
+        icon: Icons.groups_outlined,
+        // The words the row it points at wears, so the two can never
+        // disagree: an account without a firm is still creating one.
+        label: isFirm
+            ? l.manageAssociates_title
+            : l.manageAssociates_createFirmTitle,
+        active: firmActive,
+        badgeCount: firmRequests,
+        onTap: () {
+          Navigator.of(context).pop();
+          if (!firmActive) context.push(firmRoute);
+        },
+      );
+    } else {
+      firmTile = null;
+    }
     return _AdminCountsRefresh(
       child: Drawer(
         backgroundColor: AppColors.surfaceContainerLowest,
@@ -507,8 +521,11 @@ class AppNavigationDrawer extends ConsumerWidget {
                     // The account's plan, above Print/Share (user request): the
                     // bottom group is where a user looks for what the account is
                     // and what it can do with it, and it names the plan rather
-                    // than hiding it behind a tap.
-                    _PlanDrawerTile(currentRoute: currentRoute),
+                    // than hiding it behind a tap. A firm associate has no plan
+                    // of their own — it is the chamber's, bought by its owner —
+                    // so the row is not drawn for them (0.0.690, user request).
+                    if (!firmAssociate)
+                      _PlanDrawerTile(currentRoute: currentRoute),
                     _DrawerNavTile(
                       icon: Icons.print_outlined,
                       label: l.nav_print,
@@ -1274,6 +1291,138 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
             active: widget.currentRoute == AppRoutes.paywall,
             indent: _planSubIndent,
             onTap: () => _open(AppRoutes.paywall),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// The firm associate's drawer entry: the Firm page, as a cascade.
+///
+/// A member who is not the chamber's owner has no Manage Firm card on the firm
+/// page — the roster, the invites and the permissions are owner-only server-side
+/// — but the page still offers them two things: the chamber itself, read-only,
+/// and the delete-request queue. This row mirrors that pair (user request,
+/// 0.0.690) and expands in place like the plan row. It is drawn for nobody else:
+/// an individual keeps Create a Firm and an owner keeps the plain Manage Firm
+/// shortcut.
+class _FirmDrawerTile extends StatefulWidget {
+  /// Creates the row for [currentRoute], naming [firmName] and badging the queue.
+  const _FirmDrawerTile({
+    required this.currentRoute,
+    required this.firmName,
+    required this.badgeCount,
+  });
+
+  /// The active GoRouter location, so the child the app is on is the one filled.
+  final String currentRoute;
+
+  /// The chamber's cached name; empty falls back to the plain *Firm*.
+  final String firmName;
+
+  /// What is waiting in the delete-request queue.
+  final int badgeCount;
+
+  @override
+  State<_FirmDrawerTile> createState() => _FirmDrawerTileState();
+}
+
+class _FirmDrawerTileState extends State<_FirmDrawerTile> {
+  late bool _expanded;
+
+  /// Whether [route] is the Firm page or one of the two cards on it.
+  static bool _opens(String route) =>
+      route == AppRoutes.settingsFirm ||
+      route == AppRoutes.settingsManageAssociates ||
+      route == AppRoutes.settingsDeleteRequests;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = _opens(widget.currentRoute);
+  }
+
+  /// Closes the drawer and opens [route], unless it is already the screen.
+  void _open(String route) {
+    Navigator.of(context).pop();
+    if (widget.currentRoute != route) context.push(route);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Column(
+      children: [
+        // The drawer's own row metrics, like the plan row's header: the one
+        // line is the group's title, and the children beneath are indented.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+          child: Semantics(
+            button: true,
+            expanded: _expanded,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(24),
+              child: InkWell(
+                key: const ValueKey('drawer-firm-header'),
+                borderRadius: BorderRadius.circular(24),
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.groups_outlined,
+                        size: 22,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          l.settingsFirm_title,
+                          style: AppTypography.labelLg.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                        size: 22,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_expanded) ...[
+          // The two cards the Firm page draws for this account, in its order:
+          // the chamber first, then the queue.
+          _DrawerNavTile(
+            key: const ValueKey('drawer-firm-view'),
+            icon: Icons.apartment_outlined,
+            label: widget.firmName.isEmpty
+                ? l.settingsFirm_title
+                : widget.firmName,
+            active: widget.currentRoute == AppRoutes.settingsManageAssociates,
+            indent: _planSubIndent,
+            onTap: () => _open(AppRoutes.settingsManageAssociates),
+          ),
+          _DrawerNavTile(
+            key: const ValueKey('drawer-firm-queue'),
+            icon: Icons.delete_outline,
+            label: l.deleteRequests_title,
+            active: widget.currentRoute == AppRoutes.settingsDeleteRequests,
+            indent: _planSubIndent,
+            badgeCount: widget.badgeCount,
+            onTap: () => _open(AppRoutes.settingsDeleteRequests),
           ),
         ],
       ],

@@ -73,6 +73,7 @@ const String subscriptionPlansMarker = 'Subscription Plans Screen';
 /// Markers rendered by the two stand-in firm screens the Manage Firm row opens.
 const String firmPageMarker = 'Firm Page Screen';
 const String manageFirmMarker = 'Manage Firm Screen';
+const String deleteRequestsMarker = 'Delete Requests Screen';
 
 /// Markers rendered by the stand-in screens the account popover opens.
 const String profileMarker = 'Profile Screen';
@@ -299,7 +300,6 @@ void main() {
     int? adminBadgeCount,
     AdminRepository? adminRepository,
     int? firmBadgeCount,
-    bool firmMember = false,
     SubscriptionTier? tier,
     Profile? profile,
     Firm? firm,
@@ -359,6 +359,11 @@ void main() {
             path: AppRoutes.settingsManageAssociates,
             builder: (_, _) => const Scaffold(body: Text(manageFirmMarker)),
           ),
+        if (route != AppRoutes.settingsDeleteRequests)
+          GoRoute(
+            path: AppRoutes.settingsDeleteRequests,
+            builder: (_, _) => const Scaffold(body: Text(deleteRequestsMarker)),
+          ),
       ],
     );
     addTearDown(router.dispose);
@@ -367,9 +372,6 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           currentPlanProvider.overrideWithValue(plan),
-          // The member rule behind the plans child: a member has nothing to buy,
-          // while the owner (the default here) keeps the renewal entry.
-          firmMemberProvider.overrideWithValue(firmMember),
           // The tier behind the plan label's Limited Access tag: stubbed only
           // where a test needs the ended state, so no other case changes.
           if (tier != null) allowanceTierProvider.overrideWithValue(tier),
@@ -711,22 +713,6 @@ void main() {
       '  ${l.settingsManageAccount_planLimitedAccessTag}',
     ]);
     expect(spans[1].style?.color, AppColors.error);
-  });
-
-  testWidgets('a chamber member expands to both subscription pages', (
-    tester,
-  ) async {
-    final l = await AppLocalizations.delegate.load(const Locale('en'));
-    // A member reads the chamber's plan and expiry on Details, and the plans
-    // themselves on Subscription Plans (read-only, 0.0.626), so both children
-    // are offered.
-    await pumpDrawerOnRouter(tester, firmMember: true);
-
-    await tester.tap(drawerText(l.settingsSubscription_currentPlan));
-    await tester.pumpAndSettle();
-
-    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
-    expect(drawerText(l.paywall_title), findsOneWidget);
   });
 
   testWidgets('Subscription Details opens the details sub-page', (
@@ -1495,14 +1481,57 @@ void main() {
     expect(router.state.matchedLocation, AppRoutes.settingsManageAssociates);
   });
 
-  testWidgets('a member who is not the owner gets no firm row', (tester) async {
+  testWidgets('an associate gets the Firm cascade, and no Current Plan', (
+    tester,
+  ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    await pumpDrawerOnRouter(tester, profile: firmProfile(), firm: firmRow());
+    final router = await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(),
+      firm: firmRow(),
+      firmBadgeCount: 2,
+    );
 
-    // The roster, the invites and the permission toggles are owner-only, so an
-    // associate is offered no row — the firm page's own rule.
-    expect(drawerText(l.manageAssociates_title), findsNothing);
-    expect(drawerText(l.manageAssociates_createFirmTitle), findsNothing);
+    // The plan row is the account's own, and an associate's plan is the
+    // chamber's (user request): it is not drawn for them.
+    expect(drawerText(l.settingsSubscription_currentPlan), findsNothing);
+    expect(drawerText(l.settingsFirm_title), findsOneWidget);
+
+    // Collapsed until tapped, like the plan row.
+    expect(find.byKey(const ValueKey('drawer-firm-view')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('drawer-firm-header')));
+    await tester.pumpAndSettle();
+
+    // The two cards the Firm page holds for this account: the chamber, and the
+    // queue with what is waiting on this associate.
+    expect(find.byKey(const ValueKey('drawer-firm-view')), findsOneWidget);
+    expect(find.byKey(const ValueKey('drawer-firm-queue')), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Badge), matching: find.text('2')),
+      findsOneWidget,
+    );
+
+    // The chamber opens the read-only Manage Firm page and closes the drawer.
+    await tester.tap(find.byKey(const ValueKey('drawer-firm-view')));
+    await tester.pumpAndSettle();
+    expect(router.state.matchedLocation, AppRoutes.settingsManageAssociates);
+  });
+
+  testWidgets('the associate Firm cascade opens the request queue', (
+    tester,
+  ) async {
+    final router = await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(),
+      firm: firmRow(),
+      firmBadgeCount: 1,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('drawer-firm-header')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('drawer-firm-queue')));
+    await tester.pumpAndSettle();
+    expect(router.state.matchedLocation, AppRoutes.settingsDeleteRequests);
   });
 
   testWidgets('for an admin the firm row follows the Admin Panel', (

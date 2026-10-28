@@ -5235,10 +5235,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_changed => 'Changed';
 
   @override
-  String get deleteRequests_changedBody =>
-      'This record changed since you asked. Refresh it to ask for the current version, or withdraw.';
-
-  @override
   String get deleteRequests_editWarnTitle => 'Requested for Deletion';
 
   @override
@@ -5283,9 +5279,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_unknownRequester => 'A Firm Member';
 
   @override
-  String get deleteRequests_edit => 'Edit Request';
-
-  @override
   String get deleteRequests_withdraw => 'Withdraw Request';
 
   @override
@@ -5297,12 +5290,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_withdrawn => 'Request Withdrawn.';
-
-  @override
-  String get deleteRequests_updated => 'Request Updated.';
-
-  @override
-  String get deleteRequests_updateFailed => 'Could Not Update The Request.';
 
   @override
   String get deleteRequests_withdrawFailed => 'Could Not Withdraw The Request.';

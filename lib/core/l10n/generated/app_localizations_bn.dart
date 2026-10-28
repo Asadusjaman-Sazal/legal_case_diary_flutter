@@ -5257,10 +5257,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_changed => 'পরিবর্তিত';
 
   @override
-  String get deleteRequests_changedBody =>
-      'আপনার অনুরোধের পর থেকে এই রেকর্ডটি পরিবর্তিত হয়েছে। বর্তমান সংস্করণের জন্য এটি রিফ্রেশ করুন, অথবা প্রত্যাহার করুন।';
-
-  @override
   String get deleteRequests_editWarnTitle => 'মুছে ফেলার অনুরোধ করা হয়েছে';
 
   @override
@@ -5305,9 +5301,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_unknownRequester => 'একজন ফার্ম সদস্য';
 
   @override
-  String get deleteRequests_edit => 'অনুরোধ সম্পাদনা করুন';
-
-  @override
   String get deleteRequests_withdraw => 'অনুরোধ প্রত্যাহার করুন';
 
   @override
@@ -5320,12 +5313,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_withdrawn => 'ডিলিট অনুরোধ প্রত্যাহার করা হয়েছে।';
-
-  @override
-  String get deleteRequests_updated => 'অনুরোধ হালনাগাদ করা হয়েছে।';
-
-  @override
-  String get deleteRequests_updateFailed => 'অনুরোধ হালনাগাদ করা যায়নি।';
 
   @override
   String get deleteRequests_withdrawFailed => 'অনুরোধ প্রত্যাহার করা যায়নি।';

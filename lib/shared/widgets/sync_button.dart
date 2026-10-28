@@ -8,9 +8,11 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/l10n/generated/app_localizations.dart';
+import '../../core/router/app_router.dart';
 import '../../core/utils/date_utils.dart';
 import '../../features/cases/presentation/cases_screen_modal.dart'
     show SyncState;
@@ -168,17 +170,24 @@ class SyncButton extends StatelessWidget {
           )
         : icon;
 
+    // The state text stays as the button's semantics label, but the long press
+    // now opens Online Sync instead of raising the tooltip (user request,
+    // 0.0.688): the screen explains the state and the queue, where a transient
+    // label could only repeat the icon.
     return Tooltip(
       message: _tooltip(),
-      child: IconButton(
-        key: const ValueKey('cases-modal-sync-button'),
-        icon: child,
-        // Tapping still syncs, exactly as before: one control must do one
-        // thing. The count is information, and where it can be acted on is the
-        // separate Pending Sync entry on the Online Sync screen — which is
-        // already reachable, and already where held work is explained.
-        onPressed: canTap ? onSync : null,
-        tooltip: _tooltip(),
+      triggerMode: TooltipTriggerMode.manual,
+      child: GestureDetector(
+        onLongPress: () => context.push(AppRoutes.settingsOnlineSync),
+        child: IconButton(
+          key: const ValueKey('cases-modal-sync-button'),
+          icon: child,
+          // Tapping still syncs, exactly as before: one control must do one
+          // thing. The count is information, and where it can be acted on is the
+          // separate Pending Sync entry on the Online Sync screen — which is
+          // already reachable, and already where held work is explained.
+          onPressed: canTap ? onSync : null,
+        ),
       ),
     );
   }

@@ -305,7 +305,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(Dialog),
-          matching: find.text('Select at least one Day Offset.'),
+          matching: find.text('Select at least one day offset.'),
         ),
         findsOneWidget,
       );

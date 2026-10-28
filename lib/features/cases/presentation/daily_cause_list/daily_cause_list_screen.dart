@@ -338,7 +338,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Text('Unable to load cases: $_error'),
+          child: Text(l.dailyCauseListScreen_loadError('$_error')),
         ),
       );
     }

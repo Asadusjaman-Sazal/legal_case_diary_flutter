@@ -549,7 +549,7 @@ void main() {
 
     expect(repo.settings.bottomNavTabs, <String>['active']);
     expect(
-      find.text('Keep at Least One Screen in the Bottom Bar.'),
+      find.text('Keep at least one screen in the bottom bar.'),
       findsOneWidget,
     );
   });

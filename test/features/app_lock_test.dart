@@ -704,7 +704,7 @@ void main() {
         }
         expect(
           tester.widget<Text>(find.byKey(const ValueKey('pin-pad-message'))).data,
-          contains('Try Again In'),
+          contains('Try again in'),
         );
 
         // The digits are resting…
@@ -758,7 +758,7 @@ void main() {
       final refusal = tester.widget<Text>(
         find.byKey(const ValueKey('pin-pad-message')),
       );
-      expect(refusal.data, contains('Try Again In'));
+      expect(refusal.data, contains('Try again in'));
       expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
 
       // During the rest, typing does nothing at all.

@@ -475,7 +475,7 @@ void main() {
       expect(find.text('Metadata Only'), findsOneWidget);
       expect(find.text('Include Payloads'), findsOneWidget);
       expect(
-        find.textContaining('Delete This File After Seven Days'),
+        find.textContaining('Delete this file after seven days'),
         findsOneWidget,
       );
 

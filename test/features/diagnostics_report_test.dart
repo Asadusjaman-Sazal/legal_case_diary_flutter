@@ -94,7 +94,7 @@ void main() {
     final report = buildDiagnosticsReport(entries: const [], generatedAt: _at);
 
     expect(report, contains('Errors Recorded: 0'));
-    expect(report, contains('No Errors Have Been Recorded.'));
+    expect(report, contains('No errors have been recorded.'));
     expect(report, isNot(contains(' | ')));
   });
 

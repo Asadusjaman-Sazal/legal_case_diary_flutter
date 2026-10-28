@@ -158,7 +158,7 @@ void main() {
     await tester.pumpWidget(app(const ProfileScreen()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Edit profile'));
+    await tester.tap(find.byTooltip('Edit Profile'));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -197,7 +197,7 @@ void main() {
     expect(find.text('+88 01812332721'), findsOneWidget);
 
     // Reopening the editor shows the saved values.
-    await tester.tap(find.byTooltip('Edit profile'));
+    await tester.tap(find.byTooltip('Edit Profile'));
     await tester.pumpAndSettle();
     expect(
       find.widgetWithText(TextFormField, 'Rahim Uddin'),
@@ -213,7 +213,7 @@ void main() {
     await tester.pumpWidget(app(const ProfileScreen()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Edit profile'));
+    await tester.tap(find.byTooltip('Edit Profile'));
     await tester.pumpAndSettle();
 
     // The keyboard covers the bottom third. The form must scroll above it

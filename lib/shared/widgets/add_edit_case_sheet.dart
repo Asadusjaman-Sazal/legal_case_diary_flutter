@@ -784,7 +784,13 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   Widget _buildBody(BuildContext context) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (_loadError != null) {
-      return Center(child: Text('Unable to load case form data: $_loadError'));
+      return Center(
+        child: Text(
+          AppLocalizations.of(
+            context,
+          ).addEditCaseSheet_loadError('$_loadError'),
+        ),
+      );
     }
     if (_lookupData == null) return const SizedBox.shrink();
     final l = AppLocalizations.of(context);
@@ -1835,9 +1841,15 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('$error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).addEditCaseSheet_saveFailed('$error'),
+          ),
+        ),
+      );
     }
   }
 
@@ -2373,9 +2385,15 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('$error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).addEditCaseSheet_updateFailed('$error'),
+          ),
+        ),
+      );
     }
   }
 

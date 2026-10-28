@@ -15,6 +15,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get appTitle => 'লিগ্যাল কেস ডায়েরি';
 
   @override
+  String app_fatalError(String message) {
+    return 'মারাত্মক ত্রুটি: $message';
+  }
+
+  @override
+  String get app_openingDiary => 'কেস ডায়েরি খোলা হচ্ছে…';
+
+  @override
+  String get app_resettingDatabase => 'লোকাল ডেটাবেজ রিসেট করা হচ্ছে…';
+
+  @override
   String get nav_upcomingCases => 'আসন্ন মামলা';
 
   @override
@@ -168,6 +179,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই তারিখের জন্য কোনো শুনানি নির্ধারিত নেই।';
 
   @override
+  String dailyCauseListScreen_loadError(String message) {
+    return 'মামলা লোড করা যায়নি: $message';
+  }
+
+  @override
   String get dailyCauseListScreen_totalHearings => 'মোট শুনানি:';
 
   @override
@@ -277,6 +293,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String caseDetailsScreen_historyAddedBy(String name) {
     return '$name যোগ করেছেন';
+  }
+
+  @override
+  String caseDetailsScreen_historySaveError(String message) {
+    return 'ইতিহাসের এন্ট্রি সংরক্ষণ করা যায়নি: $message';
   }
 
   @override
@@ -411,6 +432,21 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get addEditCaseSheet_pickDate => 'তারিখ নির্বাচন করুন';
+
+  @override
+  String addEditCaseSheet_loadError(String message) {
+    return 'মামলার ফর্ম লোড করা যায়নি: $message';
+  }
+
+  @override
+  String addEditCaseSheet_saveFailed(String message) {
+    return 'মামলা সংরক্ষণ করা যায়নি: $message';
+  }
+
+  @override
+  String addEditCaseSheet_updateFailed(String message) {
+    return 'মামলা হালনাগাদ করা যায়নি: $message';
+  }
 
   @override
   String get addEditCaseSheet_notification => 'নোটিফিকেশন';

@@ -1325,7 +1325,7 @@ abstract class AppLocalizations {
   /// No description provided for @sync_permissionsChanged.
   ///
   /// In en, this message translates to:
-  /// **'Your Firm Permissions Changed; This Pending Action Was Not Applied.'**
+  /// **'Your firm permissions changed; this pending action was not applied.'**
   String get sync_permissionsChanged;
 
   /// No description provided for @sync_clockSkewWarning.
@@ -8659,7 +8659,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncNotice_permissionsChanged.
   ///
   /// In en, this message translates to:
-  /// **'Your Firm Permissions Changed; This Pending Action Was Not Applied.'**
+  /// **'Your firm permissions changed; this pending action was not applied.'**
   String get syncNotice_permissionsChanged;
 
   /// No description provided for @syncNotice_clockSkew.
@@ -8899,7 +8899,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_approveBody.
   ///
   /// In en, this message translates to:
-  /// **'The Record Will Be Deleted For Everyone In The Firm.'**
+  /// **'The record will be deleted for everyone in the firm.'**
   String get deleteRequests_approveBody;
 
   /// No description provided for @deleteRequests_rejectTitle.
@@ -8911,7 +8911,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_rejectBody.
   ///
   /// In en, this message translates to:
-  /// **'The Record Stays. The Requester Is Told Your Decision.'**
+  /// **'The record stays. The requester is told your decision.'**
   String get deleteRequests_rejectBody;
 
   /// No description provided for @deleteRequests_approved.
@@ -8929,13 +8929,13 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_failed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Complete The Review. Try Again.'**
+  /// **'Could not complete the review. Try again.'**
   String get deleteRequests_failed;
 
   /// No description provided for @deleteRequests_staleTitle.
   ///
   /// In en, this message translates to:
-  /// **'This Record Changed'**
+  /// **'This record changed'**
   String get deleteRequests_staleTitle;
 
   /// No description provided for @deleteRequests_staleBody.
@@ -9073,7 +9073,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_withdrawBody.
   ///
   /// In en, this message translates to:
-  /// **'The Record Will Not Be Deleted, And The Request Leaves The Reviewers\' Queue.'**
+  /// **'The record will not be deleted, and the request leaves the reviewers\' queue.'**
   String get deleteRequests_withdrawBody;
 
   /// No description provided for @deleteRequests_withdrawn.

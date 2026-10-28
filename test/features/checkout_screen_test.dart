@@ -169,7 +169,7 @@ void main() {
     expect(repo.submitted, ['TRX99']);
     // Confirmed success clears the draft.
     expect(prefs.getString(paymentDraftKey('user-1')), isNull);
-    expect(find.textContaining('Submission Received'), findsOneWidget);
+    expect(find.textContaining('Submission received'), findsOneWidget);
   });
 
   testWidgets('a confirmed submit keeps the snackbar, opens Subscription '
@@ -271,7 +271,7 @@ void main() {
 
     expect(repo.submitted, ['TRX42']);
     expect(find.text('History-Landed'), findsOneWidget);
-    expect(find.textContaining('Submission Received'), findsOneWidget);
+    expect(find.textContaining('Submission received'), findsOneWidget);
     // The payer is still free, so there is no socket to hear the approval:
     // the checkout starts the bounded watch that re-reads the account.
     final container = ProviderScope.containerOf(

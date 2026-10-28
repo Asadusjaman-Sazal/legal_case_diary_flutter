@@ -159,7 +159,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(Dialog),
-        matching: find.text('Select at least one Day Offset.'),
+        matching: find.text('Select at least one day offset.'),
       ),
       findsOneWidget,
     );
@@ -530,8 +530,8 @@ void main() {
 
     expect(
       find.text(
-        'Notifications May Not Work Reliably on Your Device. '
-        'Tap to Complete Setup.',
+        'Notifications may not work reliably on your device. '
+        'Tap to complete setup.',
       ),
       findsOneWidget,
     );
@@ -549,8 +549,8 @@ void main() {
 
     expect(
       find.text(
-        'Notifications May Not Work Reliably on Your Device. '
-        'Tap to Complete Setup.',
+        'Notifications may not work reliably on your device. '
+        'Tap to complete setup.',
       ),
       findsNothing,
     );
@@ -608,8 +608,8 @@ void main() {
     expect(scheduler.testNotifications, 0);
     expect(
       find.text(
-        "Could Not Show a Notification. Check the App's Notification "
-        'Permission.',
+        "Could not show a notification. Check the app's notification "
+        'permission.',
       ),
       findsOneWidget,
     );

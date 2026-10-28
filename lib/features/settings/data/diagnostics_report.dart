@@ -90,7 +90,7 @@ String buildDiagnosticsReport({
     'Generated: ${diagnosticStamp(at)}',
     'Errors Recorded: ${entries.length}'
         '${entries.length > shown.length ? ' (Showing ${shown.length})' : ''}',
-    if (shown.isEmpty) 'No Errors Have Been Recorded.' else '',
+    if (shown.isEmpty) 'No errors have been recorded.' else '',
     for (final entry in shown) diagnosticEntryLine(entry),
   ].join('\n');
 }

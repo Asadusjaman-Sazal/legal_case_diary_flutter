@@ -15,6 +15,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Legal Case Diary';
 
   @override
+  String app_fatalError(String message) {
+    return 'Fatal error: $message';
+  }
+
+  @override
+  String get app_openingDiary => 'Opening case diary…';
+
+  @override
+  String get app_resettingDatabase => 'Resetting local database…';
+
+  @override
   String get nav_upcomingCases => 'Upcoming Cases';
 
   @override
@@ -168,6 +179,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'No hearings scheduled for this date.';
 
   @override
+  String dailyCauseListScreen_loadError(String message) {
+    return 'Unable to load cases: $message';
+  }
+
+  @override
   String get dailyCauseListScreen_totalHearings => 'Total Hearings:';
 
   @override
@@ -276,6 +292,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String caseDetailsScreen_historyAddedBy(String name) {
     return 'Added By $name';
+  }
+
+  @override
+  String caseDetailsScreen_historySaveError(String message) {
+    return 'Unable to save the history entry: $message';
   }
 
   @override
@@ -413,6 +434,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_pickDate => 'Pick a date';
 
   @override
+  String addEditCaseSheet_loadError(String message) {
+    return 'Unable to load case form data: $message';
+  }
+
+  @override
+  String addEditCaseSheet_saveFailed(String message) {
+    return 'Could not save the case: $message';
+  }
+
+  @override
+  String addEditCaseSheet_updateFailed(String message) {
+    return 'Could not update the case: $message';
+  }
+
+  @override
   String get addEditCaseSheet_notification => 'Notification';
 
   @override
@@ -478,10 +514,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get casesModal_search => 'Search';
 
   @override
-  String get casesModal_viewCompact => 'Compact view';
+  String get casesModal_viewCompact => 'Compact View';
 
   @override
-  String get casesModal_viewExpanded => 'Expanded view';
+  String get casesModal_viewExpanded => 'Expanded View';
 
   @override
   String get casesModal_help => 'Help';
@@ -681,7 +717,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sync_clockSkewWarning =>
-      'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.';
+      'Your device clock appears incorrect. Please fix it to ensure reliable syncing.';
 
   @override
   String syncConflict_bannerMessage(int count) {
@@ -754,11 +790,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncConflict_resolvedNotice =>
-      'This Conflict Is Already Resolved.';
+      'This conflict is already resolved.';
 
   @override
   String get syncConflict_missingNotice =>
-      'This Conflict Is No Longer Available.';
+      'This conflict is no longer available.';
 
   @override
   String get syncStatus_title => 'Sync Status';
@@ -891,27 +927,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncStatus_emptyBody =>
-      'Every Change On This Device Has Been Sent.';
+      'Every change on this device has been sent.';
 
   @override
-  String get syncStatus_retried => 'The Change Will Be Sent Again.';
+  String get syncStatus_retried => 'The change will be sent again.';
 
   @override
   String get syncStatus_discardTitle => 'Discard This Change?';
 
   @override
   String get syncStatus_discardBody =>
-      'The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.';
+      'The queued change will be removed and the record will go back to the version saved on the server. This cannot be undone.';
 
   @override
   String get syncStatus_discardConfirm => 'Discard';
 
   @override
-  String get syncStatus_discarded => 'The Queued Change Was Discarded.';
+  String get syncStatus_discarded => 'The queued change was discarded.';
 
   @override
   String get syncStatus_discardRestoredLocally =>
-      'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.';
+      'The change was discarded. The record was restored from the last saved copy on this device.';
 
   @override
   String get syncStatus_pendingDeletion => 'Deletion Pending';
@@ -930,28 +966,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncStatus_exportMetadataOnlyBody =>
-      'Types, States, Retry Counts And Error Messages. No Case Content Is Included.';
+      'Types, states, retry counts and error messages. No case content is included.';
 
   @override
   String get syncStatus_exportIncludePayloads => 'Include Payloads';
 
   @override
   String get syncStatus_exportIncludePayloadsBody =>
-      'Adds The Queued Changes Themselves, Which Can Include Case Details.';
+      'Adds the queued changes themselves, which can include case details.';
 
   @override
   String get syncStatus_exportConsentTitle => 'Include Case Content?';
 
   @override
   String get syncStatus_exportConsentBody =>
-      'The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.';
+      'The bundle will contain the queued changes, which can include case numbers, names and notes. Only share it with someone you trust.';
 
   @override
   String get syncStatus_exportConsentConfirm => 'Include';
 
   @override
   String get syncStatus_exportReminder =>
-      'Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.';
+      'Delete this file after seven days, or as soon as support no longer needs it.';
 
   @override
   String syncStatus_exportSaved(String path) {
@@ -960,11 +996,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncStatus_exportFailed =>
-      'The Diagnostic Bundle Could Not Be Saved.';
+      'The diagnostic bundle could not be saved.';
 
   @override
   String get logout_connectToSync =>
-      'Connect To The Internet To Sync Your Changes First.';
+      'Connect to the internet to sync your changes first.';
 
   @override
   String get logout_logOutAnyway => 'Log Out Anyway';
@@ -991,31 +1027,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String logout_backedUpTo(String path) {
-    return 'Your Data Has Been Backed Up To $path. You Can Restore It After Logging Back In.';
+    return 'Your data has been backed up to $path. You can restore it after logging back in.';
   }
 
   @override
   String get logout_exportCancelled =>
-      'Logging Out Was Cancelled; Nothing Was Deleted.';
+      'Logging out was cancelled; nothing was deleted.';
 
   @override
   String get logout_exportFailed =>
-      'The Safety Copy Could Not Be Saved, So Nothing Was Deleted.';
+      'The safety copy could not be saved, so nothing was deleted.';
 
   @override
-  String get logout_syncFailed => 'Your Changes Could Not Be Synced.';
+  String get logout_syncFailed => 'Your changes could not be synced.';
 
   @override
   String get recoveryLock_title => 'Offline For Too Long';
 
   @override
   String recoveryLock_message(int days, String path) {
-    return 'You Have Been Offline For $days Days. Your Local Changes Have Been Saved To $path. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.';
+    return 'You have been offline for $days days. Your local changes have been saved to $path. Fresh data must be loaded from the server before editing can continue.';
   }
 
   @override
   String recoveryLock_messageNoCopy(int days) {
-    return 'You Have Been Offline For $days Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.';
+    return 'You have been offline for $days days. A safety copy must be saved before fresh data can be loaded from the server.';
   }
 
   @override
@@ -1039,7 +1075,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryLock_saveFailed =>
-      'The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.';
+      'The safety copy could not be saved. Your data is still on this device — try again.';
 
   @override
   String get recoveryLock_proceed => 'Load Fresh Data';
@@ -1050,21 +1086,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryLock_proceedConfirmBody =>
-      'Your Local Changes Will Be Replaced By The Server\'s Data. The Safety Copy You Saved Is The Only Way Back To Them.';
+      'Your local changes will be replaced by the server\'s data. The safety copy you saved is the only way back to them.';
 
   @override
   String get recoveryLock_close => 'Close';
 
   @override
   String get recoveryLock_closeBody =>
-      'The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.';
+      'The app stays locked and nothing is written to the cloud until recovery succeeds.';
 
   @override
   String get recoveryLock_working => 'Loading Fresh Data…';
 
   @override
   String get recoveryLock_failed =>
-      'Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.';
+      'Recovery could not finish. Your data is still on this device and the app stays locked; try again.';
 
   @override
   String syncStatus_entryTitle(String entity, String operation) {
@@ -1958,7 +1994,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Would you like to send your client a message notifying them of the next court date?';
 
   @override
-  String get clientNotification_rememberChoice => 'Remember my choice';
+  String get clientNotification_rememberChoice => 'Remember My Choice';
 
   @override
   String get clientNotification_exampleLabel => 'Example:';
@@ -2025,13 +2061,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsScreen_sectionAppInfo => 'App Info';
 
   @override
-  String get settingsScreen_searchTooltip => 'Search settings';
+  String get settingsScreen_searchTooltip => 'Search Settings';
 
   @override
   String get settingsScreen_searchHint => 'Search';
 
   @override
-  String get settingsScreen_closeSearchTooltip => 'Close search';
+  String get settingsScreen_closeSearchTooltip => 'Close Search';
 
   @override
   String get settingsScreen_noResults => 'No settings found';
@@ -2120,7 +2156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsProfile_title => 'Profile';
 
   @override
-  String get settingsProfile_editTooltip => 'Edit profile';
+  String get settingsProfile_editTooltip => 'Edit Profile';
 
   @override
   String get settingsProfile_fullName => 'Full Name';
@@ -2563,7 +2599,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteDataDone =>
-      'Your Selected Data Has Been Deleted.';
+      'Your selected data has been deleted.';
 
   @override
   String get settingsManageAccount_deleteDataCloudPending =>
@@ -2571,7 +2607,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteDataNeedsConnection =>
-      'Connect to the internet to delete your cloud data. Nothing Has Been Deleted.';
+      'Connect to the internet to delete your cloud data. Nothing has been deleted.';
 
   @override
   String get settingsManageAccount_deleteDataFirmRefused =>
@@ -2585,7 +2621,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageAccount_dangerZone => 'Danger Zone';
 
   @override
-  String get settingsManageAccount_deleted => 'Your Account Has Been Deleted.';
+  String get settingsManageAccount_deleted => 'Your account has been deleted.';
 
   @override
   String get settingsManageAccount_deleteDialogTitle => 'Delete Account?';
@@ -2608,7 +2644,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteNeedsConnection =>
-      'Connect to the internet to delete your account. Nothing Has Been Deleted.';
+      'Connect to the internet to delete your account. Nothing has been deleted.';
 
   @override
   String get settingsManageAccount_deleteFirmRefused =>
@@ -2623,7 +2659,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account could not be deleted. Please try again.';
 
   @override
-  String get settingsManageAccount_loggedOut => 'You Have Been Logged Out.';
+  String get settingsManageAccount_loggedOut => 'You have been logged out.';
 
   @override
   String get settingsManageAccount_role => 'Role';
@@ -2781,11 +2817,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_needSignInToSync =>
-      'Sign In To Sync Across Devices.';
+      'Sign in to sync across devices.';
 
   @override
   String get settingsOnlineSync_needConnectionToSync =>
-      'No Connection. Your Changes Are Saved On This Device.';
+      'No connection. Your changes are saved on this device.';
 
   @override
   String get settingsOnlineSync_checkingPlan => 'Checking Your Subscription…';
@@ -2796,7 +2832,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_checkingPlanMessage =>
-      'Sync Starts As Soon As Your Plan Is Confirmed.';
+      'Sync starts as soon as your plan is confirmed.';
 
   @override
   String get settingsOnlineSync_itemsUnknown => '— Items';
@@ -2815,7 +2851,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_syncOffMessage =>
-      'Sync Is Off. Turn It Back On To Sync.';
+      'Sync is off. Turn it back on to sync.';
 
   @override
   String get settingsOnlineSync_syncOnTitle => 'Sync Is On';
@@ -2839,10 +2875,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsOnlineSync_syncOffToast =>
-      'Sync Is Off. Your Changes Stay On This Device.';
+      'Sync is off. Your changes stay on this device.';
 
   @override
-  String get settingsOnlineSync_syncOnToast => 'Sync Is On Again.';
+  String get settingsOnlineSync_syncOnToast => 'Sync is on again.';
 
   @override
   String get settingsBackupRestore_title => 'Backup & Restore';
@@ -3437,7 +3473,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotifications_keepOneOffset =>
-      'Select at least one Day Offset.';
+      'Select at least one day offset.';
 
   @override
   String get settingsNotifications_offsetSameDay => 'The Same Day';
@@ -3464,7 +3500,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotifications_reminderBanner =>
-      'Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.';
+      'Notifications may not work reliably on your device. Tap to complete setup.';
 
   @override
   String get settingsNotifications_setupGuide =>
@@ -3486,7 +3522,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotifications_testFailed =>
-      'Could Not Show a Notification. Check the App\'s Notification Permission.';
+      'Could not show a notification. Check the app\'s notification permission.';
 
   @override
   String get notificationJob_channelName => 'Hearing Alerts';
@@ -3610,7 +3646,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBatteryGuide_openFailed =>
-      'Could Not Open That Settings Page. Please Set It Manually.';
+      'Could not open that settings page. Please set it manually.';
 
   @override
   String get settingsBatteryGuide_done => 'Done, I\'ve Completed the Steps';
@@ -3683,7 +3719,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsViewSettings_keepOneTab =>
-      'Keep at Least One Screen in the Bottom Bar.';
+      'Keep at least one screen in the bottom bar.';
 
   @override
   String get settingsViewSettings_sideNav => 'Side Navigation Options';
@@ -4257,7 +4293,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUpdate_offlineToast =>
-      'Please Connect To The Internet And Check For An Update.';
+      'Please connect to the internet and check for an update.';
 
   @override
   String get settingsUpdate_frequencyOff => 'Off';
@@ -4661,7 +4697,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_recoveryLinkSubtitle =>
-      'Choose A New Password For Your Account.';
+      'Choose a new password for your account.';
 
   @override
   String get auth_sendCodeButton => 'Send Code';
@@ -4742,7 +4778,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You are already a member of this firm.';
 
   @override
-  String get auth_joinedFirm => 'You Have Joined The Firm.';
+  String get auth_joinedFirm => 'You have joined the firm.';
 
   @override
   String get auth_errorNetwork =>
@@ -4753,7 +4789,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_errorGoogleFailed =>
-      'Google Sign-In Could Not Complete. Please Try Again.';
+      'Google Sign-In could not complete. Please try again.';
 
   @override
   String get auth_errorAccountMismatch =>
@@ -4953,7 +4989,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String manageAssociates_inviteMessage(String code) {
-    return 'Join My Firm On Legal Case Diary. Invite Code: $code';
+    return 'Join my firm on Legal Case Diary. Invite code: $code';
   }
 
   @override
@@ -4975,7 +5011,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_revokeInviteBody =>
-      'The Code Will Stop Working Immediately.';
+      'The code will stop working immediately.';
 
   @override
   String get manageAssociates_inviteRevoked => 'Invite Revoked.';
@@ -5101,7 +5137,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncNotice_clockSkew =>
-      'Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.';
+      'Your device clock is more than two minutes off from the server. Synced times may be wrong.';
 
   @override
   String get membershipRevoked_title => 'Your Access Ended';
@@ -5131,7 +5167,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequest_sent => 'Deletion request sent for approval.';
 
   @override
-  String get deleteRequest_failed => 'Could Not Send The Deletion Request.';
+  String get deleteRequest_failed => 'Could not send the deletion request.';
 
   @override
   String get deleteRequest_alreadyOpen =>
@@ -5142,21 +5178,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_firmOnly =>
-      'Delete Requests Are Only Available To Firm Members.';
+      'Delete requests are only available to firm members.';
 
   @override
   String get deleteRequests_toReview => 'Awaiting Your Review';
 
   @override
   String get deleteRequests_noneToReview =>
-      'No Deletion Requests Awaiting Review.';
+      'No deletion requests awaiting review.';
 
   @override
   String get deleteRequests_mine => 'My Requests';
 
   @override
   String get deleteRequests_noneMine =>
-      'You Have Not Sent Any Deletion Requests.';
+      'You have not sent any deletion requests.';
 
   @override
   String get deleteRequests_statusPending => 'Pending';
@@ -5323,7 +5359,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_withdrawn => 'Request Withdrawn.';
 
   @override
-  String get deleteRequests_withdrawFailed => 'Could Not Withdraw The Request.';
+  String get deleteRequests_withdrawFailed => 'Could not withdraw the request.';
 
   @override
   String get payments_goPremium => 'Go Premium';
@@ -5391,10 +5427,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Payment numbers are unavailable right now. Please try again later.';
 
   @override
-  String get payments_errorPhone => 'Enter A Valid Mobile Number.';
+  String get payments_errorPhone => 'Enter a valid mobile number.';
 
   @override
-  String get payments_errorTrx => 'Enter The Transaction ID.';
+  String get payments_errorTrx => 'Enter the transaction ID.';
 
   @override
   String get payments_submitFailed => 'Submission failed. Tap Retry.';
@@ -5405,17 +5441,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payments_duplicateTrx =>
-      'This Transaction ID Has Already Been Submitted.';
+      'This transaction ID has already been submitted.';
 
   @override
   String get payments_submitSuccess =>
-      'Submission Received. We Will Verify It Shortly.';
+      'Submission received. We will verify it shortly.';
 
   @override
   String get payments_historyTitle => 'Subscription History';
 
   @override
-  String get payments_noSubmissions => 'No Subscription History Yet.';
+  String get payments_noSubmissions => 'No subscription history yet.';
 
   @override
   String get payments_statusPending => 'Pending';
@@ -5539,10 +5575,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_hint =>
-      'Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.';
+      'Errors this app has recorded. Case data, passwords and tokens are never written here.';
 
   @override
-  String get settingsDiagnostics_empty => 'No Errors Have Been Recorded.';
+  String get settingsDiagnostics_empty => 'No errors have been recorded.';
 
   @override
   String get settingsDiagnostics_clear => 'Clear Log';
@@ -5555,7 +5591,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDiagnostics_copied =>
-      'Diagnostics Copied. Paste Them Into A Message To Us.';
+      'Diagnostics copied. Paste them into a message to us.';
 
   @override
   String get settingsAppLock_title => 'App Lock';
@@ -5592,14 +5628,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppLock_pinMismatch =>
-      'The PINs Do Not Match. Start Again.';
+      'The PINs do not match. Start again.';
 
   @override
-  String get settingsAppLock_setupDone => 'App Lock Is On.';
+  String get settingsAppLock_setupDone => 'App Lock is on.';
 
   @override
   String get settingsAppLock_setupFailed =>
-      'The PIN Could Not Be Saved. Try Again.';
+      'The PIN could not be saved. Try again.';
 
   @override
   String get settingsAppLock_enterCurrentPin => 'Enter Your Current PIN';
@@ -5608,10 +5644,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppLock_newPin => 'Enter A New PIN';
 
   @override
-  String get settingsAppLock_pinChanged => 'App Lock PIN Changed.';
+  String get settingsAppLock_pinChanged => 'App Lock PIN changed.';
 
   @override
-  String get settingsAppLock_currentPinWrong => 'That PIN Is Not Correct.';
+  String get settingsAppLock_currentPinWrong => 'That PIN is not correct.';
 
   @override
   String get settingsAppLock_unlockTitle => 'Enter Your PIN To Unlock';
@@ -5621,7 +5657,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsAppLock_tooManyAttempts(String seconds) {
-    return 'Too Many Attempts. Try Again In $seconds Seconds.';
+    return 'Too many attempts. Try again in $seconds seconds.';
   }
 
   @override
@@ -5638,7 +5674,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppLock_fingerprintUnavailable =>
-      'No Fingerprint Is Available On This Device.';
+      'No fingerprint is available on this device.';
 
   @override
   String get settingsAppLock_useFingerprint => 'Unlock With Fingerprint';

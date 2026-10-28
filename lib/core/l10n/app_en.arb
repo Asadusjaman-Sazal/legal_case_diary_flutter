@@ -3,6 +3,16 @@
   "@@_section_app": "APP WIDE  |  app.dart - app wide",
   "appName": "Legal Case Diary",
   "appTitle": "Legal Case Diary",
+  "app_fatalError": "Fatal error: {message}",
+  "@app_fatalError": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "app_openingDiary": "Opening case diary\u2026",
+  "app_resettingDatabase": "Resetting local database\u2026",
   "@@_section_nav": "NAVIGATION (drawer + bottom bar)  |  lib/shared/widgets/app_navigation_drawer.dart, bottom_nav_bar.dart",
   "nav_upcomingCases": "Upcoming Cases",
   "nav_dailyCauseList": "Daily Cause List",
@@ -65,6 +75,14 @@
   "dailyCauseListScreen_tomorrow": "Tomorrow",
   "dailyCauseListScreen_calendarLabel": "Calendar",
   "dailyCauseListScreen_noHearings": "No hearings scheduled for this date.",
+  "dailyCauseListScreen_loadError": "Unable to load cases: {message}",
+  "@dailyCauseListScreen_loadError": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
   "dailyCauseListScreen_totalHearings": "Total Hearings:",
   "dailyCauseListScreen_selectYear": "Select Year",
   "dailyCauseListScreen_selectMonth": "Select Month",
@@ -113,6 +131,14 @@
   "@caseDetailsScreen_historyAddedBy": {
       "placeholders": {
           "name": {
+              "type": "String"
+          }
+      }
+  },
+  "caseDetailsScreen_historySaveError": "Unable to save the history entry: {message}",
+  "@caseDetailsScreen_historySaveError": {
+      "placeholders": {
+          "message": {
               "type": "String"
           }
       }
@@ -189,6 +215,30 @@
   "addEditCaseSheet_nextDate": "Next Date",
   "quickUpdateCase_currentNextDate": "Current Next Date",
   "addEditCaseSheet_pickDate": "Pick a date",
+  "addEditCaseSheet_loadError": "Unable to load case form data: {message}",
+  "@addEditCaseSheet_loadError": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "addEditCaseSheet_saveFailed": "Could not save the case: {message}",
+  "@addEditCaseSheet_saveFailed": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
+  "addEditCaseSheet_updateFailed": "Could not update the case: {message}",
+  "@addEditCaseSheet_updateFailed": {
+      "placeholders": {
+          "message": {
+              "type": "String"
+          }
+      }
+  },
   "addEditCaseSheet_notification": "Notification",
   "addEditCaseSheet_dayOffset": "Day Offset",
   "notificationTimePicker_title": "Select Time",
@@ -225,8 +275,8 @@
   "customDropdown_selected": "Selected",
   "casesModal_addCase": "Add Case",
   "casesModal_search": "Search",
-  "casesModal_viewCompact": "Compact view",
-  "casesModal_viewExpanded": "Expanded view",
+  "casesModal_viewCompact": "Compact View",
+  "casesModal_viewExpanded": "Expanded View",
   "casesModal_help": "Help",
   "customDropdown_selectOption": "Select an option",
   "customDropdown_search": "Search",
@@ -316,7 +366,7 @@
       }
   },
   "sync_permissionsChanged": "Your firm permissions changed; this pending action was not applied.",
-  "sync_clockSkewWarning": "Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.",
+  "sync_clockSkewWarning": "Your device clock appears incorrect. Please fix it to ensure reliable syncing.",
   "@@_section_syncConflict": "SYNC CONFLICTS  |  lib/features/sync/presentation - conflict banner and review screen",
   "syncConflict_bannerMessage": "{count, plural, =1{A Conflict Needs Review} other{{count} Conflicts Need Review}}",
   "@syncConflict_bannerMessage": {
@@ -350,8 +400,8 @@
   "syncConflict_discardConfirmBody": "The server version will replace your unsynced changes. This cannot be undone.",
   "syncConflict_laterEditsTitle": "Later Saved Changes",
   "syncConflict_laterEditsBody": "These edits are preserved until this conflict is answered.",
-  "syncConflict_resolvedNotice": "This Conflict Is Already Resolved.",
-  "syncConflict_missingNotice": "This Conflict Is No Longer Available.",
+  "syncConflict_resolvedNotice": "This conflict is already resolved.",
+  "syncConflict_missingNotice": "This conflict is no longer available.",
   "@@_section_syncStatus": "SYNC STATUS  |  lib/features/sync/presentation - Sync Status and diagnostic bundle",
   "syncStatus_title": "Sync Status",
   "syncStatus_subtitle": "Every Change Waiting To Be Sent",
@@ -438,25 +488,25 @@
       }
   },
   "syncStatus_emptyTitle": "Nothing Is Waiting To Sync",
-  "syncStatus_emptyBody": "Every Change On This Device Has Been Sent.",
-  "syncStatus_retried": "The Change Will Be Sent Again.",
+  "syncStatus_emptyBody": "Every change on this device has been sent.",
+  "syncStatus_retried": "The change will be sent again.",
   "syncStatus_discardTitle": "Discard This Change?",
-  "syncStatus_discardBody": "The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.",
+  "syncStatus_discardBody": "The queued change will be removed and the record will go back to the version saved on the server. This cannot be undone.",
   "syncStatus_discardConfirm": "Discard",
-  "syncStatus_discarded": "The Queued Change Was Discarded.",
-  "syncStatus_discardRestoredLocally": "The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.",
+  "syncStatus_discarded": "The queued change was discarded.",
+  "syncStatus_discardRestoredLocally": "The change was discarded. The record was restored from the last saved copy on this device.",
   "syncStatus_pendingDeletion": "Deletion Pending",
   "syncStatus_export": "Export Diagnostic Bundle",
   "syncStatus_exportShort": "Export",
   "syncStatus_exportTitle": "Export Diagnostic Bundle",
   "syncStatus_exportMetadataOnly": "Metadata Only",
-  "syncStatus_exportMetadataOnlyBody": "Types, States, Retry Counts And Error Messages. No Case Content Is Included.",
+  "syncStatus_exportMetadataOnlyBody": "Types, states, retry counts and error messages. No case content is included.",
   "syncStatus_exportIncludePayloads": "Include Payloads",
-  "syncStatus_exportIncludePayloadsBody": "Adds The Queued Changes Themselves, Which Can Include Case Details.",
+  "syncStatus_exportIncludePayloadsBody": "Adds the queued changes themselves, which can include case details.",
   "syncStatus_exportConsentTitle": "Include Case Content?",
-  "syncStatus_exportConsentBody": "The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.",
+  "syncStatus_exportConsentBody": "The bundle will contain the queued changes, which can include case numbers, names and notes. Only share it with someone you trust.",
   "syncStatus_exportConsentConfirm": "Include",
-  "syncStatus_exportReminder": "Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.",
+  "syncStatus_exportReminder": "Delete this file after seven days, or as soon as support no longer needs it.",
   "syncStatus_exportSaved": "Diagnostic Bundle Saved To {path}",
   "@syncStatus_exportSaved": {
       "placeholders": {
@@ -465,9 +515,9 @@
           }
       }
   },
-  "syncStatus_exportFailed": "The Diagnostic Bundle Could Not Be Saved.",
+  "syncStatus_exportFailed": "The diagnostic bundle could not be saved.",
   "@@_section_logoutBranches": "BRANCHED LOGOUT  |  lib/features/auth - logout windows and messages",
-  "logout_connectToSync": "Connect To The Internet To Sync Your Changes First.",
+  "logout_connectToSync": "Connect to the internet to sync your changes first.",
   "logout_logOutAnyway": "Log Out Anyway",
   "logout_unsyncedWarningTitle": "Some Changes Have Not Synced Yet",
   "logout_unsyncedWarningBody": "Some data haven't finished syncing to cloud yet. Logging out now will result in those unsynced data being discarded.",
@@ -475,7 +525,7 @@
   "logout_memberWarningBody": "The chamber keeps its records, so no copy is taken from this device. Everything the chamber has here — its cases, notes, references and roster — is erased, and anything still waiting to sync is discarded. Sign in again to get the chamber's records back.",
   "logout_proceed": "Log Out",
   "logout_backupPromptTitle": "Backup Data to Local Storage",
-  "logout_backedUpTo": "Your Data Has Been Backed Up To {path}. You Can Restore It After Logging Back In.",
+  "logout_backedUpTo": "Your data has been backed up to {path}. You can restore it after logging back in.",
   "@logout_backedUpTo": {
       "placeholders": {
           "path": {
@@ -483,12 +533,12 @@
           }
       }
   },
-  "logout_exportCancelled": "Logging Out Was Cancelled; Nothing Was Deleted.",
-  "logout_exportFailed": "The Safety Copy Could Not Be Saved, So Nothing Was Deleted.",
-  "logout_syncFailed": "Your Changes Could Not Be Synced.",
+  "logout_exportCancelled": "Logging out was cancelled; nothing was deleted.",
+  "logout_exportFailed": "The safety copy could not be saved, so nothing was deleted.",
+  "logout_syncFailed": "Your changes could not be synced.",
   "@@_section_recoveryLock": "EXTENDED-OFFLINE RECOVERY  |  lib/features/sync/presentation - blocking recovery screen",
   "recoveryLock_title": "Offline For Too Long",
-  "recoveryLock_message": "You Have Been Offline For {days} Days. Your Local Changes Have Been Saved To {path}. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.",
+  "recoveryLock_message": "You have been offline for {days} days. Your local changes have been saved to {path}. Fresh data must be loaded from the server before editing can continue.",
   "@recoveryLock_message": {
       "placeholders": {
           "days": {
@@ -499,7 +549,7 @@
           }
       }
   },
-  "recoveryLock_messageNoCopy": "You Have Been Offline For {days} Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.",
+  "recoveryLock_messageNoCopy": "You have been offline for {days} days. A safety copy must be saved before fresh data can be loaded from the server.",
   "@recoveryLock_messageNoCopy": {
       "placeholders": {
           "days": {
@@ -519,14 +569,14 @@
           }
       }
   },
-  "recoveryLock_saveFailed": "The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.",
+  "recoveryLock_saveFailed": "The safety copy could not be saved. Your data is still on this device — try again.",
   "recoveryLock_proceed": "Load Fresh Data",
   "recoveryLock_proceedConfirmTitle": "Replace This Device With The Server's Copy?",
-  "recoveryLock_proceedConfirmBody": "Your Local Changes Will Be Replaced By The Server's Data. The Safety Copy You Saved Is The Only Way Back To Them.",
+  "recoveryLock_proceedConfirmBody": "Your local changes will be replaced by the server's data. The safety copy you saved is the only way back to them.",
   "recoveryLock_close": "Close",
-  "recoveryLock_closeBody": "The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.",
+  "recoveryLock_closeBody": "The app stays locked and nothing is written to the cloud until recovery succeeds.",
   "recoveryLock_working": "Loading Fresh Data…",
-  "recoveryLock_failed": "Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.",
+  "recoveryLock_failed": "Recovery could not finish. Your data is still on this device and the app stays locked; try again.",
   "syncStatus_entryTitle": "{entity} {operation}",
   "@syncStatus_entryTitle": {
       "placeholders": {
@@ -1035,7 +1085,7 @@
   "clientNotification_contactDialogHelper": "The number your client will see in the message.",
   "clientNotification_promptTitle": "Send Message to Client?",
   "clientNotification_promptBody": "Would you like to send your client a message notifying them of the next court date?",
-  "clientNotification_rememberChoice": "Remember my choice",
+  "clientNotification_rememberChoice": "Remember My Choice",
   "clientNotification_exampleLabel": "Example:",
   "clientNotification_previewClient": "Ali Hayder",
   "clientNotification_previewCase": "Civil-123/26",
@@ -1058,9 +1108,9 @@
   "settingsScreen_sectionGeneral": "General",
   "settingsScreen_sectionPreferences": "Preferences",
   "settingsScreen_sectionAppInfo": "App Info",
-  "settingsScreen_searchTooltip": "Search settings",
+  "settingsScreen_searchTooltip": "Search Settings",
   "settingsScreen_searchHint": "Search",
-  "settingsScreen_closeSearchTooltip": "Close search",
+  "settingsScreen_closeSearchTooltip": "Close Search",
   "settingsScreen_noResults": "No settings found",
   "@@_section_settingsLanguage": "SETTINGS - LANGUAGE  |  lib/features/settings/presentation/language_screen.dart",
   "settingsScreen_languageEnglish": "English",
@@ -1089,7 +1139,7 @@
   "settingsAccountProfile_deleteRequestsSubtitle": "Review requests and track their decisions",
   "@@_section_settingsProfile": "SETTINGS - PROFILE  |  lib/features/accounts_and_profile/presentation/profile_screen.dart",
   "settingsProfile_title": "Profile",
-  "settingsProfile_editTooltip": "Edit profile",
+  "settingsProfile_editTooltip": "Edit Profile",
   "settingsProfile_fullName": "Full Name",
   "settingsProfile_barAssociation": "Bar Association",
   "settingsProfile_membershipNo": "Membership No.",
@@ -1257,13 +1307,13 @@
   "settingsManageAccount_deleteDataCustomSeedDataHint": "Court categories, court names, steps, case types and on-behalfs you added",
   "settingsManageAccount_deleteDataConfirm": "Delete Selected",
   "settingsManageAccount_deleteDataConfirmPhrase": "delete my data",
-  "settingsManageAccount_deleteDataDone": "Your Selected Data Has Been Deleted.",
+  "settingsManageAccount_deleteDataDone": "Your selected data has been deleted.",
   "settingsManageAccount_deleteDataCloudPending": "Your data was deleted from this device. The account's copies will be removed on the next sync.",
-  "settingsManageAccount_deleteDataNeedsConnection": "Connect to the internet to delete your cloud data. Nothing Has Been Deleted.",
+  "settingsManageAccount_deleteDataNeedsConnection": "Connect to the internet to delete your cloud data. Nothing has been deleted.",
   "settingsManageAccount_deleteDataFirmRefused": "You are part of a firm, so your diary is shared with it. Ask the firm owner to remove you before deleting your data.",
   "settingsManageAccount_deleteDataFailed": "Your data could not be deleted. Please try again.",
   "settingsManageAccount_dangerZone": "Danger Zone",
-  "settingsManageAccount_deleted": "Your Account Has Been Deleted.",
+  "settingsManageAccount_deleted": "Your account has been deleted.",
   "settingsManageAccount_deleteDialogTitle": "Delete Account?",
   "settingsManageAccount_deleteWarningFree": "This permanently deletes your account and every case, note, case reference and setting on this device. Nothing can be recovered after this.",
   "settingsManageAccount_deleteWarningPremium": "This permanently deletes your account and every case, note, case reference and setting on this device and in the cloud. Nothing can be recovered after this.",
@@ -1276,11 +1326,11 @@
       }
     }
   },
-  "settingsManageAccount_deleteNeedsConnection": "Connect to the internet to delete your account. Nothing Has Been Deleted.",
+  "settingsManageAccount_deleteNeedsConnection": "Connect to the internet to delete your account. Nothing has been deleted.",
   "settingsManageAccount_deleteFirmRefused": "You are part of a firm, so some of your data is shared with it. Ask the firm owner to remove you before deleting your account.",
   "settingsManageAccount_deleteAdminRefused": "An administrator account cannot be deleted from the app.",
   "settingsManageAccount_deleteFailed": "Your account could not be deleted. Please try again.",
-  "settingsManageAccount_loggedOut": "You Have Been Logged Out.",
+  "settingsManageAccount_loggedOut": "You have been logged out.",
   "settingsManageAccount_role": "Role",
   "settingsManageAccount_roleIndividual": "Individual",
   "settingsManageAccount_roleOwner": "Owner",
@@ -1362,11 +1412,11 @@
       }
   },
   "settingsOnlineSync_syncFinished": "Sync Finished.",
-  "settingsOnlineSync_needSignInToSync": "Sign In To Sync Across Devices.",
-  "settingsOnlineSync_needConnectionToSync": "No Connection. Your Changes Are Saved On This Device.",
+  "settingsOnlineSync_needSignInToSync": "Sign in to sync across devices.",
+  "settingsOnlineSync_needConnectionToSync": "No connection. Your changes are saved on this device.",
   "settingsOnlineSync_checkingPlan": "Checking Your Subscription…",
   "settingsOnlineSync_checkingPlanBody": "Confirming your plan before anything is sent.",
-  "settingsOnlineSync_checkingPlanMessage": "Sync Starts As Soon As Your Plan Is Confirmed.",
+  "settingsOnlineSync_checkingPlanMessage": "Sync starts as soon as your plan is confirmed.",
   "settingsOnlineSync_itemsUnknown": "— Items",
   "settingsOnlineSync_itemsCount": "{count} Items",
   "@settingsOnlineSync_itemsCount": {
@@ -1379,15 +1429,15 @@
   },
   "settingsOnlineSync_syncOff": "Sync Off",
   "settingsOnlineSync_syncOffBody": "Sync is off. Turn it back on to send and receive your changes.",
-  "settingsOnlineSync_syncOffMessage": "Sync Is Off. Turn It Back On To Sync.",
+  "settingsOnlineSync_syncOffMessage": "Sync is off. Turn it back on to sync.",
   "settingsOnlineSync_syncOnTitle": "Sync Is On",
   "settingsOnlineSync_syncOnBody": "Turn sync off to keep your changes on this device for now. You can turn it back on here at any time.",
   "settingsOnlineSync_syncOffTitle": "Sync Is Off",
   "settingsOnlineSync_syncOffCardBody": "Nothing is sent or received while sync is off. Your changes stay on this device, and sync turns back on when the app is restarted.",
   "settingsOnlineSync_disableSync": "Disable Sync",
   "settingsOnlineSync_enableSync": "Enable Sync",
-  "settingsOnlineSync_syncOffToast": "Sync Is Off. Your Changes Stay On This Device.",
-  "settingsOnlineSync_syncOnToast": "Sync Is On Again.",
+  "settingsOnlineSync_syncOffToast": "Sync is off. Your changes stay on this device.",
+  "settingsOnlineSync_syncOnToast": "Sync is on again.",
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "Backup & Restore",
   "settingsBackupRestore_chooseBackupTitle": "Choose the backup to restore",
@@ -1684,7 +1734,7 @@
   "settingsNotifications_off": "Off",
   "settingsNotifications_dayOffsetLabel": "Notification Day Offset",
   "settingsNotifications_selectDayOffsetTitle": "Select Day Offset",
-  "settingsNotifications_keepOneOffset": "Select at least one Day Offset.",
+  "settingsNotifications_keepOneOffset": "Select at least one day offset.",
   "settingsNotifications_offsetSameDay": "The Same Day",
   "settingsNotifications_offsetDayBefore": "The Day Before",
   "settingsNotifications_offsetBeforeDays": "Before {days} Days",
@@ -1699,13 +1749,13 @@
   },
   "settingsNotifications_timeLabel": "Notification Time",
   "settingsNotifications_paymentAlertsLabel": "Admin Panel Notification",
-  "settingsNotifications_reminderBanner": "Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.",
+  "settingsNotifications_reminderBanner": "Notifications may not work reliably on your device. Tap to complete setup.",
   "settingsNotifications_setupGuide": "Battery & Auto-Start Setup Guide",
   "settingsNotifications_setupGuideSubtitle": "Required on Xiaomi, Oppo, Vivo and Realme Phones",
   "settingsNotifications_sendTest": "Send Test Notification",
   "settingsNotifications_sendTestSubtitle": "See how a hearing alert looks on this phone",
   "settingsNotifications_testSent": "Test Notification Sent",
-  "settingsNotifications_testFailed": "Could Not Show a Notification. Check the App's Notification Permission.",
+  "settingsNotifications_testFailed": "Could not show a notification. Check the app's notification permission.",
   "@@_section_notificationJob": "NOTIFICATIONS - DAILY HEARING ALERTS  |  lib/core/notifications/notification_plan.dart",
   "notificationJob_channelName": "Hearing Alerts",
   "notificationJob_channelDescription": "Daily reminders for your upcoming hearings",
@@ -1768,7 +1818,7 @@
   "settingsBatteryGuide_autoStartDone": "Auto-Start Marked As Done By You",
   "settingsBatteryGuide_markDone": "Mark As Done",
   "settingsBatteryGuide_markNotDone": "Mark As Not Done",
-  "settingsBatteryGuide_openFailed": "Could Not Open That Settings Page. Please Set It Manually.",
+  "settingsBatteryGuide_openFailed": "Could not open that settings page. Please set it manually.",
   "settingsBatteryGuide_done": "Done, I've Completed the Steps",
   "settingsBatteryGuide_skip": "Skip for Now",
   "settingsBatteryGuide_skipNote": "You can finish this later from Settings → Notifications.",
@@ -1822,7 +1872,7 @@
           }
       }
   },
-  "settingsViewSettings_keepOneTab": "Keep at Least One Screen in the Bottom Bar.",
+  "settingsViewSettings_keepOneTab": "Keep at least one screen in the bottom bar.",
   "settingsViewSettings_sideNav": "Side Navigation Options",
   "settingsViewSettings_sideNavCount": "{shown} of {total} Sections Shown",
   "@settingsViewSettings_sideNavCount": {
@@ -2011,7 +2061,7 @@
   "settingsUpdate_downloadFailed": "The update could not be downloaded. Please try again later.",
   "settingsUpdate_installUnavailable": "This device cannot install an update.",
   "settingsUpdate_unverifiedRelease": "This update could not be verified, so it was not installed.",
-  "settingsUpdate_offlineToast": "Please Connect To The Internet And Check For An Update.",
+  "settingsUpdate_offlineToast": "Please connect to the internet and check for an update.",
   "settingsUpdate_frequencyOff": "Off",
   "settingsUpdate_frequencyEveryday": "Every Day",
   "settingsUpdate_frequencyEvery3Days": "Every 3 Days",
@@ -2227,7 +2277,7 @@
   },
   "auth_forgotTitle": "Reset Password",
   "auth_forgotSubtitle": "Enter your email and we will send a recovery code.",
-  "auth_recoveryLinkSubtitle": "Choose A New Password For Your Account.",
+  "auth_recoveryLinkSubtitle": "Choose a new password for your account.",
   "auth_sendCodeButton": "Send Code",
   "auth_recoveryCodeLabel": "Recovery Code",
   "auth_recoveryCodeHelper": "Open the code we emailed you, then choose a new password.",
@@ -2249,10 +2299,10 @@
   "firm_errorUnauthorized": "Your account is not allowed to do that.",
   "firm_errorUnavailable": "Firm management is not available in this build.",
   "auth_errorAlreadyMember": "You are already a member of this firm.",
-  "auth_joinedFirm": "You Have Joined The Firm.",
+  "auth_joinedFirm": "You have joined the firm.",
   "auth_errorNetwork": "No connection. Check your internet and try again.",
   "auth_errorUnavailable": "Sign-in is not available in this build.",
-  "auth_errorGoogleFailed": "Google Sign-In Could Not Complete. Please Try Again.",
+  "auth_errorGoogleFailed": "Google Sign-In could not complete. Please try again.",
   "auth_errorAccountMismatch": "This device belongs to another account. Log in with that account, or restore a backup.",
   "auth_errorUnknown": "Something went wrong. Please try again.",
   "auth_errorOwnDiary": "This account already has its own diary ({cases} cases). An associate's diary must be empty — sign up again using a different account with Join Existing Firm, or export your diary and delete this account.",
@@ -2336,7 +2386,7 @@
   "manageAssociates_codeCopied": "Code Copied.",
   "manageAssociates_shareCode": "Share",
   "manageAssociates_shareFailed": "Could Not Share The Code",
-  "manageAssociates_inviteMessage": "Join My Firm On Legal Case Diary. Invite Code: {code}",
+  "manageAssociates_inviteMessage": "Join my firm on Legal Case Diary. Invite code: {code}",
   "@manageAssociates_inviteMessage": {
       "placeholders": {
           "code": {
@@ -2357,7 +2407,7 @@
   },
   "manageAssociates_revokeInvite": "Revoke",
   "manageAssociates_revokeInviteTitle": "Revoke This Invite?",
-  "manageAssociates_revokeInviteBody": "The Code Will Stop Working Immediately.",
+  "manageAssociates_revokeInviteBody": "The code will stop working immediately.",
   "manageAssociates_inviteRevoked": "Invite Revoked.",
   "manageAssociates_permissionsTitle": "Permissions",
   "manageAssociates_roleLabel": "Role",
@@ -2399,7 +2449,7 @@
   "manageAssociates_firmOverviewReadySuffix": "page to create your firm and invite your first associate.",
   "@@_section_syncNotice": "SYNC NOTICE  |  lib/features/sync/presentation/sync_notice_banner.dart",
   "syncNotice_permissionsChanged": "Your firm permissions changed; this pending action was not applied.",
-  "syncNotice_clockSkew": "Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.",
+  "syncNotice_clockSkew": "Your device clock is more than two minutes off from the server. Synced times may be wrong.",
   "@@_section_membershipRevoked": "MEMBERSHIP REVOKED  |  lib/features/accounts_and_profile/presentation/membership_revoked_scope.dart",
   "membershipRevoked_title": "Your Access Ended",
   "membershipRevoked_body": "The firm owner removed this account. Everything the firm had on this device — its cases, notes, references, roster and pending work — has already been erased, and work that was still waiting to sync was discarded rather than sent. Your own records are safe with the firm. You can use this account again for an individual diary, or join another firm. If this phone had already been removed while it was switched off, this is the erase running now, the first time it was opened.",
@@ -2410,15 +2460,15 @@
   "deleteRequest_confirmBody": "A firm member with delete permission has to approve it before the record is removed.",
   "deleteRequest_confirmSend": "Send",
   "deleteRequest_sent": "Deletion request sent for approval.",
-  "deleteRequest_failed": "Could Not Send The Deletion Request.",
+  "deleteRequest_failed": "Could not send the deletion request.",
   "deleteRequest_alreadyOpen": "A deletion request for this record is already open.",
   "@@_section_deleteRequests": "DELETE REQUESTS (REVIEWER)  |  lib/features/settings/presentation/delete_requests_screen.dart",
   "deleteRequests_title": "Delete Requests",
-  "deleteRequests_firmOnly": "Delete Requests Are Only Available To Firm Members.",
+  "deleteRequests_firmOnly": "Delete requests are only available to firm members.",
   "deleteRequests_toReview": "Awaiting Your Review",
-  "deleteRequests_noneToReview": "No Deletion Requests Awaiting Review.",
+  "deleteRequests_noneToReview": "No deletion requests awaiting review.",
   "deleteRequests_mine": "My Requests",
-  "deleteRequests_noneMine": "You Have Not Sent Any Deletion Requests.",
+  "deleteRequests_noneMine": "You have not sent any deletion requests.",
   "deleteRequests_statusPending": "Pending",
   "deleteRequests_statusApproved": "Approved",
   "deleteRequests_statusRejected": "Rejected",
@@ -2494,7 +2544,7 @@
   "deleteRequests_withdrawTitle": "Withdraw This Deletion Request?",
   "deleteRequests_withdrawBody": "The record will not be deleted, and the request leaves the reviewers' queue.",
   "deleteRequests_withdrawn": "Request Withdrawn.",
-  "deleteRequests_withdrawFailed": "Could Not Withdraw The Request.",
+  "deleteRequests_withdrawFailed": "Could not withdraw the request.",
   "@@_section_payments": "PAYMENTS  |  lib/features/payments/presentation/{paywall_screen,checkout_screen}.dart",
   "payments_goPremium": "Go Premium",
   "payments_checkoutTitle": "Checkout",
@@ -2533,14 +2583,14 @@
   "payments_trxHint": "Enter The TrxID",
   "payments_submit": "Submit Payment",
   "payments_numberUnavailable": "Payment numbers are unavailable right now. Please try again later.",
-  "payments_errorPhone": "Enter A Valid Mobile Number.",
-  "payments_errorTrx": "Enter The Transaction ID.",
+  "payments_errorPhone": "Enter a valid mobile number.",
+  "payments_errorTrx": "Enter the transaction ID.",
   "payments_submitFailed": "Submission failed. Tap Retry.",
   "payments_limitReached": "You've reached today's submission limit. Please try again tomorrow.",
-  "payments_duplicateTrx": "This Transaction ID Has Already Been Submitted.",
-  "payments_submitSuccess": "Submission Received. We Will Verify It Shortly.",
+  "payments_duplicateTrx": "This transaction ID has already been submitted.",
+  "payments_submitSuccess": "Submission received. We will verify it shortly.",
   "payments_historyTitle": "Subscription History",
-  "payments_noSubmissions": "No Subscription History Yet.",
+  "payments_noSubmissions": "No subscription history yet.",
   "payments_statusPending": "Pending",
   "payments_statusApproved": "Approved",
   "payments_statusRejected": "Rejected",
@@ -2643,12 +2693,12 @@
 
 ,
 
-"settingsDiagnostics_hint": "Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.",
-  "settingsDiagnostics_empty": "No Errors Have Been Recorded.",
+"settingsDiagnostics_hint": "Errors this app has recorded. Case data, passwords and tokens are never written here.",
+  "settingsDiagnostics_empty": "No errors have been recorded.",
   "settingsDiagnostics_clear": "Clear Log",
   "settingsDiagnostics_cleared": "Error Log Cleared.",
   "settingsDiagnostics_copy": "Copy Diagnostics",
-  "settingsDiagnostics_copied": "Diagnostics Copied. Paste Them Into A Message To Us.",
+  "settingsDiagnostics_copied": "Diagnostics copied. Paste them into a message to us.",
   "@@_section_settingsAppLock": "SETTINGS - APP LOCK  |  lib/features/app_lock/presentation/app_lock_screen.dart",
   "settingsAppLock_title": "App Lock",
   "settingsAppLock_setup": "Setup App Lock",
@@ -2668,16 +2718,16 @@
       }
   },
   "settingsAppLock_confirmPin": "Confirm Your PIN",
-  "settingsAppLock_pinMismatch": "The PINs Do Not Match. Start Again.",
-  "settingsAppLock_setupDone": "App Lock Is On.",
-  "settingsAppLock_setupFailed": "The PIN Could Not Be Saved. Try Again.",
+  "settingsAppLock_pinMismatch": "The PINs do not match. Start again.",
+  "settingsAppLock_setupDone": "App Lock is on.",
+  "settingsAppLock_setupFailed": "The PIN could not be saved. Try again.",
   "settingsAppLock_enterCurrentPin": "Enter Your Current PIN",
   "settingsAppLock_newPin": "Enter A New PIN",
-  "settingsAppLock_pinChanged": "App Lock PIN Changed.",
-  "settingsAppLock_currentPinWrong": "That PIN Is Not Correct.",
+  "settingsAppLock_pinChanged": "App Lock PIN changed.",
+  "settingsAppLock_currentPinWrong": "That PIN is not correct.",
   "settingsAppLock_unlockTitle": "Enter Your PIN To Unlock",
   "settingsAppLock_wrongPin": "Wrong PIN. Try Again.",
-  "settingsAppLock_tooManyAttempts": "Too Many Attempts. Try Again In {seconds} Seconds.",
+  "settingsAppLock_tooManyAttempts": "Too many attempts. Try again in {seconds} seconds.",
   "@settingsAppLock_tooManyAttempts": {
       "description": "Shown while a wrong-pin lockout is still running; seconds is pre-formatted in the active language.",
       "placeholders": {
@@ -2689,7 +2739,7 @@
   "settingsAppLock_verifyForFingerprint": "Verify Your Identity For App Lock",
   "settingsAppLock_fingerprintEnabled": "Fingerprint Unlock Enabled.",
   "settingsAppLock_fingerprintDisabled": "Fingerprint Unlock Disabled.",
-  "settingsAppLock_fingerprintUnavailable": "No Fingerprint Is Available On This Device.",
+  "settingsAppLock_fingerprintUnavailable": "No fingerprint is available on this device.",
   "settingsAppLock_useFingerprint": "Unlock With Fingerprint",
   "settingsAppLock_turnOff": "Turn Off App Lock",
   "settingsAppLock_turnOffTitle": "Turn Off App Lock?",

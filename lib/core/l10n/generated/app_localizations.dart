@@ -110,6 +110,24 @@ abstract class AppLocalizations {
   /// **'Legal Case Diary'**
   String get appTitle;
 
+  /// No description provided for @app_fatalError.
+  ///
+  /// In en, this message translates to:
+  /// **'Fatal error: {message}'**
+  String app_fatalError(String message);
+
+  /// No description provided for @app_openingDiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening case diary…'**
+  String get app_openingDiary;
+
+  /// No description provided for @app_resettingDatabase.
+  ///
+  /// In en, this message translates to:
+  /// **'Resetting local database…'**
+  String get app_resettingDatabase;
+
   /// No description provided for @nav_upcomingCases.
   ///
   /// In en, this message translates to:
@@ -404,6 +422,12 @@ abstract class AppLocalizations {
   /// **'No hearings scheduled for this date.'**
   String get dailyCauseListScreen_noHearings;
 
+  /// No description provided for @dailyCauseListScreen_loadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load cases: {message}'**
+  String dailyCauseListScreen_loadError(String message);
+
   /// No description provided for @dailyCauseListScreen_totalHearings.
   ///
   /// In en, this message translates to:
@@ -601,6 +625,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added By {name}'**
   String caseDetailsScreen_historyAddedBy(String name);
+
+  /// No description provided for @caseDetailsScreen_historySaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save the history entry: {message}'**
+  String caseDetailsScreen_historySaveError(String message);
 
   /// No description provided for @caseDetailsScreen_noHistoryEntries.
   ///
@@ -836,6 +866,24 @@ abstract class AppLocalizations {
   /// **'Pick a date'**
   String get addEditCaseSheet_pickDate;
 
+  /// No description provided for @addEditCaseSheet_loadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load case form data: {message}'**
+  String addEditCaseSheet_loadError(String message);
+
+  /// No description provided for @addEditCaseSheet_saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the case: {message}'**
+  String addEditCaseSheet_saveFailed(String message);
+
+  /// No description provided for @addEditCaseSheet_updateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update the case: {message}'**
+  String addEditCaseSheet_updateFailed(String message);
+
   /// No description provided for @addEditCaseSheet_notification.
   ///
   /// In en, this message translates to:
@@ -953,13 +1001,13 @@ abstract class AppLocalizations {
   /// No description provided for @casesModal_viewCompact.
   ///
   /// In en, this message translates to:
-  /// **'Compact view'**
+  /// **'Compact View'**
   String get casesModal_viewCompact;
 
   /// No description provided for @casesModal_viewExpanded.
   ///
   /// In en, this message translates to:
-  /// **'Expanded view'**
+  /// **'Expanded View'**
   String get casesModal_viewExpanded;
 
   /// No description provided for @casesModal_help.
@@ -1331,7 +1379,7 @@ abstract class AppLocalizations {
   /// No description provided for @sync_clockSkewWarning.
   ///
   /// In en, this message translates to:
-  /// **'Your Device Clock Appears Incorrect. Please Fix It To Ensure Reliable Syncing.'**
+  /// **'Your device clock appears incorrect. Please fix it to ensure reliable syncing.'**
   String get sync_clockSkewWarning;
 
   /// No description provided for @syncConflict_bannerMessage.
@@ -1445,13 +1493,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncConflict_resolvedNotice.
   ///
   /// In en, this message translates to:
-  /// **'This Conflict Is Already Resolved.'**
+  /// **'This conflict is already resolved.'**
   String get syncConflict_resolvedNotice;
 
   /// No description provided for @syncConflict_missingNotice.
   ///
   /// In en, this message translates to:
-  /// **'This Conflict Is No Longer Available.'**
+  /// **'This conflict is no longer available.'**
   String get syncConflict_missingNotice;
 
   /// No description provided for @syncStatus_title.
@@ -1631,13 +1679,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_emptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Every Change On This Device Has Been Sent.'**
+  /// **'Every change on this device has been sent.'**
   String get syncStatus_emptyBody;
 
   /// No description provided for @syncStatus_retried.
   ///
   /// In en, this message translates to:
-  /// **'The Change Will Be Sent Again.'**
+  /// **'The change will be sent again.'**
   String get syncStatus_retried;
 
   /// No description provided for @syncStatus_discardTitle.
@@ -1649,7 +1697,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_discardBody.
   ///
   /// In en, this message translates to:
-  /// **'The Queued Change Will Be Removed And The Record Will Go Back To The Version Saved On The Server. This Cannot Be Undone.'**
+  /// **'The queued change will be removed and the record will go back to the version saved on the server. This cannot be undone.'**
   String get syncStatus_discardBody;
 
   /// No description provided for @syncStatus_discardConfirm.
@@ -1661,13 +1709,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_discarded.
   ///
   /// In en, this message translates to:
-  /// **'The Queued Change Was Discarded.'**
+  /// **'The queued change was discarded.'**
   String get syncStatus_discarded;
 
   /// No description provided for @syncStatus_discardRestoredLocally.
   ///
   /// In en, this message translates to:
-  /// **'The Change Was Discarded. The Record Was Restored From The Last Saved Copy On This Device.'**
+  /// **'The change was discarded. The record was restored from the last saved copy on this device.'**
   String get syncStatus_discardRestoredLocally;
 
   /// No description provided for @syncStatus_pendingDeletion.
@@ -1703,7 +1751,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_exportMetadataOnlyBody.
   ///
   /// In en, this message translates to:
-  /// **'Types, States, Retry Counts And Error Messages. No Case Content Is Included.'**
+  /// **'Types, states, retry counts and error messages. No case content is included.'**
   String get syncStatus_exportMetadataOnlyBody;
 
   /// No description provided for @syncStatus_exportIncludePayloads.
@@ -1715,7 +1763,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_exportIncludePayloadsBody.
   ///
   /// In en, this message translates to:
-  /// **'Adds The Queued Changes Themselves, Which Can Include Case Details.'**
+  /// **'Adds the queued changes themselves, which can include case details.'**
   String get syncStatus_exportIncludePayloadsBody;
 
   /// No description provided for @syncStatus_exportConsentTitle.
@@ -1727,7 +1775,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_exportConsentBody.
   ///
   /// In en, this message translates to:
-  /// **'The Bundle Will Contain The Queued Changes, Which Can Include Case Numbers, Names And Notes. Only Share It With Someone You Trust.'**
+  /// **'The bundle will contain the queued changes, which can include case numbers, names and notes. Only share it with someone you trust.'**
   String get syncStatus_exportConsentBody;
 
   /// No description provided for @syncStatus_exportConsentConfirm.
@@ -1739,7 +1787,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_exportReminder.
   ///
   /// In en, this message translates to:
-  /// **'Delete This File After Seven Days, Or As Soon As Support No Longer Needs It.'**
+  /// **'Delete this file after seven days, or as soon as support no longer needs it.'**
   String get syncStatus_exportReminder;
 
   /// No description provided for @syncStatus_exportSaved.
@@ -1751,13 +1799,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncStatus_exportFailed.
   ///
   /// In en, this message translates to:
-  /// **'The Diagnostic Bundle Could Not Be Saved.'**
+  /// **'The diagnostic bundle could not be saved.'**
   String get syncStatus_exportFailed;
 
   /// No description provided for @logout_connectToSync.
   ///
   /// In en, this message translates to:
-  /// **'Connect To The Internet To Sync Your Changes First.'**
+  /// **'Connect to the internet to sync your changes first.'**
   String get logout_connectToSync;
 
   /// No description provided for @logout_logOutAnyway.
@@ -1805,25 +1853,25 @@ abstract class AppLocalizations {
   /// No description provided for @logout_backedUpTo.
   ///
   /// In en, this message translates to:
-  /// **'Your Data Has Been Backed Up To {path}. You Can Restore It After Logging Back In.'**
+  /// **'Your data has been backed up to {path}. You can restore it after logging back in.'**
   String logout_backedUpTo(String path);
 
   /// No description provided for @logout_exportCancelled.
   ///
   /// In en, this message translates to:
-  /// **'Logging Out Was Cancelled; Nothing Was Deleted.'**
+  /// **'Logging out was cancelled; nothing was deleted.'**
   String get logout_exportCancelled;
 
   /// No description provided for @logout_exportFailed.
   ///
   /// In en, this message translates to:
-  /// **'The Safety Copy Could Not Be Saved, So Nothing Was Deleted.'**
+  /// **'The safety copy could not be saved, so nothing was deleted.'**
   String get logout_exportFailed;
 
   /// No description provided for @logout_syncFailed.
   ///
   /// In en, this message translates to:
-  /// **'Your Changes Could Not Be Synced.'**
+  /// **'Your changes could not be synced.'**
   String get logout_syncFailed;
 
   /// No description provided for @recoveryLock_title.
@@ -1835,13 +1883,13 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_message.
   ///
   /// In en, this message translates to:
-  /// **'You Have Been Offline For {days} Days. Your Local Changes Have Been Saved To {path}. Fresh Data Must Be Loaded From The Server Before Editing Can Continue.'**
+  /// **'You have been offline for {days} days. Your local changes have been saved to {path}. Fresh data must be loaded from the server before editing can continue.'**
   String recoveryLock_message(int days, String path);
 
   /// No description provided for @recoveryLock_messageNoCopy.
   ///
   /// In en, this message translates to:
-  /// **'You Have Been Offline For {days} Days. A Safety Copy Must Be Saved Before Fresh Data Can Be Loaded From The Server.'**
+  /// **'You have been offline for {days} days. A safety copy must be saved before fresh data can be loaded from the server.'**
   String recoveryLock_messageNoCopy(int days);
 
   /// No description provided for @recoveryLock_saveTitle.
@@ -1877,7 +1925,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_saveFailed.
   ///
   /// In en, this message translates to:
-  /// **'The Safety Copy Could Not Be Saved. Your Data Is Still On This Device — Try Again.'**
+  /// **'The safety copy could not be saved. Your data is still on this device — try again.'**
   String get recoveryLock_saveFailed;
 
   /// No description provided for @recoveryLock_proceed.
@@ -1895,7 +1943,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_proceedConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'Your Local Changes Will Be Replaced By The Server\'s Data. The Safety Copy You Saved Is The Only Way Back To Them.'**
+  /// **'Your local changes will be replaced by the server\'s data. The safety copy you saved is the only way back to them.'**
   String get recoveryLock_proceedConfirmBody;
 
   /// No description provided for @recoveryLock_close.
@@ -1907,7 +1955,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_closeBody.
   ///
   /// In en, this message translates to:
-  /// **'The App Stays Locked And Nothing Is Written To The Cloud Until Recovery Succeeds.'**
+  /// **'The app stays locked and nothing is written to the cloud until recovery succeeds.'**
   String get recoveryLock_closeBody;
 
   /// No description provided for @recoveryLock_working.
@@ -1919,7 +1967,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryLock_failed.
   ///
   /// In en, this message translates to:
-  /// **'Recovery Could Not Finish. Your Data Is Still On This Device And The App Stays Locked; Try Again.'**
+  /// **'Recovery could not finish. Your data is still on this device and the app stays locked; try again.'**
   String get recoveryLock_failed;
 
   /// No description provided for @syncStatus_entryTitle.
@@ -3481,7 +3529,7 @@ abstract class AppLocalizations {
   /// No description provided for @clientNotification_rememberChoice.
   ///
   /// In en, this message translates to:
-  /// **'Remember my choice'**
+  /// **'Remember My Choice'**
   String get clientNotification_rememberChoice;
 
   /// No description provided for @clientNotification_exampleLabel.
@@ -3613,7 +3661,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsScreen_searchTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Search settings'**
+  /// **'Search Settings'**
   String get settingsScreen_searchTooltip;
 
   /// No description provided for @settingsScreen_searchHint.
@@ -3625,7 +3673,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsScreen_closeSearchTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Close search'**
+  /// **'Close Search'**
   String get settingsScreen_closeSearchTooltip;
 
   /// No description provided for @settingsScreen_noResults.
@@ -3775,7 +3823,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsProfile_editTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Edit profile'**
+  /// **'Edit Profile'**
   String get settingsProfile_editTooltip;
 
   /// No description provided for @settingsProfile_fullName.
@@ -4482,7 +4530,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_deleteDataDone.
   ///
   /// In en, this message translates to:
-  /// **'Your Selected Data Has Been Deleted.'**
+  /// **'Your selected data has been deleted.'**
   String get settingsManageAccount_deleteDataDone;
 
   /// No description provided for @settingsManageAccount_deleteDataCloudPending.
@@ -4494,7 +4542,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_deleteDataNeedsConnection.
   ///
   /// In en, this message translates to:
-  /// **'Connect to the internet to delete your cloud data. Nothing Has Been Deleted.'**
+  /// **'Connect to the internet to delete your cloud data. Nothing has been deleted.'**
   String get settingsManageAccount_deleteDataNeedsConnection;
 
   /// No description provided for @settingsManageAccount_deleteDataFirmRefused.
@@ -4518,7 +4566,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_deleted.
   ///
   /// In en, this message translates to:
-  /// **'Your Account Has Been Deleted.'**
+  /// **'Your account has been deleted.'**
   String get settingsManageAccount_deleted;
 
   /// No description provided for @settingsManageAccount_deleteDialogTitle.
@@ -4554,7 +4602,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_deleteNeedsConnection.
   ///
   /// In en, this message translates to:
-  /// **'Connect to the internet to delete your account. Nothing Has Been Deleted.'**
+  /// **'Connect to the internet to delete your account. Nothing has been deleted.'**
   String get settingsManageAccount_deleteNeedsConnection;
 
   /// No description provided for @settingsManageAccount_deleteFirmRefused.
@@ -4578,7 +4626,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsManageAccount_loggedOut.
   ///
   /// In en, this message translates to:
-  /// **'You Have Been Logged Out.'**
+  /// **'You have been logged out.'**
   String get settingsManageAccount_loggedOut;
 
   /// No description provided for @settingsManageAccount_role.
@@ -4854,13 +4902,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_needSignInToSync.
   ///
   /// In en, this message translates to:
-  /// **'Sign In To Sync Across Devices.'**
+  /// **'Sign in to sync across devices.'**
   String get settingsOnlineSync_needSignInToSync;
 
   /// No description provided for @settingsOnlineSync_needConnectionToSync.
   ///
   /// In en, this message translates to:
-  /// **'No Connection. Your Changes Are Saved On This Device.'**
+  /// **'No connection. Your changes are saved on this device.'**
   String get settingsOnlineSync_needConnectionToSync;
 
   /// No description provided for @settingsOnlineSync_checkingPlan.
@@ -4878,7 +4926,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_checkingPlanMessage.
   ///
   /// In en, this message translates to:
-  /// **'Sync Starts As Soon As Your Plan Is Confirmed.'**
+  /// **'Sync starts as soon as your plan is confirmed.'**
   String get settingsOnlineSync_checkingPlanMessage;
 
   /// No description provided for @settingsOnlineSync_itemsUnknown.
@@ -4908,7 +4956,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_syncOffMessage.
   ///
   /// In en, this message translates to:
-  /// **'Sync Is Off. Turn It Back On To Sync.'**
+  /// **'Sync is off. Turn it back on to sync.'**
   String get settingsOnlineSync_syncOffMessage;
 
   /// No description provided for @settingsOnlineSync_syncOnTitle.
@@ -4950,13 +4998,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsOnlineSync_syncOffToast.
   ///
   /// In en, this message translates to:
-  /// **'Sync Is Off. Your Changes Stay On This Device.'**
+  /// **'Sync is off. Your changes stay on this device.'**
   String get settingsOnlineSync_syncOffToast;
 
   /// No description provided for @settingsOnlineSync_syncOnToast.
   ///
   /// In en, this message translates to:
-  /// **'Sync Is On Again.'**
+  /// **'Sync is on again.'**
   String get settingsOnlineSync_syncOnToast;
 
   /// No description provided for @settingsBackupRestore_title.
@@ -5938,7 +5986,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_keepOneOffset.
   ///
   /// In en, this message translates to:
-  /// **'Select at least one Day Offset.'**
+  /// **'Select at least one day offset.'**
   String get settingsNotifications_keepOneOffset;
 
   /// No description provided for @settingsNotifications_offsetSameDay.
@@ -5974,7 +6022,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_reminderBanner.
   ///
   /// In en, this message translates to:
-  /// **'Notifications May Not Work Reliably on Your Device. Tap to Complete Setup.'**
+  /// **'Notifications may not work reliably on your device. Tap to complete setup.'**
   String get settingsNotifications_reminderBanner;
 
   /// No description provided for @settingsNotifications_setupGuide.
@@ -6010,7 +6058,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNotifications_testFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Show a Notification. Check the App\'s Notification Permission.'**
+  /// **'Could not show a notification. Check the app\'s notification permission.'**
   String get settingsNotifications_testFailed;
 
   /// No description provided for @notificationJob_channelName.
@@ -6208,7 +6256,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBatteryGuide_openFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Open That Settings Page. Please Set It Manually.'**
+  /// **'Could not open that settings page. Please set it manually.'**
   String get settingsBatteryGuide_openFailed;
 
   /// No description provided for @settingsBatteryGuide_done.
@@ -6334,7 +6382,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsViewSettings_keepOneTab.
   ///
   /// In en, this message translates to:
-  /// **'Keep at Least One Screen in the Bottom Bar.'**
+  /// **'Keep at least one screen in the bottom bar.'**
   String get settingsViewSettings_keepOneTab;
 
   /// No description provided for @settingsViewSettings_sideNav.
@@ -7252,7 +7300,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsUpdate_offlineToast.
   ///
   /// In en, this message translates to:
-  /// **'Please Connect To The Internet And Check For An Update.'**
+  /// **'Please connect to the internet and check for an update.'**
   String get settingsUpdate_offlineToast;
 
   /// No description provided for @settingsUpdate_frequencyOff.
@@ -7963,7 +8011,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_recoveryLinkSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose A New Password For Your Account.'**
+  /// **'Choose a new password for your account.'**
   String get auth_recoveryLinkSubtitle;
 
   /// No description provided for @auth_sendCodeButton.
@@ -8095,7 +8143,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_joinedFirm.
   ///
   /// In en, this message translates to:
-  /// **'You Have Joined The Firm.'**
+  /// **'You have joined the firm.'**
   String get auth_joinedFirm;
 
   /// No description provided for @auth_errorNetwork.
@@ -8113,7 +8161,7 @@ abstract class AppLocalizations {
   /// No description provided for @auth_errorGoogleFailed.
   ///
   /// In en, this message translates to:
-  /// **'Google Sign-In Could Not Complete. Please Try Again.'**
+  /// **'Google Sign-In could not complete. Please try again.'**
   String get auth_errorGoogleFailed;
 
   /// No description provided for @auth_errorAccountMismatch.
@@ -8473,7 +8521,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_inviteMessage.
   ///
   /// In en, this message translates to:
-  /// **'Join My Firm On Legal Case Diary. Invite Code: {code}'**
+  /// **'Join my firm on Legal Case Diary. Invite code: {code}'**
   String manageAssociates_inviteMessage(String code);
 
   /// No description provided for @manageAssociates_sectionInvites.
@@ -8509,7 +8557,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_revokeInviteBody.
   ///
   /// In en, this message translates to:
-  /// **'The Code Will Stop Working Immediately.'**
+  /// **'The code will stop working immediately.'**
   String get manageAssociates_revokeInviteBody;
 
   /// No description provided for @manageAssociates_inviteRevoked.
@@ -8713,7 +8761,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncNotice_clockSkew.
   ///
   /// In en, this message translates to:
-  /// **'Your Device Clock Is More Than Two Minutes Off From The Server. Synced Times May Be Wrong.'**
+  /// **'Your device clock is more than two minutes off from the server. Synced times may be wrong.'**
   String get syncNotice_clockSkew;
 
   /// No description provided for @membershipRevoked_title.
@@ -8767,7 +8815,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequest_failed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Send The Deletion Request.'**
+  /// **'Could not send the deletion request.'**
   String get deleteRequest_failed;
 
   /// No description provided for @deleteRequest_alreadyOpen.
@@ -8785,7 +8833,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_firmOnly.
   ///
   /// In en, this message translates to:
-  /// **'Delete Requests Are Only Available To Firm Members.'**
+  /// **'Delete requests are only available to firm members.'**
   String get deleteRequests_firmOnly;
 
   /// No description provided for @deleteRequests_toReview.
@@ -8797,7 +8845,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_noneToReview.
   ///
   /// In en, this message translates to:
-  /// **'No Deletion Requests Awaiting Review.'**
+  /// **'No deletion requests awaiting review.'**
   String get deleteRequests_noneToReview;
 
   /// No description provided for @deleteRequests_mine.
@@ -8809,7 +8857,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_noneMine.
   ///
   /// In en, this message translates to:
-  /// **'You Have Not Sent Any Deletion Requests.'**
+  /// **'You have not sent any deletion requests.'**
   String get deleteRequests_noneMine;
 
   /// No description provided for @deleteRequests_statusPending.
@@ -9121,7 +9169,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_withdrawFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Withdraw The Request.'**
+  /// **'Could not withdraw the request.'**
   String get deleteRequests_withdrawFailed;
 
   /// No description provided for @payments_goPremium.
@@ -9247,13 +9295,13 @@ abstract class AppLocalizations {
   /// No description provided for @payments_errorPhone.
   ///
   /// In en, this message translates to:
-  /// **'Enter A Valid Mobile Number.'**
+  /// **'Enter a valid mobile number.'**
   String get payments_errorPhone;
 
   /// No description provided for @payments_errorTrx.
   ///
   /// In en, this message translates to:
-  /// **'Enter The Transaction ID.'**
+  /// **'Enter the transaction ID.'**
   String get payments_errorTrx;
 
   /// No description provided for @payments_submitFailed.
@@ -9271,13 +9319,13 @@ abstract class AppLocalizations {
   /// No description provided for @payments_duplicateTrx.
   ///
   /// In en, this message translates to:
-  /// **'This Transaction ID Has Already Been Submitted.'**
+  /// **'This transaction ID has already been submitted.'**
   String get payments_duplicateTrx;
 
   /// No description provided for @payments_submitSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Submission Received. We Will Verify It Shortly.'**
+  /// **'Submission received. We will verify it shortly.'**
   String get payments_submitSuccess;
 
   /// No description provided for @payments_historyTitle.
@@ -9289,7 +9337,7 @@ abstract class AppLocalizations {
   /// No description provided for @payments_noSubmissions.
   ///
   /// In en, this message translates to:
-  /// **'No Subscription History Yet.'**
+  /// **'No subscription history yet.'**
   String get payments_noSubmissions;
 
   /// No description provided for @payments_statusPending.
@@ -9487,13 +9535,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDiagnostics_hint.
   ///
   /// In en, this message translates to:
-  /// **'Errors This App Has Recorded. Case Data, Passwords And Tokens Are Never Written Here.'**
+  /// **'Errors this app has recorded. Case data, passwords and tokens are never written here.'**
   String get settingsDiagnostics_hint;
 
   /// No description provided for @settingsDiagnostics_empty.
   ///
   /// In en, this message translates to:
-  /// **'No Errors Have Been Recorded.'**
+  /// **'No errors have been recorded.'**
   String get settingsDiagnostics_empty;
 
   /// No description provided for @settingsDiagnostics_clear.
@@ -9517,7 +9565,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDiagnostics_copied.
   ///
   /// In en, this message translates to:
-  /// **'Diagnostics Copied. Paste Them Into A Message To Us.'**
+  /// **'Diagnostics copied. Paste them into a message to us.'**
   String get settingsDiagnostics_copied;
 
   /// No description provided for @settingsAppLock_title.
@@ -9583,19 +9631,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLock_pinMismatch.
   ///
   /// In en, this message translates to:
-  /// **'The PINs Do Not Match. Start Again.'**
+  /// **'The PINs do not match. Start again.'**
   String get settingsAppLock_pinMismatch;
 
   /// No description provided for @settingsAppLock_setupDone.
   ///
   /// In en, this message translates to:
-  /// **'App Lock Is On.'**
+  /// **'App Lock is on.'**
   String get settingsAppLock_setupDone;
 
   /// No description provided for @settingsAppLock_setupFailed.
   ///
   /// In en, this message translates to:
-  /// **'The PIN Could Not Be Saved. Try Again.'**
+  /// **'The PIN could not be saved. Try again.'**
   String get settingsAppLock_setupFailed;
 
   /// No description provided for @settingsAppLock_enterCurrentPin.
@@ -9613,13 +9661,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLock_pinChanged.
   ///
   /// In en, this message translates to:
-  /// **'App Lock PIN Changed.'**
+  /// **'App Lock PIN changed.'**
   String get settingsAppLock_pinChanged;
 
   /// No description provided for @settingsAppLock_currentPinWrong.
   ///
   /// In en, this message translates to:
-  /// **'That PIN Is Not Correct.'**
+  /// **'That PIN is not correct.'**
   String get settingsAppLock_currentPinWrong;
 
   /// No description provided for @settingsAppLock_unlockTitle.
@@ -9637,7 +9685,7 @@ abstract class AppLocalizations {
   /// Shown while a wrong-pin lockout is still running; seconds is pre-formatted in the active language.
   ///
   /// In en, this message translates to:
-  /// **'Too Many Attempts. Try Again In {seconds} Seconds.'**
+  /// **'Too many attempts. Try again in {seconds} seconds.'**
   String settingsAppLock_tooManyAttempts(String seconds);
 
   /// No description provided for @settingsAppLock_verifyForFingerprint.
@@ -9661,7 +9709,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAppLock_fingerprintUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'No Fingerprint Is Available On This Device.'**
+  /// **'No fingerprint is available on this device.'**
   String get settingsAppLock_fingerprintUnavailable;
 
   /// No description provided for @settingsAppLock_useFingerprint.

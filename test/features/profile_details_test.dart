@@ -168,7 +168,7 @@ void main() {
 
     /// Fills the editor and taps Save, as a user would.
     Future<void> saveProfile(WidgetTester tester) async {
-      await tester.tap(find.byTooltip('Edit profile'));
+      await tester.tap(find.byTooltip('Edit Profile'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Enter your full name'),

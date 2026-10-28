@@ -279,7 +279,7 @@ void main() {
       OemSettingsTarget.appDetails,
     ]);
     expect(
-      find.text('Could Not Open That Settings Page. Please Set It Manually.'),
+      find.text('Could not open that settings page. Please set it manually.'),
       findsNothing,
     );
   });
@@ -299,7 +299,7 @@ void main() {
       OemSettingsTarget.appDetails,
     ]);
     expect(
-      find.text('Could Not Open That Settings Page. Please Set It Manually.'),
+      find.text('Could not open that settings page. Please set it manually.'),
       findsOneWidget,
     );
   });

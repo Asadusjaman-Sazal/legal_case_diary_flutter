@@ -203,7 +203,13 @@ class _HistoryEntryEditDialogState
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to save the history entry: $error')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            ).caseDetailsScreen_historySaveError('$error'),
+          ),
+        ),
       );
     }
   }

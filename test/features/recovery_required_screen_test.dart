@@ -128,7 +128,7 @@ void main() {
       expect(find.text('App content'), findsNothing);
       expect(find.text('Offline For Too Long'), findsOneWidget);
       expect(
-        find.textContaining('A Safety Copy Must Be Saved'),
+        find.textContaining('A safety copy must be saved'),
         findsOneWidget,
       );
       // The copy step is offered, with the passphrase fields when encryption is
@@ -177,7 +177,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('recovery-lock-proceed')));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('The Safety Copy You Saved Is The Only Way Back'),
+        find.textContaining('The safety copy you saved is the only way back'),
         findsOneWidget,
       );
       await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));

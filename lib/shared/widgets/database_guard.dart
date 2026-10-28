@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../database/database_factory.dart';
 import '../../database/encryption_key_manager.dart';
+import '../../core/l10n/generated/app_localizations.dart';
 import '../providers/database_provider.dart';
 import 'database_recovery_dialog.dart';
 
@@ -55,7 +56,9 @@ class _DatabaseGuardState extends ConsumerState<DatabaseGuard> {
     }
 
     if (_isResetting) {
-      return const _LoadingScreen(message: 'Resetting local database...');
+      return _LoadingScreen(
+        message: AppLocalizations.of(context).app_resettingDatabase,
+      );
     }
 
     return _RecoveryScreen(
@@ -84,9 +87,9 @@ class _DatabaseGuardState extends ConsumerState<DatabaseGuard> {
 }
 
 class _LoadingScreen extends StatelessWidget {
-  final String message;
+  final String? message;
 
-  const _LoadingScreen({this.message = 'Opening case diary...'});
+  const _LoadingScreen({this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +100,7 @@ class _LoadingScreen extends StatelessWidget {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            Text(message),
+            Text(message ?? AppLocalizations.of(context).app_openingDiary),
           ],
         ),
       ),
@@ -131,7 +134,9 @@ class _FatalErrorScreen extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('Fatal error: $error'),
+          child: Text(
+            AppLocalizations.of(context).app_fatalError('$error'),
+          ),
         ),
       ),
     );

@@ -549,7 +549,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Sync Is Off'), findsOneWidget);
-    expect(find.textContaining('Turn It Back On To Sync'), findsOneWidget);
+    expect(find.textContaining('Turn it back on to sync'), findsOneWidget);
     expect(
       tester
           .widget<FilledButton>(find.widgetWithText(FilledButton, 'Sync Now'))
@@ -563,7 +563,7 @@ void main() {
       expect(label.style?.color, AppColors.onSurfaceVariant);
     }
     expect(
-      find.text('Sync Is Off. Your Changes Stay On This Device.'),
+      find.text('Sync is off. Your changes stay on this device.'),
       findsOneWidget,
     );
 
@@ -584,6 +584,6 @@ void main() {
           .onPressed,
       isNotNull,
     );
-    expect(find.text('Sync Is On Again.'), findsOneWidget);
+    expect(find.text('Sync is on again.'), findsOneWidget);
   });
 }

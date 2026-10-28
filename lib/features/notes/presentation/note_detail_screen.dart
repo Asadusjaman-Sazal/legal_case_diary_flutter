@@ -82,6 +82,13 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   late final bool _isTodo;
   late bool _isPinned;
 
+  /// Whether the fields accept input.
+  ///
+  /// An existing note opens **read-only** (user request, 0.0.700) and enters
+  /// editing only from the top bar's Edit button; a new note opens in editing
+  /// because it has to be typed.
+  late bool _editing;
+
   /// The checklist, in display order: every unticked row, then every ticked one.
   final List<_TodoRow> _todoRows = [];
 
@@ -92,18 +99,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Warn before editing a note someone else has asked to delete (user request).
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final existing = widget.note;
-      if (existing == null || !mounted) return;
-      final proceed = await confirmEditOfRequestedRecord(
-        context,
-        ref,
-        entityType: 'note',
-        entityId: existing.id,
-      );
-      if (!proceed && mounted) Navigator.of(context).maybePop();
-    });
+    _editing = widget.note == null;
     _titleController = TextEditingController(text: widget.note?.title ?? '');
     _bodyController = TextEditingController(text: widget.note?.body ?? '');
     _isPinned = widget.note?.isPinned ?? false;
@@ -214,6 +210,33 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
         companion.copyWith(id: Value(widget.note!.id)),
         baseNote: widget.note,
       );
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  /// Enters editing from the read-only view.
+  ///
+  /// The warning about a note someone else has asked to delete belongs here now
+  /// that opening a note is read-only (user request, 0.0.700): reading is
+  /// harmless, editing is what needs the question.
+  Future<void> _startEditing() async {
+    final existing = widget.note;
+    if (_editing || existing == null) return;
+    final proceed = await confirmEditOfRequestedRecord(
+      context,
+      ref,
+      entityType: 'note',
+      entityId: existing.id,
+    );
+    if (!proceed || !mounted) return;
+    setState(() => _editing = true);
+  }
+
+  /// Closes the note: a read-only view has nothing to save.
+  void _close() {
+    if (_editing) {
+      _saveAndPop();
+      return;
     }
     if (mounted) Navigator.of(context).pop();
   }
@@ -344,7 +367,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                     icon: const Icon(Icons.arrow_back),
                     color: AppColors.onSurface,
                     tooltip: l.sharedActions_close,
-                    onPressed: _saveAndPop,
+                    onPressed: _close,
                   ),
                   if (_isNew)
                     Expanded(
@@ -372,12 +395,24 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                     tooltip: l.notesScreen_delete,
                     onPressed: _isNew ? null : _delete,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.check),
-                    color: AppColors.onSurfaceVariant,
-                    tooltip: l.sharedActions_save,
-                    onPressed: _saveAndPop,
-                  ),
+                  // Read-only until Edit; once editing, the tick saves and
+                  // closes exactly as it always has (user request, 0.0.700).
+                  if (_editing)
+                    IconButton(
+                      key: const ValueKey('note-save'),
+                      icon: const Icon(Icons.check),
+                      color: AppColors.onSurfaceVariant,
+                      tooltip: l.sharedActions_save,
+                      onPressed: _saveAndPop,
+                    )
+                  else if (!_isNew)
+                    IconButton(
+                      key: const ValueKey('note-edit'),
+                      icon: const Icon(Icons.edit_outlined),
+                      color: AppColors.onSurfaceVariant,
+                      tooltip: l.sharedActions_edit,
+                      onPressed: _startEditing,
+                    ),
                 ],
               ),
             ),
@@ -396,10 +431,13 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                       children: [
                         TextField(
                           controller: _titleController,
+                          readOnly: !_editing,
+                          showCursor: _editing,
                           decoration: InputDecoration(
                             filled: false,
                             fillColor: Colors.transparent,
-                            hintText: l.notesScreen_noteTitle,
+                            // An input hint belongs to editing, not to reading.
+                            hintText: _editing ? l.notesScreen_noteTitle : null,
                             hintStyle: AppTypography.titleLg.copyWith(
                               fontSize: _noteTitleSize,
                               color: AppColors.onSurfaceVariant.withValues(
@@ -474,10 +512,12 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   /// The mockup's Note field: a plain multi-line body with no input chrome.
   Widget _bodyField(BuildContext context, AppLocalizations l) => TextField(
     controller: _bodyController,
+    readOnly: !_editing,
+    showCursor: _editing,
     decoration: InputDecoration(
       filled: false,
       fillColor: Colors.transparent,
-      hintText: l.notesScreen_noteBodyPlaceholder,
+      hintText: _editing ? l.notesScreen_noteBodyPlaceholder : null,
       hintStyle: AppTypography.bodyLg.copyWith(
         color: AppColors.onSurfaceVariant.withValues(alpha: 0.4),
       ),
@@ -505,29 +545,32 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       children: [
         for (var index = 0; index < _todoRows.length; index++)
           _todoRow(context, l, index),
-        const SizedBox(height: AppSpacing.xs),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            key: const ValueKey('todo-add-item'),
-            onPressed: _addItem,
-            // The app's TextButtons are filled black, so the label and its
-            // icon read white on it.
-            icon: const Icon(Icons.add, color: AppColors.onPrimary),
-            label: Text(
-              l.notesScreen_addItem,
-              style: AppTypography.bodyLg.copyWith(
-                color: AppColors.onPrimary,
+        // Adding items is an edit, so the row is offered only while editing.
+        if (_editing) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('todo-add-item'),
+              onPressed: _addItem,
+              // The app's TextButtons are filled black, so the label and its
+              // icon read white on it.
+              icon: const Icon(Icons.add, color: AppColors.onPrimary),
+              label: Text(
+                l.notesScreen_addItem,
+                style: AppTypography.bodyLg.copyWith(
+                  color: AppColors.onPrimary,
+                ),
               ),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xs,
-                vertical: AppSpacing.sm,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xs,
+                  vertical: AppSpacing.sm,
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -538,16 +581,20 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // A compact tick: Keep's own checkbox, without the 48 px tap target it
-        // would otherwise take from a one-line list.
+        // would otherwise take from a one-line list. Read-only keeps its normal
+        // colours and only stops the tap (user request, 0.0.700).
         SizedBox(
           width: 32,
-          child: Checkbox(
-            key: ValueKey('todo-checkbox-$index'),
-            value: row.done,
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            activeColor: AppColors.secondary,
-            onChanged: (done) => _setDone(index, done ?? false),
+          child: IgnorePointer(
+            ignoring: !_editing,
+            child: Checkbox(
+              key: ValueKey('todo-checkbox-$index'),
+              value: row.done,
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              activeColor: AppColors.secondary,
+              onChanged: (done) => _setDone(index, done ?? false),
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
@@ -556,10 +603,12 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             key: ValueKey('todo-item-$index'),
             controller: row.controller,
             focusNode: row.focusNode,
+            readOnly: !_editing,
+            showCursor: _editing,
             decoration: InputDecoration(
               filled: false,
               fillColor: Colors.transparent,
-              hintText: l.notesScreen_listItemHint,
+              hintText: _editing ? l.notesScreen_listItemHint : null,
               hintStyle: AppTypography.bodyLg.copyWith(
                 color: AppColors.onSurfaceVariant.withValues(alpha: 0.4),
               ),
@@ -584,13 +633,15 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             onSubmitted: (_) => _addItem(),
           ),
         ),
-        IconButton(
-          key: ValueKey('todo-remove-$index'),
-          icon: const Icon(Icons.close, size: 18),
-          color: AppColors.onSurfaceVariant,
-          tooltip: l.notesScreen_removeItem,
-          onPressed: () => _removeItem(index),
-        ),
+        // Removing a row is an edit, so the control is drawn only while editing.
+        if (_editing)
+          IconButton(
+            key: ValueKey('todo-remove-$index'),
+            icon: const Icon(Icons.close, size: 18),
+            color: AppColors.onSurfaceVariant,
+            tooltip: l.notesScreen_removeItem,
+            onPressed: () => _removeItem(index),
+          ),
       ],
     );
   }

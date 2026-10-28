@@ -415,6 +415,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Part 3:** Note body text.
 - **Note:** Keep the hovering/selection effects intact from the mockup HTML file.
 - Notes screen access in firm mode: Notes are visible and editable like case entries to all members of the firm.
+- **An existing note opens read-only (0.0.700, user request).** The full-screen note/to-do page opens in a **view** state: the title, body and checklist are not editable, a to-do's ticks are inert and its Add Item/remove controls are not drawn, and no input hint is shown. The top bar carries **Edit** to the right of **Delete**; tapping it (after the existing *requested for deletion* warning, which moved here from opening the page) turns the fields editable. The tick then replaces Edit in that same slot and saves and closes as it always has, and the back arrow saves only while editing. A **new** note still opens editable, because it has to be typed. The mockup draws the new-note state and carries a note about the read-only one (rule 9).
 
 ---
 

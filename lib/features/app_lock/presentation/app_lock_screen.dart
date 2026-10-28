@@ -21,6 +21,8 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/app_lock_store.dart';
@@ -229,7 +231,9 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
       return;
     }
     if (!mounted) return;
-    final proven = await fingerprint.verify(l.settingsAppLock_verifyForFingerprint);
+    final proven = await fingerprint.verify(
+      l.settingsAppLock_verifyForFingerprint,
+    );
     if (!proven || !mounted) return;
 
     await ref
@@ -256,35 +260,22 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   /// switch the lock off; and only then is anything cleared.
   Future<void> _confirmTurnOff() async {
     final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.settingsAppLock_turnOffTitle),
-        content: Text(l.settingsAppLock_turnOffBody),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            key: const ValueKey('app-lock-turn-off-confirm'),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                color: AppColors.error,
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.settingsAppLock_turnOffConfirm),
-          ),
-        ],
-      ),
+    final confirmed = await showAppDialog<bool>(
+      context,
+      title: Text(l.settingsAppLock_turnOffTitle),
+      content: Text(l.settingsAppLock_turnOffBody),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+        ),
+        AppDialogAction(
+          key: const ValueKey('app-lock-turn-off-confirm'),
+          label: l.settingsAppLock_turnOffConfirm,
+          foreground: AppColors.error,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
     if (confirmed != true || !mounted) return;
     if (!await _proveIdentity(l)) return;
@@ -347,9 +338,7 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
 
   void _snack(String text) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 }
 
@@ -534,7 +523,9 @@ class _TimingChoice extends StatelessWidget {
             onPressed: onPressed,
             style: style.copyWith(
               backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
-              foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+              foregroundColor: const WidgetStatePropertyAll(
+                AppColors.onPrimary,
+              ),
             ),
             child: Text(label, textAlign: TextAlign.center),
           )

@@ -33,6 +33,8 @@ import '../../../../core/errors/error_log.dart';
 import '../../../../core/errors/error_log_provider.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/contact_providers.dart';
+import '../../../../shared/widgets/app_dialog.dart';
+import '../../../../shared/widgets/app_dialog_actions.dart';
 import '../../data/diagnostics_report.dart';
 import '../../data/support_diagnostics.dart';
 import 'support_screen.dart';
@@ -76,28 +78,24 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
   /// what the Support screen sends.
   Future<void> _reportBug(ErrorLog log) async {
     final l = AppLocalizations.of(context);
-    final channel = await showDialog<SupportChannel>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.settingsDiagnostics_reportBugTitle),
-        content: Text(l.settingsDiagnostics_reportBugBody),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            key: const ValueKey('diagnostics-report-whatsapp'),
-            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
-            onPressed: () =>
-                Navigator.of(context).pop(SupportChannel.whatsApp),
-            child: Text(l.settingsSupport_channelWhatsApp),
-          ),
-          TextButton(
-            key: const ValueKey('diagnostics-report-email'),
-            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
-            onPressed: () => Navigator.of(context).pop(SupportChannel.email),
-            child: Text(l.settingsSupport_channelEmail),
-          ),
-        ],
-      ),
+    final channel = await showAppDialog<SupportChannel>(
+      context,
+      title: Text(l.settingsDiagnostics_reportBugTitle),
+      content: Text(l.settingsDiagnostics_reportBugBody),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('diagnostics-report-whatsapp'),
+          label: l.settingsSupport_channelWhatsApp,
+          onPressed: () =>
+              Navigator.of(dialogContext).pop(SupportChannel.whatsApp),
+        ),
+        AppDialogAction(
+          key: const ValueKey('diagnostics-report-email'),
+          label: l.settingsSupport_channelEmail,
+          onPressed: () =>
+              Navigator.of(dialogContext).pop(SupportChannel.email),
+        ),
+      ],
     );
     if (channel == null || !mounted) return;
 
@@ -163,9 +161,7 @@ class _DiagnosticsScreenState extends ConsumerState<DiagnosticsScreen> {
               // label.
               onPressed: () async {
                 await Clipboard.setData(
-                  ClipboardData(
-                    text: buildDiagnosticsReport(entries: entries),
-                  ),
+                  ClipboardData(text: buildDiagnosticsReport(entries: entries)),
                 );
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(

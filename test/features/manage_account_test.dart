@@ -202,10 +202,7 @@ void main() {
     await pumpManageAccount(tester);
 
     expect(find.text(l.settingsManageAccount_changePassword), findsOneWidget);
-    expect(
-      find.text(l.settingsSubscription_managePlanTitle),
-      findsNothing,
-    );
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsNothing);
     expect(
       find.text(l.settingsManageAccount_purchaseNewSubscription),
       findsNothing,
@@ -298,8 +295,8 @@ void main() {
       find.text(l.settingsManageAccount_deleteDialogTitle),
       findsOneWidget,
     );
-    final destructive = tester.widget<TextButton>(
-      find.widgetWithText(TextButton, l.settingsManageAccount_deleteAccount),
+    final destructive = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, l.settingsManageAccount_deleteAccount),
     );
     expect(
       destructive.style?.backgroundColor?.resolve(const <WidgetState>{}),
@@ -735,21 +732,21 @@ void main() {
         find.text(l.settingsManageAccount_deleteLocalDataTitle),
         findsOneWidget,
       );
-      final tickConfirm = tester.widget<TextButton>(
+      final tickConfirm = tester.widget<FilledButton>(
         find.byKey(const ValueKey('data-deletion-confirm')),
       );
       expect(tickConfirm.onPressed, isNull);
       // The destructive action wears the red background with white text.
       expect(
-        tickConfirm.style?.backgroundColor?.resolve(
-          const <WidgetState>{WidgetState.disabled},
-        ),
+        tickConfirm.style?.backgroundColor?.resolve(const <WidgetState>{
+          WidgetState.disabled,
+        }),
         AppColors.error.withValues(alpha: 0.35),
       );
       expect(
-        tickConfirm.style?.foregroundColor?.resolve(
-          const <WidgetState>{WidgetState.disabled},
-        ),
+        tickConfirm.style?.foregroundColor?.resolve(const <WidgetState>{
+          WidgetState.disabled,
+        }),
         AppColors.onError,
       );
       expect(
@@ -806,10 +803,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('data-deletion-confirm')));
       await tester.pumpAndSettle();
 
-      expect(
-        find.byKey(const ValueKey('delete-data-phrase')),
-        findsOneWidget,
-      );
+      expect(find.byKey(const ValueKey('delete-data-phrase')), findsOneWidget);
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
 

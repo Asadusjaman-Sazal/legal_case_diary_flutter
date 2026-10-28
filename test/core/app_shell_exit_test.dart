@@ -313,6 +313,29 @@ void main() {
     });
   });
 
+  testWidgets('the exit pair stacks full width on a narrow phone', (
+    tester,
+  ) async {
+    await withScreens(tester, () async {
+      await tester.binding.setSurfaceSize(const Size(360, 700));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final router = _router();
+      await pumpShell(tester, router);
+      await pressBack(tester);
+      expect(find.text('Exit App?'), findsOneWidget);
+
+      final cancel = tester.getRect(find.widgetWithText(TextButton, 'Cancel'));
+      final exit = tester.getRect(find.widgetWithText(TextButton, 'Exit'));
+      // The shared pair rule: no room for one line, so both go full width.
+      expect(exit.top, greaterThan(cancel.top));
+      expect(exit.width, closeTo(cancel.width, 0.5));
+      expect(cancel.width, greaterThan(200));
+
+      await tester.tap(find.text('Cancel'));
+      await settle(tester);
+    });
+  });
+
   /// Offers the window and confirms it, leaving the tap's work settled.
   Future<void> confirmExit(WidgetTester tester) async {
     await pressBack(tester);

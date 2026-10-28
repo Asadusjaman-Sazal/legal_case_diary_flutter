@@ -5,6 +5,8 @@
 library;
 
 export 'add_edit_case_sheet.dart';
+export 'app_dialog.dart';
+export 'app_dialog_actions.dart';
 export 'app_navigation_drawer.dart';
 export 'bottom_nav_bar.dart';
 export 'calendar_picker_dialog.dart';

@@ -15,6 +15,8 @@ import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
+import '../../../../shared/widgets/app_dialog.dart';
+import '../../../../shared/widgets/app_dialog_actions.dart';
 import '../../data/case_types_repository.dart';
 import '../../data/on_behalfs_repository.dart';
 import '../../data/reference_in_use_checker.dart';
@@ -406,41 +408,21 @@ Future<void> _delete<T>(
   Future<void> Function(T) delete,
 ) async {
   final l = AppLocalizations.of(context);
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(l.settingsItemList_deleteTitle, textAlign: TextAlign.center),
-      content: Text(l.settingsItemList_deleteMessage),
-      // Centred, with the Exit App window's action size (112x48, 16 pt).
-      // AlertDialog fixes 8 px between actions; 4 px on each side doubles it.
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ),
-      ],
-    ),
+  final confirmed = await showAppDialog<bool>(
+    context,
+    title: Text(l.settingsItemList_deleteTitle, textAlign: TextAlign.center),
+    content: Text(l.settingsItemList_deleteMessage),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        label: l.sharedActions_delete,
+        kind: AppDialogActionKind.destructive,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   if (confirmed == true && context.mounted) await delete(item);
 }

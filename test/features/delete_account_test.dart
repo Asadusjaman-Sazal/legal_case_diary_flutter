@@ -191,7 +191,7 @@ void main() {
       reason: 'the warning comes before anything is destroyed',
     );
     await tester.tap(
-      find.widgetWithText(TextButton, l.settingsManageAccount_deleteAccount),
+      find.widgetWithText(FilledButton, l.settingsManageAccount_deleteAccount),
     );
     await tester.pumpAndSettle();
 
@@ -255,13 +255,18 @@ void main() {
   testWidgets('a free account is warned that its device data goes', (
     tester,
   ) async {
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
 
     // The free sentence, not the premium one: this diary never reached a cloud.
-    expect(find.text(l.settingsManageAccount_deleteWarningFree), findsOneWidget);
+    expect(
+      find.text(l.settingsManageAccount_deleteWarningFree),
+      findsOneWidget,
+    );
     expect(
       find.text(l.settingsManageAccount_deleteWarningPremium),
       findsNothing,
@@ -280,7 +285,9 @@ void main() {
   testWidgets('a premium account is warned that its cloud data goes too', (
     tester,
   ) async {
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion, premium: true);
 
     await tapDeleteCard(tester);
@@ -301,7 +308,9 @@ void main() {
   testWidgets('offline it refuses and deletes nothing', (tester) async {
     // The account exists on the server, so there is no local-only deletion: the
     // honest answer is to say a connection is needed and leave the diary alone.
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion, online: false);
 
     await tapDeleteCard(tester);
@@ -310,12 +319,17 @@ void main() {
 
     expect(deletion.calls, 0, reason: 'nothing is sent to the server offline');
     await expectNothingDeleted();
-    expect(find.text(l.settingsManageAccount_deleteNeedsConnection), findsOneWidget);
+    expect(
+      find.text(l.settingsManageAccount_deleteNeedsConnection),
+      findsOneWidget,
+    );
 
     await unmountApp(tester);
   });
 
-  testWidgets('a refused deletion says why and keeps the account', (tester) async {
+  testWidgets('a refused deletion says why and keeps the account', (
+    tester,
+  ) async {
     // A firm member's rows are partly the firm's, so the server refuses and the
     // screen passes its reason on. Nothing local is touched either.
     final deletion = FakeAccountDeletionRepository(
@@ -327,7 +341,10 @@ void main() {
     await answerWarning(tester);
     await submitConfirmation(tester);
 
-    expect(find.text(l.settingsManageAccount_deleteFirmRefused), findsOneWidget);
+    expect(
+      find.text(l.settingsManageAccount_deleteFirmRefused),
+      findsOneWidget,
+    );
     expect(deletion.calls, 1);
     await expectNothingDeleted();
 
@@ -337,7 +354,9 @@ void main() {
   testWidgets('a failed deletion is reported and keeps the account', (
     tester,
   ) async {
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.failed);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.failed,
+    );
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
@@ -354,7 +373,9 @@ void main() {
   testWidgets('a confirmed deletion wipes the device and ends the session', (
     tester,
   ) async {
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
@@ -378,7 +399,9 @@ void main() {
   testWidgets('the destructive button unlocks only on the typed phrase', (
     tester,
   ) async {
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
@@ -399,11 +422,7 @@ void main() {
     );
 
     await typePhrase(tester, 'delete my accounts');
-    expect(
-      confirmEnabled(tester),
-      isFalse,
-      reason: 'nearly is not the phrase',
-    );
+    expect(confirmEnabled(tester), isFalse, reason: 'nearly is not the phrase');
 
     // The same intent in another case, with stray whitespace, is accepted: the
     // gate is there for deliberation, not typing practice.
@@ -426,7 +445,9 @@ void main() {
     // The words to type are the only part of the sentence the user must notice,
     // so they carry the app's error ink and weight and the sentence around them
     // stays ordinary body text.
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(tester, deletion: deletion);
 
     await tapDeleteCard(tester);
@@ -457,7 +478,9 @@ void main() {
     // The user's own instruction: the confirmation words are the same in both
     // languages, so the Bengali instruction and the string the code compares
     // cannot drift apart.
-    final deletion = FakeAccountDeletionRepository(AccountDeletionOutcome.deleted);
+    final deletion = FakeAccountDeletionRepository(
+      AccountDeletionOutcome.deleted,
+    );
     await pumpManageAccount(
       tester,
       deletion: deletion,

@@ -25,13 +25,14 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/services/client_notification_message.dart';
 import '../../../core/services/contact_launcher.dart';
 import '../../../core/utils/on_behalf_side.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
@@ -147,9 +148,8 @@ Future<void> showCaseContactActions(
       whatsAppNumber(number)!,
       messageFor(whatsApp: true),
     ),
-    _ContactRoute.standard => message
-        ? smsUri(number, messageFor(whatsApp: false))
-        : telUri(number),
+    _ContactRoute.standard =>
+      message ? smsUri(number, messageFor(whatsApp: false)) : telUri(number),
   };
 
   final opened = await launcher.open(uri);
@@ -157,15 +157,13 @@ Future<void> showCaseContactActions(
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(
-        switch (route) {
-          _ContactRoute.whatsApp => l.casesContact_unableToOpenWhatsApp,
-          _ContactRoute.standard =>
-            message
-                ? l.casesContact_unableToMessage
-                : l.casesContact_unableToCall,
-        },
-      ),
+      content: Text(switch (route) {
+        _ContactRoute.whatsApp => l.casesContact_unableToOpenWhatsApp,
+        _ContactRoute.standard =>
+          message
+              ? l.casesContact_unableToMessage
+              : l.casesContact_unableToCall,
+      }),
     ),
   );
 }
@@ -199,16 +197,9 @@ class _ContactDialog extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final prefix = 'case-contact-${message ? 'message' : 'call'}';
 
-    return AlertDialog(
-      key: const ValueKey('case-contact-dialog'),
-      // The Update window's 8 px corner (user request, 0.0.616).
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      title: Text(
-        l.casesContact_openWith,
-        key: ValueKey('$prefix-title'),
-      ),
+    return AppDialogFrame(
+      dialogKey: const ValueKey('case-contact-dialog'),
+      title: Text(l.casesContact_openWith, key: ValueKey('$prefix-title')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -235,11 +226,11 @@ class _ContactDialog extends StatelessWidget {
           ),
         ],
       ),
-      actions: [
-        TextButton(
+      actions: (dialogContext) => [
+        AppDialogAction(
           key: ValueKey('case-card-${message ? 'message' : 'call'}-cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedDialogs_cancel),
+          label: l.sharedDialogs_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );

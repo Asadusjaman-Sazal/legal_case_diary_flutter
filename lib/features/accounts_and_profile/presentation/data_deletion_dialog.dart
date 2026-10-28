@@ -25,6 +25,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../data/data_deletion_service.dart';
 
 /// Opens the data-deletion tick list and returns what the user chose.
@@ -55,12 +57,9 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
-      // The Exit App window's 8 px corner (user request), so this window and
-      // the Delete Account warning beside it read as the same family.
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
+    return AppDialogFrame(
+      // The content is its own scroll view, so the frame must not add a second.
+      scrollable: false,
       title: Text(
         widget.cloud
             ? l.settingsManageAccount_deleteDataTitle
@@ -85,32 +84,22 @@ class _DataDeletionDialogState extends State<_DataDeletionDialog> {
           ],
         ),
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: const Size(112, 48),
-            textStyle: const TextStyle(fontSize: 16),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        TextButton(
+        AppDialogAction(
           key: const ValueKey('data-deletion-confirm'),
-          style: TextButton.styleFrom(
-            minimumSize: const Size(112, 48),
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
-            disabledBackgroundColor: AppColors.error.withValues(alpha: 0.35),
-            disabledForegroundColor: AppColors.onError,
-            textStyle: const TextStyle(fontSize: 16),
-          ),
+          label: l.settingsManageAccount_deleteDataConfirm,
+          kind: AppDialogActionKind.destructive,
+          disabledBackground: AppColors.error.withValues(alpha: 0.35),
+          disabledForeground: AppColors.onError,
           // Nothing ticked means nothing to delete, so the red button stays
           // disabled rather than sending an empty request.
           onPressed: _selected.isEmpty
               ? null
-              : () => Navigator.of(context).pop(_selected),
-          child: Text(l.settingsManageAccount_deleteDataConfirm),
+              : () => Navigator.of(dialogContext).pop(_selected),
         ),
       ],
     );

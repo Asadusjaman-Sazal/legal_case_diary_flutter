@@ -46,6 +46,8 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/contact_providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../accounts_and_profile/data/firm_repository.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../data/auth_repository.dart';
@@ -123,12 +125,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
       _fullName.text.trim().isEmpty ||
       _barAssociation.text.trim().isEmpty ||
       _email.text.trim().isEmpty;
+
   /// The failure the banner is showing, of whichever domain it came from.
-///
-/// The screen signs an account up **and** redeems an invite, so a failure can
-/// be an auth one or a firm one; holding the failure rather than a kind is what
-/// lets [failureText] word either.
-Object? _error;
+  ///
+  /// The screen signs an account up **and** redeems an invite, so a failure can
+  /// be an auth one or a firm one; holding the failure rather than a kind is what
+  /// lets [failureText] word either.
+  Object? _error;
 
   /// Set once the account exists but has no session yet: the Check Your Email
   /// state. It replaces the form rather than sitting under it, because there is
@@ -221,10 +224,12 @@ Object? _error;
       await ref
           .read(profileFieldsProvider.notifier)
           .save(
-            ref.read(profileFieldsProvider).copyWith(
-              fullName: _fullName.text.trim(),
-              barAssociation: _barAssociation.text.trim(),
-            ),
+            ref
+                .read(profileFieldsProvider)
+                .copyWith(
+                  fullName: _fullName.text.trim(),
+                  barAssociation: _barAssociation.text.trim(),
+                ),
           );
 
       if (outcome is SignUpConfirmationRequired) {
@@ -289,9 +294,8 @@ Object? _error;
       if (!mounted) return;
       // A closed Google sheet is the user declining, not an error to word.
       setState(
-        () => _error = failure.kind == AuthFailureKind.cancelled
-            ? null
-            : failure,
+        () =>
+            _error = failure.kind == AuthFailureKind.cancelled ? null : failure,
       );
     } on FirmFailure catch (failure) {
       if (!mounted) return;
@@ -309,7 +313,9 @@ Object? _error;
     final message = redemption.status == InviteRedemptionStatus.alreadyMember
         ? l.auth_errorAlreadyMember
         : l.auth_joinedFirm;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
     _leaveForAuthenticatedApp();
   }
 
@@ -629,7 +635,8 @@ Object? _error;
                                 color: AppColors.onSurfaceVariant,
                               ),
                             ),
-                            validator: (value) => authPasswordLengthError(l, value),
+                            validator: (value) =>
+                                authPasswordLengthError(l, value),
                           ),
                           const SizedBox(height: AppSpacing.md),
                           // The confirmation field carries no visibility toggle of
@@ -764,7 +771,9 @@ class _AccountTypeChoice extends StatelessWidget {
     children: [
       Text(
         label,
-        style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
+        style: AppTypography.labelMd.copyWith(
+          color: AppColors.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: AppSpacing.xs),
       SizedBox(
@@ -1054,7 +1063,7 @@ class _PasswordPromptDialogState extends State<_PasswordPromptDialog> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
+    return AppDialogFrame(
       title: Text(l.auth_changeEmailPasswordTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1073,12 +1082,12 @@ class _PasswordPromptDialogState extends State<_PasswordPromptDialog> {
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        TextButton(onPressed: _submit, child: Text(l.sharedActions_save)),
+        AppDialogAction(label: l.sharedActions_save, onPressed: _submit),
       ],
     );
   }

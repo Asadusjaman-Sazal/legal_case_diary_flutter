@@ -13,12 +13,14 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../shared/widgets/app_dialog.dart';
+import '../../../../shared/widgets/app_dialog_actions.dart';
 
 /// Shows the "How to set a case as disposed?" help dialog.
 Future<void> showDisposedHelpDialog(BuildContext context) => showDialog<void>(
-      context: context,
-      builder: (context) => const _DisposedHelpDialog(),
-    );
+  context: context,
+  builder: (context) => const _DisposedHelpDialog(),
+);
 
 class _DisposedHelpDialog extends StatelessWidget {
   const _DisposedHelpDialog();
@@ -27,79 +29,52 @@ class _DisposedHelpDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
-    return Dialog(
+    return AppContentDialogFrame(
       insetPadding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       backgroundColor: AppColors.surfaceContainerLowest,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 384,
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l.disposedCasesScreen_helpTitle,
-                style: AppTypography.titleLg,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        l.disposedCasesScreen_helpBody,
-                        style: AppTypography.bodyMd.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
-                        textAlign: TextAlign.justify,
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        l.disposedCasesScreen_disposedSteps,
-                        style: AppTypography.titleMd,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      ...disposedStepsByCategory.map(
-                        (category) => _CategorySteps(
-                          label: _categoryLabel(l, category.categoryId),
-                          steps: category.steps,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      _CategorySteps(
-                        label: l.disposedCasesScreen_appellateHighCourtDivision,
-                        steps: disposedResultTermLabels,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  ),
-                ),
-                child: Text(l.disposedCasesScreen_gotIt),
-              ),
-            ],
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.disposedCasesScreen_helpTitle,
+            style: AppTypography.titleLg,
+            textAlign: TextAlign.center,
           ),
-        ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l.disposedCasesScreen_helpBody,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.justify,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            l.disposedCasesScreen_disposedSteps,
+            style: AppTypography.titleMd,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ...disposedStepsByCategory.map(
+            (category) => _CategorySteps(
+              label: _categoryLabel(l, category.categoryId),
+              steps: category.steps,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          _CategorySteps(
+            label: l.disposedCasesScreen_appellateHighCourtDivision,
+            steps: disposedResultTermLabels,
+          ),
+        ],
       ),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.disposedCasesScreen_gotIt,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).pop(),
+        ),
+      ],
     );
   }
 }
@@ -157,8 +132,7 @@ String _categoryLabel(AppLocalizations l, String categoryId) =>
         l.lowerCourtCategory_districtSessionsCriminal,
       metropolitanSessionsJudgeCriminalId =>
         l.lowerCourtCategory_metropolitanSessionsJudgeCriminal,
-      chiefJudicialMagistrateId =>
-        l.lowerCourtCategory_chiefJudicialMagistrate,
+      chiefJudicialMagistrateId => l.lowerCourtCategory_chiefJudicialMagistrate,
       chiefMetropolitanMagistrateId =>
         l.lowerCourtCategory_chiefMetropolitanMagistrate,
       executiveMagistrateId => l.lowerCourtCategory_executiveMagistrate,

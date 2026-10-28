@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_spacing.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../theme/app_dialog_metrics.dart';
 import 'print_document.dart';
 import 'print_page_capture.dart';
 
@@ -104,17 +105,21 @@ class _CaptureDialogState extends State<_CaptureDialog> {
             ),
           ),
           AlertDialog(
+            // The app's one window corner and width range; the progress
+            // window's own layout and single action stay as they are.
+            shape: AppDialogMetrics.shape,
+            constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
             title: Text(l.print_preparing),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LinearProgressIndicator(value: _total == 0 ? null : _page / _total),
+                LinearProgressIndicator(
+                  value: _total == 0 ? null : _page / _total,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  _failed
-                      ? l.print_failed
-                      : l.print_pageOf(_page, total),
+                  _failed ? l.print_failed : l.print_pageOf(_page, total),
                   key: const ValueKey('print-progress-label'),
                 ),
                 const SizedBox(height: AppSpacing.xs),

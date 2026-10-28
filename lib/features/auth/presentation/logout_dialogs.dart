@@ -20,14 +20,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
 import '../data/logout_flow.dart';
-
-/// Action size shared with the Exit App window (112x48 at 16 pt); repeated here
-/// rather than exported because that style is private to the router.
-const Size _actionSize = Size(112, 48);
-const TextStyle _actionTextStyle = TextStyle(fontSize: 16);
 
 /// Logs out through the branch this account and this device state call for.
 ///
@@ -142,24 +139,14 @@ Future<bool> runBranchedLogout(
 /// this flow.
 Future<bool> _confirmMemberWarning(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.logout_memberWarningTitle),
-      content: Text(l.logout_memberWarningBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.logout_proceed),
-        ),
-      ],
-    ),
+  return showAppConfirmDialog(
+    context,
+    title: l.logout_memberWarningTitle,
+    message: l.logout_memberWarningBody,
+    cancelLabel: l.sharedActions_cancel,
+    confirmLabel: l.logout_proceed,
+    confirmKind: AppDialogActionKind.text,
   );
-  return answer ?? false;
 }
 
 /// The backup choice: *Backup Data to Local Storage?* with **Yes** and **No**.
@@ -171,32 +158,20 @@ Future<bool> _confirmMemberWarning(BuildContext context) async {
 /// anything — exactly as the app's other confirmations do.
 Future<bool?> _confirmBackupChoice(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.logout_backupPromptTitle),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.sharedActions_yes),
-        ),
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_no),
-        ),
-      ],
-    ),
+  return showAppDialog<bool>(
+    context,
+    title: Text(l.logout_backupPromptTitle),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_yes,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+      AppDialogAction(
+        label: l.sharedActions_no,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+    ],
   );
-  return answer;
 }
 
 /// The success message, shared by the branches that need no copy.
@@ -209,46 +184,26 @@ void _sayLoggedOut(ScaffoldMessengerState messenger, AppLocalizations l) {
 /// The offline block: the changes must sync first, with an explicit way past.
 Future<bool> _confirmLogOutAnyway(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.logout_connectToSync),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.logout_logOutAnyway),
-        ),
-      ],
-    ),
+  return showAppConfirmDialog(
+    context,
+    title: l.logout_connectToSync,
+    cancelLabel: l.sharedActions_cancel,
+    confirmLabel: l.logout_logOutAnyway,
+    confirmKind: AppDialogActionKind.text,
   );
-  return answer ?? false;
 }
 
 /// The warning that names what is about to be discarded.
 Future<bool> _confirmUnsyncedWarning(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.logout_unsyncedWarningTitle),
-      content: Text(l.logout_unsyncedWarningBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.logout_proceed),
-        ),
-      ],
-    ),
+  return showAppConfirmDialog(
+    context,
+    title: l.logout_unsyncedWarningTitle,
+    message: l.logout_unsyncedWarningBody,
+    cancelLabel: l.sharedActions_cancel,
+    confirmLabel: l.logout_proceed,
+    confirmKind: AppDialogActionKind.text,
   );
-  return answer ?? false;
 }
 
 /// Asks whether to keep a copy, then — for **Yes** — asks for the passphrase

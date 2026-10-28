@@ -52,6 +52,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
+import '../../../shared/widgets/app_dialog.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/logout_dialogs.dart';
@@ -339,51 +340,22 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
 
   /// The one warning before an account is destroyed.
   ///
-  /// Cancel and a red-background Delete Account, centred and at the shared
-  /// action size, exactly like the logout windows. The destructive action wears
-  /// the red background with white text, so the button the user must not press
-  /// by accident is not the app's black primary.
-  Future<bool?> _confirmDeleteAccount(
+  /// Cancel and a red Delete Account, centred on the shared window frame. The
+  /// destructive action wears the red background with white text, so the button
+  /// the user must not press by accident is not the app's black primary.
+  Future<bool> _confirmDeleteAccount(
     AppLocalizations l,
     BuildContext context, {
     required bool premium,
   }) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        // The Exit App window's 8 px corner (user request), so every window on
-        // this screen that can destroy something is cut alike.
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-        ),
-        title: Text(l.settingsManageAccount_deleteDialogTitle),
-        content: Text(
-          premium
-              ? l.settingsManageAccount_deleteWarningPremium
-              : l.settingsManageAccount_deleteWarningFree,
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.onError,
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.settingsManageAccount_deleteAccount),
-          ),
-        ],
-      ),
+    return showAppConfirmDialog(
+      context,
+      title: l.settingsManageAccount_deleteDialogTitle,
+      message: premium
+          ? l.settingsManageAccount_deleteWarningPremium
+          : l.settingsManageAccount_deleteWarningFree,
+      cancelLabel: l.sharedActions_cancel,
+      confirmLabel: l.settingsManageAccount_deleteAccount,
     );
   }
 }

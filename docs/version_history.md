@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.704 - English copy now follows Apple-style casing app-wide: about 66 Title-Cased messages became sentence case, six labels became Title Case, hardcoded strings moved to the ARB, and rule 11 spells the style out.
+Version: 0.0.708 - Wave 4 of the pop-over standard: the bespoke windows take the shared corner and width, the admin reject windows move to 112x48 actions, and the duplicated size constants are deleted.
 --------------------------------------
 
 ## Version History Log:
@@ -718,3 +718,7 @@ Version: 0.0.701 - Subscription moved to its own Settings page directly under Fi
 Version: 0.0.702 - The app's bottom navigation bar now takes the phone's bottom system inset, sitting above the navigation panel on Android 15+ while older phones keep the same 64 px bar.
 Version: 0.0.703 - The Battery & Autostart Setup Guide now spells out each brand's exact path — Xiaomi/Redmi, Realme and Vivo — for Auto-Start and unrestricted battery use; other OEMs keep the generic wording.
 Version: 0.0.704 - English copy now follows Apple-style casing app-wide: about 66 Title-Cased messages became sentence case, six labels became Title Case, hardcoded strings moved to the ARB, and rule 11 spells the style out.
+Version: 0.0.705 - Wave 1 of the pop-over standard: the Exit App, Withdraw and shared delete windows now use one 8 px / 280-420 px frame with 112x48 actions that stack full width when the pair cannot fit.
+Version: 0.0.706 - Wave 2 of the pop-over standard: the auth/account and settings/cases/sync confirmation windows now share the 8 px frame, the 112x48 actions and the adaptive full-width pair.
+Version: 0.0.707 - Wave 3 of the pop-over standard: Invite Code, Join a Firm, the firm rename, passphrase, edit name, change-email password and the Disposed help windows now share the elastic frame and action area.
+Version: 0.0.708 - Wave 4 of the pop-over standard: the bespoke windows take the shared corner and width, the admin reject windows move to 112x48 actions, and the duplicated size constants are deleted.

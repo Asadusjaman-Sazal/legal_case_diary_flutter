@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../constants/app_spacing.dart';
 import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/admin/presentation/admin_payment_requests_screen.dart';
 import '../../features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
@@ -72,6 +71,8 @@ import '../../features/settings/presentation/settings_main_screen.dart';
 import '../../features/settings/presentation/settings_notifications/battery_setup_guide_screen.dart';
 import '../../features/settings/presentation/settings_notifications/notification_settings_screen.dart';
 import '../../features/settings/presentation/settings_view/view_settings_screen.dart';
+import '../../shared/widgets/app_dialog.dart';
+import '../../shared/widgets/app_dialog_actions.dart';
 import '../../shared/widgets/database_guard.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../providers/notification_providers.dart';
@@ -803,12 +804,6 @@ final List<RouteBase> _shellRoutes = [
 // Shell root with back/exit confirmation (Dev Workflow §6)
 // ---------------------------------------------------------------------------
 
-/// Larger, legible button style used by the exit-confirmation actions.
-final ButtonStyle _exitButtonStyle = TextButton.styleFrom(
-  minimumSize: const Size(112, 48),
-  textStyle: const TextStyle(fontSize: 16),
-);
-
 /// Wraps the shell child with exit-confirmation on system back at the root.
 ///
 /// Shows an [AlertDialog] asking the user to confirm exit. Prevents black
@@ -841,37 +836,20 @@ class AppShellRoot extends StatelessWidget {
 
   static Future<bool> _confirmExit(BuildContext context) async {
     final l = AppLocalizations.of(context);
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.appShell_exitTitle, textAlign: TextAlign.center),
-        // The Update window's 8 px corner (user request, 0.0.620).
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+    final result = await showAppDialog<bool>(
+      context,
+      title: Text(l.appShell_exitTitle, textAlign: TextAlign.center),
+      content: Text(l.appShell_exitMessage),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
         ),
-        content: Text(l.appShell_exitMessage),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          // 2 px on each side lifts the actions' 8 px gap to 12 (50% more,
-          // user request).
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: TextButton(
-              style: _exitButtonStyle,
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l.sharedActions_cancel),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: TextButton(
-              style: _exitButtonStyle,
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(l.appShell_exit),
-            ),
-          ),
-        ],
-      ),
+        AppDialogAction(
+          label: l.appShell_exit,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
     return result ?? false;
   }

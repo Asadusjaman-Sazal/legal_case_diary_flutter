@@ -52,6 +52,8 @@ import '../../../core/constants/free_tier.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../data/payment_plans.dart';
 import 'current_plan.dart';
@@ -858,44 +860,38 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required int termMonths,
     required String ceiling,
   }) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        key: const ValueKey('paywall-change-dialog'),
-        title: Text(l.paywall_changeTitle),
-        content: Text(
-          l.paywall_changeBody(
-            current,
-            _dateText(l, startMs),
-            next,
-            _dateText(l, startMs),
-            _termLabel(l, termMonths),
-            ceiling,
-          ),
-          style: AppTypography.bodyMd,
+    final confirmed = await showAppDialog<bool>(
+      context,
+      dialogKey: const ValueKey('paywall-change-dialog'),
+      title: Text(l.paywall_changeTitle),
+      content: Text(
+        l.paywall_changeBody(
+          current,
+          _dateText(l, startMs),
+          next,
+          _dateText(l, startMs),
+          _termLabel(l, termMonths),
+          ceiling,
         ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextButton(
-                key: const ValueKey('paywall-change-go-back'),
-                style: _dialogSecondaryStyle(),
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l.paywall_changeGoBack),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                key: const ValueKey('paywall-change-continue'),
-                style: _dialogPrimaryStyle(),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(l.paywall_changeContinue),
-              ),
-            ],
-          ),
-        ],
+        style: AppTypography.bodyMd,
       ),
+      actionMode: AppDialogActionMode.stack,
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('paywall-change-go-back'),
+          label: l.paywall_changeGoBack,
+          kind: AppDialogActionKind.primary,
+          background: AppColors.secondary,
+          foreground: AppColors.onSecondary,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+        ),
+        AppDialogAction(
+          key: const ValueKey('paywall-change-continue'),
+          label: l.paywall_changeContinue,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
     return confirmed == true;
   }
@@ -906,54 +902,34 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     required String next,
     required int endMs,
   }) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        key: const ValueKey('paywall-renew-shift-dialog'),
-        title: Text(l.paywall_renewShiftTitle),
-        content: Text(
-          l.paywall_renewShiftBody(current, _dateText(l, endMs), next),
-          style: AppTypography.bodyMd,
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextButton(
-                key: const ValueKey('paywall-renew-shift-go-back'),
-                style: _dialogSecondaryStyle(),
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(l.paywall_changeGoBack),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                key: const ValueKey('paywall-renew-shift-continue'),
-                style: _dialogPrimaryStyle(),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(l.paywall_renewShiftConfirm),
-              ),
-            ],
-          ),
-        ],
+    final confirmed = await showAppDialog<bool>(
+      context,
+      dialogKey: const ValueKey('paywall-renew-shift-dialog'),
+      title: Text(l.paywall_renewShiftTitle),
+      content: Text(
+        l.paywall_renewShiftBody(current, _dateText(l, endMs), next),
+        style: AppTypography.bodyMd,
       ),
+      actionMode: AppDialogActionMode.stack,
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('paywall-renew-shift-go-back'),
+          label: l.paywall_changeGoBack,
+          kind: AppDialogActionKind.primary,
+          background: AppColors.secondary,
+          foreground: AppColors.onSecondary,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+        ),
+        AppDialogAction(
+          key: const ValueKey('paywall-renew-shift-continue'),
+          label: l.paywall_renewShiftConfirm,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
     return confirmed == true;
   }
-
-  ButtonStyle _dialogSecondaryStyle() => TextButton.styleFrom(
-    minimumSize: const Size.fromHeight(48),
-    backgroundColor: AppColors.secondary,
-    foregroundColor: AppColors.onSecondary,
-    textStyle: const TextStyle(fontSize: 16),
-  );
-
-  ButtonStyle _dialogPrimaryStyle() => TextButton.styleFrom(
-    minimumSize: const Size.fromHeight(48),
-    backgroundColor: AppColors.primary,
-    foregroundColor: AppColors.onPrimary,
-    textStyle: const TextStyle(fontSize: 16),
-  );
 }
 
 /// A plan card's surface: 1px grey until touched, 2px ink once it is.

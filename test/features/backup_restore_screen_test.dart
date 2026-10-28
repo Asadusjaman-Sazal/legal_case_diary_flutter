@@ -188,7 +188,9 @@ Future<PickedBackupFile> _encryptedBackup(String secret) async {
     appVersion: '0.0.229',
     exportedAt: 1700000000000,
     payload: <String, dynamic>{
-      kBackupTablesSection: <String, dynamic>{'notes': <Map<String, dynamic>>[]},
+      kBackupTablesSection: <String, dynamic>{
+        'notes': <Map<String, dynamic>>[],
+      },
     },
   );
   final container = await encryptBackup(
@@ -413,14 +415,15 @@ void main() {
     return files.isEmpty ? null : files.single.path;
   }
 
-
   /// Turns passphrase encryption on in the stored preferences, exactly as the
   /// Encryption On Backup section's Enable button does.
   Future<void> enableEncryption() =>
       prefs.setBool(backupEncryptionEnabledKey, true);
 
   /// A workbook file, written by the real export engine for [db]'s contents.
-  Future<PickedBackupFile> excelBackup({String name = 'Backup_20-09-26_11-06-07am.xlsx'}) async {
+  Future<PickedBackupFile> excelBackup({
+    String name = 'Backup_20-09-26_11-06-07am.xlsx',
+  }) async {
     final bytes = await BackupRepository(db).buildExcelWorkbook(
       appVersion: '0.0.262',
       exportedAt: DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch,
@@ -438,7 +441,12 @@ void main() {
   }
 
   /// Rewrites one string inside one workbook part and re-zips it.
-  Uint8List breakWorkbook(Uint8List bytes, String part, String from, String to) {
+  Uint8List breakWorkbook(
+    Uint8List bytes,
+    String part,
+    String from,
+    String to,
+  ) {
     final parts = workbookParts(bytes);
     parts[part] = parts[part]!.replaceFirst(from, to);
     final archive = Archive();
@@ -472,10 +480,7 @@ void main() {
 
     // The sentence, and none of the four buttons that would refuse (firm-mode
     // §6: a member keeps no copy of the chamber's ledger, and no restore).
-    expect(
-      find.byKey(const ValueKey('backup-member-notice')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('backup-member-notice')), findsOneWidget);
     expect(find.text(l.settingsBackupRestore_memberNotice), findsOneWidget);
     // The page title is "Backup & Restore" as well, so the actions are asserted
     // by their own labels rather than by the section heading.
@@ -592,7 +597,10 @@ void main() {
     await openSection(tester, 'excel');
 
     // The four sheet names the reader matches on, exactly as it spells them.
-    expect(find.textContaining('Cases, Case History, Notes and Case References'), findsOneWidget);
+    expect(
+      find.textContaining('Cases, Case History, Notes and Case References'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Keep the sheet names'), findsOneWidget);
     expect(find.textContaining('row\'s id blank'), findsOneWidget);
     // And the honest limit of the format.
@@ -656,49 +664,50 @@ void main() {
     expect(find.textContaining('Template saved to'), findsOneWidget);
   });
 
-  testWidgets('restoring a workbook skips the passphrase and asks about its sheets', (
-    tester,
-  ) async {
-    await seedNote();
-    // Data outside the workbook's four tables, which a workbook restore must
-    // leave alone.
-    await db.customInsert(
-      'INSERT INTO sync_metadata ("key", "value", "updated_at") '
-      "VALUES ('outside.scope', 'kept', 1)",
-    );
-    await placeInFolder(await excelBackup());
-    await pumpScreen(tester);
+  testWidgets(
+    'restoring a workbook skips the passphrase and asks about its sheets',
+    (tester) async {
+      await seedNote();
+      // Data outside the workbook's four tables, which a workbook restore must
+      // leave alone.
+      await db.customInsert(
+        'INSERT INTO sync_metadata ("key", "value", "updated_at") '
+        "VALUES ('outside.scope', 'kept', 1)",
+      );
+      await placeInFolder(await excelBackup());
+      await pumpScreen(tester);
 
-    await tapAction(tester, 'Restore from Backup');
+      await tapAction(tester, 'Restore from Backup');
 
-    // A workbook carries no passphrase, and the window says which sheets go.
-    expect(find.text('Open this backup'), findsNothing);
-    expect(find.text('Replace the data in these sheets?'), findsOneWidget);
-    expect(
-      find.text('Cases, Case History, Notes, Case References'),
-      findsOneWidget,
-    );
+      // A workbook carries no passphrase, and the window says which sheets go.
+      expect(find.text('Open this backup'), findsNothing);
+      expect(find.text('Replace the data in these sheets?'), findsOneWidget);
+      expect(
+        find.text('Cases, Case History, Notes, Case References'),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.text('Replace'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Replace'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
 
-    // The note the workbook carried is what the diary holds now...
-    final notes = await db
-        .customSelect('SELECT COUNT(*) AS n FROM notes')
-        .getSingle();
-    expect(notes.data['n'], 1);
-    // ...and everything outside the four sheets survived untouched, which is the
-    // whole point of scoping the replace to the file's own tables.
-    final kept = await db
-        .customSelect(
-          'SELECT COUNT(*) AS n FROM sync_metadata '
-          "WHERE \"key\" = 'outside.scope'",
-        )
-        .getSingle();
-    expect(kept.data['n'], 1);
-  });
+      // The note the workbook carried is what the diary holds now...
+      final notes = await db
+          .customSelect('SELECT COUNT(*) AS n FROM notes')
+          .getSingle();
+      expect(notes.data['n'], 1);
+      // ...and everything outside the four sheets survived untouched, which is the
+      // whole point of scoping the replace to the file's own tables.
+      final kept = await db
+          .customSelect(
+            'SELECT COUNT(*) AS n FROM sync_metadata '
+            "WHERE \"key\" = 'outside.scope'",
+          )
+          .getSingle();
+      expect(kept.data['n'], 1);
+    },
+  );
 
   testWidgets('a workbook that is off-format names the sheet and the column', (
     tester,
@@ -768,63 +777,73 @@ void main() {
     expect(backupScheduler.syncScheduleCalls, 1);
   });
 
-  testWidgets('the Encryption On Backup section explains and switches the setting', (
-    tester,
-  ) async {
-    await pumpScreen(tester);
+  testWidgets(
+    'the Encryption On Backup section explains and switches the setting',
+    (tester) async {
+      await pumpScreen(tester);
 
-    // The setting is off to begin with, and the copy names both sides of the
-    // trade-off: what the passphrase protects, and the cost of forgetting it.
-    await openSection(tester, 'encryption');
-    // Paragraph copy reads in sentence case; only headings and labels are
-    // Title Case.
-    expect(find.text('Encryption is currently off'), findsOneWidget);
-    expect(
-      find.textContaining('anyone who gets it cannot read your case data'),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('If you forget it, that backup can never be restored'),
-      findsOneWidget,
-    );
-    expect(find.byKey(const ValueKey('backup-encryption-enable')), findsOneWidget);
-    expect(find.byKey(const ValueKey('backup-encryption-disable')), findsOneWidget);
+      // The setting is off to begin with, and the copy names both sides of the
+      // trade-off: what the passphrase protects, and the cost of forgetting it.
+      await openSection(tester, 'encryption');
+      // Paragraph copy reads in sentence case; only headings and labels are
+      // Title Case.
+      expect(find.text('Encryption is currently off'), findsOneWidget);
+      expect(
+        find.textContaining('anyone who gets it cannot read your case data'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(
+          'If you forget it, that backup can never be restored',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('backup-encryption-enable')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('backup-encryption-disable')),
+        findsOneWidget,
+      );
 
-    // Enable stores it; Disable puts it back.
-    await tester.tap(find.byKey(const ValueKey('backup-encryption-enable')));
-    await tester.pumpAndSettle();
-    expect(prefs.getBool(backupEncryptionEnabledKey), isTrue);
-    expect(find.text('Encryption is currently on'), findsOneWidget);
+      // Enable stores it; Disable puts it back.
+      await tester.tap(find.byKey(const ValueKey('backup-encryption-enable')));
+      await tester.pumpAndSettle();
+      expect(prefs.getBool(backupEncryptionEnabledKey), isTrue);
+      expect(find.text('Encryption is currently on'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('backup-encryption-disable')));
-    await tester.pumpAndSettle();
-    expect(prefs.getBool(backupEncryptionEnabledKey), isFalse);
-    expect(find.text('Encryption is currently off'), findsOneWidget);
-  });
+      await tester.tap(find.byKey(const ValueKey('backup-encryption-disable')));
+      await tester.pumpAndSettle();
+      expect(prefs.getBool(backupEncryptionEnabledKey), isFalse);
+      expect(find.text('Encryption is currently off'), findsOneWidget);
+    },
+  );
 
-  testWidgets('with encryption off a backup is written unencrypted, asking nothing', (
-    tester,
-  ) async {
-    await pumpScreen(tester);
+  testWidgets(
+    'with encryption off a backup is written unencrypted, asking nothing',
+    (tester) async {
+      await pumpScreen(tester);
 
-    await tapAction(tester, 'Backup to Local Storage');
+      await tapAction(tester, 'Backup to Local Storage');
 
-    // No passphrase window: encryption is off by default.
-    expect(find.text('Protect this backup'), findsNothing);
-    final bytes = folderBackupBytes();
-    expect(bytes, isNotNull);
-    // The file is the readable envelope, not the sealed container.
-    final decoded = jsonDecode(utf8.decode(bytes!)) as Map<String, dynamic>;
-    expect(decoded['format'], isNot(kEncryptedBackupFormat));
-    expect(decoded, contains('schema_version'));
-    expect(
-      (decoded['payload'] as Map<String, dynamic>),
-      contains(kBackupTablesSection),
-    );
-    // And it is recorded exactly like an encrypted one, at the folder path.
-    expect(prefs.getString(lastBackupPathKey), folderSavePath());
-    expect(find.textContaining('Backup saved to'), findsOneWidget);
-  });
+      // No passphrase window: encryption is off by default.
+      expect(find.text('Protect this backup'), findsNothing);
+      final bytes = folderBackupBytes();
+      expect(bytes, isNotNull);
+      // The file is the readable envelope, not the sealed container.
+      final decoded = jsonDecode(utf8.decode(bytes!)) as Map<String, dynamic>;
+      expect(decoded['format'], isNot(kEncryptedBackupFormat));
+      expect(decoded, contains('schema_version'));
+      expect(
+        (decoded['payload'] as Map<String, dynamic>),
+        contains(kBackupTablesSection),
+      );
+      // And it is recorded exactly like an encrypted one, at the folder path.
+      expect(prefs.getString(lastBackupPathKey), folderSavePath());
+      expect(find.textContaining('Backup saved to'), findsOneWidget);
+    },
+  );
 
   testWidgets('backup asks for the passphrase twice, then saves the file', (
     tester,
@@ -877,10 +896,7 @@ void main() {
 
     // The user is told where it went, and the status card records it.
     final saved = folderSavePath()!;
-    expect(
-      find.text('Backup saved to $saved'),
-      findsOneWidget,
-    );
+    expect(find.text('Backup saved to $saved'), findsOneWidget);
     expect(prefs.getString(lastBackupPathKey), saved);
     expect(prefs.getInt(lastSuccessfulBackupAtKey), envelope.exportedAt);
     expect(find.text(saved), findsOneWidget);
@@ -902,10 +918,7 @@ void main() {
   testWidgets('fallback save dialog dismissed records nothing', (tester) async {
     await enableEncryption();
     gateway.cancelSave = true;
-    await pumpScreen(
-      tester,
-      folderSink: const _ThrowingFolderSink(),
-    );
+    await pumpScreen(tester, folderSink: const _ThrowingFolderSink());
 
     await tapAction(tester, 'Backup to Local Storage');
     await enterPassphrase(
@@ -927,10 +940,7 @@ void main() {
   ) async {
     await enableEncryption();
     gateway.saveError = StateError('disk full');
-    await pumpScreen(
-      tester,
-      folderSink: const _ThrowingFolderSink(),
-    );
+    await pumpScreen(tester, folderSink: const _ThrowingFolderSink());
 
     await tapAction(tester, 'Backup to Local Storage');
     await enterPassphrase(
@@ -961,7 +971,9 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    final notes = await db.customSelect('SELECT COUNT(*) AS n FROM notes').getSingle();
+    final notes = await db
+        .customSelect('SELECT COUNT(*) AS n FROM notes')
+        .getSingle();
     expect(notes.data['n'], 3);
   });
 
@@ -1048,7 +1060,8 @@ void main() {
         .getSingle();
     expect(kept.data['n'], 1);
     expect(
-      (await db.customSelect('SELECT user_id FROM notes').getSingle()).data['user_id'],
+      (await db.customSelect('SELECT user_id FROM notes').getSingle())
+          .data['user_id'],
       'user-1',
     );
   });
@@ -1111,7 +1124,9 @@ void main() {
     expect(find.text('Replace all current data?'), findsNothing);
     expect(find.text('Restore complete'), findsNothing);
 
-    await tester.tap(find.byKey(const ValueKey('restore-chamber-barred-close')));
+    await tester.tap(
+      find.byKey(const ValueKey('restore-chamber-barred-close')),
+    );
     await tester.pumpAndSettle();
     // Closed with nothing done: the diary is exactly as it was.
     final kept = await db
@@ -1318,10 +1333,7 @@ void main() {
   ) async {
     await enableEncryption();
     gateway.cancelSave = true;
-    await pumpScreen(
-      tester,
-      folderSink: const _ThrowingFolderSink(),
-    );
+    await pumpScreen(tester, folderSink: const _ThrowingFolderSink());
 
     await tapAction(tester, 'Backup to Google Drive');
     await enterPassphrase(
@@ -1341,17 +1353,16 @@ void main() {
   testWidgets('a single backup in the folder restores directly, no picker', (
     tester,
   ) async {
-    await placeInFolder(_legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak'));
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak'),
+    );
     gateway.picked = null; // The picker must never be asked.
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
 
     // No choice popup and no platform picker: the folder's only file restores.
-    expect(
-      find.text('Choose the backup to restore'),
-      findsNothing,
-    );
+    expect(find.text('Choose the backup to restore'), findsNothing);
     expect(find.text('Open this backup'), findsNothing);
     expect(find.text('Restore complete'), findsOneWidget);
     expect(find.text('3 records restored.'), findsOneWidget);
@@ -1373,20 +1384,14 @@ void main() {
 
     // Both files are listed in the popup, and the popup is the rounder-corner
     // dialog the user asked for, replacing the platform picker.
-    expect(
-      find.text('Choose the backup to restore'),
-      findsOneWidget,
-    );
+    expect(find.text('Choose the backup to restore'), findsOneWidget);
     expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
     expect(find.text('Backup_02-02-26_09-30-15pm.lcbak'), findsOneWidget);
 
     // The popup uses a slightly rounder corner than the app's default dialog.
     final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
     final shape = dialog.shape! as RoundedRectangleBorder;
-    expect(
-      (shape.borderRadius as BorderRadius).topLeft.x,
-      greaterThan(8.0),
-    );
+    expect((shape.borderRadius as BorderRadius).topLeft.x, greaterThan(8.0));
 
     await tester.tap(find.text('Backup_02-02-26_09-30-15pm.lcbak'));
     await tester.pumpAndSettle();
@@ -1444,11 +1449,12 @@ void main() {
     /// Live (non-tombstoned) notes on this device.
     Future<int> liveNotes() async =>
         (await db
-                .customSelect(
-                  'SELECT COUNT(*) AS n FROM notes WHERE is_deleted = 0',
-                )
-                .getSingle())
-            .data['n']! as int;
+                    .customSelect(
+                      'SELECT COUNT(*) AS n FROM notes WHERE is_deleted = 0',
+                    )
+                    .getSingle())
+                .data['n']!
+            as int;
 
     /// The real deletion service over this test's database, with no backend:
     /// local deletes run for real while the cloud half stays queued.
@@ -1506,7 +1512,7 @@ void main() {
       expect(find.text('Restore complete'), findsNothing);
       final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
       expect(dialog.actionsAlignment, MainAxisAlignment.center);
-      final wipe = tester.widget<TextButton>(
+      final wipe = tester.widget<FilledButton>(
         find.byKey(const ValueKey('restore-blocked-delete')),
       );
       expect(

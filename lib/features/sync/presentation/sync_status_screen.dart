@@ -40,6 +40,8 @@ import '../../settings/data/backup_metadata_store.dart';
 import '../../settings/presentation/backup_dialogs.dart';
 import '../../settings/presentation/edit_court_steps/court_category_label.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 
 /// The Sync Status / Diagnostics screen.
 class SyncStatusScreen extends ConsumerStatefulWidget {
@@ -193,24 +195,15 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
   /// Discard: confirm, then drop the mutation and roll the record back.
   Future<void> _discard(SyncQueueRow row) async {
     final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.syncStatus_discardTitle),
-        content: Text(l.syncStatus_discardBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.syncStatus_discardConfirm),
-          ),
-        ],
-      ),
+    final confirmed = await showAppConfirmDialog(
+      context,
+      title: l.syncStatus_discardTitle,
+      message: l.syncStatus_discardBody,
+      cancelLabel: l.sharedActions_cancel,
+      confirmLabel: l.syncStatus_discardConfirm,
+      confirmKind: AppDialogActionKind.text,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final actions = await ref.read(syncStatusActionsProvider.future);
     final outcome = await actions.discard(row);
@@ -231,7 +224,7 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
     if (includePayloads == null || !mounted) return;
     if (includePayloads) {
       final consent = await _confirmPayloadConsent();
-      if (consent != true || !mounted) return;
+      if (!consent || !mounted) return;
     }
     // A passphrase is asked for only when encryption is on (off by default):
     // with it off the bundle is written as readable JSON.
@@ -312,24 +305,15 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
   );
 
   /// The explicit consent for including case content.
-  Future<bool?> _confirmPayloadConsent() {
+  Future<bool> _confirmPayloadConsent() {
     final l = AppLocalizations.of(context);
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.syncStatus_exportConsentTitle),
-        content: Text(l.syncStatus_exportConsentBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.syncStatus_exportConsentConfirm),
-          ),
-        ],
-      ),
+    return showAppConfirmDialog(
+      context,
+      title: l.syncStatus_exportConsentTitle,
+      message: l.syncStatus_exportConsentBody,
+      cancelLabel: l.sharedActions_cancel,
+      confirmLabel: l.syncStatus_exportConsentConfirm,
+      confirmKind: AppDialogActionKind.text,
     );
   }
 

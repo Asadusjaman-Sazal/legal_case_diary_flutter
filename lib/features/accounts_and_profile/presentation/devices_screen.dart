@@ -15,6 +15,8 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../shared/widgets/pull_to_sync.dart';
 import '../../auth/data/device_registration.dart';
 import '../data/firm_capacity.dart';
@@ -122,24 +124,15 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     RegisteredDevice device,
   ) async {
     final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l.devices_removeTitle),
-        content: Text(l.devices_removeBody(device.label)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l.devices_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l.devices_remove),
-          ),
-        ],
-      ),
+    final confirmed = await showAppConfirmDialog(
+      context,
+      title: l.devices_removeTitle,
+      message: l.devices_removeBody(device.label),
+      cancelLabel: l.devices_cancel,
+      confirmLabel: l.devices_remove,
+      confirmKind: AppDialogActionKind.text,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     final removed = await ref
         .read(deviceGateProvider.notifier)
         .remove(device.id);

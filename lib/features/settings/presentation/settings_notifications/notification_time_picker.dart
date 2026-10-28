@@ -17,13 +17,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/theme/app_dialog_metrics.dart';
 import 'bengali_time_picker_localizations.dart';
-
-/// The dialog action size and text style the app's dialogs share — 112x48 at
-/// 16 pt, the same pair `confirm_dialogs.dart`, `backup_dialogs.dart` and the
-/// Exit App window use.
-const Size _dialogActionSize = Size(112, 48);
-const TextStyle _dialogActionTextStyle = TextStyle(fontSize: 16);
 
 /// Cancel/OK and the picker's own colours.
 ///
@@ -32,12 +27,12 @@ const TextStyle _dialogActionTextStyle = TextStyle(fontSize: 16);
 /// text is the picker's title: bold, in the app's black.
 final TimePickerThemeData notificationTimePickerTheme = TimePickerThemeData(
   cancelButtonStyle: TextButton.styleFrom(
-    minimumSize: _dialogActionSize,
-    textStyle: _dialogActionTextStyle,
+    minimumSize: AppDialogMetrics.actionSize,
+    textStyle: AppDialogMetrics.actionTextStyle,
   ),
   confirmButtonStyle: TextButton.styleFrom(
-    minimumSize: _dialogActionSize,
-    textStyle: _dialogActionTextStyle,
+    minimumSize: AppDialogMetrics.actionSize,
+    textStyle: AppDialogMetrics.actionTextStyle,
   ),
   helpTextStyle: AppTypography.titleMd.copyWith(
     color: AppColors.secondary,

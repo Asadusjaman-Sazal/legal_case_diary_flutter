@@ -385,11 +385,15 @@ void main() {
 
     // Picked out of order on purpose: the one picked first comes first.
     await tester.tap(
-      find.byKey(const ValueKey('admin-reject-message-Transaction ID is wrong.')),
+      find.byKey(
+        const ValueKey('admin-reject-message-Transaction ID is wrong.'),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(
-      find.byKey(const ValueKey('admin-reject-message-Mobile number is wrong.')),
+      find.byKey(
+        const ValueKey('admin-reject-message-Mobile number is wrong.'),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -408,7 +412,9 @@ void main() {
 
     // Picking one back out takes that message and its joining space with it.
     await tester.tap(
-      find.byKey(const ValueKey('admin-reject-message-Transaction ID is wrong.')),
+      find.byKey(
+        const ValueKey('admin-reject-message-Transaction ID is wrong.'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(
@@ -435,6 +441,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Reject'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Pre-Fill Message'));
+    await tester.pumpAndSettle();
+    // The shared frame caps the window at 85 % of the height, so the list's
+    // last row is scrolled into view before it is tapped.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('admin-reject-add-own')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('admin-reject-add-own')));
     await tester.pumpAndSettle();
@@ -480,6 +492,12 @@ void main() {
     // The saved one is offered beside the app's own messages.
     expect(find.text('Send the money again'), findsOneWidget);
 
+    await tester.ensureVisible(
+      find.byKey(
+        const ValueKey('admin-reject-own-remove-Send the money again'),
+      ),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(
       find.byKey(
         const ValueKey('admin-reject-own-remove-Send the money again'),
@@ -570,8 +588,14 @@ void main() {
     final button = tester.widget<FilledButton>(
       find.widgetWithText(FilledButton, 'Reject'),
     );
-    expect(button.style?.backgroundColor?.resolve(<WidgetState>{}), AppColors.error);
-    expect(button.style?.foregroundColor?.resolve(<WidgetState>{}), AppColors.onError);
+    expect(
+      button.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      button.style?.foregroundColor?.resolve(<WidgetState>{}),
+      AppColors.onError,
+    );
   });
 
   testWidgets('the rejection window centres two app-height buttons', (

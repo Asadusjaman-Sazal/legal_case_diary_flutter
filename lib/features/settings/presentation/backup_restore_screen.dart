@@ -49,6 +49,8 @@ import '../data/backup_file_gateway.dart';
 import '../data/backup_metadata_store.dart';
 import '../data/backup_repository.dart';
 import '../data/premium_access.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import 'backup_dialogs.dart';
 import 'edit_court_steps/court_category_label.dart';
 import 'settings_menu_card.dart';
@@ -751,7 +753,9 @@ class _BackupFilePickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
+    return AppDialogFrame(
+      // A little rounder than the shared corner, as the user asked for this
+      // window (rule: a unique window keeps its own shape).
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
           AppSpacing.sheetRadius + AppSpacing.radiusSm,
@@ -779,11 +783,10 @@ class _BackupFilePickerDialog extends StatelessWidget {
             ),
         ],
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     );

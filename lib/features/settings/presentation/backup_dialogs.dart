@@ -20,11 +20,9 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../data/backup_file_gateway.dart';
-
-/// Action size used by the shared Delete/Exit windows (112x48, 16 pt).
-const Size _actionSize = Size(112, 48);
-const TextStyle _actionTextStyle = TextStyle(fontSize: 16);
 
 /// Roomier window geometry for the dialogs that carry fields.
 const EdgeInsets _dialogInsetPadding = EdgeInsets.symmetric(
@@ -105,43 +103,26 @@ Future<String?> showRecoveryPassphraseDialog(BuildContext context) {
 /// centred column, with the wipe first and Cancel beneath it.
 Future<bool> showRestoreBlockedDialog(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final wipe = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.settingsBackupRestore_restore),
-      content: Text(
-        l.settingsBackupRestore_restoreBlockedBody,
-        style: AppTypography.bodyMd,
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextButton(
-              key: const ValueKey('restore-blocked-delete'),
-              style: TextButton.styleFrom(
-                minimumSize: Size.fromHeight(_actionSize.height),
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.onError,
-                textStyle: _actionTextStyle,
-              ),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(l.settingsManageAccount_deleteLocalAndCloudData),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextButton(
-              style: TextButton.styleFrom(
-                minimumSize: Size.fromHeight(_actionSize.height),
-                textStyle: _actionTextStyle,
-              ),
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l.sharedActions_cancel),
-            ),
-          ],
-        ),
-      ],
+  final wipe = await showAppDialog<bool>(
+    context,
+    title: Text(l.settingsBackupRestore_restore),
+    content: Text(
+      l.settingsBackupRestore_restoreBlockedBody,
+      style: AppTypography.bodyMd,
     ),
+    actionMode: AppDialogActionMode.stack,
+    actions: (dialogContext) => [
+      AppDialogAction(
+        key: const ValueKey('restore-blocked-delete'),
+        label: l.settingsManageAccount_deleteLocalAndCloudData,
+        kind: AppDialogActionKind.destructive,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+    ],
   );
   return wipe == true;
 }
@@ -156,27 +137,20 @@ Future<bool> showRestoreBlockedDialog(BuildContext context) async {
 /// is reached by using the app, not by passing this window.
 Future<void> showRestoreBarredInChamberDialog(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  await showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.settingsBackupRestore_chamberBarredTitle),
-      content: Text(
-        l.settingsBackupRestore_chamberBarredBody,
-        style: AppTypography.bodyMd,
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          key: const ValueKey('restore-chamber-barred-close'),
-          style: TextButton.styleFrom(
-            minimumSize: Size.fromHeight(_actionSize.height),
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_close),
-        ),
-      ],
+  await showAppDialog<void>(
+    context,
+    title: Text(l.settingsBackupRestore_chamberBarredTitle),
+    content: Text(
+      l.settingsBackupRestore_chamberBarredBody,
+      style: AppTypography.bodyMd,
     ),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        key: const ValueKey('restore-chamber-barred-close'),
+        label: l.sharedActions_close,
+        onPressed: () => Navigator.of(dialogContext).pop(),
+      ),
+    ],
   );
 }
 
@@ -194,75 +168,59 @@ Future<bool> showRestoreReplaceDialog(
   // ones those are rather than warning that everything on the device goes — which
   // is true of the encrypted backup and false of a four-sheet file.
   final workbook = backup.kind == BackupFileKind.excel;
-  final replaced = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      constraints: const BoxConstraints(minWidth: 300),
-      title: Text(
-        workbook
-            ? l.settingsBackupRestore_restoreExcelTitle
-            : l.settingsBackupRestore_restoreDetailsTitle,
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(file.name, style: AppTypography.titleMd, maxLines: 2),
-          const SizedBox(height: AppSpacing.sm),
-          _DetailRow(
-            label: l.settingsBackupRestore_restoreDetailsBackedUp,
-            value: AppDateUtils.formatNoteCardDate(
-              backup.exportedAt,
-              locale: l.localeName,
-            ),
+  final replaced = await showAppDialog<bool>(
+    context,
+    title: Text(
+      workbook
+          ? l.settingsBackupRestore_restoreExcelTitle
+          : l.settingsBackupRestore_restoreDetailsTitle,
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(file.name, style: AppTypography.titleMd, maxLines: 2),
+        const SizedBox(height: AppSpacing.sm),
+        _DetailRow(
+          label: l.settingsBackupRestore_restoreDetailsBackedUp,
+          value: AppDateUtils.formatNoteCardDate(
+            backup.exportedAt,
+            locale: l.localeName,
           ),
-          _DetailRow(
-            label: l.settingsBackupRestore_restoreDetailsAppVersion,
-            value: backup.appVersion,
-          ),
-          if (workbook)
-            _DetailRow(
-              label: l.settingsBackupRestore_restoreDetailsSheets,
-              value: _sheetsOf(backup),
-            ),
-          _DetailRow(
-            label: l.settingsBackupRestore_restoreDetailsRecords,
-            value: AppDateUtils.formatDigits(
-              _rowCount(backup),
-              l.localeName,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            workbook
-                ? l.settingsBackupRestore_restoreExcelWarning
-                : l.settingsBackupRestore_restoreDetailsWarning,
-            style: AppTypography.bodySm.copyWith(color: AppColors.error),
-          ),
-        ],
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
         ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
+        _DetailRow(
+          label: l.settingsBackupRestore_restoreDetailsAppVersion,
+          value: backup.appVersion,
+        ),
+        if (workbook)
+          _DetailRow(
+            label: l.settingsBackupRestore_restoreDetailsSheets,
+            value: _sheetsOf(backup),
           ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.settingsBackupRestore_restoreReplace),
+        _DetailRow(
+          label: l.settingsBackupRestore_restoreDetailsRecords,
+          value: AppDateUtils.formatDigits(_rowCount(backup), l.localeName),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          workbook
+              ? l.settingsBackupRestore_restoreExcelWarning
+              : l.settingsBackupRestore_restoreDetailsWarning,
+          style: AppTypography.bodySm.copyWith(color: AppColors.error),
         ),
       ],
     ),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        label: l.settingsBackupRestore_restoreReplace,
+        kind: AppDialogActionKind.destructive,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return replaced == true;
 }
@@ -273,40 +231,34 @@ Future<void> showRestoreCompleteDialog(
   required int rowCount,
 }) async {
   final l = AppLocalizations.of(context);
-  await showDialog<void>(
-    context: context,
+  await showAppDialog<void>(
+    context,
     barrierDismissible: false,
-    builder: (context) => AlertDialog(
-      title: Text(l.settingsBackupRestore_restoreCompleteTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.settingsBackupRestore_restoreCompleteBody(rowCount),
-            style: AppTypography.bodyMd,
+    title: Text(l.settingsBackupRestore_restoreCompleteTitle),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l.settingsBackupRestore_restoreCompleteBody(rowCount),
+          style: AppTypography.bodyMd,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l.settingsBackupRestore_restoreCompleteNote,
+          style: AppTypography.bodySm.copyWith(
+            color: AppColors.onSurfaceVariant,
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l.settingsBackupRestore_restoreCompleteNote,
-            style: AppTypography.bodySm.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedDialogs_ok),
         ),
       ],
     ),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedDialogs_ok,
+        kind: AppDialogActionKind.primary,
+        onPressed: () => Navigator.of(dialogContext).pop(),
+      ),
+    ],
   );
 }
 
@@ -321,51 +273,40 @@ Future<bool> showBackupShareDialog(
   required String path,
 }) async {
   final l = AppLocalizations.of(context);
-  final send = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      constraints: const BoxConstraints(minWidth: 300),
-      title: Text(l.settingsBackupRestore_driveShareTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.settingsBackupRestore_driveShareBody,
-            style: AppTypography.bodyMd,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          // The saved location, so the user sees which file is being offered —
-          // and knows it is already on their device before any sharing.
-          Text(
-            path,
-            style: AppTypography.bodySm.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-            maxLines: 2,
-          ),
-        ],
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.settingsBackupRestore_driveShareNotNow),
+  final send = await showAppDialog<bool>(
+    context,
+    title: Text(l.settingsBackupRestore_driveShareTitle),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l.settingsBackupRestore_driveShareBody,
+          style: AppTypography.bodyMd,
         ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
+        const SizedBox(height: AppSpacing.sm),
+        // The saved location, so the user sees which file is being offered —
+        // and knows it is already on their device before any sharing.
+        Text(
+          path,
+          style: AppTypography.bodySm.copyWith(
+            color: AppColors.onSurfaceVariant,
           ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.settingsBackupRestore_driveShareSend),
+          maxLines: 2,
         ),
       ],
     ),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.settingsBackupRestore_driveShareNotNow,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        label: l.settingsBackupRestore_driveShareSend,
+        kind: AppDialogActionKind.primary,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return send == true;
 }
@@ -491,13 +432,11 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
-      constraints: const BoxConstraints(minWidth: 300),
+    return AppDialogFrame(
       insetPadding: _dialogInsetPadding,
       titlePadding: _dialogTitlePadding,
       contentPadding: _dialogContentPadding,
       actionsPadding: _dialogActionsPadding,
-      actionsAlignment: MainAxisAlignment.center,
       title: Text(widget.title, style: AppTypography.titleLg),
       content: Form(
         key: _formKey,
@@ -549,25 +488,18 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: _actionSize,
-            textStyle: _actionTextStyle,
-          ),
+        AppDialogAction(
+          label: widget.confirmLabel,
+          kind: AppDialogActionKind.primary,
           onPressed: () {
             if (!_formKey.currentState!.validate()) return;
-            Navigator.of(context).pop(_passphrase.text);
+            Navigator.of(dialogContext).pop(_passphrase.text);
           },
-          child: Text(widget.confirmLabel),
         ),
       ],
     );

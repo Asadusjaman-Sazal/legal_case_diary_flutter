@@ -254,7 +254,7 @@ void main() {
       Colors.white,
     );
 
-    // Twice AlertDialog's fixed 8 px gap between actions.
+    // The shared 12 px gap between actions.
     final cancelRect = tester.getRect(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -267,7 +267,7 @@ void main() {
         matching: find.byType(FilledButton),
       ),
     );
-    expect(deleteRect.left - cancelRect.right, 16);
+    expect(deleteRect.left - cancelRect.right, 12);
   });
 }
 

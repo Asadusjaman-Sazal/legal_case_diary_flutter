@@ -154,7 +154,9 @@ void main() {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(await prefs()),
         contactLauncherProvider.overrideWithValue(launcher),
-        courtsRepositoryProvider.overrideWith((ref) async => _FakeCourts(court)),
+        courtsRepositoryProvider.overrideWith(
+          (ref) async => _FakeCourts(court),
+        ),
         onBehalfsRepositoryProvider.overrideWith(
           (ref) async => _FakeOnBehalfs(role),
         ),
@@ -213,29 +215,38 @@ void main() {
       BorderRadius.circular(AppSpacing.cardRadius * 2),
     );
     expect(
-      tester.getSize(find.byKey(const ValueKey('client-notification-no'))).height,
+      tester
+          .getSize(find.byKey(const ValueKey('client-notification-no')))
+          .height,
       48,
     );
     expect(
-      tester.getSize(find.byKey(const ValueKey('client-notification-yes'))).width,
+      tester
+          .getSize(find.byKey(const ValueKey('client-notification-yes')))
+          .width,
       greaterThanOrEqualTo(112),
     );
-    // Double the actions' default 8 px gap; No is red with white ink.
+    // The shared 12 px gap; No is red with white ink.
     final noRect = tester.getRect(
       find.byKey(const ValueKey('client-notification-no')),
     );
     final yesRect = tester.getRect(
       find.byKey(const ValueKey('client-notification-yes')),
     );
-    expect(yesRect.left - noRect.right, AppSpacing.md);
+    expect(yesRect.left - noRect.right, 12);
     final no = tester.widget<FilledButton>(
       find.byKey(const ValueKey('client-notification-no')),
     );
-    expect(no.style?.backgroundColor?.resolve(<WidgetState>{}), AppColors.error);
+    expect(
+      no.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.error,
+    );
     // The remember choice sits under the buttons.
     expect(
       tester
-          .getTopLeft(find.byKey(const ValueKey('client-notification-remember')))
+          .getTopLeft(
+            find.byKey(const ValueKey('client-notification-remember')),
+          )
           .dy,
       greaterThan(noRect.bottom),
     );
@@ -408,7 +419,10 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('client-notification-yes')));
     await tester.pumpAndSettle();
 
-    expect(launcher.opened.single.queryParameters['text'], contains('২০/১১/২০২৬'));
+    expect(
+      launcher.opened.single.queryParameters['text'],
+      contains('২০/১১/২০২৬'),
+    );
   });
 }
 

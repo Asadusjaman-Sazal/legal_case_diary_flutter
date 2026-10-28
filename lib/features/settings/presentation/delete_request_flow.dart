@@ -27,11 +27,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/repositories/base_local_repository.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../shared/widgets/confirm_dialogs.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 
@@ -191,91 +192,59 @@ Future<bool> confirmEditOfRequestedRecord(
   if (open == null) return true;
 
   final storedName = open.requesterName?.trim() ?? '';
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+  final answer = await showAppDialog<bool>(
+    context,
+    title: Text(l.deleteRequests_editWarnTitle, textAlign: TextAlign.center),
+    content: Text(
+      l.deleteRequests_editWarnBody(
+        storedName.isEmpty ? l.deleteRequests_unknownRequester : storedName,
+        AppDateUtils.formatDateTimeDDMMYYYY(
+          open.createdAt,
+          locale: Localizations.localeOf(context).toString(),
+        ),
       ),
-      title: Text(l.deleteRequests_editWarnTitle, textAlign: TextAlign.center),
-      content: Text(
-        l.deleteRequests_editWarnBody(
-          storedName.isEmpty ? l.deleteRequests_unknownRequester : storedName,
-          AppDateUtils.formatDateTimeDDMMYYYY(
-            open.createdAt,
-            locale: Localizations.localeOf(context).toString(),
-          ),
-        ),
-        textAlign: TextAlign.justify,
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _requestActionSize,
-            textStyle: _requestActionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: _requestActionSize,
-            textStyle: _requestActionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.deleteRequests_editWarnContinue),
-        ),
-      ],
+      textAlign: TextAlign.justify,
     ),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        label: l.deleteRequests_editWarnContinue,
+        kind: AppDialogActionKind.primary,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return answer ?? false;
 }
-
-/// The Exit App window's action size, repeated here so this window's Cancel and
-/// Send buttons are the same size as that window's (112x48, 16 pt).
-const Size _requestActionSize = Size(112, 48);
-const TextStyle _requestActionTextStyle = TextStyle(fontSize: 16);
 
 /// The request branch's confirmation.
 ///
 /// Deliberately not the delete window: this action removes nothing yet, it asks
 /// somebody with the permission to. Saying "Delete" would be a lie about what the
-/// user is about to do. Its corner, action size and centred actions are the Exit
-/// App window's, so the app's confirmations read as one family.
+/// user is about to do. It sits on the shared window frame so the app's
+/// confirmations read as one family.
 Future<bool> _confirmRequest(BuildContext context, AppLocalizations l) async {
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      // The Exit App window's 8 px corner.
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+  final answer = await showAppDialog<bool>(
+    context,
+    // Centred like the Exit App window's title.
+    title: Text(l.deleteRequest_confirmTitle, textAlign: TextAlign.center),
+    // Justified here only (user request): this window's sentence is the one
+    // long paragraph, and its two edges read as a block.
+    content: Text(l.deleteRequest_confirmBody, textAlign: TextAlign.justify),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
       ),
-      // Centred like the Exit App window's title.
-      title: Text(l.deleteRequest_confirmTitle, textAlign: TextAlign.center),
-      // Justified here only (user request): this window's sentence is the one
-      // long paragraph, and its two edges read as a block.
-      content: Text(l.deleteRequest_confirmBody, textAlign: TextAlign.justify),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: _requestActionSize,
-            textStyle: _requestActionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: _requestActionSize,
-            textStyle: _requestActionTextStyle,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.deleteRequest_confirmSend),
-        ),
-      ],
-    ),
+      AppDialogAction(
+        label: l.deleteRequest_confirmSend,
+        kind: AppDialogActionKind.primary,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return answer ?? false;
 }

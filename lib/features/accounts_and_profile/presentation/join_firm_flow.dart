@@ -28,6 +28,8 @@ import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../sync/sync_service.dart';
 import '../../auth/presentation/auth_widgets.dart';
 import '../../cases/data/local/cases_dao.dart';
@@ -80,47 +82,26 @@ Future<void> startJoinFirm(BuildContext context, WidgetRef ref) async {
 /// and applies again if it leaves (plan, *A Member May Not Buy A Personal Plan*).
 Future<bool> _confirmPlanWarning(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  const actionSize = Size(112, 48);
-  const actionText = TextStyle(fontSize: 16);
-
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        l.manageAssociates_joinFirmPlanTitle,
-        textAlign: TextAlign.center,
-      ),
-      // The Invite Code window's own corner, which this screen's windows use.
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      content: SingleChildScrollView(
-        child: Text(l.manageAssociates_joinFirmPlanBody),
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: actionSize,
-            textStyle: actionText,
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          // Primary, not red: this continues the join rather than destroying
-          // anything.
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            minimumSize: actionSize,
-            textStyle: actionText,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(l.manageAssociates_joinFirmContinue),
-        ),
-      ],
+  final answer = await showAppDialog<bool>(
+    context,
+    title: Text(
+      l.manageAssociates_joinFirmPlanTitle,
+      textAlign: TextAlign.center,
     ),
+    content: Text(l.manageAssociates_joinFirmPlanBody),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        // Primary, not red: this continues the join rather than destroying
+        // anything.
+        label: l.manageAssociates_joinFirmContinue,
+        kind: AppDialogActionKind.primary,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return answer ?? false;
 }
@@ -155,94 +136,72 @@ class _JoinFirmDialogState extends ConsumerState<JoinFirmDialog> {
     final l = AppLocalizations.of(context);
     final canSend = !_busy && _code.text.trim().isNotEmpty;
 
-    return Dialog(
+    return AppContentDialogFrame(
       insetPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.lg,
       ),
       backgroundColor: AppColors.surfaceContainerLowest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l.manageAssociates_joinFirmTitle,
-              textAlign: TextAlign.center,
-              style: AppTypography.titleLg,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.manageAssociates_joinFirmTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleLg,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l.manageAssociates_joinFirmIntro,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            key: const ValueKey('join-firm-code'),
+            controller: _code,
+            enabled: !_busy,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            style: AppTypography.bodyLg,
+            // The Send button reads the field, so a keystroke must rebuild it.
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              labelText: l.manageAssociates_joinFirmCodeLabel,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              ),
+            ),
+          ),
+          if (_failure != null) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
-              l.manageAssociates_joinFirmIntro,
+              failureText(l, _failure) ?? l.auth_errorUnknown,
+              key: const ValueKey('join-firm-error'),
               textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              key: const ValueKey('join-firm-code'),
-              controller: _code,
-              enabled: !_busy,
-              autofocus: true,
-              textCapitalization: TextCapitalization.characters,
-              style: AppTypography.bodyLg,
-              // The Send button reads the field, so a keystroke must rebuild it.
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: l.manageAssociates_joinFirmCodeLabel,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                ),
-              ),
-            ),
-            if (_failure != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                failureText(l, _failure) ?? l.auth_errorUnknown,
-                key: const ValueKey('join-firm-error'),
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySm.copyWith(color: AppColors.error),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.lg),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: AppSpacing.lg,
-              children: [
-                TextButton(
-                  key: const ValueKey('join-firm-cancel'),
-                  onPressed: _busy
-                      ? null
-                      : () => Navigator.of(context).maybePop(),
-                  style: TextButton.styleFrom(
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.sharedActions_cancel),
-                ),
-                FilledButton(
-                  key: const ValueKey('join-firm-send'),
-                  onPressed: canSend ? _send : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.manageAssociates_joinFirmSend),
-                ),
-              ],
+              style: AppTypography.bodySm.copyWith(color: AppColors.error),
             ),
           ],
-        ),
+        ],
       ),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('join-firm-cancel'),
+          label: l.sharedActions_cancel,
+          onPressed: _busy
+              ? null
+              : () => Navigator.of(dialogContext).maybePop(),
+        ),
+        AppDialogAction(
+          key: const ValueKey('join-firm-send'),
+          label: l.manageAssociates_joinFirmSend,
+          kind: AppDialogActionKind.primary,
+          onPressed: canSend ? _send : null,
+        ),
+      ],
     );
   }
 

@@ -13,7 +13,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
@@ -23,6 +22,8 @@ import '../../../core/services/client_notification_message.dart';
 import '../../../core/services/contact_launcher.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../accounts_and_profile/data/profile_name_store.dart';
 import '../../settings/data/client_notification_settings.dart';
 import '../../settings/data/settings_repository.dart';
@@ -210,12 +211,8 @@ class _AutomatedMessagePromptDialogState
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
-      key: const ValueKey('client-notification-prompt'),
-      // The Update window's 8 px corner (user request, 0.0.616).
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
+    return AppDialogFrame(
+      dialogKey: const ValueKey('client-notification-prompt'),
       title: Text(
         l.clientNotification_promptTitle,
         textAlign: TextAlign.center,
@@ -224,59 +221,40 @@ class _AutomatedMessagePromptDialogState
         l.clientNotification_promptBody,
         textAlign: TextAlign.justify,
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
+      actions: (dialogContext) => [
         // The buttons first, then the remember choice under them (user
-        // request, 0.0.618). 16 px is double the actions' default 8 px gap.
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // The Exit App window's action size; No is the red half.
-                FilledButton(
-                  key: const ValueKey('client-notification-no'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  onPressed: () => _close(send: false),
-                  child: Text(l.sharedActions_no),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                FilledButton(
-                  key: const ValueKey('client-notification-yes'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  onPressed: () => _close(send: true),
-                  child: Text(l.sharedActions_yes),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            InkWell(
-              key: const ValueKey('client-notification-remember'),
-              onTap: () => setState(() => _remember = !_remember),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: _remember,
-                    onChanged: (value) =>
-                        setState(() => _remember = value ?? false),
-                  ),
-                  Text(l.clientNotification_rememberChoice),
-                ],
-              ),
-            ),
-          ],
+        // request, 0.0.618); No is the red half.
+        AppDialogAction(
+          key: const ValueKey('client-notification-no'),
+          label: l.sharedActions_no,
+          kind: AppDialogActionKind.destructive,
+          onPressed: () => _close(send: false),
+        ),
+        AppDialogAction(
+          key: const ValueKey('client-notification-yes'),
+          label: l.sharedActions_yes,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => _close(send: true),
         ),
       ],
+      actionsFooter: Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.sm),
+        child: InkWell(
+          key: const ValueKey('client-notification-remember'),
+          onTap: () => setState(() => _remember = !_remember),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Checkbox(
+                value: _remember,
+                onChanged: (value) =>
+                    setState(() => _remember = value ?? false),
+              ),
+              Text(l.clientNotification_rememberChoice),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

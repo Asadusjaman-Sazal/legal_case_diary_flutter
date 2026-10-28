@@ -41,6 +41,8 @@ import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../data/update_metadata_store.dart';
 import '../data/update_release.dart';
@@ -248,7 +250,11 @@ class UpdateFlowController extends ChangeNotifier {
       // The user gets a sentence; the technical cause goes to the diagnostics
       // log. Showing the raw cause would put English developer text ("GitHub
       // responded 403") in front of a Bengali user.
-      recordFailure(_container.read(errorLogProvider), 'update.check', outcome.error!);
+      recordFailure(
+        _container.read(errorLogProvider),
+        'update.check',
+        outcome.error!,
+      );
       _set(() {
         _phase = UpdatePhase.idle;
         _error = UpdateFlowError.checkFailed;
@@ -360,7 +366,11 @@ class UpdateFlowController extends ChangeNotifier {
               .read(updateMetadataProvider.notifier)
               .clearAvailableRelease();
         } on Object catch (clearError) {
-          recordFailure(_container.read(errorLogProvider), 'update.clear', clearError);
+          recordFailure(
+            _container.read(errorLogProvider),
+            'update.clear',
+            clearError,
+          );
         }
       }
 
@@ -411,26 +421,22 @@ class UpdateFlowController extends ChangeNotifier {
     final context = dialogContext;
     if (context == null || !context.mounted) return true;
     final l = AppLocalizations.of(context);
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.settingsUpdate_mobileDataTitle),
-        content: Text(l.settingsUpdate_mobileDataBody),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size(112, 48)),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          FilledButton(
-            key: const ValueKey('update-mobile-continue'),
-            style: FilledButton.styleFrom(minimumSize: const Size(112, 48)),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.settingsUpdate_mobileDataContinue),
-          ),
-        ],
-      ),
+    return showAppDialog<bool>(
+      context,
+      title: Text(l.settingsUpdate_mobileDataTitle),
+      content: Text(l.settingsUpdate_mobileDataBody),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+        ),
+        AppDialogAction(
+          key: const ValueKey('update-mobile-continue'),
+          label: l.settingsUpdate_mobileDataContinue,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
   }
 
@@ -660,10 +666,12 @@ class _UpdateFlowBodyState extends State<UpdateFlowBody> {
   }
 
   /// The sentence for a failure, so the controller never holds copy.
-  String _errorText(AppLocalizations l, UpdateFlowError error) => switch (error) {
-    UpdateFlowError.checkFailed => l.settingsUpdate_checkFailed,
-    UpdateFlowError.downloadFailed => l.settingsUpdate_downloadFailed,
-    UpdateFlowError.installUnavailable => l.settingsUpdate_installUnavailable,
-    UpdateFlowError.unverifiedRelease => l.settingsUpdate_unverifiedRelease,
-  };
+  String _errorText(AppLocalizations l, UpdateFlowError error) =>
+      switch (error) {
+        UpdateFlowError.checkFailed => l.settingsUpdate_checkFailed,
+        UpdateFlowError.downloadFailed => l.settingsUpdate_downloadFailed,
+        UpdateFlowError.installUnavailable =>
+          l.settingsUpdate_installUnavailable,
+        UpdateFlowError.unverifiedRelease => l.settingsUpdate_unverifiedRelease,
+      };
 }

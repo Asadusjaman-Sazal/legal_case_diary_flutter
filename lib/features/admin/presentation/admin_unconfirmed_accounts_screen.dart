@@ -17,6 +17,8 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../sync/sync_service.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/admin_repository.dart';
@@ -173,40 +175,34 @@ class _AdminUnconfirmedAccountsScreenState
     AdminUnconfirmedAccount account,
   ) async {
     final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.adminPanel_deleteTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(account.email, style: AppTypography.titleMd, maxLines: 2),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              l.adminPanel_deleteBody,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+    final confirmed = await showAppDialog<bool>(
+      context,
+      title: Text(l.adminPanel_deleteTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(account.email, style: AppTypography.titleMd, maxLines: 2),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l.adminPanel_deleteBody,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
-          ],
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: AppColors.onError,
-            ),
-            child: Text(l.adminPanel_deleteConfirm),
           ),
         ],
       ),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+        ),
+        AppDialogAction(
+          label: l.adminPanel_deleteConfirm,
+          kind: AppDialogActionKind.destructive,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+        ),
+      ],
     );
     if (confirmed != true) return;
     await ref

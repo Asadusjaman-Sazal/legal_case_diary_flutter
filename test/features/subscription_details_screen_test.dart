@@ -203,16 +203,16 @@ void main() {
     required DateTime submittedAt,
     DateTime? approvedAt,
   }) => PaymentSubmission(
-        id: id,
-        planType: planType,
-        amount: amount,
-        mfsProvider: 'bkash',
-        senderNumber: '01700000000',
-        transactionId: 'TX$id',
-        status: status,
-        submittedAt: submittedAt,
-        approvedAt: approvedAt,
-      );
+    id: id,
+    planType: planType,
+    amount: amount,
+    mfsProvider: 'bkash',
+    senderNumber: '01700000000',
+    transactionId: 'TX$id',
+    status: status,
+    submittedAt: submittedAt,
+    approvedAt: approvedAt,
+  );
 
   /// A firm owner's profile and firm row, both expiring at one fixed instant:
   /// 01/12/2026, 17:30 UTC — 11:30 PM the same day in Bangladesh civil time,
@@ -321,13 +321,13 @@ void main() {
       overrides: [
         myPaymentSubmissionsProvider.overrideWith(
           (ref) async => [
-                submission(
-                  id: 'p1',
-                  planType: paymentPlanProQuarterly,
-                  amount: 285,
-                  status: 'approved',
-                  submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                ),
+            submission(
+              id: 'p1',
+              planType: paymentPlanProQuarterly,
+              amount: 285,
+              status: 'approved',
+              submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+            ),
           ],
         ),
       ],
@@ -340,10 +340,7 @@ void main() {
     expect(find.text('Rahman & Associates'), findsOneWidget);
     // A paid plan keeps its Expiry row and shows no limitations section.
     expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
-    expect(
-      find.text(l.settingsSubscription_freePlanLimitations),
-      findsNothing,
-    );
+    expect(find.text(l.settingsSubscription_freePlanLimitations), findsNothing);
 
     // The plan is named, not "Premium": a firm member on an approved plan is
     // told which plan they are running.
@@ -367,13 +364,13 @@ void main() {
         overrides: [
           myPaymentSubmissionsProvider.overrideWith(
             (ref) async => [
-                  submission(
-                    id: 'p1',
-                    planType: paymentPlanStarterQuarterly,
-                    amount: 180,
-                    status: 'approved',
-                    submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
-                  ),
+              submission(
+                id: 'p1',
+                planType: paymentPlanStarterQuarterly,
+                amount: 180,
+                status: 'approved',
+                submittedAt: DateTime.utc(2026, 11, 2, 17, 30),
+              ),
             ],
           ),
           firmMemberProvider.overrideWithValue(true),
@@ -474,10 +471,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(l.settingsSubscription_upgradeHint), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('manage-plan-upgrade')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('manage-plan-upgrade')), findsOneWidget);
     // Usage and the subscription actions belong to a live paid plan only.
     expect(find.text(l.settingsSubscription_planUsage), findsNothing);
     expect(find.byKey(renewKey), findsNothing);
@@ -525,15 +519,14 @@ void main() {
     // A dash is neither Free nor premium, so neither the expiry-hiding (the row
     // stays, for a premium plan still in flight) nor the limitations apply.
     expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
-    expect(
-      find.text(l.settingsSubscription_freePlanLimitations),
-      findsNothing,
-    );
+    expect(find.text(l.settingsSubscription_freePlanLimitations), findsNothing);
 
     await unmountApp(tester);
   });
 
-  testWidgets('the expiry row gives its value the space it needs', (tester) async {
+  testWidgets('the expiry row gives its value the space it needs', (
+    tester,
+  ) async {
     // Regression: the label was `Expanded`, so it took half the row even when
     // the label is one word, and "01/12/2026, 11:30 PM" wrapped its AM/PM onto
     // a second line. The test font is wider than Inter, so wrapping cannot be
@@ -604,123 +597,128 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the Free Plan Limitations heading has no bullet and its bullets are black', (
-    tester,
-  ) async {
-    await pumpDetails(
-      tester,
-      seed: (db) => ProfilesDao(db).upsert(
-        const ProfilesCompanion(
-          id: Value('user-1'),
-          fullName: Value('Adv. Rahim Uddin'),
-          role: Value(AccountRole.individual),
-          subscriptionStatus: Value('free'),
-          createdAt: Value(1),
-        ),
-      ),
-    );
-
-    // The three limitation dots and the three rate dots are black; the heading
-    // carries no dot at all, so exactly six 6 px circles remain and none of
-    // them is the error red.
-    Color? dotColor(Widget w) =>
-        ((w as Container).decoration as BoxDecoration).color;
-    final dots = tester
-        .widgetList<Container>(
-          find.byWidgetPredicate(
-            (w) =>
-                w is Container &&
-                w.decoration is BoxDecoration &&
-                (w.decoration! as BoxDecoration).shape == BoxShape.circle &&
-                w.constraints?.maxWidth == 6,
+  testWidgets(
+    'the Free Plan Limitations heading has no bullet and its bullets are black',
+    (tester) async {
+      await pumpDetails(
+        tester,
+        seed: (db) => ProfilesDao(db).upsert(
+          const ProfilesCompanion(
+            id: Value('user-1'),
+            fullName: Value('Adv. Rahim Uddin'),
+            role: Value(AccountRole.individual),
+            subscriptionStatus: Value('free'),
+            createdAt: Value(1),
           ),
-        )
-        .toList();
-    expect(
-      dots,
-      hasLength(6),
-      reason: 'three limitations and three rates, no heading bullet',
-    );
-    for (final dot in dots) {
-      expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
-    }
+        ),
+      );
 
-    await unmountApp(tester);
-  });
+      // The three limitation dots and the three rate dots are black; the heading
+      // carries no dot at all, so exactly six 6 px circles remain and none of
+      // them is the error red.
+      Color? dotColor(Widget w) =>
+          ((w as Container).decoration as BoxDecoration).color;
+      final dots = tester
+          .widgetList<Container>(
+            find.byWidgetPredicate(
+              (w) =>
+                  w is Container &&
+                  w.decoration is BoxDecoration &&
+                  (w.decoration! as BoxDecoration).shape == BoxShape.circle &&
+                  w.constraints?.maxWidth == 6,
+            ),
+          )
+          .toList();
+      expect(
+        dots,
+        hasLength(6),
+        reason: 'three limitations and three rates, no heading bullet',
+      );
+      for (final dot in dots) {
+        expect(dotColor(dot), AppColors.secondary, reason: 'bullets are black');
+      }
+
+      await unmountApp(tester);
+    },
+  );
 
   /// A paid individual: no chamber, so the Cancel action is the account's own
   /// decision and the lapsed landing after it is observable.
   Future<void> seedIndividualPaid(AppDatabase db) => ProfilesDao(db).upsert(
-        ProfilesCompanion(
-          id: const Value('user-1'),
-          fullName: const Value('Adv. Rahim Uddin'),
-          role: const Value(AccountRole.individual),
-          tier: const Value('pro'),
-          subscriptionStatus: const Value('active'),
-          subscriptionExpiry: Value(
-            DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
-          ),
-          createdAt: const Value(1),
-        ),
-      );
+    ProfilesCompanion(
+      id: const Value('user-1'),
+      fullName: const Value('Adv. Rahim Uddin'),
+      role: const Value(AccountRole.individual),
+      tier: const Value('pro'),
+      subscriptionStatus: const Value('active'),
+      subscriptionExpiry: Value(
+        DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
+      ),
+      createdAt: const Value(1),
+    ),
+  );
 
   /// [count] live cases in the diary the tier limits, [firmId] for a chamber.
   ///
   /// The reference rows a case points at are seeded once: this harness's
   /// database enforces the foreign keys, which the case-count query itself
   /// never touches.
-  Future<void> seedCases(
-    AppDatabase db,
-    int count, {
-    String? firmId,
-  }) async {
-    await db.into(db.courtCategories).insert(
-      const CourtCategoriesCompanion(
-        id: Value('cat-1'),
-        nameKey: Value('catKey'),
-        courtLevel: Value('lower'),
-        orderIndex: Value(0),
-        updatedAt: Value(1),
-      ),
-      mode: InsertMode.insertOrIgnore,
-    );
-    await db.into(db.courts).insert(
-      const CourtsCompanion(
-        id: Value('court-1'),
-        courtName: Value('Court'),
-        higherLowerCourts: Value('lower_courts'),
-        courtCategoryId: Value('cat-1'),
-        updatedAt: Value(1),
-      ),
-      mode: InsertMode.insertOrIgnore,
-    );
-    await db.into(db.onBehalfs).insert(
-      const OnBehalfsCompanion(
-        id: Value('role-1'),
-        courtCategoryId: Value('cat-1'),
-        name: Value('Plaintiff'),
-        orderIndex: Value(0),
-        updatedAt: Value(1),
-      ),
-      mode: InsertMode.insertOrIgnore,
-    );
+  Future<void> seedCases(AppDatabase db, int count, {String? firmId}) async {
+    await db
+        .into(db.courtCategories)
+        .insert(
+          const CourtCategoriesCompanion(
+            id: Value('cat-1'),
+            nameKey: Value('catKey'),
+            courtLevel: Value('lower'),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          const CourtsCompanion(
+            id: Value('court-1'),
+            courtName: Value('Court'),
+            higherLowerCourts: Value('lower_courts'),
+            courtCategoryId: Value('cat-1'),
+            updatedAt: Value(1),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await db
+        .into(db.onBehalfs)
+        .insert(
+          const OnBehalfsCompanion(
+            id: Value('role-1'),
+            courtCategoryId: Value('cat-1'),
+            name: Value('Plaintiff'),
+            orderIndex: Value(0),
+            updatedAt: Value(1),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
     for (var i = 0; i < count; i++) {
-      await db.into(db.cases).insert(
-        CasesCompanion(
-          id: Value('case-$firmId-$i'),
-          userId: const Value('user-1'),
-          firmId: Value(firmId),
-          courtId: const Value('court-1'),
-          caseType: const Value('Civil'),
-          caseNumber: Value('N$i'),
-          petitioner: const Value('Petitioner'),
-          respondent: const Value('Respondent'),
-          onBehalfId: const Value('role-1'),
-          createdAt: Value(i + 1),
-          updatedAt: Value(i + 1),
-          isDeleted: const Value(false),
-        ),
-      );
+      await db
+          .into(db.cases)
+          .insert(
+            CasesCompanion(
+              id: Value('case-$firmId-$i'),
+              userId: const Value('user-1'),
+              firmId: Value(firmId),
+              courtId: const Value('court-1'),
+              caseType: const Value('Civil'),
+              caseNumber: Value('N$i'),
+              petitioner: const Value('Petitioner'),
+              respondent: const Value('Respondent'),
+              onBehalfId: const Value('role-1'),
+              createdAt: Value(i + 1),
+              updatedAt: Value(i + 1),
+              isDeleted: const Value(false),
+            ),
+          );
     }
   }
 
@@ -850,7 +848,10 @@ void main() {
       findsOneWidget,
     );
     // A chamber always holds one device, and it is this one.
-    expect(find.text(l.settingsSubscription_usageRemaining('0')), findsOneWidget);
+    expect(
+      find.text(l.settingsSubscription_usageRemaining('0')),
+      findsOneWidget,
+    );
     expect(find.text(l.settingsSubscription_usageFirmNote), findsOneWidget);
 
     // The chamber's plan is the one they read, so the page is named for it
@@ -1018,8 +1019,8 @@ void main() {
       expect(find.text(l.payments_goBack), findsOneWidget);
       expect(find.text(l.payments_confirmCancellation), findsOneWidget);
 
-      // 0.0.627 geometry (user request): the Exit App window's 8 px corner, a
-      // window ~10% wider, extra body room, and actions 10% taller (48 → 53).
+      // The shared frame's 8 px corner, this window's own ~10% wider inset,
+      // its extra body room, and the shared 48 px stacked actions.
       final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
       expect(
         (dialog.shape! as RoundedRectangleBorder).borderRadius,
@@ -1043,10 +1044,8 @@ void main() {
       // The 24 px side insets on this 420 px surface.
       expect(window.width, closeTo(420 - 48, 0.5));
       expect(window.left, closeTo(24, 0.5));
-      // 448 before the change; the wider box re-wraps the test font's long
-      // sentence (~52 px shorter), while the new body room (+64) and taller
-      // actions (+10) still make the window taller than it was.
-      expect(window.height, closeTo(470, 2));
+      // The body room keeps the window taller than the plain default.
+      expect(window.height, closeTo(464, 2));
       expect(window.height, greaterThan(448));
 
       final goBackRect = tester.getRect(
@@ -1055,8 +1054,8 @@ void main() {
       final confirmRect = tester.getRect(
         find.byKey(const ValueKey('subscription-details-cancel-confirm')),
       );
-      expect(goBackRect.height, 53);
-      expect(confirmRect.height, 53);
+      expect(goBackRect.height, 48);
+      expect(confirmRect.height, 48);
       // Both actions span the window's inside width, as they always have.
       expect(goBackRect.width, closeTo(window.width - 48, 0.5));
       expect(confirmRect.width, closeTo(window.width - 48, 0.5));
@@ -1064,12 +1063,12 @@ void main() {
       // The way out is black, the destructive choice is red, both with white
       // text — the two colours the request names.
       Color? background(String key) => tester
-          .widget<TextButton>(find.byKey(ValueKey(key)))
+          .widget<FilledButton>(find.byKey(ValueKey(key)))
           .style
           ?.backgroundColor
           ?.resolve(<WidgetState>{});
       Color? foreground(String key) => tester
-          .widget<TextButton>(find.byKey(ValueKey(key)))
+          .widget<FilledButton>(find.byKey(ValueKey(key)))
           .style
           ?.foregroundColor
           ?.resolve(<WidgetState>{});
@@ -1101,96 +1100,92 @@ void main() {
     },
   );
 
-  testWidgets(
-    'a confirmed cancellation ends the plan',
-    (tester) async {
-      var refreshes = 0;
-      final repo = _FakePaymentsRepository()
-        ..cancellations = <SubscriptionCancellation>[
-          SubscriptionCancellation(
-            id: 'c1',
-            planType: paymentPlanProQuarterly,
-            amount: 285,
-            cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
-          ),
-        ];
+  testWidgets('a confirmed cancellation ends the plan', (tester) async {
+    var refreshes = 0;
+    final repo = _FakePaymentsRepository()
+      ..cancellations = <SubscriptionCancellation>[
+        SubscriptionCancellation(
+          id: 'c1',
+          planType: paymentPlanProQuarterly,
+          amount: 285,
+          cancelledAt: DateTime.utc(2026, 12, 2, 17, 30),
+        ),
+      ];
 
-      await pumpDetails(
-        tester,
-        overrides: [
-          paymentRepositoryProvider.overrideWithValue(repo),
-          // The ledger stays empty until the server has recorded the change, so
-          // the entry asserted below is the one the cancellation created.
-          mySubscriptionCancellationsProvider.overrideWith(
-            (ref) async =>
-                repo.cancelCalls == 0
-                    ? const <SubscriptionCancellation>[]
-                    : repo.cancellations,
-          ),
-          // The pull the action runs after the RPC; it carries the server's new
-          // expiry, which is what moves the page to the lapsed stage.
-          accountRefreshProvider.overrideWithValue(() async {
-            refreshes++;
-            await ProfilesDao(harness.db).upsert(
-              ProfilesCompanion(
-                id: const Value('user-1'),
-                fullName: const Value('Adv. Rahim Uddin'),
-                role: const Value(AccountRole.individual),
-                tier: const Value('pro'),
-                subscriptionStatus: const Value('cancelled'),
-                // Behind the 48-hour grace, exactly where the server's own
-                // cancellation puts it.
-                subscriptionExpiry: Value(
-                  DateTime.utc(2026, 10, 1, 12).millisecondsSinceEpoch,
-                ),
-                createdAt: const Value(1),
+    await pumpDetails(
+      tester,
+      overrides: [
+        paymentRepositoryProvider.overrideWithValue(repo),
+        // The ledger stays empty until the server has recorded the change, so
+        // the entry asserted below is the one the cancellation created.
+        mySubscriptionCancellationsProvider.overrideWith(
+          (ref) async => repo.cancelCalls == 0
+              ? const <SubscriptionCancellation>[]
+              : repo.cancellations,
+        ),
+        // The pull the action runs after the RPC; it carries the server's new
+        // expiry, which is what moves the page to the lapsed stage.
+        accountRefreshProvider.overrideWithValue(() async {
+          refreshes++;
+          await ProfilesDao(harness.db).upsert(
+            ProfilesCompanion(
+              id: const Value('user-1'),
+              fullName: const Value('Adv. Rahim Uddin'),
+              role: const Value(AccountRole.individual),
+              tier: const Value('pro'),
+              subscriptionStatus: const Value('cancelled'),
+              // Behind the 48-hour grace, exactly where the server's own
+              // cancellation puts it.
+              subscriptionExpiry: Value(
+                DateTime.utc(2026, 10, 1, 12).millisecondsSinceEpoch,
               ),
-            );
-            return true;
-          }),
-        ],
-        seed: seedIndividualPaid,
-      );
+              createdAt: const Value(1),
+            ),
+          );
+          return true;
+        }),
+      ],
+      seed: seedIndividualPaid,
+    );
 
-      expect(find.text(l.payments_statusCancelled), findsNothing);
-      await tester.ensureVisible(find.byKey(cancelKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(cancelKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l.payments_confirmCancellation));
-      await tester.pumpAndSettle();
+    expect(find.text(l.payments_statusCancelled), findsNothing);
+    await tester.ensureVisible(find.byKey(cancelKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(cancelKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.payments_confirmCancellation));
+    await tester.pumpAndSettle();
 
-      expect(repo.cancelCalls, 1);
-      expect(refreshes, 1);
+    expect(repo.cancelCalls, 1);
+    expect(refreshes, 1);
 
-      // The plan is on Limited Access: the tier it held still names it, with
-      // the red tag beside it, and the block's own title says what that means.
-      // `find.text` would match both the `Text.rich` and the `RichText` it
-      // builds, so the label itself is the finder.
-      expect(
-        find.byWidgetPredicate((w) => w is CurrentPlanLabel && w.showTag),
-        findsOneWidget,
-      );
-      expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
-      // The reason is a cancellation, so the card says when rather than showing
-      // the backdated expiry the server moved behind the grace window.
-      expect(find.text(l.settingsManageAccount_expiry), findsNothing);
-      expect(
-        find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
-        findsOneWidget,
-      );
+    // The plan is on Limited Access: the tier it held still names it, with
+    // the red tag beside it, and the block's own title says what that means.
+    // `find.text` would match both the `Text.rich` and the `RichText` it
+    // builds, so the label itself is the finder.
+    expect(
+      find.byWidgetPredicate((w) => w is CurrentPlanLabel && w.showTag),
+      findsOneWidget,
+    );
+    expect(find.text(l.settingsSubscription_lapsedTitle), findsOneWidget);
+    // The reason is a cancellation, so the card says when rather than showing
+    // the backdated expiry the server moved behind the grace window.
+    expect(find.text(l.settingsManageAccount_expiry), findsNothing);
+    expect(
+      find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
+      findsOneWidget,
+    );
 
-      // The cancellation shows in the card's own Cancelled row; its ledger
-      // entry now lives on Subscription History.
-      expect(find.text(l.payments_statusCancelled), findsOneWidget);
-      expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
+    // The cancellation shows in the card's own Cancelled row; its ledger
+    // entry now lives on Subscription History.
+    expect(find.text(l.payments_statusCancelled), findsOneWidget);
+    expect(find.text('02/12/2026, 11:30 PM'), findsOneWidget);
 
-      // Nothing is left to cancel, so the action is gone with the live plan.
-      expect(find.byKey(cancelKey), findsNothing);
+    // Nothing is left to cancel, so the action is gone with the live plan.
+    expect(find.byKey(cancelKey), findsNothing);
 
-      await unmountApp(tester);
-    },
-  );
+    await unmountApp(tester);
+  });
 
   testWidgets('a refused cancellation keeps the plan and says why', (
     tester,
@@ -1277,10 +1272,7 @@ void main() {
     expect(find.text(l.payments_statusCancelled), findsNothing);
     expect(find.text(l.settingsManageAccount_expiry), findsOneWidget);
     expect(find.text('01/10/2026, 11:30 PM'), findsOneWidget);
-    expect(
-      find.text(l.settingsSubscription_lapsedBody('250')),
-      findsOneWidget,
-    );
+    expect(find.text(l.settingsSubscription_lapsedBody('250')), findsOneWidget);
     expect(
       find.text(l.settingsSubscription_lapsedBodyCancelled('250')),
       findsNothing,
@@ -1360,18 +1352,12 @@ void main() {
       if (span is TextSpan && span.text != null) spans.add(span);
       return true;
     });
-    expect(
-      spans.map((span) => span.text),
-      <String>[
-        l.paywall_tierPro,
-        ' ${l.settingsManageAccount_planLimitedAccessTag}',
-      ],
-    );
+    expect(spans.map((span) => span.text), <String>[
+      l.paywall_tierPro,
+      ' ${l.settingsManageAccount_planLimitedAccessTag}',
+    ]);
     expect(spans[1].style?.color, AppColors.error);
-    expect(
-      spans[1].style!.fontSize!,
-      lessThan(AppTypography.bodyMd.fontSize!),
-    );
+    expect(spans[1].style!.fontSize!, lessThan(AppTypography.bodyMd.fontSize!));
 
     await unmountApp(tester);
   });

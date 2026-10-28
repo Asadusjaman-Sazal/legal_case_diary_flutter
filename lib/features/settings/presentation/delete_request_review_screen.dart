@@ -30,6 +30,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/print/print_document.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/app_dialog.dart';
 import '../../auth/presentation/auth_widgets.dart';
 import 'delete_requests_viewmodel.dart';
 import 'settings_controls.dart';
@@ -258,7 +259,9 @@ class _DeleteRequestReviewScreenState
             const SizedBox(height: AppSpacing.md),
           ],
           SettingsSectionLabel(
-            current != null ? l.deleteRequests_original : l.deleteRequests_snapshot,
+            current != null
+                ? l.deleteRequests_original
+                : l.deleteRequests_snapshot,
           ),
           const SizedBox(height: AppSpacing.sm),
           _SnapshotCard(
@@ -370,8 +373,6 @@ class _DeleteRequestReviewScreenState
       confirmLabel: approve
           ? l.deleteRequests_approve
           : l.deleteRequests_reject,
-      // The Reject window takes the Exit App's shape; Approve keeps its own.
-      exitWindow: !approve,
     );
     if (!confirmed || !mounted) return;
 
@@ -480,54 +481,19 @@ class _PrimaryButton extends StatelessWidget {
   );
 }
 
-/// A titled confirmation window, with the destructive action in the error colour.
-///
-/// [exitWindow] gives the Reject window the **Exit App?** window's 8 px corner
-/// and its 112 x 48 / 16 pt actions (user request, 0.0.695); the Approve window
-/// keeps the default shape and button sizes.
+/// A titled confirmation window, with the red destructive action.
 Future<bool> _confirm({
   required BuildContext context,
   required String title,
   required String body,
   required String confirmLabel,
-  bool exitWindow = false,
-}) async {
-  final l = AppLocalizations.of(context);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      shape: exitWindow
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-            )
-          : null,
-      title: Text(title),
-      content: Text(body),
-      actions: [
-        TextButton(
-          style: exitWindow ? _exitActionStyle : null,
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          key: const ValueKey('delete-review-confirm'),
-          style: exitWindow
-              ? _exitActionStyle.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(AppColors.error),
-                  foregroundColor: WidgetStatePropertyAll(AppColors.onError),
-                )
-              : FilledButton.styleFrom(backgroundColor: AppColors.error),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmLabel),
-        ),
-      ],
-    ),
+}) {
+  return showAppConfirmDialog(
+    context,
+    title: title,
+    message: body,
+    cancelLabel: AppLocalizations.of(context).sharedActions_cancel,
+    confirmLabel: confirmLabel,
+    confirmKey: const ValueKey('delete-review-confirm'),
   );
-  return answer ?? false;
 }
-
-/// The Exit App window's action size: 112 x 48 at 16 pt.
-final ButtonStyle _exitActionStyle = TextButton.styleFrom(
-  minimumSize: const Size(112, 48),
-  textStyle: const TextStyle(fontSize: 16),
-);

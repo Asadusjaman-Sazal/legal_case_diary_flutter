@@ -44,6 +44,8 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/profile_repository.dart';
 import '../../payments/data/payment_plans.dart';
@@ -160,8 +162,7 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
     // dash, and a dash is not Free — so neither the hidden expiry nor the
     // limitations belong to it. A lapsed account is not Free either, and keeps
     // its expiry row (it has a date, in the past) and its allowance block.
-    final isFree =
-        plan.known && !plan.premium && tier == SubscriptionTier.free;
+    final isFree = plan.known && !plan.premium && tier == SubscriptionTier.free;
     // A cancellation is the *reason* the period is over. A plan that simply ran
     // out has no cancellation behind it and keeps its Expiry row.
     final endedByCancellation =
@@ -238,7 +239,10 @@ class _SubscriptionSummaryCard extends ConsumerWidget {
               // To the minute, like the history below: a renewal is tracked by
               // the hour it was approved, not by a bare date.
               value: endedByCancellation
-                  ? formatSubscriptionDateTime(l, cancelledAt.millisecondsSinceEpoch)
+                  ? formatSubscriptionDateTime(
+                      l,
+                      cancelledAt.millisecondsSinceEpoch,
+                    )
                   : expiryMs == null
                   ? '—'
                   : formatSubscriptionDateTime(l, expiryMs),
@@ -281,10 +285,7 @@ class _LapsedAllowance extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l.settingsSubscription_lapsedTitle,
-          style: AppTypography.titleMd,
-        ),
+        Text(l.settingsSubscription_lapsedTitle, style: AppTypography.titleMd),
         const SizedBox(height: AppSpacing.sm),
         SubscriptionCard(
           child: Text(
@@ -318,10 +319,7 @@ class _FreePlanLimitations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final limit = AppDateUtils.formatDigits(
-      freeTierCaseLimit,
-      l.localeName,
-    );
+    final limit = AppDateUtils.formatDigits(freeTierCaseLimit, l.localeName);
     // The three monthly rates the ladder sells on Starter: the yearly plan is
     // the cheapest per month, which is why the block says "starting at".
     String rate(int total, int months) =>
@@ -475,7 +473,6 @@ class _LimitationRow extends StatelessWidget {
   );
 }
 
-
 /// Renew and Cancel at the size of the page's other primary actions.
 ///
 /// A chamber **member** gets the owner sentence instead: their entitlement is
@@ -619,82 +616,54 @@ class _CancelSubscriptionActionState
   }
 }
 
-/// The Cancel window's action height: the 48 px the window always used, 10%
-/// taller (user request, 0.0.627).
-const double _cancelActionHeight = 53;
-
 /// Asks before the plan is ended for good.
 ///
 /// Returns true only on **Confirm Cancellation**; **Go Back** and a dismissal
 /// both return false and send nothing. The two actions are stacked full-width,
 /// the shape the app's other irreversible windows use, with the way out in
-/// black above the destructive red.
+/// black above the destructive red, at the shared 48 px action height.
 ///
-/// **Geometry (0.0.627, user request).** The corner is the Exit App window's
-/// 8 px. The window is a little wider and noticeably taller: a 24 px side inset
-/// (the default dialog's 40 px inset gave 340 px on a 420 px screen, so this is
-/// about 10% wider) and 64 px of extra room around the body, split above and
-/// below so the window grows without crowding the title or the actions. The
-/// two buttons are 10% taller. The extra height is a concrete amount rather
-/// than a fraction: the body wraps to more lines in Bengali or at a larger
-/// font, and a percentage would either clip it or shrink on a short window.
+/// **Geometry.** The window keeps its own 24 px side inset (the default 40 px
+/// gave 340 px on a 420 px screen, so this is about 10% wider) and the extra
+/// room around the body, split above and below so the window grows without
+/// crowding the title or the actions. The extra height is a concrete amount
+/// rather than a fraction: the body wraps to more lines in Bengali or at a
+/// larger font, and a percentage would either clip it or shrink on a short
+/// window.
 Future<bool> _showCancelSubscriptionDialog(BuildContext context) async {
   final l = AppLocalizations.of(context);
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      // The Exit App window's 8 px corner (user request).
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
+  final confirmed = await showAppDialog<bool>(
+    context,
+    // 10% wider than the default 40 px inset on the app's phones.
+    insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+    title: Text(l.payments_cancelTitle, textAlign: TextAlign.center),
+    content: Padding(
+      // 20% taller, as breathing room around the sentence rather than a
+      // fixed window height, which a long Bengali line or a larger font
+      // would otherwise clip.
+      padding: const EdgeInsets.only(
+        top: AppSpacing.lg,
+        bottom: AppSpacing.xl + AppSpacing.sm,
       ),
-      // 10% wider than the default 40 px inset on the app's phones.
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: 24,
-      ),
-      title: Text(l.payments_cancelTitle, textAlign: TextAlign.center),
-      content: Padding(
-        // 20% taller, as breathing room around the sentence rather than a
-        // fixed window height, which a long Bengali line or a larger font
-        // would otherwise clip.
-        padding: const EdgeInsets.only(
-          top: AppSpacing.lg,
-          bottom: AppSpacing.xl + AppSpacing.sm,
-        ),
-        child: Text(l.payments_cancelWarning, style: AppTypography.bodyMd),
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextButton(
-              key: const ValueKey('subscription-details-cancel-go-back'),
-              style: TextButton.styleFrom(
-                minimumSize: const Size.fromHeight(_cancelActionHeight),
-                backgroundColor: AppColors.secondary,
-                foregroundColor: AppColors.onSecondary,
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(l.payments_goBack),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextButton(
-              key: const ValueKey('subscription-details-cancel-confirm'),
-              style: TextButton.styleFrom(
-                minimumSize: const Size.fromHeight(_cancelActionHeight),
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.onError,
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(l.payments_confirmCancellation),
-            ),
-          ],
-        ),
-      ],
+      child: Text(l.payments_cancelWarning, style: AppTypography.bodyMd),
     ),
+    actionMode: AppDialogActionMode.stack,
+    actions: (dialogContext) => [
+      AppDialogAction(
+        key: const ValueKey('subscription-details-cancel-go-back'),
+        label: l.payments_goBack,
+        kind: AppDialogActionKind.primary,
+        background: AppColors.secondary,
+        foreground: AppColors.onSecondary,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        key: const ValueKey('subscription-details-cancel-confirm'),
+        label: l.payments_confirmCancellation,
+        kind: AppDialogActionKind.destructive,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return confirmed == true;
 }
@@ -710,13 +679,6 @@ String _cancelFailureText(AppLocalizations l, PaymentCancelFailure kind) =>
       PaymentCancelFailure.firmMember => l.payments_cancelFirmMember,
       _ => l.payments_cancelFailed,
     };
-
-
-
-
-
-
-
 
 /// A labelled value row: label left, value right, hairline beneath.
 ///
@@ -744,44 +706,43 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: last
-            ? null
-            : const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.outlineVariant),
+    decoration: last
+        ? null
+        : const BoxDecoration(
+            border: Border(bottom: BorderSide(color: AppColors.outlineVariant)),
+          ),
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.gutter),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Natural width, not Expanded: an expanded label takes half the row
+        // even when the label is one word, and a timestamp like
+        // "01/12/2026, 11:30 PM" wrapped in the remaining half. The label
+        // takes what it needs; the value below takes the rest.
+        Text(
+          label,
+          style: AppTypography.labelMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        // Expanded, not Flexible: a flexible box is only as wide as the
+        // text inside it, so "right" meant "immediately after the label".
+        // The value has to take the rest of the row to sit at the edge.
+        Expanded(
+          child:
+              valueChild ??
+              Text(
+                value!,
+                textAlign: TextAlign.right,
+                style: AppTypography.bodyMd.copyWith(
+                  color: AppColors.onSurface,
                 ),
               ),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.gutter),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Natural width, not Expanded: an expanded label takes half the row
-            // even when the label is one word, and a timestamp like
-            // "01/12/2026, 11:30 PM" wrapped in the remaining half. The label
-            // takes what it needs; the value below takes the rest.
-            Text(
-              label,
-              style: AppTypography.labelMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            // Expanded, not Flexible: a flexible box is only as wide as the
-            // text inside it, so "right" meant "immediately after the label".
-            // The value has to take the rest of the row to sit at the edge.
-            Expanded(
-              child: valueChild ??
-                  Text(
-                    value!,
-                    textAlign: TextAlign.right,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.onSurface,
-                    ),
-                  ),
-            ),
-          ],
         ),
-      );
+      ],
+    ),
+  );
 }
 
 /// The localized name of a role; an unknown server role is shown as it came.
@@ -792,6 +753,3 @@ String _roleLabel(AppLocalizations l, String role) => switch (role) {
   AccountRole.viewer => l.settingsManageAccount_roleViewer,
   _ => role,
 };
-
-
-

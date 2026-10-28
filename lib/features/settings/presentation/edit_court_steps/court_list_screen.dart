@@ -20,6 +20,8 @@ import '../../data/courts_repository.dart';
 import '../../data/reference_in_use_checker.dart';
 import '../../../../database/app_database.dart';
 import '../../../../shared/providers/locale_provider.dart';
+import '../../../../shared/widgets/app_dialog.dart';
+import '../../../../shared/widgets/app_dialog_actions.dart';
 import '../settings_sub_page_modal.dart';
 import 'court_category_label.dart';
 import 'edit_name_dialog.dart';
@@ -257,24 +259,15 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
 
   Future<void> _deleteCourt(BuildContext context, Court court) async {
     final l = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.settingsCourtList_deleteTitle),
-        content: Text(l.settingsCourtList_deleteMessage(court.courtName)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l.sharedActions_delete),
-          ),
-        ],
-      ),
+    final confirmed = await showAppConfirmDialog(
+      context,
+      title: l.settingsCourtList_deleteTitle,
+      message: l.settingsCourtList_deleteMessage(court.courtName),
+      cancelLabel: l.sharedActions_cancel,
+      confirmLabel: l.sharedActions_delete,
+      confirmKind: AppDialogActionKind.primary,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     await widget.repo.delete(court);
   }
 }

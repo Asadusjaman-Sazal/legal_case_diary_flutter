@@ -19,6 +19,8 @@ import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/services/client_notification_message.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/app_dialog.dart';
+import '../../../../shared/widgets/app_dialog_actions.dart';
 import '../../../accounts_and_profile/data/profile_name_store.dart';
 import '../../data/settings_repository.dart';
 import '../settings_controls.dart';
@@ -60,9 +62,8 @@ class ClientNotificationSection extends ConsumerWidget {
                 selected: settings.automatedNotificationEnabled,
                 onTap: () => _change(
                   ref,
-                  (current) => current.copyWith(
-                    automatedNotificationEnabled: true,
-                  ),
+                  (current) =>
+                      current.copyWith(automatedNotificationEnabled: true),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -73,9 +74,8 @@ class ClientNotificationSection extends ConsumerWidget {
                 selected: !settings.automatedNotificationEnabled,
                 onTap: () => _change(
                   ref,
-                  (current) => current.copyWith(
-                    automatedNotificationEnabled: false,
-                  ),
+                  (current) =>
+                      current.copyWith(automatedNotificationEnabled: false),
                 ),
               ),
             ],
@@ -262,9 +262,8 @@ class ClientNotificationSection extends ConsumerWidget {
         ref.read(settingsViewModelProvider).value ?? const UserSettings();
     final value = await showDialog<String>(
       context: context,
-      builder: (_) => _ContactNumberDialog(
-        initial: settings.notificationContactNumber,
-      ),
+      builder: (_) =>
+          _ContactNumberDialog(initial: settings.notificationContactNumber),
     );
     if (value == null) return;
     await _change(
@@ -423,12 +422,8 @@ class _ContactNumberDialogState extends State<_ContactNumberDialog> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
-      key: const ValueKey('client-notification-contact-dialog'),
-      // The Update window's corner (user request, 0.0.619).
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
+    return AppDialogFrame(
+      dialogKey: const ValueKey('client-notification-contact-dialog'),
       title: Text(
         l.clientNotification_contactLabel,
         textAlign: TextAlign.center,
@@ -452,40 +447,22 @@ class _ContactNumberDialogState extends State<_ContactNumberDialog> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(15),
             ],
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
         ],
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        // The Exit App window's action size; 2 px on each side lifts the
-        // dialog's 8 px action gap to 12 (50% more, user request).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: TextButton(
-            key: const ValueKey('client-notification-contact-cancel'),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l.sharedActions_cancel),
-          ),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('client-notification-contact-cancel'),
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: FilledButton(
-            key: const ValueKey('client-notification-contact-save'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(112, 48),
-              textStyle: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () =>
-                Navigator.of(context).pop(_controller.text.trim()),
-            child: Text(l.sharedActions_save),
-          ),
+        AppDialogAction(
+          key: const ValueKey('client-notification-contact-save'),
+          label: l.sharedActions_save,
+          kind: AppDialogActionKind.primary,
+          onPressed: () =>
+              Navigator.of(dialogContext).pop(_controller.text.trim()),
         ),
       ],
     );

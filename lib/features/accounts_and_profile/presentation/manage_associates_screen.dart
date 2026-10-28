@@ -44,6 +44,8 @@ import '../../../core/providers/print_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
@@ -1694,10 +1696,8 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
 
 /// A titled confirmation window, with the destructive action in the error colour.
 ///
-/// [matchesInviteCodeWindow] gives the window the **Invite Code** window's
-/// corner (8 px) and its centred action size (112 x 48 at 16 pt). Only the revoke
-/// confirmation asks for it — the other three windows on this screen keep the
-/// app's standard confirmation look (user request, 0.0.653).
+/// [matchesInviteCodeWindow] keeps the revoke confirmation's **centred** title;
+/// every window on this screen is otherwise on the shared pop-over frame.
 Future<bool> _confirm({
   required String title,
   required String body,
@@ -1706,56 +1706,26 @@ Future<bool> _confirm({
   bool matchesInviteCodeWindow = false,
 }) async {
   final l = AppLocalizations.of(context);
-  final actionSize = matchesInviteCodeWindow ? const Size(112, 48) : null;
-  const actionText = TextStyle(fontSize: 16);
-  final answer = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        title,
-        // Centred only where the request asked for the Invite Code window: the
-        // other windows are unchanged.
-        textAlign: matchesInviteCodeWindow ? TextAlign.center : null,
-      ),
-      shape: matchesInviteCodeWindow
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-            )
-          : null,
-      // Scrollable: the removal warning is several sentences long on purpose
-      // (the owner is told what cannot be reached, and what to do about it), and
-      // a fixed Text would clip it on a phone.
-      content: SingleChildScrollView(child: Text(body)),
-      actionsAlignment: matchesInviteCodeWindow
-          ? MainAxisAlignment.center
-          : null,
-      actions: [
-        TextButton(
-          style: matchesInviteCodeWindow
-              ? TextButton.styleFrom(
-                  minimumSize: actionSize,
-                  textStyle: actionText,
-                )
-              : null,
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l.sharedActions_cancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            // Red always: every window left on this screen destroys something —
-            // revoke a code, dissolve the firm, remove an associate, or sign
-            // their devices out. The join warning's *Continue* is the one step
-            // forward, and it moved to `join_firm_flow.dart` with the flow.
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
-            minimumSize: actionSize,
-            textStyle: matchesInviteCodeWindow ? actionText : null,
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmLabel),
-        ),
-      ],
+  final answer = await showAppDialog<bool>(
+    context,
+    title: Text(
+      title,
+      textAlign: matchesInviteCodeWindow ? TextAlign.center : null,
     ),
+    // The frame's 85 % height cap scrolls a long removal warning instead of
+    // clipping it on a phone.
+    content: Text(body),
+    actions: (dialogContext) => [
+      AppDialogAction(
+        label: l.sharedActions_cancel,
+        onPressed: () => Navigator.of(dialogContext).pop(false),
+      ),
+      AppDialogAction(
+        label: confirmLabel,
+        kind: AppDialogActionKind.destructive,
+        onPressed: () => Navigator.of(dialogContext).pop(true),
+      ),
+    ],
   );
   return answer ?? false;
 }
@@ -1940,123 +1910,94 @@ class _InviteCodeDialogState extends ConsumerState<_InviteCodeDialog> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
-    return Dialog(
-      // The Exit App window's shape and white panel, with its side margins
-      // pulled in from 40 to 16 (0.0.652, user request): the Exit-App-sized
-      // buttons are wide, and at the old margins they could not share a row on
-      // any phone.
+    return AppContentDialogFrame(
+      // The Exit App window's white panel, with its side margins pulled in
+      // from 40 to 16 (0.0.652, user request): the Exit-App-sized buttons are
+      // wide, and at the old margins they could not share a row on any phone.
       insetPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.lg,
       ),
       backgroundColor: AppColors.surfaceContainerLowest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      child: SingleChildScrollView(
-        // 16 px inside rather than 24, so the buttons get the room the wider
-        // window bought them.
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Centred, like the Exit App window's title.
-            Text(
-              l.manageAssociates_inviteTitle,
-              textAlign: TextAlign.center,
-              style: AppTypography.titleLg,
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Centred, like the Exit App window's title.
+          Text(
+            l.manageAssociates_inviteTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleLg,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            l.manageAssociates_inviteIntro,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
             ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: settingsCardDecoration(
+              color: AppColors.surfaceContainer,
+            ),
+            child: SelectableText(
+              widget.invite.code,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleLg.copyWith(letterSpacing: 4),
+            ),
+          ),
+          if (_note != null) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              l.manageAssociates_inviteIntro,
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySm.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: settingsCardDecoration(
-                color: AppColors.surfaceContainer,
-              ),
-              child: SelectableText(
-                widget.invite.code,
-                textAlign: TextAlign.center,
-                style: AppTypography.titleLg.copyWith(letterSpacing: 4),
-              ),
-            ),
-            if (_note != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Row(
-                key: const ValueKey('invite-code-note'),
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _noteOk ? Icons.check_circle : Icons.error_outline,
-                    size: 16,
-                    color: _noteOk ? AppColors.success : AppColors.error,
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Flexible(
-                    child: Text(
-                      _note!,
-                      style: AppTypography.bodySm.copyWith(
-                        color: _noteOk ? AppColors.success : AppColors.error,
-                      ),
+            Row(
+              key: const ValueKey('invite-code-note'),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  _noteOk ? Icons.check_circle : Icons.error_outline,
+                  size: 16,
+                  color: _noteOk ? AppColors.success : AppColors.error,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Flexible(
+                  child: Text(
+                    _note!,
+                    style: AppTypography.bodySm.copyWith(
+                      color: _noteOk ? AppColors.success : AppColors.error,
                     ),
                   ),
-                ],
-              ),
-            ],
-            const SizedBox(height: AppSpacing.lg),
-            // The Exit App window's action size (112 x 48 at 16 pt), in a Wrap
-            // so the narrow window stacks them instead of overflowing — and so
-            // a longer Bengali label grows rather than clipping. The rows are
-            // spaced exactly as the code box and the buttons above them are
-            // (0.0.654, user request), so the window reads as one column.
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: AppSpacing.lg,
-              children: [
-                OutlinedButton(
-                  key: const ValueKey('invite-code-copy'),
-                  onPressed: _copy,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.manageAssociates_copyCode),
-                ),
-                OutlinedButton(
-                  key: const ValueKey('invite-code-share'),
-                  onPressed: _share,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.manageAssociates_shareCode),
-                ),
-                FilledButton(
-                  key: const ValueKey('invite-code-close'),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.sharedActions_close),
                 ),
               ],
             ),
           ],
-        ),
+        ],
       ),
+      // Three actions keep their Wrap grouping: Copy and Share on a row, Close
+      // beneath.
+      actionMode: AppDialogActionMode.wrap,
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('invite-code-copy'),
+          label: l.manageAssociates_copyCode,
+          kind: AppDialogActionKind.outlined,
+          onPressed: _copy,
+        ),
+        AppDialogAction(
+          key: const ValueKey('invite-code-share'),
+          label: l.manageAssociates_shareCode,
+          kind: AppDialogActionKind.outlined,
+          onPressed: _share,
+        ),
+        AppDialogAction(
+          key: const ValueKey('invite-code-close'),
+          label: l.sharedActions_close,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).maybePop(),
+        ),
+      ],
     );
   }
 
@@ -2131,75 +2072,53 @@ class _FirmNameDialogState extends State<_FirmNameDialog> {
     final l = AppLocalizations.of(context);
     final canSave = _name.text.trim().isNotEmpty;
 
-    return Dialog(
+    return AppContentDialogFrame(
       insetPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.lg,
       ),
       backgroundColor: AppColors.surfaceContainerLowest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
-      ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l.manageAssociates_changeNameTitle,
-              textAlign: TextAlign.center,
-              style: AppTypography.titleLg,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              key: const ValueKey('firm-name-input'),
-              controller: _name,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              style: AppTypography.bodyLg,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: l.manageAssociates_firmNameLabel,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.manageAssociates_changeNameTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleLg,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            key: const ValueKey('firm-name-input'),
+            controller: _name,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            style: AppTypography.bodyLg,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              labelText: l.manageAssociates_firmNameLabel,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: AppSpacing.lg,
-              children: [
-                TextButton(
-                  key: const ValueKey('firm-name-cancel'),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  style: TextButton.styleFrom(
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.sharedActions_cancel),
-                ),
-                FilledButton(
-                  key: const ValueKey('firm-name-save'),
-                  onPressed: canSave
-                      ? () => Navigator.of(context).maybePop(_name.text.trim())
-                      : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
-                    minimumSize: const Size(112, 48),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: Text(l.sharedActions_save),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          key: const ValueKey('firm-name-cancel'),
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).maybePop(),
+        ),
+        AppDialogAction(
+          key: const ValueKey('firm-name-save'),
+          label: l.sharedActions_save,
+          kind: AppDialogActionKind.primary,
+          onPressed: canSave
+              ? () => Navigator.of(dialogContext).maybePop(_name.text.trim())
+              : null,
+        ),
+      ],
     );
   }
 }

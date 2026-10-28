@@ -27,6 +27,8 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/utils/date_utils.dart';
@@ -661,11 +663,6 @@ class _RejectNoteDialog extends ConsumerStatefulWidget {
   ConsumerState<_RejectNoteDialog> createState() => _RejectNoteDialogState();
 }
 
-/// The rejection window's button size: the app's own 48 px control height, and a
-/// minimum width that keeps the pair side by side inside a phone's dialog (a
-/// wider minimum pushes the two onto separate lines).
-const Size _dialogButtonSize = Size(96, 48);
-
 /// The tallest the opened pre-fill list may grow before it scrolls itself.
 ///
 /// The window already carries a title, a three-line note and two buttons, and it
@@ -884,7 +881,7 @@ class _RejectNoteDialogState extends ConsumerState<_RejectNoteDialog> {
   @override
   Widget build(BuildContext context) {
     final l = widget.l;
-    return AlertDialog(
+    return AppDialogFrame(
       title: Text(l.adminPanel_rejectTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -904,38 +901,19 @@ class _RejectNoteDialogState extends ConsumerState<_RejectNoteDialog> {
       ),
       // The window can be open while the keyboard is up — "Add Your Own" opens a
       // field that autofocuses, over this one — and the middle of the window is
-      // the tallest part of it (the opened pre-fill list). Without this the note,
-      // the list and the title are laid out in what the keyboard leaves and the
-      // whole thing overflows off the top of its own box (reported on a phone).
-      // Scrollable keeps the title, note and list in one scrollable column and
-      // the two decisions pinned under it, which is what makes a rejection still
-      // possible with the keyboard showing.
-      scrollable: true,
-      // The two decisions are the window's whole point, so they are centred and
-      // given the app's own button height (user request) rather than the
-      // platform's smaller, right-aligned defaults. The overflow alignment is the
-      // same centre: a narrow phone wraps the pair into a column, and a wrapped
-      // pair that fell back to the platform's `end` would be right-aligned again.
-      actionsAlignment: MainAxisAlignment.center,
-      actionsOverflowAlignment: OverflowBarAlignment.center,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          style: TextButton.styleFrom(
-            textStyle: AppTypography.labelLg,
-            minimumSize: _dialogButtonSize,
-          ),
-          child: Text(l.sharedActions_cancel),
+      // the tallest part of it (the opened pre-fill list). The frame's scrollable
+      // body keeps the title, note and list in one scrollable column and the two
+      // decisions pinned under it, which is what makes a rejection still possible
+      // with the keyboard showing.
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error,
-            foregroundColor: AppColors.onError,
-            textStyle: AppTypography.labelLg,
-            minimumSize: _dialogButtonSize,
-          ),
-          child: Text(l.adminPanel_rejectConfirm),
+        AppDialogAction(
+          label: l.adminPanel_rejectConfirm,
+          kind: AppDialogActionKind.destructive,
+          onPressed: () => Navigator.of(dialogContext).pop(_controller.text),
         ),
       ],
     );
@@ -965,7 +943,7 @@ class _OwnMessageDialogState extends State<_OwnMessageDialog> {
   @override
   Widget build(BuildContext context) {
     final l = widget.l;
-    return AlertDialog(
+    return AppDialogFrame(
       title: Text(l.adminPanel_rejectOwnMessageTitle),
       content: TextField(
         controller: _controller,
@@ -976,19 +954,15 @@ class _OwnMessageDialogState extends State<_OwnMessageDialog> {
           hintText: l.adminPanel_rejectOwnMessageHint,
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            textStyle: AppTypography.labelLg,
-          ),
-          child: Text(l.sharedActions_add),
+        AppDialogAction(
+          label: l.sharedActions_add,
+          kind: AppDialogActionKind.primary,
+          onPressed: () => Navigator.of(dialogContext).pop(_controller.text),
         ),
       ],
     );

@@ -5,6 +5,8 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../core/l10n/generated/app_localizations.dart';
+import 'app_dialog.dart';
+import 'app_dialog_actions.dart';
 
 /// {@template database_recovery_dialog}
 /// A dialog displayed when the encrypted local database exists but its key is
@@ -25,21 +27,20 @@ class DatabaseRecoveryDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return AlertDialog(
+    return AppDialogFrame(
       title: Text(l.databaseRecovery_title),
       content: Text(l.databaseRecovery_body),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).maybePop(),
-          child: Text(l.sharedActions_cancel),
+      actions: (dialogContext) => [
+        AppDialogAction(
+          label: l.sharedActions_cancel,
+          onPressed: () => Navigator.of(dialogContext).maybePop(),
         ),
-        TextButton(
+        AppDialogAction(
+          label: l.databaseRecovery_reset,
+          kind: AppDialogActionKind.primary,
+          background: Colors.black,
+          foreground: Colors.white,
           onPressed: onReset,
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-          ),
-          child: Text(l.databaseRecovery_reset),
         ),
       ],
     );

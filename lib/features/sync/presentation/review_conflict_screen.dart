@@ -23,6 +23,8 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/app_dialog.dart';
+import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../shared/widgets/attribution_line.dart';
 import '../../../sync/conflict_rebase.dart';
 import '../../../sync/conflict_resolution.dart';
@@ -39,14 +41,19 @@ import '../../settings/presentation/settings_sub_page_modal.dart';
 /// left is the later work the freeze preserved, which the user has a right to
 /// see before choosing what happens to it.
 final _entityQueueProvider =
-    StreamProvider.family<List<SyncQueueRow>, (String, String)>((ref, key) async* {
-  final db = await ref.watch(databaseProvider.future);
-  yield* (db.select(db.syncQueue)
-        ..where((row) =>
-            row.entityType.equals(key.$1) & row.entityId.equals(key.$2))
-        ..orderBy([(row) => OrderingTerm(expression: row.createdAt)]))
-      .watch();
-});
+    StreamProvider.family<List<SyncQueueRow>, (String, String)>((
+      ref,
+      key,
+    ) async* {
+      final db = await ref.watch(databaseProvider.future);
+      yield* (db.select(db.syncQueue)
+            ..where(
+              (row) =>
+                  row.entityType.equals(key.$1) & row.entityId.equals(key.$2),
+            )
+            ..orderBy([(row) => OrderingTerm(expression: row.createdAt)]))
+          .watch();
+    });
 
 /// One changed field, as both sides see it.
 class _FieldDiff {
@@ -119,8 +126,9 @@ class _ReviewConflictScreenState extends ConsumerState<ReviewConflictScreen> {
       subtitle: subtitle,
       child: switch (conflict) {
         null => Center(child: Text(l.syncConflict_missingNotice)),
-        final c when c.resolutionState != conflictUnresolved =>
-          Center(child: Text(l.syncConflict_resolvedNotice)),
+        final c when c.resolutionState != conflictUnresolved => Center(
+          child: Text(l.syncConflict_resolvedNotice),
+        ),
         final c => _body(context, l, c),
       },
     );
@@ -202,7 +210,8 @@ class _ReviewConflictScreenState extends ConsumerState<ReviewConflictScreen> {
         child: FilledButton(
           onPressed: _busy
               ? null
-              : () => _run((resolver) => resolver.rebaseOntoNewRecord(conflict)),
+              : () =>
+                    _run((resolver) => resolver.rebaseOntoNewRecord(conflict)),
           style: _primaryStyle,
           child: Text(l.syncConflict_rebaseOntoNewRecord),
         ),
@@ -245,7 +254,9 @@ class _ReviewConflictScreenState extends ConsumerState<ReviewConflictScreen> {
           ? diff.localValue
           : server[diff.field];
     }
-    await _run((resolver) => resolver.resolveWithFields(conflict, chosen: chosen));
+    await _run(
+      (resolver) => resolver.resolveWithFields(conflict, chosen: chosen),
+    );
   }
 
   Future<void> _confirmDiscard(
@@ -253,24 +264,15 @@ class _ReviewConflictScreenState extends ConsumerState<ReviewConflictScreen> {
     AppLocalizations l,
     ConflictLogRow conflict,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.syncConflict_discardConfirmTitle),
-        content: Text(l.syncConflict_discardConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.sharedActions_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l.syncConflict_discard),
-          ),
-        ],
-      ),
+    final confirmed = await showAppConfirmDialog(
+      context,
+      title: l.syncConflict_discardConfirmTitle,
+      message: l.syncConflict_discardConfirmBody,
+      cancelLabel: l.sharedActions_cancel,
+      confirmLabel: l.syncConflict_discard,
+      confirmKind: AppDialogActionKind.text,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await _run((resolver) => resolver.discard(conflict));
   }
 
@@ -483,13 +485,18 @@ class _LaterEdits extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final rows = ref
-            .watch(_entityQueueProvider((conflict.entityType, conflict.entityId)))
+    final rows =
+        ref
+            .watch(
+              _entityQueueProvider((conflict.entityType, conflict.entityId)),
+            )
             .value ??
         const <SyncQueueRow>[];
     final later = rows
-        .where((row) =>
-            row.mutationId != conflict.mutationId && row.state != 'resolved')
+        .where(
+          (row) =>
+              row.mutationId != conflict.mutationId && row.state != 'resolved',
+        )
         .toList();
     if (later.isEmpty) return const SizedBox.shrink();
 

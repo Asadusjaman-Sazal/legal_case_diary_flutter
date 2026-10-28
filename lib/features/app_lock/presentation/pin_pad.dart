@@ -15,6 +15,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/theme/app_dialog_metrics.dart';
 import '../../../core/utils/date_utils.dart';
 import '../data/app_lock_store.dart';
 
@@ -305,7 +306,11 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
 
 /// The entry dots: filled ones are the digits typed so far.
 class _Dots extends StatelessWidget {
-  const _Dots({required this.filled, required this.error, required this.length});
+  const _Dots({
+    required this.filled,
+    required this.error,
+    required this.length,
+  });
 
   final int filled;
   final bool error;
@@ -438,7 +443,11 @@ class _PinFlowDialogState extends State<_PinFlowDialog> {
     final l = AppLocalizations.of(context);
     return AlertDialog(
       // A little roomier than the framework default, so the pad's keys are a
-      // comfortable size on a phone rather than squeezed.
+      // comfortable size on a phone rather than squeezed. The corner and width
+      // range are the app's shared window's; the full-width Cancel stays the
+      // pad's own.
+      shape: AppDialogMetrics.shape,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
       insetPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.xl,

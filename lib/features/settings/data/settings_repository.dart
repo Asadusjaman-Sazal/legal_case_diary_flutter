@@ -219,7 +219,7 @@ class UserSettings {
     this.caseTableCollapsedDays = const {},
     this.defaultLandingPage = 'daily_cause_list',
     this.fontSizeStep = 0,
-    this.notificationEnabled = false,
+    this.notificationEnabled = true,
     this.notificationTime,
     this.notificationDayOffset = 1,
     this.notificationDefaultOffsets = const [1],
@@ -229,7 +229,7 @@ class UserSettings {
     this.notificationGuideShown = false,
     this.notificationAutoStartDone = false,
     this.language = 'en',
-    this.automatedNotificationEnabled = false,
+    this.automatedNotificationEnabled = true,
     this.automatedNotificationAskBeforeSending = true,
     this.automatedNotificationChannel = clientNotificationChannelWhatsApp,
     this.automatedNotificationWhatsAppTemplate = clientNotificationTemplateLong,
@@ -498,7 +498,7 @@ class UserSettings {
       notificationAutoStartDone:
           json['notification_auto_start_done'] as bool? ?? false,
       automatedNotificationEnabled:
-          json['automated_notification_enabled'] as bool? ?? false,
+          json['automated_notification_enabled'] as bool? ?? true,
       automatedNotificationAskBeforeSending:
           json['automated_notification_ask_before_sending'] as bool? ?? true,
       automatedNotificationChannel: _readChoice(

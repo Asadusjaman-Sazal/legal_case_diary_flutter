@@ -230,8 +230,9 @@ void main() {
     );
 
     test('off, unchanged date or no number do nothing', () {
+      // Automation defaults to on now (0.0.697), so the off case states it.
       expect(
-        decide(const UserSettings()),
+        decide(const UserSettings(automatedNotificationEnabled: false)),
         ClientNotificationDecision.none,
       );
       expect(

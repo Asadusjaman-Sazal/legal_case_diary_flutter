@@ -15285,7 +15285,7 @@ class $UserPreferencesTable extends UserPreferences
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'CHECK ("notification_enabled" IN (0, 1))',
     ),
-    defaultValue: const Constant(false),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _notificationTimeMeta = const VerificationMeta(
     'notificationTime',
@@ -15500,6 +15500,10 @@ class UserPreference extends DataClass implements Insertable<UserPreference> {
   final String? viewSettingsJson;
 
   /// Master toggle for notifications.
+  ///
+  /// Defaults to true (user request, 0.0.697): an account that has never chosen
+  /// hears its hearing reminders, and can silence them here. A row written by
+  /// an older build keeps the value it stored.
   final bool notificationEnabled;
 
   /// Preferred notification time of day (epoch ms or minutes-since-midnight;

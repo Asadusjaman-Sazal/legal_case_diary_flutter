@@ -623,13 +623,12 @@ void main() {
       expect(find.byKey(const ValueKey('quick-update-step')), findsNothing);
 
       // This case has no notification choice of its own, so its toggle starts
-      // from the Settings default — off in this harness. The Settings switch is
-      // the default a case starts from, not a veto, so switching the case on
-      // here is what makes it alert.
+      // from the Settings default — on since 0.0.697. Turning it off here is
+      // the case's own choice and leaves the Settings switch on.
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('quick-update-notification')),
-          matching: find.byIcon(Icons.notifications_none),
+          matching: find.byIcon(Icons.notifications),
         ),
         findsOneWidget,
       );
@@ -642,8 +641,8 @@ void main() {
       final preference = await CaseNotificationPreferencesDao(
         db,
       ).get(identity.getId(), id);
-      // Switched on for this one case, while the Settings default stays off.
-      expect(preference?.enabled, isTrue);
+      // Switched off for this one case, while the Settings default stays on.
+      expect(preference?.enabled, isFalse);
       // Untouched Day Offset mirrors Settings → Notifications (default: the
       // day before), the same rule the Add/Edit form follows.
       expect(preference?.offsets, '[1]');

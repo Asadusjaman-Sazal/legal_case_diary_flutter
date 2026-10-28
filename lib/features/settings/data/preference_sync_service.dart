@@ -68,7 +68,9 @@ UserPreferencesCompanion userPreferencesCompanion(
   userId: Value(userId),
   language: Value(row['language'] as String?),
   viewSettingsJson: Value(row['view_settings_json'] as String?),
-  notificationEnabled: Value(row['notification_enabled'] as bool? ?? false),
+  // A server row that predates the choice, or carries no value, reads as the
+  // column's own default of on — the same reading the app's model applies.
+  notificationEnabled: Value(row['notification_enabled'] as bool? ?? true),
   notificationTime: Value((row['notification_time'] as num?)?.toInt()),
   notificationDefaultOffsets: Value(
     row['notification_default_offsets'] as String?,

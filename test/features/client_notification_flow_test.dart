@@ -170,7 +170,12 @@ void main() {
   }
 
   testWidgets('off, no phone or an unchanged day does nothing', (tester) async {
-    await pumpFlow(tester, settings: const UserSettings());
+    // Automation is on by default now (user request), so the off case states
+    // its own choice.
+    await pumpFlow(
+      tester,
+      settings: const UserSettings(automatedNotificationEnabled: false),
+    );
     await run(tester);
     expect(prompt, findsNothing);
     expect(launcher.opened, isEmpty);

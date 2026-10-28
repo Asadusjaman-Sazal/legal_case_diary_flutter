@@ -171,9 +171,9 @@ class OnlineSyncScreen extends ConsumerWidget {
 ///
 /// The plan's second route into that screen: the header badge is the shortcut
 /// while something is held, and this is where a user looks for it deliberately.
-/// It reads the attention count so the card itself carries the same news. Its
-/// own title is used rather than `syncStatus_title`, which names the screen it
-/// opens — renaming that would have changed that screen's own header too.
+/// It reads the attention count so the card itself carries the same news. Card
+/// and screen share `settingsOnlineSync_pendingSyncTitle`, so the entry and the
+/// screen it opens cannot be named differently.
 class _PendingSyncEntry extends ConsumerWidget {
   const _PendingSyncEntry();
 
@@ -339,8 +339,7 @@ class _SyncStatusCard extends ConsumerWidget {
     // red for the same reason.
     // A switched-off sync is deliberate, so it is muted like the failure pause
     // rather than red: nothing has gone wrong.
-    final tint =
-        needsAction || blocker == _SyncBlocker.offline
+    final tint = needsAction || blocker == _SyncBlocker.offline
         ? AppColors.error
         : blocker == _SyncBlocker.disabled || paused
         ? AppColors.onSurfaceVariant
@@ -499,7 +498,9 @@ class _SyncStatusCard extends ConsumerWidget {
   /// ends the block, so it is drawn by [_FreePlanPurchaseHint]; every other
   /// state is one plain sentence.
   Widget _body(AppLocalizations l) => switch (blocker) {
-    _SyncBlocker.signedOut => _plainBody(l.settingsOnlineSync_dataStaysOnDevice),
+    _SyncBlocker.signedOut => _plainBody(
+      l.settingsOnlineSync_dataStaysOnDevice,
+    ),
     _SyncBlocker.needsPremium => const _FreePlanPurchaseHint(),
     _SyncBlocker.checking => _plainBody(l.settingsOnlineSync_checkingPlanBody),
     _SyncBlocker.offline => _plainBody(
@@ -721,9 +722,7 @@ Color _markerColor(int waiting, _SyncBlocker blocker) {
   // A switched-off sync is muted rather than red, for the same reason the
   // status card is: the user asked for this state.
   if (blocker == _SyncBlocker.disabled) return AppColors.onSurfaceVariant;
-  return blocker == _SyncBlocker.none
-      ? AppColors.success
-      : AppColors.error;
+  return blocker == _SyncBlocker.none ? AppColors.success : AppColors.error;
 }
 
 /// What the marker says. The blockers get their own wording because "Sign in

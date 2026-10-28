@@ -39,12 +39,21 @@ void main() {
 
     final cancel = entry(entries, l.settingsSubscription_cancelSubscription);
     expect(cancel.route, AppRoutes.settingsSubscriptionDetails);
+    // Subscription is its own Settings entry now (0.0.701), not Account &
+    // Profile's subject.
     expect(cancel.path, <String>[
       l.settingsScreen_title,
-      l.settingsScreen_accountAndProfile,
       l.settingsSubscription_title,
       l.settingsSubscription_managePlanTitle,
     ]);
+    expect(
+      entry(entries, l.settingsSubscription_title).route,
+      AppRoutes.settingsSubscription,
+    );
+    expect(
+      entry(entries, l.settingsSubscription_title).path,
+      <String>[l.settingsScreen_title],
+    );
 
     final password = entry(
       entries,

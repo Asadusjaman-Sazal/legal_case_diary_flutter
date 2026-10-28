@@ -1,17 +1,13 @@
 /// Accounts & Profile menu — the sectioned layout.
 ///
-/// The menu is grouped under three labelled headers: **Profile** (Profile),
-/// **Account** (Manage Account, App Lock, Devices) and **Subscription** (Manage
-/// Plan, Subscription Plans, Subscription History). The Subscription section
-/// replaced the one intermediate Subscription screen at 0.0.624; a chamber
-/// member sees Manage Plan and the read-only plans but not History (0.0.626).
-/// Devices is offered
+/// The menu is grouped under two labelled headers: **Profile** (Profile) and
+/// **Account** (Manage Account, App Lock, Devices). **Subscription** moved to
+/// its own Settings entry under Firm at 0.0.701 and is pinned in
+/// `subscription_menu_screen_test`; **Firm** did the same at 0.0.663 and is
+/// pinned in `firm_menu_screen_test`. Devices is offered
 /// only where the plan holds more than one device — Pro and the chamber tiers —
-/// so Free and Starter never see it. **Firm** moved to its own Settings entry at
-/// 0.0.663; its rows and visibility rules are pinned in `firm_menu_screen_test`.
-/// These tests pin this structure: section
-/// labels, rows, their order, the Devices rule, the member rule and each row's
-/// destination.
+/// so Free and Starter never see it. These tests pin this structure: section
+/// labels, rows, their order, the Devices rule and each row's destination.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -23,7 +19,6 @@ import 'package:go_router/go_router.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
-import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
@@ -34,9 +29,6 @@ import 'auth_test_support.dart';
 import 'settings_test_support.dart';
 
 /// Markers rendered by the stand-in destination routes.
-const String managePlanMarker = 'Manage Plan Route';
-const String plansMarker = 'Subscription Plans Route';
-const String historyMarker = 'Subscription History Route';
 const String appLockMarker = 'App Lock Route';
 const String devicesMarker = 'Devices Route';
 
@@ -83,18 +75,6 @@ void main() {
           builder: (_, _) => const AccountsProfileMenuScreen(),
         ),
         GoRoute(
-          path: AppRoutes.settingsSubscriptionDetails,
-          builder: (_, _) => const Scaffold(body: Text(managePlanMarker)),
-        ),
-        GoRoute(
-          path: AppRoutes.paywall,
-          builder: (_, _) => const Scaffold(body: Text(plansMarker)),
-        ),
-        GoRoute(
-          path: AppRoutes.settingsSubscriptionHistory,
-          builder: (_, _) => const Scaffold(body: Text(historyMarker)),
-        ),
-        GoRoute(
           path: AppRoutes.settingsAppLock,
           builder: (_, _) => const Scaffold(body: Text(appLockMarker)),
         ),
@@ -129,9 +109,7 @@ void main() {
     ),
   );
 
-  testWidgets('groups the rows under Profile, Account and Subscription', (
-    tester,
-  ) async {
+  testWidgets('groups the rows under Profile and Account', (tester) async {
     await pumpMenu(
       tester,
       seed: (db) => seedIndividual(db, premium: true, tier: 'pro'),
@@ -143,8 +121,9 @@ void main() {
       findsNWidgets(2),
     );
     expect(find.text(l.settingsAccountProfile_sectionAccount), findsOneWidget);
-    expect(find.text(l.settingsSubscription_title), findsOneWidget);
-    // Firm is its own Settings entry now (0.0.663), so no Firm section here.
+    // Subscription is its own Settings entry now (0.0.701), as Firm was at
+    // 0.0.663, so neither section is drawn here.
+    expect(find.text(l.settingsSubscription_title), findsNothing);
     expect(find.text(l.settingsFirm_title), findsNothing);
 
     // Account rows.
@@ -153,29 +132,9 @@ void main() {
     expect(find.text(l.settingsAppLock_title), findsOneWidget);
     expect(find.text(l.devices_title), findsOneWidget);
 
-    // Subscription rows, each with its own subtitle.
-    expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
-    expect(
-      find.text(l.settingsManageAccount_purchaseNewSubscription),
-      findsOneWidget,
-    );
-    expect(find.text(l.payments_historyTitle), findsOneWidget);
-    expect(
-      find.text(l.settingsAccountProfile_managePlanSubtitle),
-      findsOneWidget,
-    );
-    expect(
-      find.text(l.settingsAccountProfile_subscriptionPlansSubtitle),
-      findsOneWidget,
-    );
-    expect(
-      find.text(l.settingsAccountProfile_subscriptionHistorySubtitle),
-      findsOneWidget,
-    );
-
-    // Seven rows in total; Change Password is not offered from here, and the
-    // firm rows live behind their own Settings entry.
-    expect(find.byType(SettingsMenuCard), findsNWidgets(7));
+    // Four rows in total; Change Password is not offered from here, and the
+    // subscription and firm rows live behind their own Settings entries.
+    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);
@@ -196,24 +155,10 @@ void main() {
         .dy;
     final lockY = tester.getTopLeft(find.text(l.settingsAppLock_title)).dy;
     final devicesY = tester.getTopLeft(find.text(l.devices_title)).dy;
-    final subscriptionY = tester
-        .getTopLeft(find.text(l.settingsSubscription_title))
-        .dy;
-    final planY = tester
-        .getTopLeft(find.text(l.settingsSubscription_managePlanTitle))
-        .dy;
-    final plansY = tester
-        .getTopLeft(find.text(l.settingsManageAccount_purchaseNewSubscription))
-        .dy;
-    final historyY = tester.getTopLeft(find.text(l.payments_historyTitle)).dy;
 
     expect(manageY, greaterThan(accountY));
     expect(lockY, greaterThan(manageY));
     expect(devicesY, greaterThan(lockY));
-    expect(subscriptionY, greaterThan(devicesY));
-    expect(planY, greaterThan(subscriptionY));
-    expect(plansY, greaterThan(planY));
-    expect(historyY, greaterThan(plansY));
 
     await unmountApp(tester);
   });
@@ -261,95 +206,18 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('Manage Plan opens the plan screen', (tester) async {
-    await pumpMenu(tester);
-
-    await tester.tap(find.text(l.settingsSubscription_managePlanTitle));
-    await tester.pumpAndSettle();
-
-    expect(find.text(managePlanMarker), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('Subscription Plans opens the plans screen', (tester) async {
-    await pumpMenu(tester);
-
-    await tester.tap(
-      find.text(l.settingsManageAccount_purchaseNewSubscription),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text(plansMarker), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets('Subscription History opens the history screen', (tester) async {
-    await pumpMenu(tester);
-
-    await tester.tap(find.text(l.payments_historyTitle));
-    await tester.pumpAndSettle();
-
-    expect(find.text(historyMarker), findsOneWidget);
-
-    await unmountApp(tester);
-  });
-
-  testWidgets(
-    'a chamber member reads Firm Plan, keeps Plans and loses History',
-    (tester) async {
-      await pumpMenu(
-        tester,
-        extra: [firmMemberProvider.overrideWithValue(true)],
-      );
-
-      // The chamber's plan is the one they read, so the row and its line say
-      // so (user request, 0.0.698).
-      expect(find.text(l.settingsSubscription_firmPlanTitle), findsOneWidget);
-      expect(
-        find.text(l.settingsSubscription_managePlanTitle),
-        findsNothing,
-      );
-      expect(
-        find.text(l.settingsAccountProfile_firmPlanSubtitle),
-        findsOneWidget,
-      );
-      expect(
-        find.text(l.settingsManageAccount_purchaseNewSubscription),
-        findsOneWidget,
-      );
-      // The ledger is the account's own, and a chamber member is not offered it
-      // (0.0.626, owner request).
-      expect(find.text(l.payments_historyTitle), findsNothing);
-
-      // The row opens the read-only plans screen.
-      await tester.tap(
-        find.text(l.settingsManageAccount_purchaseNewSubscription),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text(plansMarker), findsOneWidget);
-
-      await unmountApp(tester);
-    },
-  );
-
   testWidgets('the Account section offers no Security row', (tester) async {
-    // A free individual sees six cards — Profile, Manage Account, App Lock,
-    // Manage Plan, Subscription Plans and Subscription History — so none is a
-    // Security entry that only lost its label, and Devices is not offered.
+    // A free individual sees three cards — Profile, Manage Account and App
+    // Lock — so none is a Security entry that only lost its label, Devices is
+    // not offered, and the subscription rows have their own Settings entry.
     await pumpMenu(tester, seed: (db) => seedIndividual(db, premium: false));
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(6));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
     expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
     expect(find.text(l.settingsAppLock_title), findsOneWidget);
     expect(find.text(l.devices_title), findsNothing);
-    expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
-    expect(
-      find.text(l.settingsManageAccount_purchaseNewSubscription),
-      findsOneWidget,
-    );
-    expect(find.text(l.payments_historyTitle), findsOneWidget);
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsNothing);
+    expect(find.text(l.payments_historyTitle), findsNothing);
     expect(find.text(l.settingsManageAccount_changePassword), findsNothing);
 
     await unmountApp(tester);

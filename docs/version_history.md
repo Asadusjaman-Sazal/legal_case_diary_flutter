@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.700 - Notes and to-dos open read-only, with an Edit button beside Delete that the tick replaces when editing; new notes still open editable.
+Version: 0.0.701 - Subscription moved to its own Settings page directly under Firm, with Account & Profile now Profile and Account; the checkout stack, search breadcrumbs and both Settings mockups were rerouted.
 --------------------------------------
 
 ## Version History Log:
@@ -714,3 +714,4 @@ Version: 0.0.697 - On Settings > Notifications, Automated Notification and Defau
 Version: 0.0.698 - A chamber associate's Account & Profile plan row, subtitle and page now read Firm Plan, and the Manage Subscription note is justified; owners and individuals keep Manage Plan.
 Version: 0.0.699 - On the Firm Plan page, a chamber associate's summary card now names the chamber's actual plan (Firm, Firm Plus, Enterprise) instead of the generic Premium; other surfaces are unchanged.
 Version: 0.0.700 - Notes and to-dos open read-only, with an Edit button beside Delete that the tick replaces when editing; new notes still open editable.
+Version: 0.0.701 - Subscription moved to its own Settings page directly under Firm, with Account & Profile now Profile and Account; the checkout stack, search breadcrumbs and both Settings mockups were rerouted.

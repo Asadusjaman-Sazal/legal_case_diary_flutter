@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — Subscription gets its own Settings page — COMPLETE (0.0.701)
+
+- **What was asked.** Move the subscription sub-menus onto a **Subscription** entry in the main Settings page, directly under **Firm**, and reroute the screens, options and buttons that used the old location.
+- **What changed.** A new `/settings/subscription` page (`subscription_menu_screen.dart`) holds the three rows that were Account & Profile's Subscription section: **Manage Plan** (or **Firm Plan** with its subtitle for a chamber member), **Subscription Plans**, and **Subscription History** (hidden for a member) — the same visibility rules as before, titled with the existing *Subscription* copy. The main Settings General list gains that **Subscription** row under Firm; Account & Profile is now Profile and Account only.
+- **Reroutes.** The checkout's post-submit stack rebuilds landing → Settings → **Subscription** → History (it used Account & Profile), so Back from History reaches Subscription, then Settings, then the landing page. The Settings search breadcrumbs read Settings › Subscription › …, and the new row is indexed. The drawer's Current Plan children still open the plan and the plans directly.
+- **Checks.** `flutter analyze` clean; new `subscription_menu_screen_test.dart` (3 cases) and the trimmed `accounts_profile_menu_test.dart` pass, as do the updated search-index and checkout suites; full `flutter test` **2,179 passed**.
+- **Mockups.** The Settings main mockup gains the Subscription row; the Account & Profile mockup loses its Subscription section (rule 9).
+
 ### 2026-10-28 — Notes open read-only, with Edit beside Delete — COMPLETE (0.0.700)
 
 - **What was asked.** In Notes, open notes and to-dos in view/read-only mode instead of editing directly; add an **Edit** button to the right of Delete, replaced by the existing tick when editing, which saves as it does now.

@@ -181,7 +181,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     // A router that mirrors the app's nesting: the shell holds the landing,
-    // Settings and Account & Profile pages, while Subscription History is a
+    // Settings and Subscription pages, while Subscription History is a
     // top-level route, exactly as it is in `app_router.dart`.
     Widget page(String label) => Scaffold(
       appBar: AppBar(leading: const BackButton()),
@@ -202,8 +202,8 @@ void main() {
               builder: (context, state) => page('Settings-Page'),
             ),
             GoRoute(
-              path: AppRoutes.settingsAccountProfile,
-              builder: (context, state) => page('Account-Profile-Page'),
+              path: AppRoutes.settingsSubscription,
+              builder: (context, state) => page('Subscription-Page'),
             ),
           ],
         ),
@@ -251,13 +251,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Reach the checkout from Account & Profile, the app's normal purchase
-    // path, so the pages it now has to replace are really in the stack.
+    // Reach the checkout from Subscription — the Settings entry that now
+    // holds the purchase path — so the pages it has to replace are really in
+    // the stack.
     router.push(AppRoutes.settings);
-    router.push(AppRoutes.settingsAccountProfile);
+    router.push(AppRoutes.settingsSubscription);
     router.push(AppRoutes.checkout);
     await tester.pumpAndSettle();
-    expect(find.text('Account-Profile-Page'), findsNothing);
+    expect(find.text('Subscription-Page'), findsNothing);
 
     await tester.enterText(
       find.byKey(const ValueKey('checkout-phone')),
@@ -278,10 +279,10 @@ void main() {
     );
     expect(container.read(paymentApprovalWatchProvider), greaterThan(0));
 
-    // Back from History reaches Account & Profile, never the completed checkout.
+    // Back from History reaches Subscription, never the completed checkout.
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    expect(find.text('Account-Profile-Page'), findsOneWidget);
+    expect(find.text('Subscription-Page'), findsOneWidget);
     expect(find.text('History-Landed'), findsNothing);
 
     await tester.tap(find.byType(BackButton));

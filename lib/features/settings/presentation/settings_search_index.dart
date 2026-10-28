@@ -140,25 +140,30 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
         account,
       ], keywords: const ['phone']),
 
-    // Subscription
+    // Subscription — its own Settings entry, directly under Firm (0.0.701).
+    e(
+      l.settingsSubscription_title,
+      Icons.workspace_premium_outlined,
+      AppRoutes.settingsSubscription,
+      [settings],
+    ),
     e(
       l.settingsSubscription_managePlanTitle,
       Icons.star_outline,
       AppRoutes.settingsSubscriptionDetails,
-      [settings, account, subscription],
+      [settings, subscription],
       keywords: const ['billing'],
     ),
     e(
       l.settingsManageAccount_purchaseNewSubscription,
       Icons.add_shopping_cart_outlined,
       AppRoutes.paywall,
-      [settings, account, subscription],
+      [settings, subscription],
       keywords: const ['buy plan', 'upgrade'],
     ),
     if (!firmMember)
       e(l.payments_historyTitle, Icons.history, AppRoutes.settingsSubscriptionHistory, [
         settings,
-        account,
         subscription,
       ]),
     // Firm is its own Settings entry, offered to every account.
@@ -175,7 +180,6 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
     if (premium && !firmMember) ...[
       e(l.settingsSubscription_renewSubscription, Icons.autorenew, AppRoutes.paywall, [
         settings,
-        account,
         subscription,
         managePlan,
       ]),
@@ -183,7 +187,7 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
         l.settingsSubscription_cancelSubscription,
         Icons.cancel_outlined,
         AppRoutes.settingsSubscriptionDetails,
-        [settings, account, subscription, managePlan],
+        [settings, subscription, managePlan],
         keywords: const ['cancel plan'],
       ),
     ],

@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -335,6 +336,15 @@ void main() {
       expect(style.minimumSize!.resolve(<WidgetState>{}), const Size(112, 48));
       expect(style.textStyle!.resolve(<WidgetState>{})!.fontSize, 16);
     }
+    // Send is red with white text (user request).
+    expect(
+      sendButton.style?.backgroundColor?.resolve(const <WidgetState>{}),
+      AppColors.error,
+    );
+    expect(
+      sendButton.style?.foregroundColor?.resolve(const <WidgetState>{}),
+      AppColors.onError,
+    );
     // Both actions are the same height, one Cancel and one Send.
     expect(
       tester

@@ -241,7 +241,9 @@ Future<bool> _confirmRequest(BuildContext context, AppLocalizations l) async {
       ),
       AppDialogAction(
         label: l.deleteRequest_confirmSend,
-        kind: AppDialogActionKind.primary,
+        // Red with white text (user request): the request hands the record to
+        // a reviewer to destroy, so the step wears the destructive colour.
+        kind: AppDialogActionKind.destructive,
         onPressed: () => Navigator.of(dialogContext).pop(true),
       ),
     ],

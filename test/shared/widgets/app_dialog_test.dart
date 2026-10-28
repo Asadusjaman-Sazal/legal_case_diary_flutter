@@ -1,6 +1,6 @@
 /// The shared pop-over frame and its adaptive action row.
 ///
-/// Pins the standard corner (8 px), the elastic 280–420 px width, the 85 %
+/// Pins the standard corner (8 px), the elastic 294–420 px width, the 85 %
 /// height cap, the 112 x 48 / 16 pt actions with a 12 px gap, and the pair
 /// rule: one centred line while both fit, two full-width buttons when they do
 /// not. The same actions and handlers are the caller's.
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/theme/app_dialog_metrics.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/shared/widgets/app_dialog.dart';
 import 'package:legal_case_diary/shared/widgets/app_dialog_actions.dart';
@@ -100,7 +101,7 @@ void main() {
     ),
   ];
 
-  testWidgets('the frame is 8 px, elastic 280-420, with standard actions', (
+  testWidgets('the frame is 8 px, elastic 294-420, with standard actions', (
     tester,
   ) async {
     await pumpHost(
@@ -117,7 +118,7 @@ void main() {
     expect(corner.topLeft.x, 8);
 
     final width = tester.getSize(_card()).width;
-    expect(width, greaterThanOrEqualTo(280));
+    expect(width, greaterThanOrEqualTo(294));
     expect(width, lessThanOrEqualTo(420));
 
     // Cancel and Exit fit a 412 px phone: one centred line, 12 px apart.
@@ -135,37 +136,54 @@ void main() {
     expect(style.textStyle!.resolve(<WidgetState>{})!.fontSize, 16);
   });
 
-  testWidgets('on a narrow phone the pair becomes two full-width buttons', (
+  testWidgets('at 360 px the margins narrow so the pair shares one line', (
     tester,
   ) async {
-    for (final width in [320.0, 360.0]) {
-      await pumpHost(
-        tester,
-        surface: Size(width, 800),
-        title: const Text('Exit App?'),
-        content: const Text('Do you want to exit Legal Case Diary?'),
-        actions: longPair,
-      );
+    await pumpHost(
+      tester,
+      surface: const Size(360, 800),
+      title: const Text('Exit App?'),
+      content: const Text('Do you want to exit Legal Case Diary?'),
+      actions: longPair,
+    );
 
-      final cancel = find.widgetWithText(TextButton, 'Cancel');
-      final exit = find.widgetWithText(TextButton, 'Exit');
-      expect(
-        tester.getRect(exit).top,
-        greaterThan(tester.getRect(cancel).top),
-        reason: '$width px',
-      );
-      expect(
-        tester.getSize(cancel).width,
-        closeTo(tester.getSize(exit).width, 0.5),
-        reason: '$width px',
-      );
-      expect(
-        tester.getSize(cancel).width,
-        closeTo(tester.getSize(_card()).width - 48, 0.5),
-        reason: '$width px',
-      );
-      await tester.pumpWidget(const SizedBox.shrink());
-    }
+    final cancel = find.widgetWithText(TextButton, 'Cancel');
+    final exit = find.widgetWithText(TextButton, 'Exit');
+    expect(tester.getRect(exit).top, closeTo(tester.getRect(cancel).top, 0.5));
+    expect(
+      tester.getRect(exit).left - tester.getRect(cancel).right,
+      closeTo(12, 0.5),
+    );
+    // The 40 px margins would leave a 280 px window; they narrow just enough.
+    final left = tester.getRect(_card()).left;
+    expect(left, lessThan(40));
+    expect(left, greaterThanOrEqualTo(AppDialogMetrics.minInset));
+  });
+
+  testWidgets('a pair still too wide at 320 px keeps the margins and stacks', (
+    tester,
+  ) async {
+    await pumpHost(
+      tester,
+      surface: const Size(320, 800),
+      title: const Text('Exit App?'),
+      content: const Text('Do you want to exit Legal Case Diary?'),
+      actions: longPair,
+    );
+
+    final cancel = find.widgetWithText(TextButton, 'Cancel');
+    final exit = find.widgetWithText(TextButton, 'Exit');
+    expect(tester.getRect(exit).top, greaterThan(tester.getRect(cancel).top));
+    expect(
+      tester.getSize(cancel).width,
+      closeTo(tester.getSize(exit).width, 0.5),
+    );
+    expect(
+      tester.getSize(cancel).width,
+      closeTo(tester.getSize(_card()).width - 48, 0.5),
+    );
+    // Narrowing could not have made it fit, so the standard margin stays.
+    expect(tester.getRect(_card()).left, closeTo(40, 0.5));
   });
 
   testWidgets('a long title grows the window no wider than 420', (

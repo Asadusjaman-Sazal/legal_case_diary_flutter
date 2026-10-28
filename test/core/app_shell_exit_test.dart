@@ -313,9 +313,8 @@ void main() {
     });
   });
 
-  testWidgets('the exit pair stacks full width on a narrow phone', (
-    tester,
-  ) async {
+  testWidgets('the exit pair fits on one line at 360 px after the margins '
+      'narrow', (tester) async {
     await withScreens(tester, () async {
       await tester.binding.setSurfaceSize(const Size(360, 700));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -326,10 +325,10 @@ void main() {
 
       final cancel = tester.getRect(find.widgetWithText(TextButton, 'Cancel'));
       final exit = tester.getRect(find.widgetWithText(TextButton, 'Exit'));
-      // The shared pair rule: no room for one line, so both go full width.
-      expect(exit.top, greaterThan(cancel.top));
-      expect(exit.width, closeTo(cancel.width, 0.5));
-      expect(cancel.width, greaterThan(200));
+      // The standard 40 px margins left the pair 4 px short, so the window
+      // narrows them instead of stacking two full-width buttons.
+      expect(exit.top, closeTo(cancel.top, 0.5));
+      expect(exit.left - cancel.right, closeTo(12, 0.5));
 
       await tester.tap(find.text('Cancel'));
       await settle(tester);

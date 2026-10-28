@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.708 - Wave 4 of the pop-over standard: the bespoke windows take the shared corner and width, the admin reject windows move to 112x48 actions, and the duplicated size constants are deleted.
+Version: 0.0.710 - The shared window now narrows its side margins, never below 16px, when that is what lets a pair of buttons share one line; the 40px default and stacked pairs stay otherwise.
 --------------------------------------
 
 ## Version History Log:
@@ -722,3 +722,5 @@ Version: 0.0.705 - Wave 1 of the pop-over standard: the Exit App, Withdraw and s
 Version: 0.0.706 - Wave 2 of the pop-over standard: the auth/account and settings/cases/sync confirmation windows now share the 8 px frame, the 112x48 actions and the adaptive full-width pair.
 Version: 0.0.707 - Wave 3 of the pop-over standard: Invite Code, Join a Firm, the firm rename, passphrase, edit name, change-email password and the Disposed help windows now share the elastic frame and action area.
 Version: 0.0.708 - Wave 4 of the pop-over standard: the bespoke windows take the shared corner and width, the admin reject windows move to 112x48 actions, and the duplicated size constants are deleted.
+Version: 0.0.709 - The shared pop-over frame's base width is 5% wider, from 280 to 294 logical px; the 420 px cap and every window's own insets are unchanged.
+Version: 0.0.710 - The shared window now narrows its side margins, never below 16px, when that is what lets a pair of buttons share one line; the 40px default and stacked pairs stay otherwise.

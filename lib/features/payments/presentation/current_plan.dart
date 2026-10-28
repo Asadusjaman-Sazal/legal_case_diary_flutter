@@ -45,8 +45,9 @@ typedef CurrentPlan = ({bool known, bool premium, String? planKey});
 ///   different tier is queued until the current period ends. It is deliberately
 ///   absent for a chamber **member** (Phase 9): a plan they bought before
 ///   joining is ignored while they hold the chamber, so naming it here would
-///   tell them a plan is running that is not. *Premium* is the word for that
-///   case rather than a repeated tier name. The owner is not a member and keeps
+///   tell them a plan is running that is not. *Premium* is the generic word for
+///   that case; the Firm Plan page names the chamber's own tier instead
+///   (`firmPlanName`, 0.0.699). The owner is not a member and keeps
 ///   naming the plan they bought, because that purchase is the chamber's
 ///   renewal. **Offline**, the ledger cannot name a plan at all, so the key this
 ///   device last saw running stands in ([runningPlanCacheProvider]) — used only
@@ -147,10 +148,15 @@ final subscriptionCancelledAtProvider = Provider<DateTime?>((ref) {
 /// the **Limited Access** tag beside it instead (it read *— Lapsed* before the
 /// user asked for plainer words). [tier] is optional so a caller without a tier
 /// (a test, a surface with no tier yet) keeps the old answer.
+///
+/// [firmPlanName] names the chamber's own tier for a member whose ledger cannot
+/// name a plan (user request, 0.0.699): the Firm Plan page asks for it, while
+/// the side menu keeps its *Premium* wording.
 String currentPlanLabel(
   AppLocalizations l,
   CurrentPlan plan, {
   SubscriptionTier? tier,
+  bool firmPlanName = false,
 }) {
   if (!plan.known) return '—';
   if (!plan.premium) {
@@ -161,6 +167,12 @@ String currentPlanLabel(
     return l.settingsManageAccount_planFree;
   }
   final key = plan.planKey;
+  if (key == null &&
+      firmPlanName &&
+      tier != null &&
+      tier != SubscriptionTier.free) {
+    return subscriptionTierLabel(l, tier);
+  }
   return key == null
       ? l.settingsManageAccount_planPremium
       : paymentPlanLabel(l, key);
@@ -187,6 +199,7 @@ class CurrentPlanLabel extends ConsumerWidget {
     this.maxLines = 1,
     this.showTag = true,
     this.tagGap = ' ',
+    this.firmPlanName = false,
   });
 
   /// The style the caller's surface gives the plan's name.
@@ -209,6 +222,12 @@ class CurrentPlanLabel extends ConsumerWidget {
   /// beside the name rather than a suffix (user request).
   final String tagGap;
 
+  /// Whether a member's label names the chamber's tier instead of *Premium*.
+  ///
+  /// Off by default: the side menu keeps its *Premium* wording. The Firm Plan
+  /// page turns it on (user request, 0.0.699).
+  final bool firmPlanName;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
@@ -219,7 +238,7 @@ class CurrentPlanLabel extends ConsumerWidget {
         showTag && plan.known && !plan.premium && tier != SubscriptionTier.free;
     if (!limited) {
       return Text(
-        currentPlanLabel(l, plan, tier: tier),
+        currentPlanLabel(l, plan, tier: tier, firmPlanName: firmPlanName),
         style: base,
         textAlign: textAlign,
         maxLines: maxLines,

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.697 - On Settings > Notifications, Automated Notification and Default Notification Status now default to on for accounts that never chose; saved values, including old-build off, are kept.
+Version: 0.0.699 - On the Firm Plan page, a chamber associate's summary card now names the chamber's actual plan (Firm, Firm Plus, Enterprise) instead of the generic Premium; other surfaces are unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -711,3 +711,5 @@ Version: 0.0.694 - The Withdraw This Deletion Request? window stacks Cancel and 
 Version: 0.0.695 - The Reject Deletion Request? window now takes the Exit App window's 8 px corner and 112 x 48 / 16 pt buttons, on the review screen and the queue's quick Reject; Approve is unchanged.
 Version: 0.0.696 - The Daily Cause List's Today/Tomorrow bar now steps only its own text down (-1 to -3, like Font Size) on phones where it would overflow, and ellipsizes the date if -3 still cannot fit.
 Version: 0.0.697 - On Settings > Notifications, Automated Notification and Default Notification Status now default to on for accounts that never chose; saved values, including old-build off, are kept.
+Version: 0.0.698 - A chamber associate's Account & Profile plan row, subtitle and page now read Firm Plan, and the Manage Subscription note is justified; owners and individuals keep Manage Plan.
+Version: 0.0.699 - On the Firm Plan page, a chamber associate's summary card now names the chamber's actual plan (Firm, Firm Plus, Enterprise) instead of the generic Premium; other surfaces are unchanged.

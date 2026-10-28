@@ -3712,6 +3712,12 @@ abstract class AppLocalizations {
   /// **'Your plan, expiry, and cancellation'**
   String get settingsAccountProfile_managePlanSubtitle;
 
+  /// No description provided for @settingsAccountProfile_firmPlanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your firm\'s plan, usage, and expiry'**
+  String get settingsAccountProfile_firmPlanSubtitle;
+
   /// No description provided for @settingsAccountProfile_subscriptionPlansSubtitle.
   ///
   /// In en, this message translates to:
@@ -4263,6 +4269,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage Plan'**
   String get settingsSubscription_managePlanTitle;
+
+  /// No description provided for @settingsSubscription_firmPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Plan'**
+  String get settingsSubscription_firmPlanTitle;
 
   /// No description provided for @settingsSubscription_planUsage.
   ///

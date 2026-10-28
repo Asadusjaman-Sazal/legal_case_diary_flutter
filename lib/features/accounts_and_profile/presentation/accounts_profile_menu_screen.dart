@@ -99,8 +99,15 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
             icon: Icons.star_outline,
-            title: l.settingsSubscription_managePlanTitle,
-            subtitle: l.settingsAccountProfile_managePlanSubtitle,
+            // A chamber member reads the chamber's plan: the row and its page
+            // say Firm Plan for them, and keep Manage Plan for the account that
+            // owns its own (user request, 0.0.698).
+            title: isMember
+                ? l.settingsSubscription_firmPlanTitle
+                : l.settingsSubscription_managePlanTitle,
+            subtitle: isMember
+                ? l.settingsAccountProfile_firmPlanSubtitle
+                : l.settingsAccountProfile_managePlanSubtitle,
             onTap: () => context.push(AppRoutes.settingsSubscriptionDetails),
           ),
           const SizedBox(height: AppSpacing.sm),

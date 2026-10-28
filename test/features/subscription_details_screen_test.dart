@@ -271,6 +271,7 @@ void main() {
         id: const Value('firm-1'),
         name: const Value('Rahman & Associates'),
         ownerId: const Value('user-2'),
+        tier: const Value('firm'),
         subscriptionStatus: const Value('active'),
         subscriptionExpiry: Value(
           DateTime.utc(2026, 12, 1, 17, 30).millisecondsSinceEpoch,
@@ -381,9 +382,10 @@ void main() {
       );
 
       // The chamber's subscription is the one running (Phase 9): the member's
-      // own approved Starter row is ignored, so the plan reads Premium rather
-      // than naming a plan that is not in force on this account.
-      expect(find.text(l.settingsManageAccount_planPremium), findsWidgets);
+      // own approved Starter row is ignored, and the card names the chamber's
+      // own plan rather than the generic *Premium* (user request, 0.0.699).
+      expect(find.text(l.paywall_tierFirm), findsWidgets);
+      expect(find.text(l.settingsManageAccount_planPremium), findsNothing);
 
       // The expiry is the chamber's, not the member's own (01/06/2027).
       expect(find.text('01/12/2026, 11:30 PM'), findsOneWidget);
@@ -851,8 +853,21 @@ void main() {
     expect(find.text(l.settingsSubscription_usageRemaining('0')), findsOneWidget);
     expect(find.text(l.settingsSubscription_usageFirmNote), findsOneWidget);
 
-    // The owner buys for the chamber: the note replaces both actions.
+    // The chamber's plan is the one they read, so the page is named for it
+    // (user request, 0.0.698) and the card names the chamber's own tier rather
+    // than the generic *Premium* (0.0.699).
+    expect(find.text(l.settingsSubscription_firmPlanTitle), findsOneWidget);
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsNothing);
+    expect(find.text(l.paywall_tierFirm), findsWidgets);
+    expect(find.text(l.settingsManageAccount_planPremium), findsNothing);
+
+    // The owner buys for the chamber: the note replaces both actions, and it
+    // reads as a justified paragraph.
     expect(find.text(l.paywall_memberPlanBody), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text(l.paywall_memberPlanBody)).textAlign,
+      TextAlign.justify,
+    );
     expect(find.byKey(renewKey), findsNothing);
     expect(find.byKey(cancelKey), findsNothing);
 

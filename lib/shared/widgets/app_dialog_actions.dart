@@ -149,6 +149,7 @@ AppDialogActionPlan resolveAppDialogActionPlan({
       placement: widths.single <= room
           ? AppDialogActionPlacement.row
           : AppDialogActionPlacement.stacked,
+      requiredWidth: widths.single,
     );
   }
   if (actions.isEmpty) {
@@ -168,6 +169,7 @@ AppDialogActionPlan resolveAppDialogActionPlan({
   return AppDialogActionPlan(
     actions: actions,
     placement: AppDialogActionPlacement.stacked,
+    requiredWidth: rowWidth,
   );
 }
 

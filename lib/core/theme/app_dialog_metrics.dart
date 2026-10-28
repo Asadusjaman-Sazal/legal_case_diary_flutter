@@ -16,9 +16,15 @@ abstract final class AppDialogMetrics {
   /// The window's corner: the Exit App window's 8 px.
   static const double corner = AppSpacing.sheetRadius;
 
-  /// Width range: never narrower than 280, never wider than 420.
-  static const double minWidth = 280;
+  /// Width range: never narrower than 294 (the base width, 5 % above the old
+  /// 280), never wider than 420. Only a screen too narrow for 294 with its
+  /// insets clamps the window below the base.
+  static const double minWidth = 294;
   static const double maxWidth = 420;
+
+  /// The narrowest side margin the frame will shrink to when that is the only
+  /// thing keeping a pair off one line.
+  static const double minInset = AppSpacing.md;
 
   /// Content beyond 85 % of the available height scrolls.
   static const double maxHeightFactor = 0.85;

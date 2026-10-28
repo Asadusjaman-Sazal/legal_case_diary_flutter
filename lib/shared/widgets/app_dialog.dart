@@ -1,7 +1,7 @@
 /// The shared `AlertDialog` wrapper every confirmation window uses.
 ///
 /// It applies the standard frame from [AppDialogMetrics] — 8 px corner,
-/// 280–420 px elastic width, 85 % height cap with scrolling, centred 112 x 48
+/// 294–420 px elastic width, 85 % height cap with scrolling, centred 112 x 48
 /// actions — while keeping the caller's title, content and action handlers
 /// exactly as they were. The action plan is resolved in a `LayoutBuilder`
 /// **outside** the dialog: `AlertDialog` asks its subtree for intrinsic sizes,
@@ -124,47 +124,28 @@ class AppDialogFrame extends StatelessWidget {
     final actionsNow = actions(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final available = math.max(
-          1.0,
-          constraints.maxWidth - inset.horizontal,
-        );
-        final panelMax = math.min(available, AppDialogMetrics.maxWidth);
-        final plan = resolveAppDialogActionPlan(
-          actions: actionsNow,
-          roomWidth: math.max(
-            0.0,
-            panelMax - AppDialogMetrics.actionAreaPadding,
-          ),
-          textStyle: textStyle,
-          textScaler: textScaler,
-          textDirection: direction,
-          mode: actionMode,
-        );
-        final minPanel = plan.placement == AppDialogActionPlacement.row
-            ? math.min(
-                math.max(
-                  AppDialogMetrics.minWidth,
-                  plan.requiredWidth + AppDialogMetrics.actionAreaPadding,
-                ),
-                panelMax,
-              )
-            : math.min(AppDialogMetrics.minWidth, panelMax);
         // The route lays the window out with tight screen constraints, so the
         // 85 % cap has to ride inside AlertDialog's own constraint box.
-        final keyboard = MediaQuery.viewInsetsOf(context).bottom;
-        final availableHeight = math.max(
-          0.0,
-          constraints.maxHeight - inset.vertical - keyboard,
+        final resolved = _resolveFrame(
+          context: context,
+          constraints: constraints,
+          requestedInset: inset,
+          actions: actionsNow,
+          mode: actionMode,
+          textStyle: textStyle,
+          textScaler: textScaler,
+          direction: direction,
+          chrome: AppDialogMetrics.actionAreaPadding,
         );
         return AlertDialog(
           key: dialogKey,
           shape: shape ?? AppDialogMetrics.shape,
-          insetPadding: inset,
+          insetPadding: resolved.inset,
           scrollable: scrollable,
           constraints: BoxConstraints(
-            minWidth: minPanel,
-            maxWidth: panelMax,
-            maxHeight: availableHeight * AppDialogMetrics.maxHeightFactor,
+            minWidth: resolved.minPanel,
+            maxWidth: resolved.panelMax,
+            maxHeight: resolved.maxHeight,
           ),
           title: title,
           content: content,
@@ -173,12 +154,13 @@ class AppDialogFrame extends StatelessWidget {
           actionsPadding: actionsPadding,
           actionsAlignment: MainAxisAlignment.center,
           actions: [
-            if (plan.actions.isNotEmpty || actionsFooter != null)
+            if (resolved.plan.actions.isNotEmpty || actionsFooter != null)
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (plan.actions.isNotEmpty) AppDialogActions(plan: plan),
+                  if (resolved.plan.actions.isNotEmpty)
+                    AppDialogActions(plan: resolved.plan),
                   if (actionsFooter != null) Center(child: actionsFooter!),
                 ],
               ),
@@ -187,6 +169,117 @@ class AppDialogFrame extends StatelessWidget {
       },
     );
   }
+}
+
+/// One window's resolved geometry.
+class _ResolvedFrame {
+  const _ResolvedFrame({
+    required this.inset,
+    required this.panelMax,
+    required this.plan,
+    required this.minPanel,
+    required this.maxHeight,
+  });
+
+  final EdgeInsets inset;
+  final double panelMax;
+  final AppDialogActionPlan plan;
+  final double minPanel;
+  final double maxHeight;
+}
+
+/// Resolves the window's width, action layout and height cap.
+///
+/// A pair that would stack only because the default margins leave too little
+/// room gets one more chance: the side margins narrow — never below
+/// [AppDialogMetrics.minInset] — until the row fits. If even that cannot fit it,
+/// the window keeps its normal margins and the pair stacks.
+_ResolvedFrame _resolveFrame({
+  required BuildContext context,
+  required BoxConstraints constraints,
+  required EdgeInsets requestedInset,
+  required List<AppDialogAction> actions,
+  required AppDialogActionMode mode,
+  required TextStyle textStyle,
+  required TextScaler textScaler,
+  required TextDirection direction,
+  required double chrome,
+}) {
+  AppDialogActionPlan planFor(double panelMax) => resolveAppDialogActionPlan(
+    actions: actions,
+    roomWidth: math.max(0.0, panelMax - chrome),
+    textStyle: textStyle,
+    textScaler: textScaler,
+    textDirection: direction,
+    mode: mode,
+  );
+  double panelFor(EdgeInsets inset) => math.min(
+    math.max(1.0, constraints.maxWidth - inset.horizontal),
+    AppDialogMetrics.maxWidth,
+  );
+
+  var inset = requestedInset;
+  var panelMax = panelFor(inset);
+  var plan = planFor(panelMax);
+  final fitted = _fittedInset(
+    screenWidth: constraints.maxWidth,
+    inset: inset,
+    plan: plan,
+    mode: mode,
+    chrome: chrome,
+  );
+  if (fitted != inset) {
+    inset = fitted;
+    panelMax = panelFor(inset);
+    plan = planFor(panelMax);
+  }
+  final minPanel = plan.placement == AppDialogActionPlacement.row
+      ? math.min(
+          math.max(AppDialogMetrics.minWidth, plan.requiredWidth + chrome),
+          panelMax,
+        )
+      : math.min(AppDialogMetrics.minWidth, panelMax);
+  final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+  final availableHeight = math.max(
+    0.0,
+    constraints.maxHeight - inset.vertical - keyboard,
+  );
+  return _ResolvedFrame(
+    inset: inset,
+    panelMax: panelMax,
+    plan: plan,
+    minPanel: minPanel,
+    maxHeight: availableHeight * AppDialogMetrics.maxHeightFactor,
+  );
+}
+
+/// The margins a window should use so a pair can share one line.
+EdgeInsets _fittedInset({
+  required double screenWidth,
+  required EdgeInsets inset,
+  required AppDialogActionPlan plan,
+  required AppDialogActionMode mode,
+  required double chrome,
+}) {
+  if (mode != AppDialogActionMode.pair ||
+      plan.placement != AppDialogActionPlacement.stacked ||
+      plan.requiredWidth <= 0) {
+    return inset;
+  }
+  final wantedPanel = math.min(
+    plan.requiredWidth + chrome,
+    AppDialogMetrics.maxWidth,
+  );
+  final total = screenWidth - wantedPanel;
+  if (total < AppDialogMetrics.minInset * 2 || total >= inset.horizontal) {
+    return inset;
+  }
+  return EdgeInsets.only(
+    left: total / 2,
+    right: total / 2,
+    top: inset.top,
+    bottom: inset.bottom,
+  );
 }
 
 /// A two-action confirmation on the shared frame, returning the answer.
@@ -256,7 +349,7 @@ Future<void> showAppNoticeDialog(
 ///
 /// The caller supplies the whole body exactly as it was — title, fields, code
 /// box, notes — and the actions are drawn in the shared action area beneath it.
-/// The window is elastic between 280 and 420 px, capped at 85 % of the route's
+/// The window is elastic between 294 and 420 px, capped at 85 % of the route's
 /// available height, and the body scrolls beyond the cap.
 class AppContentDialogFrame extends StatelessWidget {
   /// Creates the frame around a caller's body and actions.
@@ -308,45 +401,28 @@ class AppContentDialogFrame extends StatelessWidget {
     final actionsNow = actions(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final available = math.max(
-          1.0,
-          constraints.maxWidth - inset.horizontal,
-        );
-        final panelMax = math.min(available, AppDialogMetrics.maxWidth);
-        final chrome = padding.horizontal;
-        final plan = resolveAppDialogActionPlan(
+        final resolved = _resolveFrame(
+          context: context,
+          constraints: constraints,
+          requestedInset: inset,
           actions: actionsNow,
-          roomWidth: math.max(0.0, panelMax - chrome),
+          mode: actionMode,
           textStyle: textStyle,
           textScaler: textScaler,
-          textDirection: direction,
-          mode: actionMode,
-        );
-        final minPanel = plan.placement == AppDialogActionPlacement.row
-            ? math.min(
-                math.max(
-                  AppDialogMetrics.minWidth,
-                  plan.requiredWidth + chrome,
-                ),
-                panelMax,
-              )
-            : math.min(AppDialogMetrics.minWidth, panelMax);
-        final keyboard = MediaQuery.viewInsetsOf(context).bottom;
-        final availableHeight = math.max(
-          0.0,
-          constraints.maxHeight - inset.vertical - keyboard,
+          direction: direction,
+          chrome: padding.horizontal,
         );
         return Dialog(
           key: dialogKey,
-          insetPadding: inset,
+          insetPadding: resolved.inset,
           backgroundColor: backgroundColor,
           clipBehavior: Clip.antiAlias,
           shape: shape ?? AppDialogMetrics.shape,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minWidth: minPanel,
-              maxWidth: panelMax,
-              maxHeight: availableHeight * AppDialogMetrics.maxHeightFactor,
+              minWidth: resolved.minPanel,
+              maxWidth: resolved.panelMax,
+              maxHeight: resolved.maxHeight,
             ),
             child: IntrinsicWidth(
               child: Padding(
@@ -356,9 +432,9 @@ class AppContentDialogFrame extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Flexible(child: SingleChildScrollView(child: body)),
-                    if (plan.actions.isNotEmpty) ...[
+                    if (resolved.plan.actions.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.md),
-                      AppDialogActions(plan: plan),
+                      AppDialogActions(plan: resolved.plan),
                     ],
                   ],
                 ),

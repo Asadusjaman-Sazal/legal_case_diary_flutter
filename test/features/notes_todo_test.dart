@@ -167,6 +167,12 @@ void main() {
       .widget<TextField>(find.byKey(ValueKey('todo-item-$index')))
       .style!;
 
+  /// Enters edit mode from an existing note's read-only view (0.0.700).
+  Future<void> enterEdit(WidgetTester tester) async {
+    await tester.tap(find.byKey(const ValueKey('note-edit')));
+    await settle(tester);
+  }
+
   group('note item codec', () {
     test('a note with no items decodes as a text note', () {
       expect(decodeNoteItems(null), isNull);
@@ -214,6 +220,7 @@ void main() {
         NoteItem(text: 'Three'),
       ]);
       await pumpEditor(tester, note: note);
+      await enterEdit(tester);
 
       await tester.tap(find.byKey(const ValueKey('todo-checkbox-0')));
       await settle(tester);
@@ -233,6 +240,7 @@ void main() {
         NoteItem(text: 'Three'),
       ]);
       await pumpEditor(tester, note: note);
+      await enterEdit(tester);
 
       await tester.tap(find.byKey(const ValueKey('todo-checkbox-1')));
       await settle(tester);
@@ -250,6 +258,68 @@ void main() {
       expect(rowText(tester, 1), 'Two');
       expect(rowText(tester, 2), 'Three');
       expect(rowStyle(tester, 1).decoration, isNull);
+      await unmount(tester);
+    });
+
+    testWidgets('an existing note opens read-only, and Edit stands where the '
+        'tick will', (tester) async {
+      final id = await notes.insertNote(
+        const NotesCompanion(
+          title: Value('Brief'),
+          body: Value('Draft it'),
+        ),
+      );
+      final note = (await notes.getById(id))!;
+      await pumpEditor(tester, note: note);
+
+      // Reading first: no Save, and Edit where the tick will appear
+      // (user request, 0.0.700).
+      expect(find.byKey(const ValueKey('note-save')), findsNothing);
+      expect(find.byKey(const ValueKey('note-edit')), findsOneWidget);
+      for (final field in tester.widgetList<TextField>(find.byType(TextField))) {
+        expect(field.readOnly, isTrue);
+      }
+
+      await enterEdit(tester);
+      expect(find.byKey(const ValueKey('note-edit')), findsNothing);
+      expect(find.byKey(const ValueKey('note-save')), findsOneWidget);
+      for (final field in tester.widgetList<TextField>(find.byType(TextField))) {
+        expect(field.readOnly, isFalse);
+      }
+
+      await tester.enterText(find.byType(TextField).last, 'Draft it today');
+      await tester.tap(find.byKey(const ValueKey('note-save')));
+      await settle(tester);
+      expect((await notes.getById(id))!.body, 'Draft it today');
+      await unmount(tester);
+    });
+
+    testWidgets('a read-only to-do offers no add or remove, and ticks nothing', (
+      tester,
+    ) async {
+      final note = await seedTodo(const [
+        NoteItem(text: 'One'),
+        NoteItem(text: 'Two'),
+      ]);
+      await pumpEditor(tester, note: note);
+
+      expect(find.byKey(const ValueKey('todo-add-item')), findsNothing);
+      expect(find.byKey(const ValueKey('todo-remove-0')), findsNothing);
+
+      // The tick is inert while reading: no reorder, no strike-through. The tap
+      // is deliberately aimed at a control that ignores it.
+      await tester.tap(
+        find.byKey(const ValueKey('todo-checkbox-0')),
+        warnIfMissed: false,
+      );
+      await settle(tester);
+      expect(rowText(tester, 0), 'One');
+      expect(rowStyle(tester, 0).decoration, isNull);
+
+      // Edit brings the list's own controls back.
+      await enterEdit(tester);
+      expect(find.byKey(const ValueKey('todo-add-item')), findsOneWidget);
+      expect(find.byKey(const ValueKey('todo-remove-0')), findsOneWidget);
       await unmount(tester);
     });
 

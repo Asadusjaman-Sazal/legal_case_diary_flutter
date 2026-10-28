@@ -249,7 +249,11 @@
 <!-- The note editor, text-note form: the top bar (back, Drafting… while new,
      Pin, Delete, Save), the untitled title over a hairline rule, the plain
      body, and the modified date in the bottom toolbar. It is a pushed
-     full-screen route, not a sheet. -->
+     full-screen route, not a sheet.
+     0.0.700: this drawing is a **new** note, which still opens editable. An
+     existing note opens read-only in the same frame: its top bar carries an
+     **edit** symbol where **Save** stands below, its fields and checklist are
+     inert until that symbol is tapped, and the tick then replaces it. -->
 <div class="hidden fixed inset-0 z-[100] bg-surface-container-lowest">
   <div class="h-full flex flex-col">
     <div class="px-md py-sm border-b border-outline-variant flex items-center">

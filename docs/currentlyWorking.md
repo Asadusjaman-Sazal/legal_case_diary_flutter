@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-28 — Notes open read-only, with Edit beside Delete — COMPLETE (0.0.700)
+
+- **What was asked.** In Notes, open notes and to-dos in view/read-only mode instead of editing directly; add an **Edit** button to the right of Delete, replaced by the existing tick when editing, which saves as it does now.
+- **What changed.** An existing note or to-do opens read-only: fields are not editable and show no input hints, a to-do's ticks do nothing, and its Add Item and remove controls are not drawn. The top bar carries **Edit** to the right of **Delete**; tapping it (after the existing *requested for deletion* warning, which moved from opening the page to this action) makes the note editable, and the tick then replaces Edit and saves and closes exactly as before. Back saves only while editing; in view mode it just closes. New notes still open editable, since they have to be typed.
+- **Checks.** `flutter analyze` clean; `notes_todo_test.dart` **17 passed** with two new cases (the read-only → Edit → tick swap and an edit that saves; a read-only to-do with inert ticks and no add/remove) and the two tick-order cases entering edit first; full `flutter test` **2,180 passed**.
+- **Mockup.** The Notes mockup draws the new-note state and carries a note about the read-only state (rule 9).
+
 ### 2026-10-28 — A chamber member's card names the firm plan — COMPLETE (0.0.699)
 
 - **What was asked.** In Account & Profile for an associate in a chamber, show the actual firm plan name instead of the generic **Premium**.

@@ -57,6 +57,10 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
   /// True while a bundle is being written, so Export cannot be tapped twice.
   bool _exporting = false;
 
+  /// True while a *Sync Now* press is draining, so its button spins and cannot
+  /// be pressed twice before the run reports back.
+  bool _syncing = false;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -73,7 +77,9 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
         const <String, SyncEntrySubject>{};
 
     return SettingsSubPageModal(
-      title: l.syncStatus_title,
+      // The screen is the queue of work still waiting, so it is named for that
+      // (user request); the header badge elsewhere keeps the older tooltip.
+      title: l.settingsOnlineSync_pendingSyncTitle,
       subtitle: l.syncStatus_subtitle,
       actions: [
         IconButton(
@@ -109,14 +115,15 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
                       final row = visible[index];
                       return _QueueEntryCard(
                         row: row,
-                        subject: subjects[syncSubjectKey(
-                          row.entityType,
-                          row.entityId,
-                        )],
+                        subject:
+                            subjects[syncSubjectKey(
+                              row.entityType,
+                              row.entityId,
+                            )],
                         l: l,
                         onRetry: () => _retry(row),
-                        onSyncNow: () =>
-                            ref.read(syncServiceProvider).requestSync(),
+                        onSyncNow: _syncNow,
+                        syncing: _syncing,
                         onDiscard: () => _discard(row),
                         onReview: () => _review(row),
                       );
@@ -126,6 +133,29 @@ class _SyncStatusScreenState extends ConsumerState<SyncStatusScreen> {
         ],
       ),
     );
+  }
+
+  /// Sync Now: run one forced drain and report what the engine says afterwards.
+  ///
+  /// The same two sentences the Online Sync screen's own button uses, read from
+  /// the engine rather than assumed: `syncNow` returns silently when a guard
+  /// refuses it, and a failure surfaces as a failure count, not an exception.
+  Future<void> _syncNow() async {
+    if (_syncing) return;
+    final l = AppLocalizations.of(context);
+    setState(() => _syncing = true);
+    try {
+      await ref.read(syncServiceProvider).syncNow(force: true, pull: true);
+      if (!mounted) return;
+      final failed = ref.read(syncHealthProvider).value?.consecutiveFailures;
+      _say(
+        failed != null && failed > 0
+            ? l.settingsOnlineSync_syncFailed
+            : l.settingsOnlineSync_syncFinished,
+      );
+    } finally {
+      if (mounted) setState(() => _syncing = false);
+    }
   }
 
   /// Retry: make a blocked entry eligible again and say so.
@@ -469,6 +499,7 @@ class _QueueEntryCard extends StatelessWidget {
     required this.l,
     required this.onRetry,
     required this.onSyncNow,
+    required this.syncing,
     required this.onDiscard,
     required this.onReview,
   });
@@ -481,6 +512,10 @@ class _QueueEntryCard extends StatelessWidget {
   final AppLocalizations l;
   final VoidCallback onRetry;
   final VoidCallback onSyncNow;
+
+  /// True while the screen's forced run is in flight.
+  final bool syncing;
+
   final VoidCallback onDiscard;
   final VoidCallback onReview;
 
@@ -530,8 +565,7 @@ class _QueueEntryCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(identity, style: AppTypography.caseNumber),
           ],
-          if (courtLine != null)
-            Text(courtLine, style: AppTypography.bodySm),
+          if (courtLine != null) Text(courtLine, style: AppTypography.bodySm),
           const SizedBox(height: AppSpacing.xs),
           Text(
             '${l.syncStatus_queued(syncStatusRelativeTime(l, row.createdAt))}'
@@ -571,22 +605,13 @@ class _QueueEntryCard extends StatelessWidget {
             children: [
               ..._inlineActions(),
               const Spacer(),
-              PopupMenuButton<_EntryAction>(
-                key: const ValueKey('sync-status-entry-menu'),
-                tooltip: l.syncStatus_moreActions,
-                icon: const Icon(
-                  Icons.more_horiz,
-                  color: AppColors.onSurfaceVariant,
-                ),
-                onSelected: (action) {
-                  if (action == _EntryAction.discard) onDiscard();
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<_EntryAction>(
-                    value: _EntryAction.discard,
-                    child: Text(l.syncStatus_discard),
-                  ),
-                ],
+              // A button rather than a menu row (user request): it now sits
+              // beside the state's own action and wears the app's black button
+              // style — the same size, background and ink as *Sync Now*.
+              TextButton(
+                key: const ValueKey('sync-status-entry-discard'),
+                onPressed: onDiscard,
+                child: Text(l.syncStatus_discard),
               ),
             ],
           ),
@@ -595,8 +620,8 @@ class _QueueEntryCard extends StatelessWidget {
     );
   }
 
-  /// The action that matches the row's state; Discard stays in the menu
-  /// because it is the one that throws work away.
+  /// The action that matches the row's state. Discard sits beside it in the
+  /// card's own row, so it is a button whatever the state is.
   List<Widget> _inlineActions() => switch (row.state) {
     'blocked' => [
       TextButton(onPressed: onRetry, child: Text(l.syncStatus_retry)),
@@ -605,9 +630,24 @@ class _QueueEntryCard extends StatelessWidget {
       TextButton(onPressed: onReview, child: Text(l.syncStatus_reviewConflict)),
     ],
     'pending' || 'pushing' => [
+      // The loading icon the Online Sync button shows: the button greys out and
+      // spins until the run reports back, then the toast says how it ended.
       TextButton(
-        onPressed: onSyncNow,
-        child: Text(l.settingsOnlineSync_syncNow),
+        onPressed: syncing ? null : onSyncNow,
+        child: syncing
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(l.settingsOnlineSync_syncing),
+                ],
+              )
+            : Text(l.settingsOnlineSync_syncNow),
       ),
     ],
     _ => const <Widget>[],
@@ -715,9 +755,6 @@ class _BlockedWhyBlock extends StatelessWidget {
     );
   }
 }
-
-/// The entries the overflow menu offers.
-enum _EntryAction { discard }
 
 /// The state pill: colour says how bad it is, the label says what it is.
 class _StatePill extends StatelessWidget {

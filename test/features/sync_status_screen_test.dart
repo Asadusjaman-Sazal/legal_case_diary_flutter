@@ -7,12 +7,14 @@
 /// content without an explicit consent step.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,8 +24,24 @@ import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/sync/presentation/sync_status_screen.dart';
 import 'package:legal_case_diary/sync/push_worker.dart';
+import 'package:legal_case_diary/sync/sync_service.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
+
+/// A sync engine that holds one run open, so the button's loading state can be
+/// seen before the run reports back.
+class _HeldSyncService extends SyncService {
+  _HeldSyncService(super._ref);
+
+  final Completer<void> run = Completer<void>();
+  int runs = 0;
+
+  @override
+  Future<void> syncNow({bool force = false, bool pull = false}) {
+    runs++;
+    return run.future;
+  }
+}
 
 /// A complete `notes` row, for the pre-mutation snapshot Discard restores.
 Map<String, dynamic> _note({String title = 'Base Title'}) => <String, dynamic>{
@@ -165,13 +183,17 @@ void main() {
         ),
       );
 
-  Future<void> pumpApp(WidgetTester tester) async {
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    List<Override> overrides = const <Override>[],
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           databaseProvider.overrideWith((_) async => db),
+          ...overrides,
         ],
         child: MaterialApp.router(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -207,7 +229,7 @@ void main() {
     await withApp(tester, () async {
       await pumpApp(tester);
 
-      expect(find.text('Sync Status'), findsOneWidget);
+      expect(find.text('Pending Sync'), findsOneWidget);
       expect(find.text('Nothing Is Waiting To Sync'), findsOneWidget);
       // The chips are still there, at zero, so the screen reads as empty.
       expect(find.text('All 0'), findsOneWidget);
@@ -378,22 +400,65 @@ void main() {
     await withApp(tester, () async {
       await pumpApp(tester);
 
-      // Discard lives behind the overflow menu.
-      await tester.tap(find.byKey(const ValueKey('sync-status-entry-menu')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Discard').last);
+      // Discard is a button on the card, beside the row's own action.
+      await tester.tap(find.byKey(const ValueKey('sync-status-entry-discard')));
       await tester.pumpAndSettle();
 
       // A confirmation, because it throws queued work away.
       expect(find.text('Discard This Change?'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(TextButton, 'Discard'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.widgetWithText(TextButton, 'Discard'),
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 50));
       await tester.pumpAndSettle();
 
       expect(await db.select(db.syncQueue).get(), isEmpty);
       // No Supabase client in a test, so Discard took the snapshot path.
       expect((await db.select(db.notes).get()).single.title, 'Base Title');
+    });
+  });
+
+  testWidgets('Sync Now spins until the run ends, then says how it ended', (
+    tester,
+  ) async {
+    await insertQueue(state: 'pending');
+    late _HeldSyncService sync;
+
+    await withApp(tester, () async {
+      await pumpApp(
+        tester,
+        overrides: [
+          syncServiceProvider.overrideWith((ref) {
+            sync = _HeldSyncService(ref);
+            return sync;
+          }),
+        ],
+      );
+
+      await tester.tap(find.text('Sync Now'));
+      await tester.pump();
+
+      // The same loading icon the Online Sync button shows: the button is
+      // disabled and spinning until the run reports back.
+      expect(sync.runs, 1);
+      expect(find.text('Syncing…'), findsOneWidget);
+      expect(
+        tester
+            .widget<TextButton>(find.widgetWithText(TextButton, 'Syncing…'))
+            .onPressed,
+        isNull,
+      );
+
+      sync.run.complete();
+      await tester.pumpAndSettle();
+
+      // And the outcome is the engine's, not the button's own claim.
+      expect(find.text('Sync Finished.'), findsOneWidget);
+      expect(find.text('Sync Now'), findsOneWidget);
     });
   });
 

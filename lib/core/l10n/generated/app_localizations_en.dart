@@ -677,7 +677,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sync_permissionsChanged =>
-      'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
+      'Your firm permissions changed; this pending action was not applied.';
 
   @override
   String get sync_clockSkewWarning =>
@@ -5066,7 +5066,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncNotice_permissionsChanged =>
-      'Your Firm Permissions Changed; This Pending Action Was Not Applied.';
+      'Your firm permissions changed; this pending action was not applied.';
 
   @override
   String get syncNotice_clockSkew =>
@@ -5199,14 +5199,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_approveBody =>
-      'The Record Will Be Deleted For Everyone In The Firm.';
+      'The record will be deleted for everyone in the firm.';
 
   @override
   String get deleteRequests_rejectTitle => 'Reject Deletion Request?';
 
   @override
   String get deleteRequests_rejectBody =>
-      'The Record Stays. The Requester Is Told Your Decision.';
+      'The record stays. The requester is told your decision.';
 
   @override
   String get deleteRequests_approved => 'Deletion Approved.';
@@ -5216,10 +5216,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_failed =>
-      'Could Not Complete The Review. Try Again.';
+      'Could not complete the review. Try again.';
 
   @override
-  String get deleteRequests_staleTitle => 'This Record Changed';
+  String get deleteRequests_staleTitle => 'This record changed';
 
   @override
   String get deleteRequests_staleBody =>
@@ -5293,7 +5293,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_withdrawBody =>
-      'The Record Will Not Be Deleted, And The Request Leaves The Reviewers\' Queue.';
+      'The record will not be deleted, and the request leaves the reviewers\' queue.';
 
   @override
   String get deleteRequests_withdrawn => 'Request Withdrawn.';

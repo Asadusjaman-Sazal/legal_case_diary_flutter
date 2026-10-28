@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.684 - Firm mode: a reviewer's rejection and a requester's own refresh or withdrawal of a delete request now reach the server instead of rolling back with a false permissions-changed notice.
+Version: 0.0.685 - Delete requests close themselves when their record is deleted, a reconfirm shows the current record, and editors warn before changing a requested record.
 --------------------------------------
 
 ## Version History Log:
@@ -698,3 +698,4 @@ Version: 0.0.681 - The deletion-request confirmation toast now reads Deletion re
 Version: 0.0.682 - The delete-request toast now reads Deletion request sent for approval., naming no role, since any member with delete permission may act.
 Version: 0.0.683 - Offline, the side menu and Manage Plan now name the plan the account holds: its key and tier are cached on the device instead of falling back to Premium.
 Version: 0.0.684 - Firm mode: a reviewer's rejection and a requester's own refresh or withdrawal of a delete request now reach the server instead of rolling back with a false permissions-changed notice.
+Version: 0.0.685 - Delete requests close themselves when their record is deleted, a reconfirm shows the current record, and editors warn before changing a requested record.

@@ -390,6 +390,22 @@ class PushWorker {
     final server = serverRow is Map
         ? serverRow.cast<String, dynamic>()
         : const <String, dynamic>{};
+
+    // A delete request answered underneath a decision that was staged offline:
+    // the record was deleted by someone else, so the request is `already_deleted`
+    // (or a colleague reviewed it first). The server has said what happened, and
+    // there is nothing for a person to choose - adopt the row and drop the queued
+    // decision rather than freezing it as a conflict.
+    if (item.row.entityType == 'delete_request' &&
+        server['status'] is String &&
+        server['status'] != 'pending' &&
+        server['status'] != 'stale_review_required') {
+      await syncBindingFor(item.row.entityType)!.applyServerRow(db, server);
+      await _applyReviewTarget(result);
+      await queue.resolve(item.row.id);
+      return false;
+    }
+
     final needsReview = await ConflictResolver(
       db: db,
       queue: queue,

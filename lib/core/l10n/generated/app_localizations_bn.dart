@@ -5126,6 +5126,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequest_failed => 'ডিলিট অনুরোধ পাঠানো যায়নি।';
 
   @override
+  String get deleteRequest_alreadyOpen =>
+      'এই রেকর্ডের জন্য একটি ডিলিট অনুরোধ ইতিমধ্যে খোলা আছে।';
+
+  @override
   String get deleteRequests_title => 'ডিলিট অনুরোধ';
 
   @override
@@ -5156,6 +5160,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_statusStale => 'পুনরায় নিশ্চিতকরণ প্রয়োজন';
+
+  @override
+  String get deleteRequests_statusAlreadyDeleted => 'ইতিমধ্যে মুছে ফেলা হয়েছে';
 
   @override
   String deleteRequests_requestedBy(String name) {
@@ -5238,7 +5245,31 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_staleBody =>
-      'অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। নিচের বিবরণ এখন যা আছে তা দেখায়; এই বর্তমান সংস্করণটি মুছতে পুনরায় নিশ্চিত করুন।';
+      'অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। এখন যে সংস্করণটি আছে তা মুছতে পুনরায় নিশ্চিত করুন।';
+
+  @override
+  String get deleteRequests_current => 'এখন যেমন আছে';
+
+  @override
+  String get deleteRequests_original => 'অনুরোধ করার সময় যেমন ছিল';
+
+  @override
+  String get deleteRequests_changed => 'পরিবর্তিত';
+
+  @override
+  String get deleteRequests_changedBody =>
+      'আপনার অনুরোধের পর থেকে এই রেকর্ডটি পরিবর্তিত হয়েছে। বর্তমান সংস্করণের জন্য এটি রিফ্রেশ করুন, অথবা প্রত্যাহার করুন।';
+
+  @override
+  String get deleteRequests_editWarnTitle => 'মুছে ফেলার অনুরোধ করা হয়েছে';
+
+  @override
+  String deleteRequests_editWarnBody(String name, String date) {
+    return '$name $date-এ এই রেকর্ডটি মুছে ফেলার অনুরোধ করেছিলেন। এখন আপনি এটি পরিবর্তন করলে সেই অনুরোধটি আবার নিশ্চিত করতে হবে।';
+  }
+
+  @override
+  String get deleteRequests_editWarnContinue => 'সম্পাদনা চালিয়ে যান';
 
   @override
   String get deleteRequests_fieldCaseNumber => 'মামলা নম্বর';

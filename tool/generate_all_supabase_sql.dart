@@ -1033,6 +1033,26 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'row between scopes. The body is the newest shipped one with that one '
         'statement changed.',
   ),
+  LedgerSection(
+    file: '20261028100000_delete_request_target_closure.sql',
+    version: '0.0.685',
+    label:
+        'A delete request whose record someone else deleted closes itself. '
+        'Nothing watched the record: a member with `can_delete` could delete '
+        'the case a colleague had already asked about, and the request stayed '
+        'pending for ever — in every reviewer\'s queue as work that could never '
+        'succeed, in the requester\'s list as "waiting", clearable only by '
+        'rejecting it, which records a decision that never happened. A trigger '
+        'function on the four tables a request may name (`cases`, '
+        '`case_history`, `notes`, `case_references`) now closes every still-open '
+        'request for a tombstoned row as `already_deleted`, in the same '
+        'transaction as the deletion, stamped by the deleter; an approval still '
+        'ends approved because it writes after the tombstone it causes. The same '
+        'migration backfills requests already left hanging and adds a partial '
+        'unique index for at most one open request per record, so two '
+        'colleagues can no longer queue two rows that end in one deletion and '
+        'one pointless approval.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1070,6 +1090,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.685': 'Delete Requests — A Request No Longer Outlives Its Record',
   '0.0.684': 'Delete Requests — A Rejection, A Refresh And A Withdrawal That Land',
   '0.0.604': 'Device Retention — Six Months Of Revoked Rows',
   '0.0.602': 'Device Revocation — A Realtime Push Instead Of Polling',

@@ -92,6 +92,18 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   @override
   void initState() {
     super.initState();
+    // Warn before editing a note someone else has asked to delete (user request).
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final existing = widget.note;
+      if (existing == null || !mounted) return;
+      final proceed = await confirmEditOfRequestedRecord(
+        context,
+        ref,
+        entityType: 'note',
+        entityId: existing.id,
+      );
+      if (!proceed && mounted) Navigator.of(context).maybePop();
+    });
     _titleController = TextEditingController(text: widget.note?.title ?? '');
     _bodyController = TextEditingController(text: widget.note?.body ?? '');
     _isPinned = widget.note?.isPinned ?? false;

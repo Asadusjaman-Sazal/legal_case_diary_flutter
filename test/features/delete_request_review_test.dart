@@ -48,6 +48,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repo
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/features/auth/presentation/auth_viewmodel.dart';
 import 'package:legal_case_diary/features/notes/data/local/notes_dao.dart';
+import 'package:legal_case_diary/features/settings/presentation/delete_request_flow.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_request_review_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_screen.dart';
 import 'package:legal_case_diary/features/settings/presentation/delete_requests_viewmodel.dart';
@@ -66,6 +67,33 @@ Future<T> firstStreamValue<T>(
 ) {
   container.listen(provider, (_, _) {});
   return container.read(provider.future);
+}
+
+/// Host for the pre-edit warning: one button that asks the question and hands
+/// back the answer.
+class _EditWarningHost extends ConsumerWidget {
+  const _EditWarningHost({required this.onAnswer});
+
+  final void Function(bool) onAnswer;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    body: Center(
+      child: ElevatedButton(
+        key: const ValueKey('run-edit'),
+        onPressed: () async {
+          final answer = await confirmEditOfRequestedRecord(
+            context,
+            ref,
+            entityType: 'note',
+            entityId: 'note-1',
+          );
+          onAnswer(answer);
+        },
+        child: const Text('Run Edit'),
+      ),
+    ),
+  );
 }
 
 void main() {
@@ -233,6 +261,8 @@ void main() {
       await seedRequest(id: 'r2', status: 'stale_review_required');
       // Already decided: audit history, not work.
       await seedRequest(id: 'r3', status: 'approved', reviewedBy: 'user-1');
+      // Answered by someone else deleting the record: also decided, not work.
+      await seedRequest(id: 'r4', status: 'already_deleted');
 
       await primePermissions(container);
 
@@ -470,6 +500,58 @@ void main() {
         snapshot: caseSnapshot,
       );
     }
+
+    testWidgets('a changed record shows what exists now above what was seen', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      // The record as it exists now: renamed and a version further on.
+      await NotesDao(db).insert(
+        NotesCompanion(
+          id: const Value('note-1'),
+          userId: const Value('user-1'),
+          firmId: const Value('firm-1'),
+          title: const Value('Renamed Note'),
+          body: const Value('Body'),
+          createdAt: const Value(1000),
+          updatedAt: const Value(1500),
+          version: const Value(7),
+          lastModifiedBy: const Value('user-2'),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-2',
+        requesterName: 'Jannatul Ferdousi Rekha',
+        entityType: 'note',
+        entityId: 'note-1',
+        title: 'Old Title',
+        status: 'stale_review_required',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // Two cards, in that order: what is there now, then the copy the
+      // requester saw — so Reconfirm is a decision about the current record.
+      expect(find.text(l.deleteRequests_current), findsOneWidget);
+      expect(find.text(l.deleteRequests_original), findsOneWidget);
+      expect(find.text('Renamed Note'), findsOneWidget);
+      expect(find.text('Old Title'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text(l.deleteRequests_current)).dy,
+        lessThan(tester.getTopLeft(find.text(l.deleteRequests_original)).dy),
+      );
+
+      await unmountApp(tester);
+    });
 
     testWidgets('a case reads as its type and number, with who asked and when', (
       tester,
@@ -749,6 +831,87 @@ void main() {
       await unmountApp(tester);
     });
 
+    testWidgets('a request answered by a deletion reads as already deleted', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-1',
+        status: 'already_deleted',
+        updatedAt: 5000,
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // The requester does not keep waiting for a decision nobody can make: the
+      // record is gone, so the request is closed and says why.
+      expect(find.text(l.deleteRequests_statusAlreadyDeleted), findsOneWidget);
+      expect(find.text(l.deleteRequests_statusPending), findsNothing);
+      // A closed request has nothing to act on.
+      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('the requester is told when the record changed', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      // The record moved on after the request was raised: version 7 against the
+      // version 2 the request recorded.
+      await NotesDao(db).insert(
+        NotesCompanion(
+          id: const Value('note-1'),
+          userId: const Value('user-1'),
+          firmId: const Value('firm-1'),
+          title: const Value('Renamed Note'),
+          body: const Value('Body'),
+          createdAt: const Value(1000),
+          updatedAt: const Value(1500),
+          version: const Value(7),
+          lastModifiedBy: const Value('user-1'),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-1',
+        entityType: 'note',
+        entityId: 'note-1',
+        title: 'Old Title',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(
+        find.byKey(const ValueKey('delete-request-changed')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      // The sheet says what that means and points at the two things they have.
+      expect(find.text(l.deleteRequests_changedBody), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
     testWidgets('editing re-takes the snapshot from the record', (tester) async {
       final overrides = await openScope();
       db = harness.db;
@@ -896,6 +1059,97 @@ void main() {
       // The post-frame callback has run, so the decision is now read.
       await tester.pumpAndSettle();
       expect(harness.prefs.getInt(deleteRequestsSeenKey('user-1')), 5000);
+
+      await unmountApp(tester);
+    });
+  });
+
+  group('Editing a requested record', () {
+    testWidgets('warns that someone else asked to delete it', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-2',
+        entityType: 'note',
+        entityId: 'note-1',
+        requesterName: 'Jannatul Ferdousi Rekha',
+      );
+      bool? answer;
+
+      await pumpAuthScreen(
+        tester,
+        _EditWarningHost(onAnswer: (value) => answer = value),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('run-edit')));
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.deleteRequests_editWarnTitle), findsOneWidget);
+      expect(find.textContaining('Jannatul Ferdousi Rekha'), findsOneWidget);
+
+      await tester.tap(find.text(l.deleteRequests_editWarnContinue));
+      await tester.pumpAndSettle();
+
+      expect(answer, isTrue, reason: 'the edit continues once acknowledged');
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('backs out of the edit when the warning is declined', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(id: 'r1', requestedBy: 'user-2');
+      bool? answer;
+
+      await pumpAuthScreen(
+        tester,
+        _EditWarningHost(onAnswer: (value) => answer = value),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('run-edit')));
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      await tester.tap(find.text(l.sharedActions_cancel));
+      await tester.pumpAndSettle();
+
+      expect(answer, isFalse);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('says nothing when the request is the editor\'s own', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(id: 'r1', requestedBy: 'user-1');
+      bool? answer;
+
+      await pumpAuthScreen(
+        tester,
+        _EditWarningHost(onAnswer: (value) => answer = value),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('run-edit')));
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.deleteRequests_editWarnTitle), findsNothing);
+      expect(answer, isTrue);
 
       await unmountApp(tester);
     });

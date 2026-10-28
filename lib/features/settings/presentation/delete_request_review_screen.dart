@@ -85,13 +85,17 @@ String deleteRequestSummary(DeleteRequest request, AppLocalizations l) {
   return text.isEmpty ? l.deleteRequests_unnamed : text;
 }
 
-/// The snapshot's own fields, as labelled rows, for the entity kinds the app
+/// The fields of one record, as labelled rows, for the entity kinds the app
 /// raises requests for. An unknown kind simply has no rows to show.
+///
+/// Taken by kind and snapshot rather than by request so the **same** renderer
+/// draws the requester's stored copy and the record as it exists now (user
+/// request: the reviewer judges what is there, not only what was asked about).
 List<(String, String)> deleteRequestDetailRows(
-  DeleteRequest request,
+  String entityType,
+  Map<String, dynamic> snapshot,
   AppLocalizations l,
 ) {
-  final snapshot = deleteRequestSnapshotMap(request);
   String value(String key) => (snapshot[key] ?? '').toString().trim();
 
   final rows = <(String, String)>[];
@@ -99,7 +103,7 @@ List<(String, String)> deleteRequestDetailRows(
     if (text.isNotEmpty) rows.add((label, text));
   }
 
-  switch (request.entityType) {
+  switch (entityType) {
     case 'case':
       // The type and the number are one reading under the number's own label
       // (user request): *Case Number* over `Civil Appeal- 345/25`, rather than
@@ -203,6 +207,12 @@ class _DeleteRequestReviewScreenState
     }
 
     final stale = request.status == 'stale_review_required';
+    // What exists now, when the server has parked the request as stale. Null
+    // when this device does not hold the record, which is not the same thing as
+    // the record being gone — the card is simply left out.
+    final current = stale
+        ? ref.watch(deleteRequestTargetProvider(request.id)).value
+        : null;
     final locale = Localizations.localeOf(context).toString();
     // The request carries who asked inside it, so the line is right offline and
     // from the very first review. The profile lookup stays as the fallback for a
@@ -236,9 +246,28 @@ class _DeleteRequestReviewScreenState
             ),
             const SizedBox(height: AppSpacing.md),
           ],
-          SettingsSectionLabel(l.deleteRequests_snapshot),
+          // Two cards when the record moved: what is there now, then the copy
+          // the requester saw — so Reconfirm is a decision about the record that
+          // exists rather than about an old snapshot. One card otherwise.
+          if (current != null) ...[
+            SettingsSectionLabel(l.deleteRequests_current),
+            const SizedBox(height: AppSpacing.sm),
+            _SnapshotCard(
+              rows: deleteRequestDetailRows(request.entityType, current, l),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+          SettingsSectionLabel(
+            current != null ? l.deleteRequests_original : l.deleteRequests_snapshot,
+          ),
           const SizedBox(height: AppSpacing.sm),
-          _SnapshotCard(rows: deleteRequestDetailRows(request, l)),
+          _SnapshotCard(
+            rows: deleteRequestDetailRows(
+              request.entityType,
+              deleteRequestSnapshotMap(request),
+              l,
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
           // Who asked and when, directly under the record they are asking to
           // delete (user request).

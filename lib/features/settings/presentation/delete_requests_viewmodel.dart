@@ -106,7 +106,7 @@ class DeleteRequestsViewModel
     await withRepo((repo) async {
       final request = await repo.getById(id);
       if (request == null || request.status != 'pending') return;
-      final json = await _targetJson(request);
+      final json = await targetJsonFor(request);
       if (json == null) return;
       final version = json['version'];
       await repo.refreshSnapshot(
@@ -152,8 +152,9 @@ class DeleteRequestsViewModel
   /// requester last had open, which may hold stale state. Null when this device
   /// does not hold the record: already deleted, authored elsewhere and never
   /// pulled here, or a kind a request cannot name. That is an answer the caller
-  /// has to handle, not a silent no-op.
-  Future<Map<String, dynamic>?> _targetJson(DeleteRequest request) async {
+  /// has to handle, not a silent no-op. Public because the review screen shows
+  /// the record as it is now, not only the requester's copy.
+  Future<Map<String, dynamic>?> targetJsonFor(DeleteRequest request) async {
     switch (request.entityType) {
       case 'case':
         final row = await (await ref.read(
@@ -190,6 +191,46 @@ final deleteRequestsStreamProvider =
     StreamProvider<List<DeleteRequest>>((ref) async* {
       final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
       yield* repo.watchAll();
+    });
+
+/// The record a request names, as it stands on this device right now.
+///
+/// Returned in the same server-shaped (snake_case) form the request's own
+/// snapshot is stored in, so one renderer draws both cards. Null when this
+/// device does not hold the record, which the screen words as "not on this
+/// device" rather than claiming the record is gone.
+final deleteRequestTargetProvider =
+    FutureProvider.family<Map<String, dynamic>?, String>((ref, requestId) async {
+      final requests =
+          ref.watch(deleteRequestsStreamProvider).value ??
+          const <DeleteRequest>[];
+      final request = requests.where((row) => row.id == requestId).firstOrNull;
+      if (request == null) return null;
+      final json = await ref
+          .read(deleteRequestsViewModelProvider.notifier)
+          .targetJsonFor(request);
+      return json == null ? null : deleteRequestSnapshot(json);
+    });
+
+/// Whether the record a pending request names has changed since it was asked
+/// for, as this device can tell.
+///
+/// The requester's own signal, so their row can say the record moved before a
+/// reviewer has looked at it. False for a decided request, and false when the
+/// record is not on this device: an unknown version is never reported as a
+/// change.
+final deleteRequestTargetChangedProvider =
+    FutureProvider.family<bool, String>((ref, requestId) async {
+      final requests =
+          ref.watch(deleteRequestsStreamProvider).value ??
+          const <DeleteRequest>[];
+      final request = requests.where((row) => row.id == requestId).firstOrNull;
+      if (request == null || request.status != 'pending') return false;
+      final target = await ref.watch(
+        deleteRequestTargetProvider(requestId).future,
+      );
+      final version = target?['version'];
+      return version is int && version != request.targetBaseVersion;
     });
 
 /// This account's own delete requests, live, straight from the scoped query.

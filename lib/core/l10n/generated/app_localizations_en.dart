@@ -5103,6 +5103,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequest_failed => 'Could Not Send The Deletion Request.';
 
   @override
+  String get deleteRequest_alreadyOpen =>
+      'A deletion request for this record is already open.';
+
+  @override
   String get deleteRequests_title => 'Delete Requests';
 
   @override
@@ -5134,6 +5138,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_statusStale => 'Needs Reconfirmation';
+
+  @override
+  String get deleteRequests_statusAlreadyDeleted => 'Already Deleted';
 
   @override
   String deleteRequests_requestedBy(String name) {
@@ -5216,7 +5223,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_staleBody =>
-      'It Changed After The Request Was Made. The Details Below Are What Exists Now; Reconfirm To Delete This Current Version.';
+      'It changed after the request was made. Reconfirm to delete the version that exists now.';
+
+  @override
+  String get deleteRequests_current => 'As It Is Now';
+
+  @override
+  String get deleteRequests_original => 'When the Request Was Made';
+
+  @override
+  String get deleteRequests_changed => 'Changed';
+
+  @override
+  String get deleteRequests_changedBody =>
+      'This record changed since you asked. Refresh it to ask for the current version, or withdraw.';
+
+  @override
+  String get deleteRequests_editWarnTitle => 'Requested for Deletion';
+
+  @override
+  String deleteRequests_editWarnBody(String name, String date) {
+    return '$name asked to delete this record on $date. If you change it now, that request will have to be confirmed again.';
+  }
+
+  @override
+  String get deleteRequests_editWarnContinue => 'Continue Editing';
 
   @override
   String get deleteRequests_fieldCaseNumber => 'Case Number';

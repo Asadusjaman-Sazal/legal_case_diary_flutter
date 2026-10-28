@@ -43,6 +43,9 @@ class _RecordingDeleteRequestsRepository implements DeleteRequestsRepository {
   /// Every `createRequest` call, in order.
   final List<Map<String, Object?>> created = <Map<String, Object?>>[];
 
+  /// The open requests the flow already sees on this device.
+  List<DeleteRequest> open = <DeleteRequest>[];
+
   @override
   Future<String> createRequest({
     required String entityType,
@@ -80,8 +83,7 @@ class _RecordingDeleteRequestsRepository implements DeleteRequestsRepository {
   Future<void> reject(String id, {String? reviewNote}) async {}
 
   @override
-  Future<List<DeleteRequest>> listAll({int? limit, int? offset}) async =>
-      const <DeleteRequest>[];
+  Future<List<DeleteRequest>> listAll({int? limit, int? offset}) async => open;
 
   @override
   Stream<List<DeleteRequest>> watchAll({int? limit, int? offset}) =>
@@ -412,6 +414,46 @@ void main() {
     expect(directCalls, 0);
     expect(outcome, DeleteOutcome.cancelled);
     expect(requests.created, isEmpty);
+    expect(find.text(l.deleteRequest_sent), findsNothing);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a second request for a record that already has one is refused', (
+    tester,
+  ) async {
+    await pumpFlow(tester);
+    await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+    await seedMembership(canDelete: false);
+    // A colleague already asked to delete this exact record. The server enforces
+    // one open request per record with a unique index; the flow says so first.
+    requests.open = <DeleteRequest>[
+      const DeleteRequest(
+        id: 'open-1',
+        entityType: 'note',
+        entityId: 'note-1',
+        entitySnapshot: '{}',
+        targetBaseVersion: 1,
+        requestedBy: 'user-2',
+        requesterName: 'Jannatul',
+        status: 'pending',
+        createdAt: 1,
+        updatedAt: 1,
+        isDeleted: false,
+      ),
+    ];
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('run-delete')));
+    await tester.pumpAndSettle();
+
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.tap(find.text(l.deleteRequest_confirmSend));
+    await tester.pumpAndSettle();
+
+    expect(requests.created, isEmpty);
+    expect(outcome, DeleteOutcome.cancelled);
+    expect(find.text(l.deleteRequest_alreadyOpen), findsOneWidget);
     expect(find.text(l.deleteRequest_sent), findsNothing);
 
     await unmountApp(tester);

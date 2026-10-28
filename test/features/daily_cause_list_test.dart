@@ -300,4 +300,66 @@ void main() {
 
     await unmount(tester);
   });
+
+  group('The date switcher fits a narrow phone', () {
+    /// Pumps the screen at [width], then reports how many logical pixels the
+    /// switcher's group text is smaller than the rest of the app (0 = the design
+    /// size), plus the calendar label it rendered.
+    Future<int> pumpAtWidth(WidgetTester tester, double width) async {
+      await tester.binding.setSurfaceSize(Size(width, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpScreen(tester);
+
+      final label = AppDateUtils.formatDailyCauseCalendarDate(
+        AppDateUtils.bangladeshTodayStartOfDay(),
+        locale: 'en',
+      );
+      final root = MediaQuery.textScalerOf(
+        tester.element(find.byType(DailyCauseListScreen)),
+      );
+      final group = MediaQuery.textScalerOf(tester.element(find.text(label)));
+      // labelMedium is 12 pt; a step of the app's own font setting is 1 px.
+      return (root.scale(12) - group.scale(12)).round();
+    }
+
+    testWidgets('a wide bar is never scaled down', (tester) async {
+      expect(await pumpAtWidth(tester, 800), 0);
+      await unmount(tester);
+    });
+
+    testWidgets('one step down is enough at a little under the design width', (
+      tester,
+    ) async {
+      expect(await pumpAtWidth(tester, 500), 1);
+      await unmount(tester);
+    });
+
+    testWidgets('the deepest step keeps the date, on a narrow phone', (
+      tester,
+    ) async {
+      // The group steps as far as the app's font setting may go, and nothing
+      // overflows: the measurement picks a step for the real labels.
+      expect(await pumpAtWidth(tester, 360), inInclusiveRange(1, 3));
+      await unmount(tester);
+    });
+
+    testWidgets('a bar past the deepest step ellipsizes the date instead', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(300, 800));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await pumpScreen(tester);
+
+      final label = AppDateUtils.formatDailyCauseCalendarDate(
+        AppDateUtils.bangladeshTodayStartOfDay(),
+        locale: 'en',
+      );
+      final dateText = tester.widget<Text>(find.text(label));
+      // The last resort is the date itself, not an overflow stripe.
+      expect(dateText.overflow, TextOverflow.ellipsis);
+      expect(dateText.maxLines, 1);
+
+      await unmount(tester);
+    });
+  });
 }

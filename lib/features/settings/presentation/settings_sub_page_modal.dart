@@ -38,6 +38,13 @@ class SettingsSubPageModal extends StatelessWidget {
   /// running backup or restore must not be possible by accident.
   final bool pullToSync;
 
+  /// Runs after the pull's sync, so the page can re-read its own server rows.
+  ///
+  /// The sync only carries the synced tables; a page built from a live server
+  /// read (Manage Firm's roster and invites) passes its reload here, or its
+  /// pull would spin, release and show exactly the same rows.
+  final Future<void> Function()? onReload;
+
   /// Creates a reusable Settings sub-page shell.
   const SettingsSubPageModal({
     required this.title,
@@ -47,6 +54,7 @@ class SettingsSubPageModal extends StatelessWidget {
     this.floatingActionButton,
     this.onBack,
     this.pullToSync = true,
+    this.onReload,
     super.key,
   });
 
@@ -74,7 +82,11 @@ class SettingsSubPageModal extends StatelessWidget {
         actions: actions,
         titleSpacing: AppSpacing.sm,
       ),
-      body: SafeArea(child: pullToSync ? PullToSync(child: child) : child),
+      body: SafeArea(
+        child: pullToSync
+            ? PullToSync(onReload: onReload, child: child)
+            : child,
+      ),
       floatingActionButton: floatingActionButton,
     );
   }

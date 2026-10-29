@@ -12,6 +12,7 @@ import '../core/providers/device_providers.dart';
 import '../core/providers/repository_providers.dart';
 import '../database/app_database.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
+import '../features/accounts_and_profile/data/firm_repository.dart';
 import '../features/auth/presentation/auth_viewmodel.dart';
 import '../shared/providers/database_provider.dart';
 import 'conflict_log_dao.dart';
@@ -59,11 +60,9 @@ final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
     onPings: (pings) =>
         ref.read(syncServiceProvider).requestRealtimePull(pings),
     // A membership or permission change is not a row to pull: it changes what
-    // this account *is* and what it may do. The one refresh entry point re-reads
-    // the profile, the firm and the membership together — which is also how a
-    // removal is noticed (the profile's `firm_id` goes null while the cached
-    // membership row is still there).
-    onMembershipChange: () => unawaited(ref.read(accountRefreshProvider)()),
+    // this account *is* and what it may do, and it also dates the chamber's
+    // roster. [firmMembershipChangeProvider] is the one handler for it.
+    onMembershipChange: () => ref.read(firmMembershipChangeProvider)(),
     // A device row became revoked: check this device now. A rejoin checks too,
     // because a broadcast sent while the socket was down is not replayed.
     onDeviceChanged: () => scheduleDeviceCheck(ref, force: true),
@@ -71,6 +70,25 @@ final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
   );
   ref.onDispose(listener.dispose);
   return listener;
+});
+
+/// The one handler for the server's "your firm membership changed" notice.
+///
+/// Two different things go stale at the same moment. This account's own
+/// profile, firm and permission flags are re-read through
+/// [accountRefreshProvider] — which is also how a removal is noticed, because
+/// the profile's `firm_id` goes null while the cached membership row is still
+/// there. The chamber's roster and outstanding invites are a different kind of
+/// fact: live server reads, not synced tables, so no pull ever refreshed them
+/// while Manage Firm stayed open. Dropping both here is what makes an associate
+/// who joins appear on an owner's screen without leaving it (0.0.712, user
+/// request). Invalidating a read that nobody is watching costs nothing.
+final firmMembershipChangeProvider = Provider<void Function()>((ref) {
+  return () {
+    unawaited(ref.read(accountRefreshProvider)());
+    ref.invalidate(firmMembersListProvider);
+    ref.invalidate(firmInvitesListProvider);
+  };
 });
 
 /// The app's sync health, and the channel's reconnect ladder.

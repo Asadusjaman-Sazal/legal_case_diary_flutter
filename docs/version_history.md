@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.711 - Request Deletion's Send is red with white text, and AGENTS/CLAUDE rule 17 now makes the shared pop-over frame mandatory and globally change-only when explicitly intended.
+Version: 0.0.712 - The Associates list only refreshed when the page was reopened; it now reloads when a member joins and when the owner pulls on that page.
 --------------------------------------
 
 ## Version History Log:
@@ -725,3 +725,4 @@ Version: 0.0.708 - Wave 4 of the pop-over standard: the bespoke windows take the
 Version: 0.0.709 - The shared pop-over frame's base width is 5% wider, from 280 to 294 logical px; the 420 px cap and every window's own insets are unchanged.
 Version: 0.0.710 - The shared window now narrows its side margins, never below 16px, when that is what lets a pair of buttons share one line; the 40px default and stacked pairs stay otherwise.
 Version: 0.0.711 - Request Deletion's Send is red with white text, and AGENTS/CLAUDE rule 17 now makes the shared pop-over frame mandatory and globally change-only when explicitly intended.
+Version: 0.0.712 - The Associates list only refreshed when the page was reopened; it now reloads when a member joins and when the owner pulls on that page.

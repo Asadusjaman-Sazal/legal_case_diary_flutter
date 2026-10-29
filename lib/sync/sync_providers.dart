@@ -12,6 +12,7 @@ import '../core/providers/device_providers.dart';
 import '../core/providers/repository_providers.dart';
 import '../database/app_database.dart';
 import '../features/accounts_and_profile/data/account_mode.dart';
+import '../features/accounts_and_profile/data/firm_devices.dart';
 import '../features/accounts_and_profile/data/firm_repository.dart';
 import '../features/auth/presentation/auth_viewmodel.dart';
 import '../shared/providers/database_provider.dart';
@@ -83,11 +84,16 @@ final realtimeListenerProvider = Provider<RealtimeListener>((ref) {
 /// while Manage Firm stayed open. Dropping both here is what makes an associate
 /// who joins appear on an owner's screen without leaving it (0.0.712, user
 /// request). Invalidating a read that nobody is watching costs nothing.
+///
+/// The owner's chamber device list (0.0.713) is the third such read: a joiner
+/// signs in on a phone, which is a new device in the chamber's shared slots, so
+/// the same notice dates it.
 final firmMembershipChangeProvider = Provider<void Function()>((ref) {
   return () {
     unawaited(ref.read(accountRefreshProvider)());
     ref.invalidate(firmMembersListProvider);
     ref.invalidate(firmInvitesListProvider);
+    ref.invalidate(firmDeviceListProvider);
   };
 });
 

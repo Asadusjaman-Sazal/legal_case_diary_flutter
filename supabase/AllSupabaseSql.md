@@ -119,6 +119,7 @@ checks that roll back) and the read-only counts
 | 0.0.684 | 2026-10-27 | `20261027120000_delete_request_withdrawal_field_guard.sql` | The withdrawal exit reads its two fields only on the table that has them. `20261027110000` wrote the exception as one condition, and `old.status` is resolved at run time on a generic record — so the other eleven tables the trigger guards, which have no `status` column, raised on every tombstone and could not delete at all. The rule is unchanged; the two `delete_requests` fields are read inside the table test, where nothing else can reach them. Caught by the two proofs that tombstone a case and a reference row. |
 | 0.0.684 | 2026-10-27 | `20261027130000_push_changes_check_row_firm.sql` | The permission verdict is weighed on the row as it exists. `push_changes_core` subtracts the scope columns before the write, and handed that same stripped row to `sync_can_write`, so every rule that needs the firm was weighed against a row with no firm: `can_edit_firm(null)` is false and the authorship clause decided alone — a chamber member could not edit a case, note or reference a colleague had authored, including the firm's owner, while `enforce_member_permission()` allows it because it reads `new.firm_id`. The check now receives `v_final` with the stored firm restored; the write still omits `firm_id`, so no payload can move a row between scopes. The body is the newest shipped one with that one statement changed. |
 | 0.0.685 | 2026-10-28 | `20261028100000_delete_request_target_closure.sql` | A delete request whose record someone else deleted closes itself. Nothing watched the record: a member with `can_delete` could delete the case a colleague had already asked about, and the request stayed pending for ever — in every reviewer's queue as work that could never succeed, in the requester's list as "waiting", clearable only by rejecting it, which records a decision that never happened. A trigger function on the four tables a request may name (`cases`, `case_history`, `notes`, `case_references`) now closes every still-open request for a tombstoned row as `already_deleted`, in the same transaction as the deletion, stamped by the deleter; an approval still ends approved because it writes after the tombstone it causes. The same migration backfills requests already left hanging and adds a partial unique index for at most one open request per record, so two colleagues can no longer queue two rows that end in one deletion and one pointless approval. |
+| 0.0.713 | 2026-10-29 | `20261029100000_firm_device_list.sql` | The chamber owner can see every device sharing the firm's slots. `device_state()` answers for the caller's own session, so the owner's Devices screen could only list the owner's phones while the other holders of the shared slots stayed invisible to the one person who manages them — and `user_devices` grants no read to any client role. `firm_device_list()` returns the chamber's slots, its associate count and every active device whose profile still points at that chamber, each with the member's current profile name, the registration snapshot as the fallback, `is_owner` and `is_current`. Owner-only: an associate or an individual reads `not_owner`, and nothing here writes. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -20653,6 +20654,106 @@ create unique index if not exists delete_requests_one_open_per_target
 
 comment on index public.delete_requests_one_open_per_target is
   'At most one open (pending or stale) delete request per record; decided and withdrawn rows are audit history and are not constrained.';
+```
+
+## App Version 0.0.713 — Firm Devices — The Owner Sees Every Slot In Use
+
+### 0.0.713 · `20261029100000_firm_device_list.sql`
+
+> **Created 2026-10-29.** The chamber owner can see every device sharing the firm's slots. `device_state()` answers for the caller's own session, so the owner's Devices screen could only list the owner's phones while the other holders of the shared slots stayed invisible to the one person who manages them — and `user_devices` grants no read to any client role. `firm_device_list()` returns the chamber's slots, its associate count and every active device whose profile still points at that chamber, each with the member's current profile name, the registration snapshot as the fallback, `is_owner` and `is_current`. Owner-only: an associate or an individual reads `not_owner`, and nothing here writes.
+
+```sql
+-- The chamber owner can see every device sharing the firm's slots.
+--
+-- The gap this closes: `device_state()` answers for the caller's own session,
+-- so an owner's Devices screen could only ever list the owner's own phones. The
+-- chamber's slots are shared (`associates + owner devices <= slots`), and the
+-- other holders of those slots were invisible to the one person who manages
+-- them. `user_devices` is server-managed and grants no read to any client role,
+-- so this function is the only way the owner's screen can name who holds a
+-- slot — the same reason `device_state()` exists for a single device.
+--
+-- Owner-only and read-only: an associate keeps `device_state()` (their own
+-- sign-in), an individual gets `not_owner`, and nothing here writes. The names
+-- come from `profiles` (the account's current name) with the registration
+-- snapshot on the device row as the fallback, so a renamed account does not
+-- read stale on the owner's screen; only a row whose profile still points at
+-- this chamber is listed, which is what keeps a removed member's devices out.
+--
+-- Proven by `supabase/tests/firm_device_list_test.sql`.
+
+create or replace function public.firm_device_list()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_firm uuid := public.current_firm_id();
+  v_owner uuid;
+begin
+  if v_user is null then
+    return jsonb_build_object('status', 'unauthenticated');
+  end if;
+
+  select f.owner_id into v_owner
+    from public.firms f
+   where f.id = v_firm;
+
+  if v_owner is distinct from v_user then
+    return jsonb_build_object('status', 'not_owner');
+  end if;
+
+  return jsonb_build_object(
+    'status', 'ok',
+    'slots', public.firm_seat_cap(v_firm),
+    -- The seat count the screen's shared-slots note reads, so it does not need
+    -- the roster as well.
+    'associates', (
+      select count(*)::integer
+        from public.firm_members m
+       where m.firm_id = v_firm
+         and m.user_id <> v_owner
+    ),
+    'devices', coalesce(
+      (
+        select jsonb_agg(
+                 jsonb_build_object(
+                   'id', d.id,
+                   'label', d.label,
+                   'platform', d.platform,
+                   'last_seen_at', d.last_seen_at,
+                   'is_current', d.session_id = public.current_session_id(),
+                   'is_owner', d.user_id = v_owner,
+                   'member_name', coalesce(
+                     nullif(pg_catalog.btrim(p.full_name), ''),
+                     nullif(pg_catalog.btrim(d.full_name), ''),
+                     ''
+                   )
+                 )
+                 -- The owner's own devices first, then the associates', each
+                 -- group newest contact first: the order the two sections draw.
+                 order by (d.user_id = v_owner) desc, d.last_seen_at desc
+               )
+          from public.user_devices d
+          join public.profiles p
+            on p.id = d.user_id
+           and p.firm_id = v_firm
+         where d.revoked_at is null
+      ),
+      '[]'::jsonb
+    )
+  );
+end;
+$$;
+
+comment on function public.firm_device_list() is
+  'The chamber owner''s whole device picture: active devices of the owner and of every associate whose profile still points at the chamber, each with its member name and is_owner, plus the chamber''s slots and associate count. Owner-only; a member or an individual reads not_owner.';
+
+revoke all on function public.firm_device_list() from public, anon;
+grant execute on function public.firm_device_list() to authenticated;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

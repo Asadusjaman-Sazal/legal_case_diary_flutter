@@ -3940,6 +3940,42 @@ abstract class AppLocalizations {
   /// **'{used} of {cap} devices in use'**
   String devices_limitLabel(String used, String cap);
 
+  /// No description provided for @devices_firmLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {cap} firm devices in use'**
+  String devices_firmLimitLabel(String used, String cap);
+
+  /// No description provided for @devices_ownerSectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner\'s Devices ({count})'**
+  String devices_ownerSectionCount(String count);
+
+  /// No description provided for @devices_associateSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Associates\' Devices'**
+  String get devices_associateSection;
+
+  /// No description provided for @devices_associateSectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Associates\' Devices ({count})'**
+  String devices_associateSectionCount(String count);
+
+  /// No description provided for @devices_noAssociateDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No associate device is signed in.'**
+  String get devices_noAssociateDevices;
+
+  /// No description provided for @devices_firmUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your firm\'s devices. Pull down to try again.'**
+  String get devices_firmUnavailable;
+
   /// No description provided for @devices_thisDevice.
   ///
   /// In en, this message translates to:

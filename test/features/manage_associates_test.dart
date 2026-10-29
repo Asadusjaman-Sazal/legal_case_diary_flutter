@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +35,7 @@ import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
@@ -45,6 +47,8 @@ import 'package:legal_case_diary/features/settings/presentation/settings_menu_ca
     show settingsPrimaryButtonHeight;
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
+import 'package:legal_case_diary/sync/sync_providers.dart';
+import 'package:legal_case_diary/sync/sync_service.dart';
 
 import 'auth_test_support.dart';
 import 'settings_test_support.dart';
@@ -1202,7 +1206,9 @@ void main() {
     // it (user request), rather than sitting above a role it does not describe.
     expect(
       tester.getTopLeft(find.text(l.manageAssociates_permissionsTitle)).dy,
-      greaterThan(tester.getTopLeft(find.text(l.manageAssociates_roleLabel)).dy),
+      greaterThan(
+        tester.getTopLeft(find.text(l.manageAssociates_roleLabel)).dy,
+      ),
     );
     // And each switch names the kinds of record the flag covers, not cases
     // alone: the same flag governs notes, the history entries and the
@@ -1620,6 +1626,101 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('pulling down re-reads the roster and shows a new associate', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 1);
+    late _RecordingSyncService sync;
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      overrides: [
+        syncServiceProvider.overrideWith((ref) {
+          sync = _RecordingSyncService(ref);
+          return sync;
+        }),
+      ],
+    );
+
+    expect(find.text('Adv. 0'), findsOneWidget);
+    // Premium only, but this is an owner on a live plan.
+    expect(find.byType(RefreshIndicator), findsOneWidget);
+
+    // Somebody joins after the page was opened; the rows on disk are stale.
+    harness.firm.members = [
+      ..._roster(associates: 1),
+      const FirmMemberSummary(
+        userId: 'user-9',
+        role: AccountRole.associate,
+        fullName: 'Abu Sayeed',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+    ];
+
+    await tester.fling(find.byType(ListView).first, const Offset(0, 300), 1000);
+    await tester.pumpAndSettle();
+
+    // The pull still runs the diary sync, and then re-asks for the list the page
+    // is actually made of (0.0.712, user request).
+    expect(sync.retries, 1);
+    expect(harness.firm.membersReads, greaterThan(1));
+    expect(find.text('Abu Sayeed'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a membership change re-reads the open roster', (tester) async {
+    harness.firm.members = _roster(associates: 1);
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      // The notice's own account refresh is not under test here.
+      overrides: [accountRefreshProvider.overrideWithValue(() async => true)],
+    );
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(ManageAssociatesScreen)),
+      listen: false,
+    );
+    final reads = harness.firm.membersReads;
+
+    // The server's notice, as the Realtime listener hands it over when another
+    // account redeems a code into this firm (0.0.712, user request).
+    harness.firm.members = [
+      ..._roster(associates: 1),
+      const FirmMemberSummary(
+        userId: 'user-9',
+        role: AccountRole.associate,
+        fullName: 'Abu Sayeed',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+    ];
+    container.read(firmMembershipChangeProvider)();
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.membersReads, reads + 1);
+    expect(find.text('Abu Sayeed'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+}
+
+/// A sync engine that records a manual retry without a server.
+class _RecordingSyncService extends SyncService {
+  _RecordingSyncService(super._ref);
+
+  /// Forced retries the pull asked for.
+  int retries = 0;
+
+  @override
+  Future<void> retryNow() async => retries++;
 }
 
 /// A roster with the owner and [associates] associates, in the order the

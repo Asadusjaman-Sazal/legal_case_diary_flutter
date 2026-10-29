@@ -141,8 +141,32 @@ class _ManageAssociatesScreenState
           : ref.watch(firmModeProvider)
           ? l.manageAssociates_title
           : l.manageAssociates_createFirmTitle,
+      // The two lists this page draws are live server reads, not synced
+      // tables, so the pull needs its own reload behind the sync (0.0.712).
+      onReload: _reloadFirmReads,
       child: body,
     );
+  }
+
+  /// Re-reads the roster and the outstanding invites after a pull.
+  ///
+  /// The shell's pull runs the diary sync and then this. Without it a pull on
+  /// this page would spin, release and show exactly the rows it already had:
+  /// `firm_members` and `firm_invites` never travel through the sync. Both are
+  /// awaited so the spinner covers the fetch, and a failed read is settled here
+  /// rather than escaping into the gesture — the page already draws it as its
+  /// own banner.
+  Future<void> _reloadFirmReads() async {
+    ref.invalidate(firmMembersListProvider);
+    ref.invalidate(firmInvitesListProvider);
+    try {
+      await Future.wait([
+        ref.read(firmMembersListProvider.future),
+        ref.read(firmInvitesListProvider.future),
+      ]);
+    } on Object {
+      // Shown by the screen's banner; the pull itself must finish.
+    }
   }
 
   /// The owner's view: the firm, the invite action, the roster and the invites.

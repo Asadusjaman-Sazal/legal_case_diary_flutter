@@ -320,6 +320,12 @@ class FakeFirmRepository implements FirmRepository {
   /// The roster [listMembers] returns.
   List<FirmMemberSummary> members = const <FirmMemberSummary>[];
 
+  /// How many times the roster was read, so a test can prove a refresh landed.
+  int membersReads = 0;
+
+  /// How many times the outstanding invites were read.
+  int invitesReads = 0;
+
   /// Error to throw from [listMembers]; null to succeed.
   Object? membersError;
 
@@ -350,6 +356,7 @@ class FakeFirmRepository implements FirmRepository {
 
   @override
   Future<List<FirmInviteSummary>> listInvites() async {
+    invitesReads++;
     final failure = invitesError;
     if (failure != null) throw failure;
     return invites;
@@ -464,6 +471,7 @@ class FakeFirmRepository implements FirmRepository {
 
   @override
   Future<List<FirmMemberSummary>> listMembers() async {
+    membersReads++;
     final failure = membersError;
     if (failure != null) throw failure;
     return members;

@@ -8,6 +8,7 @@ library;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,6 +21,8 @@ import 'package:legal_case_diary/core/providers/notification_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/database/encryption_key_manager.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_devices.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/devices_screen.dart';
 import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/features/auth/data/logout_flow.dart';
@@ -169,11 +172,42 @@ RegisteredDevice _device(String id, String label, {bool current = false}) =>
       isCurrent: current,
     );
 
+/// A chamber answer for the fixtures: two owner devices and two associates'.
+const FirmDeviceList _chamber = FirmDeviceList(
+  slots: 5,
+  associates: 2,
+  devices: [
+    FirmDevice(
+      id: 'o1',
+      label: 'Samsung SM-A525F',
+      platform: 'android',
+      memberName: 'Firm Owner',
+      isOwner: true,
+      isCurrent: true,
+    ),
+    FirmDevice(
+      id: 'a1',
+      label: 'Xiaomi 13',
+      platform: 'android',
+      memberName: 'Adv. Karim',
+      isOwner: false,
+    ),
+    FirmDevice(
+      id: 'a2',
+      label: 'Pixel 8',
+      platform: 'android',
+      memberName: 'Adv. Nusrat',
+      isOwner: false,
+    ),
+  ],
+);
+
 /// Pumps a screen with the gate overridden to [state].
 Future<_FakeGate> _pump(
   WidgetTester tester,
   DeviceGateState state, {
   required Widget child,
+  List<Override> extra = const <Override>[],
 }) async {
   final gate = _FakeGate(state);
   await tester.pumpWidget(
@@ -186,6 +220,7 @@ Future<_FakeGate> _pump(
         logoutFlowProvider.overrideWith(
           (ref) async => throw StateError('no logout flow in a widget test'),
         ),
+        ...extra,
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -231,6 +266,94 @@ void main() {
     await tester.pumpAndSettle();
     expect(gate.removed, ['d2']);
     expect(find.text('Xiaomi 13'), findsNothing);
+  });
+
+  testWidgets('a chamber owner reads both halves of the shared slots', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      DeviceGateState(
+        status: DeviceGateStatus.active,
+        cap: 3,
+        devices: [
+          _device('d1', 'Samsung SM-A525F', current: true),
+          _device('d2', 'Dell Latitude'),
+        ],
+      ),
+      child: const DevicesScreen(),
+      extra: [
+        firmModeProvider.overrideWithValue(true),
+        firmMemberProvider.overrideWithValue(false),
+        firmDeviceListProvider.overrideWith((ref) async => _chamber),
+      ],
+    );
+
+    // The line counts the whole chamber against its slots, not one account's
+    // allowance, and each section states its own count.
+    expect(find.text('4 of 5 firm devices in use'), findsOneWidget);
+    expect(find.text("Owner's Devices (2)"), findsOneWidget);
+    expect(find.text("Associates' Devices (2)"), findsOneWidget);
+    expect(find.text('Samsung SM-A525F · This device'), findsOneWidget);
+    expect(find.text('Dell Latitude'), findsOneWidget);
+    // An associate's row names the associate and the phone.
+    expect(find.text('Adv. Karim'), findsOneWidget);
+    expect(find.text('Xiaomi 13'), findsOneWidget);
+    expect(find.text('Adv. Nusrat'), findsOneWidget);
+    expect(find.text('Pixel 8'), findsOneWidget);
+    // Only the owner's own spare can be removed from this screen.
+    expect(find.text('Remove'), findsOneWidget);
+  });
+
+  testWidgets('an associate keeps the per-account list', (tester) async {
+    await _pump(
+      tester,
+      DeviceGateState(
+        status: DeviceGateStatus.active,
+        cap: 1,
+        devices: [_device('d1', 'Samsung SM-A525F', current: true)],
+      ),
+      child: const DevicesScreen(),
+      extra: [
+        firmModeProvider.overrideWithValue(true),
+        firmMemberProvider.overrideWithValue(true),
+      ],
+    );
+
+    expect(find.text('1 of 1 devices in use'), findsOneWidget);
+    expect(find.textContaining("Owner's Devices"), findsNothing);
+    expect(find.textContaining("Associates' Devices"), findsNothing);
+  });
+
+  testWidgets('a chamber read that fails says so in its own section', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      DeviceGateState(
+        status: DeviceGateStatus.active,
+        cap: 3,
+        devices: [_device('d1', 'Samsung SM-A525F', current: true)],
+      ),
+      child: const DevicesScreen(),
+      extra: [
+        firmModeProvider.overrideWithValue(true),
+        firmMemberProvider.overrideWithValue(false),
+        firmDeviceListProvider.overrideWith(
+          (ref) async => throw StateError('offline'),
+        ),
+      ],
+    );
+
+    // The owner's own half is still listed from the registry answer; the
+    // associates' half states the failure and offers a retry.
+    expect(find.text("Owner's Devices (1)"), findsOneWidget);
+    expect(find.text("Associates' Devices"), findsOneWidget);
+    expect(
+      find.text('Could not load your firm\'s devices. Pull down to try again.'),
+      findsOneWidget,
+    );
+    expect(find.text('Try Again'), findsOneWidget);
   });
 
   testWidgets('a full plan names every device and warns before signing out', (

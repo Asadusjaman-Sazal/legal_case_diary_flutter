@@ -2219,6 +2219,31 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String devices_firmLimitLabel(String used, String cap) {
+    return '$used of $cap firm devices in use';
+  }
+
+  @override
+  String devices_ownerSectionCount(String count) {
+    return 'Owner\'s Devices ($count)';
+  }
+
+  @override
+  String get devices_associateSection => 'Associates\' Devices';
+
+  @override
+  String devices_associateSectionCount(String count) {
+    return 'Associates\' Devices ($count)';
+  }
+
+  @override
+  String get devices_noAssociateDevices => 'No associate device is signed in.';
+
+  @override
+  String get devices_firmUnavailable =>
+      'Could not load your firm\'s devices. Pull down to try again.';
+
+  @override
   String get devices_thisDevice => 'This device';
 
   @override

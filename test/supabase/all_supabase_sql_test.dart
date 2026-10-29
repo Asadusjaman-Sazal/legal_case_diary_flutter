@@ -57,8 +57,13 @@ void main() {
       );
       expect(
         onDisk.length,
-        78,
+        79,
         reason:
+            'The owner'
+            's firm device list (2026-10-29) added one file: one '
+            'owner-only read so the Devices screen can name every device '
+            'sharing the chamber'
+            's slots. '
             'The delete-request closure (2026-10-28) added one file: the trigger '
             'that closes a request when the record it names is deleted, the '
             'backfill for requests already left hanging, and the one-open-request '

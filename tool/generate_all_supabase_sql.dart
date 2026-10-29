@@ -1053,6 +1053,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'colleagues can no longer queue two rows that end in one deletion and '
         'one pointless approval.',
   ),
+  LedgerSection(
+    file: '20261029100000_firm_device_list.sql',
+    version: '0.0.713',
+    label:
+        'The chamber owner can see every device sharing the firm\'s slots. '
+        '`device_state()` answers for the caller\'s own session, so the owner\'s '
+        'Devices screen could only list the owner\'s phones while the other '
+        'holders of the shared slots stayed invisible to the one person who '
+        'manages them — and `user_devices` grants no read to any client role. '
+        '`firm_device_list()` returns the chamber\'s slots, its associate count '
+        'and every active device whose profile still points at that chamber, '
+        'each with the member\'s current profile name, the registration '
+        'snapshot as the fallback, `is_owner` and `is_current`. Owner-only: an '
+        'associate or an individual reads `not_owner`, and nothing here writes.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1090,8 +1105,10 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.713': 'Firm Devices — The Owner Sees Every Slot In Use',
   '0.0.685': 'Delete Requests — A Request No Longer Outlives Its Record',
-  '0.0.684': 'Delete Requests — A Rejection, A Refresh And A Withdrawal That Land',
+  '0.0.684':
+      'Delete Requests — A Rejection, A Refresh And A Withdrawal That Land',
   '0.0.604': 'Device Retention — Six Months Of Revoked Rows',
   '0.0.602': 'Device Revocation — A Realtime Push Instead Of Polling',
   '0.0.600': 'Device Registry — Unique Install Keys And Support Identity',
@@ -1161,8 +1178,7 @@ const Map<String, String> _groupTitles = <String, String>{
   '0.0.546': 'Task 22 — The Six-Tier Subscription Ladder',
   '0.0.552': 'Task 22 — The 2026-10-20 Price Ladder',
   '0.0.553': 'Task 22 — Enterprise Limits And Ten Firm Plus Seats',
-  '0.0.675':
-      'Delete Requests — The Requester\'s Name Travels With The Request',
+  '0.0.675': 'Delete Requests — The Requester\'s Name Travels With The Request',
 };
 
 const String _header = '''<!--

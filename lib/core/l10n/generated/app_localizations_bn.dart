@@ -2223,6 +2223,32 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String devices_firmLimitLabel(String used, String cap) {
+    return '$capটির মধ্যে $usedটি ফার্ম ডিভাইস ব্যবহৃত';
+  }
+
+  @override
+  String devices_ownerSectionCount(String count) {
+    return 'মালিকের ডিভাইস ($count)';
+  }
+
+  @override
+  String get devices_associateSection => 'সহযোগীদের ডিভাইস';
+
+  @override
+  String devices_associateSectionCount(String count) {
+    return 'সহযোগীদের ডিভাইস ($count)';
+  }
+
+  @override
+  String get devices_noAssociateDevices =>
+      'কোনো সহযোগীর ডিভাইস সাইন ইন করা নেই।';
+
+  @override
+  String get devices_firmUnavailable =>
+      'আপনার ফার্মের ডিভাইসগুলো লোড করা যায়নি। আবার চেষ্টা করতে নিচে টানুন।';
+
+  @override
   String get devices_thisDevice => 'এই ডিভাইস';
 
   @override

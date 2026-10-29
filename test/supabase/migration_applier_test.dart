@@ -59,8 +59,13 @@ void main() {
 
       expect(
         versions,
-        hasLength(78),
+        hasLength(79),
         reason:
+            'The owner'
+            's firm device list (2026-10-29) added one file: one '
+            'owner-only read so the Devices screen can name every device '
+            'sharing the chamber'
+            's slots. '
             'The delete-request closure (2026-10-28) added one file: the trigger '
             'that closes a request when the record it names is deleted, the '
             'backfill for requests already left hanging, and the one-open-request '
@@ -161,7 +166,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(78),
+        hasLength(79),
         reason: 'versions must be unique',
       );
       expect(
@@ -170,7 +175,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261028100000');
+      expect(versions.last, '20261029100000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

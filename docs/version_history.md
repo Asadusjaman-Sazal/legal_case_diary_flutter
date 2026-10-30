@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.745 - Law names: public.laws is live with its RLS, guards, broadcast, sync allow-list and 57 generated seed rows, so a chamber shares one statute list.
+Version: 0.0.746 - Phase 3 of the law list: the Statute box is a grouped law-name dropdown with an Add a Law Name window, and Settings gains Edit Law Names.
 --------------------------------------
 
 ## Version History Log:
@@ -759,3 +759,4 @@ Version: 0.0.742 - Case Reference: the field's gray rule now follows the box's o
 Version: 0.0.743 - Case Reference field rules are now the palette's outline grey (#76777D), one token darker than outline-variant, which was nearly invisible on the #F2F4F6 field box.
 Version: 0.0.744 - Law names: the statute list is now synced, firm-shared data seeded with the 57 Acts of LawsOfBangladesh.md under its seven categories; no screen changes yet.
 Version: 0.0.745 - Law names: public.laws is live with its RLS, guards, broadcast, sync allow-list and 57 generated seed rows, so a chamber shares one statute list.
+Version: 0.0.746 - Phase 3 of the law list: the Statute box is a grouped law-name dropdown with an Add a Law Name window, and Settings gains Edit Law Names.

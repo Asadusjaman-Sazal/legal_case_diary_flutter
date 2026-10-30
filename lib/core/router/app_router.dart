@@ -50,6 +50,7 @@ import '../../features/settings/presentation/edit_court_steps/district_list_scre
 import '../../features/settings/presentation/edit_court_steps/item_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_names_category_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/edit_court_steps_menu.dart';
+import '../../features/settings/presentation/edit_court_steps/law_list_screen.dart';
 import '../../features/settings/presentation/edit_court_steps/lower_court_category_list_screen.dart';
 import '../../features/settings/presentation/language_screen.dart';
 import '../../features/settings/presentation/online_sync_screen.dart';
@@ -170,6 +171,10 @@ class AppRoutes {
   static const String settingsEditCourtSteps = '/settings/edit-court-steps';
   static const String settingsEditCourtNamesCategory =
       '/settings/edit-court-steps/court-names-category';
+
+  /// Law Names: the seven law categories, and `?category=<id>` for one
+  /// category's names. Opened from Settings → Edit Court/Steps.
+  static const String settingsLawNames = '/settings/edit-court-steps/law-names';
   static const String settingsCourtCategory =
       '/settings/edit-court-steps/court-category';
   static const String settingsDistrictList =
@@ -709,6 +714,11 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.settingsEditCourtNamesCategory,
     builder: (context, state) => const EditCourtNamesCategoryScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.settingsLawNames,
+    builder: (context, state) =>
+        LawNamesScreen(categoryId: state.uri.queryParameters['category']),
   ),
   GoRoute(
     path: AppRoutes.settingsCourtCategory,

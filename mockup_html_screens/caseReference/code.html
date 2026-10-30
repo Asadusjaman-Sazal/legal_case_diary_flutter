@@ -262,11 +262,17 @@
           <span class="font-case-number text-case-number text-outline">e.g. 25 DLR (AD) 142</span>
         </div>
       </div>
+      <!-- Statute is a dropdown over the law-name list (grouped by the seven
+           law categories), not a free-text box. The box keeps the same
+           rounded-lg corner, surface-container-low fill and outline bottom
+           rule as its neighbours; the caret on the right is the only new mark.
+           Its last row is "Add a Law Name…", which opens the shared add window. -->
       <div class="pb-md">
         <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Statute</p>
-        <div class="rounded-lg bg-surface-container-low border-b border-outline px-md py-gutter">
-          <span class="font-label-lg text-label-lg text-outline">e.g. CRPC</span>
-        </div>
+        <button class="w-full rounded-lg bg-surface-container-low border-b border-outline px-md py-gutter flex items-center text-left active:opacity-70">
+          <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Penal Code, 1860</span>
+          <span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
+        </button>
       </div>
       <div class="pb-md">
         <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Section/Article</p>
@@ -289,6 +295,46 @@
     </div>
     <div class="p-md">
       <button class="w-full min-h-[56px] rounded bg-secondary text-on-primary flex items-center justify-center font-title-md text-title-md active:opacity-80">Save Reference</button>
+    </div>
+  </div>
+</div>
+
+<!-- The statute picker: the app's own dropdown window — a black title band,
+     a search field, the law names under their seven category headings, and the
+     Add a Law Name… row last. Its Close action is the full-width black button
+     every picker in the app carries. -->
+<div class="hidden fixed inset-0 z-[100] bg-overlay-54 items-center justify-center">
+  <div class="bg-surface-container-lowest rounded-lg w-[92%] h-[90%] overflow-hidden flex flex-col">
+    <div class="bg-secondary h-[60px] flex items-center justify-center relative">
+      <span class="font-title-lg text-title-lg text-on-primary">Choose a Law</span>
+      <button aria-label="Close" class="absolute right-0 top-0 w-12 h-[60px] flex items-center justify-center text-on-primary active:opacity-70">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-md">
+      <div class="h-12 rounded bg-surface-container-low border-b border-outline px-md flex items-center">
+        <span class="material-symbols-outlined text-on-surface-variant">search</span>
+        <span class="ml-md font-body-sm text-body-sm text-outline">Search</span>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <p class="px-md pt-md pb-xs font-label-lg text-label-lg text-on-surface-variant">Constitution, Courts &amp; Practice</p>
+      <div class="px-md py-md font-body-lg text-body-lg text-on-surface">The Constitution of the People’s Republic of Bangladesh</div>
+      <p class="px-md pt-md pb-xs font-label-lg text-label-lg text-on-surface-variant">Civil Procedure &amp; Evidence</p>
+      <div class="px-md py-md font-body-lg text-body-lg text-on-surface flex items-center justify-between">
+        <span>The Code of Civil Procedure, 1908</span>
+        <span class="material-symbols-outlined">check</span>
+      </div>
+      <p class="px-md pt-md pb-xs font-label-lg text-label-lg text-on-surface-variant">Criminal Law</p>
+      <div class="px-md py-md font-body-lg text-body-lg text-on-surface">The Penal Code, 1860</div>
+      <div class="border-t border-surface-container"></div>
+      <div class="px-md py-md flex items-center gap-sm">
+        <span class="material-symbols-outlined">add</span>
+        <span class="font-body-lg text-body-lg text-on-surface">Add a Law Name…</span>
+      </div>
+    </div>
+    <div class="border-t border-surface-container p-md">
+      <button class="w-full min-h-[60px] rounded bg-secondary text-on-primary flex items-center justify-center font-title-md text-title-md active:opacity-80">Close</button>
     </div>
   </div>
 </div>

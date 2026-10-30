@@ -1310,6 +1310,18 @@ abstract class AppLocalizations {
   /// **'e.g. CRPC'**
   String get caseReferenceScreen_statutePlaceholder;
 
+  /// No description provided for @caseReferenceScreen_chooseLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Law'**
+  String get caseReferenceScreen_chooseLaw;
+
+  /// No description provided for @caseReferenceScreen_addLawName.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Law Name…'**
+  String get caseReferenceScreen_addLawName;
+
   /// No description provided for @caseReferenceScreen_sectionPlaceholder.
   ///
   /// In en, this message translates to:
@@ -3260,6 +3272,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Labour & Everyday Regulation'**
   String get lawCategory_labourEverydayRegulation;
+
+  /// No description provided for @lawCategory_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get lawCategory_other;
 
   /// No description provided for @onBehalf_plaintiff.
   ///
@@ -5736,6 +5754,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Divisions, districts and their court categories'**
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle;
+
+  /// No description provided for @settingsEditCourtSteps_lawNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Law Names'**
+  String get settingsEditCourtSteps_lawNames;
+
+  /// No description provided for @settingsEditCourtSteps_lawNamesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Acts and Ordinances a case reference cites'**
+  String get settingsEditCourtSteps_lawNamesSubtitle;
+
+  /// No description provided for @lawNamesScreen_addTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Law Name'**
+  String get lawNamesScreen_addTitle;
+
+  /// No description provided for @lawNamesScreen_editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Law Name'**
+  String get lawNamesScreen_editTitle;
+
+  /// No description provided for @lawNamesScreen_nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Law Name'**
+  String get lawNamesScreen_nameLabel;
+
+  /// No description provided for @lawNamesScreen_categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get lawNamesScreen_categoryLabel;
+
+  /// No description provided for @lawNamesScreen_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No law names yet'**
+  String get lawNamesScreen_empty;
 
   /// No description provided for @settingsEditCourtNames_courtCategory.
   ///

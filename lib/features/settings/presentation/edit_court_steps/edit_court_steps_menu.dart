@@ -39,6 +39,15 @@ class EditCourtStepsMenu extends StatelessWidget {
             onTap: () => context.push(AppRoutes.settingsEditCourtNamesCategory),
           ),
           const SizedBox(height: AppSpacing.sm),
+          // The law names a case reference cites: seven categories, the same
+          // list the statute dropdown in the reference form offers.
+          SettingsMenuCard(
+            icon: Icons.menu_book_outlined,
+            title: l.settingsEditCourtSteps_lawNames,
+            subtitle: l.settingsEditCourtSteps_lawNamesSubtitle,
+            onTap: () => context.push(AppRoutes.settingsLawNames),
+          ),
+          const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
             icon: Icons.category_outlined,
             title: l.settingsEditCourtSteps_editItemTypes,

@@ -55,6 +55,23 @@ class AppTranslations {
     return fallbackEn;
   }
 
+  /// Resolves a law category's stable ID to its heading in the active language.
+  ///
+  /// A law row stores the heading's ID (`criminal_law`), not its text, so the
+  /// Case Reference screen, the statute picker and the Edit Law Names page all
+  /// group by the same seven headings and translate them together. An ID no
+  /// seeded category owns — a blank one written by an older build, or a value
+  /// from a newer release — reads as **Other** rather than as a machine key.
+  String lawCategoryName(String categoryId) {
+    for (final category in seed.seedLawCategories) {
+      if (category.id == categoryId) {
+        return grouped[AppStrings.lawCategoryGroup]?[category.nameKey] ??
+            category.nameKey;
+      }
+    }
+    return _loc.lawCategory_other;
+  }
+
   /// Resolves a case type that the database stored **by name** to its label in
   /// the active language.
   ///

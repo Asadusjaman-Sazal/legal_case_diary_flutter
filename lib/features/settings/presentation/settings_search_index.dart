@@ -115,30 +115,39 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
     // -----------------------------------------------------------------------
     // Account & Profile
     // -----------------------------------------------------------------------
-    e(l.settingsScreen_profile, Icons.person_outline, AppRoutes.settingsProfile, [
-      settings,
-      account,
-    ]),
-    e(l.settingsProfile_editTitle, Icons.edit_outlined, AppRoutes.settingsProfile, [
-      settings,
-      account,
-      profile,
-    ]),
+    e(
+      l.settingsScreen_profile,
+      Icons.person_outline,
+      AppRoutes.settingsProfile,
+      [settings, account],
+    ),
+    e(
+      l.settingsProfile_editTitle,
+      Icons.edit_outlined,
+      AppRoutes.settingsProfile,
+      [settings, account, profile],
+    ),
     e(
       l.settingsScreen_manageAccount,
       Icons.manage_accounts_outlined,
       AppRoutes.settingsManageAccount,
       [settings, account],
     ),
-    e(l.settingsAppLock_title, Icons.lock_outline, AppRoutes.settingsAppLock, [
-      settings,
-      account,
-    ], keywords: const ['pin', 'fingerprint', 'biometric']),
+    e(
+      l.settingsAppLock_title,
+      Icons.lock_outline,
+      AppRoutes.settingsAppLock,
+      [settings, account],
+      keywords: const ['pin', 'fingerprint', 'biometric'],
+    ),
     if (showDevices)
-      e(l.devices_title, Icons.devices_outlined, AppRoutes.settingsDevices, [
-        settings,
-        account,
-      ], keywords: const ['phone']),
+      e(
+        l.devices_title,
+        Icons.devices_outlined,
+        AppRoutes.settingsDevices,
+        [settings, account],
+        keywords: const ['phone'],
+      ),
 
     // Subscription — its own Settings entry, directly under Firm (0.0.701).
     e(
@@ -162,27 +171,32 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
       keywords: const ['buy plan', 'upgrade'],
     ),
     if (!firmMember)
-      e(l.payments_historyTitle, Icons.history, AppRoutes.settingsSubscriptionHistory, [
-        settings,
-        subscription,
-      ]),
+      e(
+        l.payments_historyTitle,
+        Icons.history,
+        AppRoutes.settingsSubscriptionHistory,
+        [settings, subscription],
+      ),
     // Firm is its own Settings entry, offered to every account.
     e(l.settingsFirm_title, Icons.apartment_outlined, AppRoutes.settingsFirm, [
       settings,
     ]),
     if (canOpenManageAssociates)
-      e(l.manageAssociates_title, Icons.groups_outlined, AppRoutes.settingsManageAssociates, [
-        settings,
-        firm,
-      ]),
+      e(
+        l.manageAssociates_title,
+        Icons.groups_outlined,
+        AppRoutes.settingsManageAssociates,
+        [settings, firm],
+      ),
 
     // Manage Plan actions
     if (premium && !firmMember) ...[
-      e(l.settingsSubscription_renewSubscription, Icons.autorenew, AppRoutes.paywall, [
-        settings,
-        subscription,
-        managePlan,
-      ]),
+      e(
+        l.settingsSubscription_renewSubscription,
+        Icons.autorenew,
+        AppRoutes.paywall,
+        [settings, subscription, managePlan],
+      ),
       e(
         l.settingsSubscription_cancelSubscription,
         Icons.cancel_outlined,
@@ -482,6 +496,12 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
       [settings, editCourt],
     ),
     e(
+      l.settingsEditCourtSteps_lawNames,
+      Icons.menu_book_outlined,
+      AppRoutes.settingsLawNames,
+      [settings, editCourt],
+    ),
+    e(
       l.settingsEditCourtSteps_editItemTypes,
       Icons.category_outlined,
       AppRoutes.settingsEditCourtSteps,
@@ -509,12 +529,10 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
     // -----------------------------------------------------------------------
     // Online Sync
     // -----------------------------------------------------------------------
-    e(
-      l.settingsOnlineSync_syncNow,
-      Icons.sync,
-      AppRoutes.settingsOnlineSync,
-      [settings, onlineSync],
-    ),
+    e(l.settingsOnlineSync_syncNow, Icons.sync, AppRoutes.settingsOnlineSync, [
+      settings,
+      onlineSync,
+    ]),
     e(
       l.settingsOnlineSync_enableSync,
       Icons.sync_outlined,

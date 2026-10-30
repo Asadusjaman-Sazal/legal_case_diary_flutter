@@ -685,6 +685,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseReferenceScreen_statutePlaceholder => 'e.g. CRPC';
 
   @override
+  String get caseReferenceScreen_chooseLaw => 'Choose a Law';
+
+  @override
+  String get caseReferenceScreen_addLawName => 'Add a Law Name…';
+
+  @override
   String get caseReferenceScreen_sectionPlaceholder => 'e.g. Section 54';
 
   @override
@@ -1846,6 +1852,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lawCategory_labourEverydayRegulation =>
       'Labour & Everyday Regulation';
+
+  @override
+  String get lawCategory_other => 'Other';
 
   @override
   String get onBehalf_plaintiff => 'Plaintiff';
@@ -3345,6 +3354,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>
       'Divisions, districts and their court categories';
+
+  @override
+  String get settingsEditCourtSteps_lawNames => 'Law Names';
+
+  @override
+  String get settingsEditCourtSteps_lawNamesSubtitle =>
+      'The Acts and Ordinances a case reference cites';
+
+  @override
+  String get lawNamesScreen_addTitle => 'Add a Law Name';
+
+  @override
+  String get lawNamesScreen_editTitle => 'Edit Law Name';
+
+  @override
+  String get lawNamesScreen_nameLabel => 'Law Name';
+
+  @override
+  String get lawNamesScreen_categoryLabel => 'Category';
+
+  @override
+  String get lawNamesScreen_empty => 'No law names yet';
 
   @override
   String get settingsEditCourtNames_courtCategory => 'Edit Court Names';

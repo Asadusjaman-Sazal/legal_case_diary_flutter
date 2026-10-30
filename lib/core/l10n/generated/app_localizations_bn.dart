@@ -686,6 +686,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_statutePlaceholder => 'যেমন: CRPC';
 
   @override
+  String get caseReferenceScreen_chooseLaw => 'আইন বেছে নিন';
+
+  @override
+  String get caseReferenceScreen_addLawName => 'আইনের নাম যোগ করুন…';
+
+  @override
   String get caseReferenceScreen_sectionPlaceholder => 'যেমন: ধারা ৫৪';
 
   @override
@@ -1853,6 +1859,9 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get lawCategory_labourEverydayRegulation =>
       'শ্রম ও দৈনন্দিন নিয়ন্ত্রণ';
+
+  @override
+  String get lawCategory_other => 'অন্যান্য';
 
   @override
   String get onBehalf_plaintiff => 'বাদী';
@@ -3361,6 +3370,28 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle =>
       'বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি';
+
+  @override
+  String get settingsEditCourtSteps_lawNames => 'আইনের নাম';
+
+  @override
+  String get settingsEditCourtSteps_lawNamesSubtitle =>
+      'কেস রেফারেন্সে উল্লিখিত আইন ও অধ্যাদেশসমূহ';
+
+  @override
+  String get lawNamesScreen_addTitle => 'আইনের নাম যোগ করুন';
+
+  @override
+  String get lawNamesScreen_editTitle => 'আইনের নাম সম্পাদনা করুন';
+
+  @override
+  String get lawNamesScreen_nameLabel => 'আইনের নাম';
+
+  @override
+  String get lawNamesScreen_categoryLabel => 'বিভাগ';
+
+  @override
+  String get lawNamesScreen_empty => 'এখনও কোনও আইনের নাম নেই';
 
   @override
   String get settingsEditCourtNames_courtCategory => 'আদালতের নাম সম্পাদনা';

@@ -32,6 +32,9 @@ import '../../payments/presentation/lapse_allowance_ui.dart';
 import '../../settings/data/premium_access.dart';
 import '../../settings/data/write_allowance.dart';
 import '../../settings/presentation/delete_request_flow.dart';
+import '../../settings/presentation/edit_court_steps/next_order_index.dart';
+import 'law_name_dialog.dart';
+import 'law_picker.dart';
 import 'reference_viewmodel.dart';
 
 /// Case reference library screen.
@@ -506,7 +509,14 @@ class _ReferenceEditSheet extends ConsumerStatefulWidget {
 
 class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
   late final TextEditingController _refNoController;
-  late final TextEditingController _statuteController;
+
+  /// The cited law's name, chosen from the law list rather than typed.
+  ///
+  /// It stays a plain name rather than an id because `case_references.statute`
+  /// has always held text: an existing reference keeps whatever it was saved
+  /// with, including a name the list has never heard of, and the screen keeps
+  /// showing it until the user picks a different one.
+  String? _statute;
   late final TextEditingController _sectionController;
   late final TextEditingController _titleController;
   late final TextEditingController _commentsController;
@@ -517,7 +527,7 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     super.initState();
     final r = widget.reference;
     _refNoController = TextEditingController(text: r?.referenceAndPageNo ?? '');
-    _statuteController = TextEditingController(text: r?.statute ?? '');
+    _statute = r?.statute;
     _sectionController = TextEditingController(text: r?.sectionOrArticle ?? '');
     _titleController = TextEditingController(
       text: r?.titleAndDescription ?? '',
@@ -541,7 +551,6 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
   @override
   void dispose() {
     _refNoController.dispose();
-    _statuteController.dispose();
     _sectionController.dispose();
     _titleController.dispose();
     _commentsController.dispose();
@@ -549,6 +558,56 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
   }
 
   bool get _isNew => widget.reference == null;
+
+  /// Opens the grouped law picker, and its **Add a Law Name…** row when the
+  /// citation's law is not in the list yet.
+  ///
+  /// The picker reads the list fresh each time: another associate may have
+  /// added a name since this sheet opened, and the dropdown should offer it.
+  Future<void> _pickStatute() async {
+    final repo = await ref.read(lawsRepositoryProvider.future);
+    final laws = await repo.listAll();
+    if (!mounted) return;
+
+    Law? selected;
+    for (final law in laws) {
+      if (law.name == _statute) selected = law;
+    }
+
+    final pick = await showLawPicker(context, laws: laws, selected: selected);
+    if (pick == null || !mounted) return;
+
+    if (!pick.addNew) {
+      final law = pick.law;
+      if (law != null) setState(() => _statute = law.name);
+      return;
+    }
+
+    // A new name lands in the category of the law currently cited when there
+    // is one, so adding a neighbouring Act does not require re-choosing it.
+    final draft = await showLawNameDialog(
+      context,
+      initialCategoryId: selected == null || selected.category.isEmpty
+          ? null
+          : selected.category,
+    );
+    if (draft == null || !mounted) return;
+
+    await repo.insert(
+      LawsCompanion(
+        name: Value(draft.name),
+        category: Value(draft.categoryId),
+        orderIndex: Value(
+          nextOrderIndex(
+            laws
+                .where((law) => law.category == draft.categoryId)
+                .map((law) => law.orderIndex),
+          ),
+        ),
+      ),
+    );
+    if (mounted) setState(() => _statute = draft.name);
+  }
 
   Future<void> _save({bool deleting = false}) async {
     final l = AppLocalizations.of(context);
@@ -599,9 +658,7 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     final companion = CaseReferencesCompanion(
       referenceAndPageNo: Value(_refNoController.text.trim()),
       statute: Value(
-        _statuteController.text.trim().isEmpty
-            ? null
-            : _statuteController.text.trim(),
+        _statute == null || _statute!.trim().isEmpty ? null : _statute!.trim(),
       ),
       sectionOrArticle: Value(
         _sectionController.text.trim().isEmpty
@@ -689,11 +746,13 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
                   placeholder: l.caseReferenceScreen_refPlaceholder,
                   verticalPadding: _singleLineVerticalPadding,
                 ),
-                _Field(
+                _DropdownField(
+                  key: const ValueKey('reference-statute-field'),
                   label: l.caseReferenceScreen_statute,
-                  controller: _statuteController,
+                  value: _statute,
                   placeholder: l.caseReferenceScreen_statutePlaceholder,
                   verticalPadding: _singleLineVerticalPadding,
+                  onTap: _pickStatute,
                 ),
                 _Field(
                   label: l.caseReferenceScreen_sectionOrArticle,
@@ -812,47 +871,137 @@ class _Field extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(AppDialogMetrics.corner),
-          ),
-          // The gray rule is painted along the box's own bottom edge rather
-          // than set as a `Border`, which would draw a straight chord and stop
-          // short of each rounded corner (user report, 0.0.741).
-          child: CustomPaint(
-            foregroundPainter: _BottomRulePainter(
-              color: _bottomRuleColor,
-              radius: AppDialogMetrics.corner,
-            ),
-            child: TextField(
-              controller: controller,
-              maxLines: maxLines,
-              textAlign: TextAlign.start,
-              textAlignVertical: TextAlignVertical.top,
-              decoration: InputDecoration(
-                hintText: placeholder,
-                hintStyle: TextStyle(
-                  color: AppColors.outline.withValues(alpha: 0.5),
-                ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: verticalPadding,
-                ),
-                isCollapsed: true,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
+        _fieldBox(
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.top,
+            decoration: InputDecoration(
+              hintText: placeholder,
+              hintStyle: TextStyle(
+                color: AppColors.outline.withValues(alpha: 0.5),
               ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: verticalPadding,
+              ),
+              isCollapsed: true,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
             ),
           ),
         ),
       ],
     ),
   );
+}
+
+/// The box every field on the form draws: the shared window's corner, the
+/// aside fill, and the gray rule along the box's own bottom edge.
+///
+/// The rule is painted rather than set as a `Border`, which would draw a
+/// straight chord and stop short of each rounded corner (user report, 0.0.741).
+Widget _fieldBox({required Widget child}) => Container(
+  decoration: BoxDecoration(
+    color: AppColors.surfaceContainerLow,
+    borderRadius: BorderRadius.circular(AppDialogMetrics.corner),
+  ),
+  child: CustomPaint(
+    foregroundPainter: _BottomRulePainter(
+      color: _bottomRuleColor,
+      radius: AppDialogMetrics.corner,
+    ),
+    child: child,
+  ),
+);
+
+/// The statute field: a dropdown that reads as the form's other boxes.
+///
+/// It is not a `DropdownButton`, because the picker is the app's own grouped
+/// window (seven headings and an Add row) rather than a one-column menu. The
+/// box keeps [AppDialogMetrics.corner] and the same bottom rule as its
+/// neighbours, so the row looks unchanged until it is tapped.
+class _DropdownField extends StatelessWidget {
+  const _DropdownField({
+    required this.label,
+    required this.value,
+    required this.placeholder,
+    required this.onTap,
+    required this.verticalPadding,
+    super.key,
+  });
+
+  final String label;
+
+  /// The chosen law's name, or null when nothing is chosen yet.
+  final String? value;
+  final String placeholder;
+  final VoidCallback onTap;
+  final double verticalPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasValue = value != null && value!.trim().isNotEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.sm,
+              AppSpacing.xs,
+              AppSpacing.sm,
+              0,
+            ),
+            child: Text(
+              label,
+              style: AppTypography.labelLg.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
+          _fieldBox(
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppDialogMetrics.corner),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: verticalPadding,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        hasValue ? value!.trim() : placeholder,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodyLg.copyWith(
+                          color: hasValue
+                              ? AppColors.onBackground
+                              : AppColors.outline.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_drop_down,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Paints the field's gray bottom rule along the box's own bottom edge.

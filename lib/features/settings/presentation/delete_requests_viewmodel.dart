@@ -48,8 +48,8 @@ class DeleteRequestsViewModel
   /// Riverpod provider for [DeleteRequestsViewModel].
   static final provider =
       AsyncNotifierProvider<DeleteRequestsViewModel, ListState<DeleteRequest>>(
-    () => DeleteRequestsViewModel(),
-  );
+        () => DeleteRequestsViewModel(),
+      );
 
   @override
   FutureProvider<DeleteRequestsRepository> get repositoryProvider =>
@@ -187,11 +187,12 @@ final deleteRequestsViewModelProvider = DeleteRequestsViewModel.provider;
 /// Every delete request this device holds, live.
 ///
 /// The one stream the Phase 4 screens and the Settings badge are all cut from.
-final deleteRequestsStreamProvider =
-    StreamProvider<List<DeleteRequest>>((ref) async* {
-      final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
-      yield* repo.watchAll();
-    });
+final deleteRequestsStreamProvider = StreamProvider<List<DeleteRequest>>((
+  ref,
+) async* {
+  final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
+  yield* repo.watchAll();
+});
 
 /// The record a request names, as it stands on this device right now.
 ///
@@ -200,7 +201,10 @@ final deleteRequestsStreamProvider =
 /// device does not hold the record, which the screen words as "not on this
 /// device" rather than claiming the record is gone.
 final deleteRequestTargetProvider =
-    FutureProvider.family<Map<String, dynamic>?, String>((ref, requestId) async {
+    FutureProvider.family<Map<String, dynamic>?, String>((
+      ref,
+      requestId,
+    ) async {
       final requests =
           ref.watch(deleteRequestsStreamProvider).value ??
           const <DeleteRequest>[];
@@ -219,19 +223,18 @@ final deleteRequestTargetProvider =
 /// reviewer has looked at it. False for a decided request, and false when the
 /// record is not on this device: an unknown version is never reported as a
 /// change.
-final deleteRequestTargetChangedProvider =
-    FutureProvider.family<bool, String>((ref, requestId) async {
-      final requests =
-          ref.watch(deleteRequestsStreamProvider).value ??
-          const <DeleteRequest>[];
-      final request = requests.where((row) => row.id == requestId).firstOrNull;
-      if (request == null || request.status != 'pending') return false;
-      final target = await ref.watch(
-        deleteRequestTargetProvider(requestId).future,
-      );
-      final version = target?['version'];
-      return version is int && version != request.targetBaseVersion;
-    });
+final deleteRequestTargetChangedProvider = FutureProvider.family<bool, String>((
+  ref,
+  requestId,
+) async {
+  final requests =
+      ref.watch(deleteRequestsStreamProvider).value ?? const <DeleteRequest>[];
+  final request = requests.where((row) => row.id == requestId).firstOrNull;
+  if (request == null || request.status != 'pending') return false;
+  final target = await ref.watch(deleteRequestTargetProvider(requestId).future);
+  final version = target?['version'];
+  return version is int && version != request.targetBaseVersion;
+});
 
 /// This account's own delete requests, live, straight from the scoped query.
 ///
@@ -240,26 +243,42 @@ final deleteRequestTargetChangedProvider =
 /// reads and the badge that counts their unread decisions are the same rows the
 /// server would let them act on — read from the query rather than sliced out of
 /// the firm-wide stream, which every reviewer in the firm shares.
-final myDeleteRequestsStreamProvider =
-    StreamProvider<List<DeleteRequest>>((ref) async* {
-      final userId = ref.watch(accountCacheUserIdProvider);
-      final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
-      yield* repo.watchMine(userId);
-    });
+final myDeleteRequestsStreamProvider = StreamProvider<List<DeleteRequest>>((
+  ref,
+) async* {
+  final userId = ref.watch(accountCacheUserIdProvider);
+  final repo = await ref.watch(deleteRequestsRepositoryProvider.future);
+  yield* repo.watchMine(userId);
+});
 
 /// Whether [request] is one a reviewer still has something to do about.
 ///
 /// `stale_review_required` counts: the server parked it precisely because the
 /// record moved under the request, so it is waiting for a reconfirm.
 bool deleteRequestNeedsReview(DeleteRequest request) =>
-    request.status == 'pending' ||
-    request.status == 'stale_review_required';
+    request.status == 'pending' || request.status == 'stale_review_required';
 
 /// The reviewer's queue: every request in the firm still awaiting a decision.
 final deleteReviewQueueProvider = Provider<List<DeleteRequest>>((ref) {
   final all = ref.watch(deleteRequestsStreamProvider).value;
   if (all == null) return const <DeleteRequest>[];
   return all.where(deleteRequestNeedsReview).toList(growable: false);
+});
+
+/// The firm's already-finished requests, newest decision first.
+///
+/// The owner's **Previous Delete Requests** list: every request the queue no
+/// longer holds — approved, rejected, or closed because the record was deleted
+/// by someone else. `stale_review_required` is not here: the server parked it
+/// because the record moved, so it is still waiting on a reviewer and stays in
+/// the queue. Ordered by `updatedAt`, so the newest decision is on top.
+final previousDeleteRequestsProvider = Provider<List<DeleteRequest>>((ref) {
+  final all = ref.watch(deleteRequestsStreamProvider).value;
+  if (all == null) return const <DeleteRequest>[];
+  final previous =
+      all.where((request) => !deleteRequestNeedsReview(request)).toList()
+        ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+  return previous;
 });
 
 /// This account's own requests, newest first (the current value of the stream).
@@ -296,7 +315,10 @@ class DeleteRequestsSeenNotifier extends Notifier<int> {
   /// Records that everything decided up to [at] has been seen.
   Future<void> markSeen(int at) async {
     if (at <= state) return;
-    await _prefs.setInt(deleteRequestsSeenKey(ref.read(accountCacheUserIdProvider)), at);
+    await _prefs.setInt(
+      deleteRequestsSeenKey(ref.read(accountCacheUserIdProvider)),
+      at,
+    );
     state = at;
   }
 }

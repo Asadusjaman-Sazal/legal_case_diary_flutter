@@ -8884,6 +8884,12 @@ abstract class AppLocalizations {
   /// **'No deletion requests awaiting review.'**
   String get deleteRequests_noneToReview;
 
+  /// No description provided for @deleteRequests_previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Delete Requests'**
+  String get deleteRequests_previous;
+
   /// No description provided for @deleteRequests_mine.
   ///
   /// In en, this message translates to:

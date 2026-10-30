@@ -2264,6 +2264,7 @@
   "deleteRequests_firmOnly": "ডিলিট অনুরোধ শুধু ফার্ম সদস্যদের জন্য উপলব্ধ।",
   "deleteRequests_toReview": "আপনার পর্যালোচনার অপেক্ষায়",
   "deleteRequests_noneToReview": "পর্যালোচনার অপেক্ষায় কোনো ডিলিট অনুরোধ নেই।",
+  "deleteRequests_previous": "পূর্ববর্তী ডিলিট অনুরোধ",
   "deleteRequests_mine": "আমার অনুরোধ",
   "deleteRequests_noneMine": "আপনি কোনো ডিলিট অনুরোধ পাঠাননি।",
   "deleteRequests_statusPending": "অপেক্ষমাণ",

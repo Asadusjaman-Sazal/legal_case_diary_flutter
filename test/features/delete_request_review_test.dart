@@ -354,6 +354,86 @@ void main() {
 
       await unmountApp(tester);
     });
+
+    testWidgets(
+      'the owner sees finished requests under Previous Delete Requests',
+      (tester) async {
+        final overrides = await openScope();
+        db = harness.db;
+        await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+        await seedRequest(id: 'r1', title: 'Land Dispute Note');
+        // Decided, newest first by the decision time.
+        await seedRequest(
+          id: 'r2',
+          title: 'Old Approved Note',
+          status: 'approved',
+          updatedAt: 5000,
+          reviewedBy: 'user-1',
+        );
+        await seedRequest(
+          id: 'r3',
+          title: 'Old Rejected Note',
+          status: 'rejected',
+          updatedAt: 4000,
+          reviewedBy: 'user-1',
+        );
+
+        await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+        final l = await AppLocalizations.delegate.load(const Locale('en'));
+        // The queue still holds only the request awaiting review.
+        expect(find.text(l.deleteRequests_toReview), findsOneWidget);
+        expect(find.text('Land Dispute Note'), findsOneWidget);
+        // The finished ones sit under their own heading, newest decision first,
+        // with their outcome and no way to act on them.
+        expect(find.text(l.deleteRequests_previous), findsOneWidget);
+        expect(find.text('Old Approved Note'), findsOneWidget);
+        expect(find.text('Old Rejected Note'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.text('Old Approved Note')).dy,
+          lessThan(tester.getTopLeft(find.text('Old Rejected Note')).dy),
+        );
+        expect(find.text(l.deleteRequests_statusApproved), findsOneWidget);
+        expect(find.text(l.deleteRequests_statusRejected), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('delete-request-approve-r2')),
+          findsNothing,
+        );
+        expect(
+          find.byKey(const ValueKey('delete-request-row-r2')),
+          findsNothing,
+        );
+
+        await unmountApp(tester);
+      },
+    );
+
+    testWidgets('a member with delete permission keeps the queue alone', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: true);
+      await seedRequest(id: 'r1', title: 'Land Dispute Note');
+      await seedRequest(
+        id: 'r2',
+        title: 'Old Approved Note',
+        status: 'approved',
+        reviewedBy: 'user-1',
+      );
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.deleteRequests_toReview), findsOneWidget);
+      expect(find.text('Land Dispute Note'), findsOneWidget);
+      // The history section is the owner's (user request).
+      expect(find.text(l.deleteRequests_previous), findsNothing);
+      expect(find.text('Old Approved Note'), findsNothing);
+
+      await unmountApp(tester);
+    });
     testWidgets('long pressing a queued row offers quick Approve and Reject', (
       tester,
     ) async {
@@ -420,10 +500,13 @@ void main() {
       final request = await DeleteRequestsDao(db).getById('r1');
       expect(request!.status, 'approved');
       expect(request.reviewedBy, 'user-1');
-      // Decided in place: the review screen was never opened, and the row left
-      // the queue.
+      // Decided in place: the review screen was never opened, the row left the
+      // queue and moved into the owner's history with its outcome.
       expect(find.text(l.deleteRequests_reviewTitle), findsNothing);
-      expect(find.text('Land Dispute Note'), findsNothing);
+      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+      expect(find.text(l.deleteRequests_previous), findsOneWidget);
+      expect(find.text('Land Dispute Note'), findsOneWidget);
+      expect(find.text(l.deleteRequests_statusApproved), findsOneWidget);
       expect(find.text(l.deleteRequests_approved), findsOneWidget);
 
       await unmountApp(tester);

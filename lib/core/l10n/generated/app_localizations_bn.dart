@@ -5237,6 +5237,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'পর্যালোচনার অপেক্ষায় কোনো ডিলিট অনুরোধ নেই।';
 
   @override
+  String get deleteRequests_previous => 'পূর্ববর্তী ডিলিট অনুরোধ';
+
+  @override
   String get deleteRequests_mine => 'আমার অনুরোধ';
 
   @override

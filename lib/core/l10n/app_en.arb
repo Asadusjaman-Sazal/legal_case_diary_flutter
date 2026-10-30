@@ -2476,6 +2476,7 @@
   "deleteRequests_firmOnly": "Delete requests are only available to firm members.",
   "deleteRequests_toReview": "Awaiting Your Review",
   "deleteRequests_noneToReview": "No deletion requests awaiting review.",
+  "deleteRequests_previous": "Previous Delete Requests",
   "deleteRequests_mine": "My Requests",
   "deleteRequests_noneMine": "You have not sent any deletion requests.",
   "deleteRequests_statusPending": "Pending",

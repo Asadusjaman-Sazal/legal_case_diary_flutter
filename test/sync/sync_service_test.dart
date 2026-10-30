@@ -268,7 +268,7 @@ void main() {
 
     await service.syncNow(pull: true);
 
-    expect(transport.pulledTables, hasLength(12));
+    expect(transport.pulledTables, hasLength(13));
     expect(transport.pulledTables.first, 'court_categories');
     expect((await SyncQueueDao(db).getAll()).single.state, 'resolved');
     final metadata = SyncMetadataDao(db);
@@ -459,7 +459,7 @@ void main() {
     await Future<void>.delayed(
       syncCoalescingWindow + const Duration(milliseconds: 50),
     );
-    expect(transport.pulledTables, hasLength(12),
+    expect(transport.pulledTables, hasLength(13),
         reason: 'a resume after a re-join pulls every table');
   });
 

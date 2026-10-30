@@ -67,6 +67,7 @@ const List<String> backupTableOrder = <String>[
   'on_behalfs',
   'steps',
   'case_types',
+  'laws',
   // Domain rows and their tombstones.
   'cases',
   'case_history',
@@ -100,7 +101,7 @@ const Set<String> neverRestoredTables = <String>{
   'firm_members',
 };
 
-/// The six editable reference tables, in the order [backupTableOrder] lists them.
+/// The seven editable reference tables, in the order [backupTableOrder] lists them.
 ///
 /// A row here is the user's own when either `is_custom` (a row they added) or
 /// `is_user_modified` (a pre-seeded row they edited) is set — which is what
@@ -113,6 +114,7 @@ const List<String> userEditableReferenceTables = <String>[
   'on_behalfs',
   'steps',
   'case_types',
+  'laws',
 ];
 
 /// The `sync_metadata` keys that describe the last archive.
@@ -386,7 +388,7 @@ class BackupRepository {
   /// The question the logout flow asks before deciding it may wipe without
   /// offering a copy: cases, notes and case references (the same three the
   /// sign-in gate counts, and the free user's own work), plus any reference row
-  /// the user added or edited in the six editable reference tables. Seeded
+  /// the user added or edited in the seven editable reference tables. Seeded
   /// reference data, settings and sync metadata are deliberately **not** data:
   /// they exist on every install, old or new.
   ///

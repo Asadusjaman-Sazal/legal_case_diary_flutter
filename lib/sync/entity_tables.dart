@@ -6,7 +6,7 @@
 /// allow-list (Task 18 Phase 1), so the client can never name a table the RPC
 /// would refuse.
 ///
-/// The dependency order is the FK-safe push order the plan requires: the six
+/// The dependency order is the FK-safe push order the plan requires: the seven
 /// editable config tables first, then `cases`, then everything that may
 /// reference a case or is a leaf. `sync_dependency_rank` mirrors the server's
 /// function of the same name.
@@ -14,7 +14,7 @@ library;
 
 import 'dart:convert';
 
-/// `entity_type` -> the table it maps to, for all twelve domain tables.
+/// `entity_type` -> the table it maps to, for all thirteen domain tables.
 const Map<String, String> syncTableByEntityType = <String, String>{
   'case': 'cases',
   'case_history': 'case_history',
@@ -26,6 +26,7 @@ const Map<String, String> syncTableByEntityType = <String, String>{
   'step': 'steps',
   'case_type': 'case_types',
   'on_behalf': 'on_behalfs',
+  'law': 'laws',
   'delete_request': 'delete_requests',
   'conflict_log': 'conflict_log',
 };
@@ -49,13 +50,14 @@ int syncDependencyRank(String entityType) => switch (entityType) {
   'court' ||
   'step' ||
   'case_type' ||
-  'on_behalf' => 0,
+  'on_behalf' ||
+  'law' => 0,
   'case' => 1,
   'case_history' || 'note' || 'reference' || 'delete_request' || 'conflict_log' => 2,
   _ => 3,
 };
 
-/// All twelve entity types in FK-safe order, for a full pull or a batch walk.
+/// All thirteen entity types in FK-safe order, for a full pull or a batch walk.
 const List<String> pushEntityTypesInDependencyOrder = <String>[
   'court_category',
   'case_category',
@@ -63,6 +65,7 @@ const List<String> pushEntityTypesInDependencyOrder = <String>[
   'step',
   'case_type',
   'on_behalf',
+  'law',
   'case',
   'case_history',
   'note',
@@ -71,7 +74,7 @@ const List<String> pushEntityTypesInDependencyOrder = <String>[
   'conflict_log',
 ];
 
-/// The same twelve tables in the same FK-safe order, for the delta pull.
+/// The same thirteen tables in the same FK-safe order, for the delta pull.
 final List<String> syncPullTablesInDependencyOrder = <String>[
   for (final entityType in pushEntityTypesInDependencyOrder)
     syncTableByEntityType[entityType]!,

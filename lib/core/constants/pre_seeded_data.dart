@@ -19164,6 +19164,468 @@ final List<SeedCourt> allSeedCourts = [
 ];
 
 // ---------------------------------------------------------------------------
+// Law names (case references)
+// ---------------------------------------------------------------------------
+
+/// Law-category stable IDs.
+///
+/// The seven groups are the headings of `docs/seed_data_test/
+/// LawsOfBangladesh.md`, in that file's order. A law category is a *heading*,
+/// not a row: the category list is code, so a law that carries a heading keeps
+/// reading the same even when the heading's wording is corrected.
+///
+/// `laws.category` stores the stable ID. Its label resolves through the ARB
+/// key in [SeedLawCategory.nameKey], exactly like a court category's
+/// `name_key`, so বাংলা readers see the heading translated.
+const lawCategoryConstitutionCourtsPractice = 'constitution_courts_practice';
+const lawCategoryCivilProcedureEvidence = 'civil_procedure_evidence';
+const lawCategoryContractLandPropertyBusiness =
+    'contract_land_property_business';
+const lawCategoryFamilyPersonalLaw = 'family_personal_law';
+const lawCategoryCriminalLaw = 'criminal_law';
+const lawCategoryTaxFinance = 'tax_finance';
+const lawCategoryLabourEverydayRegulation = 'labour_everyday_regulation';
+
+/// One law category: its stable ID, its localization key and its display
+/// order.
+class SeedLawCategory {
+  const SeedLawCategory({
+    required this.id,
+    required this.nameKey,
+    required this.orderIndex,
+  });
+
+  /// Stable machine key, stored in `laws.category`.
+  final String id;
+
+  /// Localization key resolved through app translations.
+  final String nameKey;
+
+  /// Canonical display order.
+  final int orderIndex;
+}
+
+/// The seven law categories, in the order the reference document lists them.
+const List<SeedLawCategory> seedLawCategories = <SeedLawCategory>[
+  SeedLawCategory(
+    id: lawCategoryConstitutionCourtsPractice,
+    nameKey: 'lawCategory_constitutionCourtsPractice',
+    orderIndex: 0,
+  ),
+  SeedLawCategory(
+    id: lawCategoryCivilProcedureEvidence,
+    nameKey: 'lawCategory_civilProcedureEvidence',
+    orderIndex: 1,
+  ),
+  SeedLawCategory(
+    id: lawCategoryContractLandPropertyBusiness,
+    nameKey: 'lawCategory_contractLandPropertyBusiness',
+    orderIndex: 2,
+  ),
+  SeedLawCategory(
+    id: lawCategoryFamilyPersonalLaw,
+    nameKey: 'lawCategory_familyPersonalLaw',
+    orderIndex: 3,
+  ),
+  SeedLawCategory(
+    id: lawCategoryCriminalLaw,
+    nameKey: 'lawCategory_criminalLaw',
+    orderIndex: 4,
+  ),
+  SeedLawCategory(
+    id: lawCategoryTaxFinance,
+    nameKey: 'lawCategory_taxFinance',
+    orderIndex: 5,
+  ),
+  SeedLawCategory(
+    id: lawCategoryLabourEverydayRegulation,
+    nameKey: 'lawCategory_labourEverydayRegulation',
+    orderIndex: 6,
+  ),
+];
+
+/// One pre-seeded law name.
+class SeedLaw {
+  const SeedLaw({
+    required this.id,
+    required this.name,
+    required this.categoryId,
+    required this.orderIndex,
+  });
+
+  /// Stable deterministic ID, shared by the phone, the server and backups.
+  final String id;
+
+  /// The name exactly as the reference document writes it — English or বাংলা.
+  final String name;
+
+  /// One of [seedLawCategories].
+  final String categoryId;
+
+  /// Display order inside the dropdown and the grouped lists.
+  final int orderIndex;
+}
+
+/// All 57 pre-seeded law names, in `LawsOfBangladesh.md` order.
+///
+/// The names are data, not ARB strings: the document mixes English titles with
+/// বাংলা ones (`অর্পিত সম্পত্তি প্রত্যর্পণ আইন, ২০০১`), so a name is shown exactly
+/// as it is stored whatever the app's language. Only the category headings
+/// translate. An ID is permanent — correcting a name updates the row, and a
+/// new law takes a new ID rather than reusing a retired one.
+final List<SeedLaw> seedLaws = <SeedLaw>[
+  // Constitution, Courts & Practice.
+  SeedLaw(
+    id: 'law-constitution-of-the-peoples-republic-of-bangladesh',
+    name: 'The Constitution of the People’s Republic of Bangladesh',
+    categoryId: lawCategoryConstitutionCourtsPractice,
+    orderIndex: 0,
+  ),
+  SeedLaw(
+    id: 'law-civil-courts-act-1887',
+    name: 'The Civil Courts Act, 1887',
+    categoryId: lawCategoryConstitutionCourtsPractice,
+    orderIndex: 1,
+  ),
+  SeedLaw(
+    id: 'law-general-clauses-act-1897',
+    name: 'The General Clauses Act, 1897',
+    categoryId: lawCategoryConstitutionCourtsPractice,
+    orderIndex: 2,
+  ),
+  SeedLaw(
+    id: 'law-notaries-ordinance-1961',
+    name: 'The Notaries Ordinance, 1961',
+    categoryId: lawCategoryConstitutionCourtsPractice,
+    orderIndex: 3,
+  ),
+  // Civil Procedure & Evidence.
+  SeedLaw(
+    id: 'law-code-of-civil-procedure-1908',
+    name: 'The Code of Civil Procedure, 1908',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 4,
+  ),
+  SeedLaw(
+    id: 'law-court-fees-act-1870',
+    name: 'The Court Fees Act, 1870',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 5,
+  ),
+  SeedLaw(
+    id: 'law-evidence-act-1872',
+    name: 'The Evidence Act, 1872',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 6,
+  ),
+  SeedLaw(
+    id: 'law-limitation-act-1908',
+    name: 'The Limitation Act, 1908',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 7,
+  ),
+  SeedLaw(
+    id: 'law-oaths-act-1873',
+    name: 'The Oaths Act, 1873',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 8,
+  ),
+  SeedLaw(
+    id: 'law-specific-relief-act-1877',
+    name: 'The Specific Relief Act, 1877',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 9,
+  ),
+  SeedLaw(
+    id: 'law-suits-valuation-act-1887',
+    name: 'The Suits Valuation Act, 1887',
+    categoryId: lawCategoryCivilProcedureEvidence,
+    orderIndex: 10,
+  ),
+  // Contract, Land, Property & Business.
+  SeedLaw(
+    id: 'law-acquisition-and-requisition-of-immovable-property-act-2017',
+    name: 'The Acquisition and Requisition of Immovable Property Act, 2017',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 11,
+  ),
+  SeedLaw(
+    id: 'law-arbitration-act-2001',
+    name: 'The Arbitration Act, 2001',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 12,
+  ),
+  SeedLaw(
+    id: 'law-contract-act-1872',
+    name: 'The Contract Act, 1872',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 13,
+  ),
+  SeedLaw(
+    id: 'law-non-agricultural-tenancy-act-1949',
+    name: 'The Non-Agricultural Tenancy Act, 1949 (East Bengal Act)',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 14,
+  ),
+  SeedLaw(
+    id: 'law-partnership-act-1932',
+    name: 'The Partnership Act, 1932',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 15,
+  ),
+  SeedLaw(
+    id: 'law-registration-act-1908',
+    name: 'The Registration Act, 1908',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 16,
+  ),
+  SeedLaw(
+    id: 'law-sale-of-goods-act-1930',
+    name: 'The Sale of Goods Act, 1930',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 17,
+  ),
+  SeedLaw(
+    id: 'law-stamp-act-1899',
+    name: 'The Stamp Act, 1899',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 18,
+  ),
+  SeedLaw(
+    id: 'law-state-acquisition-and-tenancy-act-1950',
+    name: 'The State Acquisition and Tenancy Act, 1950 (East Bengal Act)',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 19,
+  ),
+  SeedLaw(
+    id: 'law-succession-act-1925',
+    name: 'The Succession Act, 1925',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 20,
+  ),
+  SeedLaw(
+    id: 'law-transfer-of-property-act-1882',
+    name: 'The Transfer of Property Act, 1882',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 21,
+  ),
+  SeedLaw(
+    id: 'law-trusts-act-1882',
+    name: 'The Trusts Act, 1882',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 22,
+  ),
+  SeedLaw(
+    id: 'law-immovable-property-requisition-act-1988',
+    name: 'অস্থাবর সম্পত্তি হুকুমদখল আইন, ১৯৮৮',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 23,
+  ),
+  SeedLaw(
+    id: 'law-vested-property-return-act-2001',
+    name: 'অর্পিত সম্পত্তি প্রত্যর্পণ আইন, ২০০১',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 24,
+  ),
+  SeedLaw(
+    id: 'law-power-of-attorney-act-2012',
+    name: 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২',
+    categoryId: lawCategoryContractLandPropertyBusiness,
+    orderIndex: 25,
+  ),
+  // Family & Personal Law.
+  SeedLaw(
+    id: 'law-christian-marriage-act-1872',
+    name: 'The Christian Marriage Act, 1872',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 26,
+  ),
+  SeedLaw(
+    id: 'law-dissolution-of-muslim-marriages-act-1939',
+    name: 'The Dissolution of Muslim Marriages Act, 1939',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 27,
+  ),
+  SeedLaw(
+    id: 'law-guardians-and-wards-act-1890',
+    name: 'The Guardians and Wards Act, 1890',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 28,
+  ),
+  SeedLaw(
+    id: 'law-muslim-family-laws-ordinance-1961',
+    name: 'The Muslim Family Laws Ordinance, 1961',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 29,
+  ),
+  SeedLaw(
+    id: 'law-muslim-marriages-and-divorces-registration-act-1974',
+    name: 'The Muslim Marriages and Divorces (Registration) Act, 1974',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 30,
+  ),
+  SeedLaw(
+    id: 'law-family-courts-act-2023',
+    name: 'পারিবারিক আদালত আইন, ২০২৩',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 31,
+  ),
+  SeedLaw(
+    id: 'law-child-marriage-restraint-act-2017',
+    name: 'বাল্যবিবাহ নিরোধ আইন, ২০১৭',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 32,
+  ),
+  SeedLaw(
+    id: 'law-dowry-prohibition-act-2018',
+    name: 'যৌতুক নিরোধ আইন, ২০১৮',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 33,
+  ),
+  SeedLaw(
+    id: 'law-hindu-marriage-registration-act-2012',
+    name: 'হিন্দু বিবাহ নিবন্ধন আইন, ২০১২',
+    categoryId: lawCategoryFamilyPersonalLaw,
+    orderIndex: 34,
+  ),
+  // Criminal Law.
+  SeedLaw(
+    id: 'law-arms-act-1878',
+    name: 'The Arms Act, 1878',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 35,
+  ),
+  SeedLaw(
+    id: 'law-code-of-criminal-procedure-1898',
+    name: 'The Code of Criminal Procedure, 1898',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 36,
+  ),
+  SeedLaw(
+    id: 'law-money-laundering-prevention-act-2012',
+    name: 'The Money Laundering Prevention Act, 2012',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 37,
+  ),
+  SeedLaw(
+    id: 'law-negotiable-instruments-act-1881',
+    name: 'The Negotiable Instruments Act, 1881',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 38,
+  ),
+  SeedLaw(
+    id: 'law-penal-code-1860',
+    name: 'The Penal Code, 1860',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 39,
+  ),
+  SeedLaw(
+    id: 'law-special-powers-act-1974',
+    name: 'The Special Powers Act, 1974',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 40,
+  ),
+  SeedLaw(
+    id: 'law-money-loan-court-act-2003',
+    name: 'অর্থ ঋণ আদালত আইন, ২০০৩',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 41,
+  ),
+  SeedLaw(
+    id: 'law-acid-offence-prevention-act-2002',
+    name: 'এসিড অপরাধ দমন আইন, ২০০২',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 42,
+  ),
+  SeedLaw(
+    id: 'law-anti-corruption-commission-act-2004',
+    name: 'দুর্নীতি দমন কমিশন আইন, ২০০৪',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 43,
+  ),
+  SeedLaw(
+    id: 'law-women-and-children-repression-prevention-act-2000',
+    name: 'নারী ও শিশু নির্যাতন দমন আইন, ২০০০',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 44,
+  ),
+  SeedLaw(
+    id: 'law-environment-court-act-2010',
+    name: 'পরিবেশ আদালত আইন, ২০১০',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 45,
+  ),
+  SeedLaw(
+    id: 'law-narcotics-control-act-2018',
+    name: 'মাদকদ্রব্য নিয়ন্ত্রণ আইন, ২০১৮',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 46,
+  ),
+  SeedLaw(
+    id: 'law-anti-terrorism-act-2009',
+    name: 'সন্ত্রাস বিরোধী আইন, ২০০৯',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 47,
+  ),
+  SeedLaw(
+    id: 'law-cyber-protection-act-2026',
+    name: 'সাইবার সুরক্ষা আইন, ২০২৬',
+    categoryId: lawCategoryCriminalLaw,
+    orderIndex: 48,
+  ),
+  // Tax & Finance.
+  SeedLaw(
+    id: 'law-income-tax-act-2023',
+    name: 'The Income-tax Act, 2023',
+    categoryId: lawCategoryTaxFinance,
+    orderIndex: 49,
+  ),
+  SeedLaw(
+    id: 'law-customs-act-2023',
+    name: 'কাস্টমস আইন, ২০২৩',
+    categoryId: lawCategoryTaxFinance,
+    orderIndex: 50,
+  ),
+  SeedLaw(
+    id: 'law-vat-and-supplementary-duty-act-2012',
+    name: 'মূল্য সংযোজন কর ও সম্পূরক শুল্ক আইন, ২০১২',
+    categoryId: lawCategoryTaxFinance,
+    orderIndex: 51,
+  ),
+  // Labour & Everyday Regulation.
+  SeedLaw(
+    id: 'law-waqfs-ordinance-1962',
+    name: 'The Waqfs Ordinance, 1962 (East Pakistan Ordinance)',
+    categoryId: lawCategoryLabourEverydayRegulation,
+    orderIndex: 52,
+  ),
+  SeedLaw(
+    id: 'law-companies-act-1994',
+    name: 'কোম্পানী আইন, ১৯৯৪',
+    categoryId: lawCategoryLabourEverydayRegulation,
+    orderIndex: 53,
+  ),
+  SeedLaw(
+    id: 'law-bangladesh-labour-act-2006',
+    name: 'বাংলাদেশ শ্রম আইন, ২০০৬',
+    categoryId: lawCategoryLabourEverydayRegulation,
+    orderIndex: 54,
+  ),
+  SeedLaw(
+    id: 'law-insurance-act-2010',
+    name: 'বীমা আইন, ২০১০',
+    categoryId: lawCategoryLabourEverydayRegulation,
+    orderIndex: 55,
+  ),
+  SeedLaw(
+    id: 'law-consumer-rights-protection-act-2009',
+    name: 'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯',
+    categoryId: lawCategoryLabourEverydayRegulation,
+    orderIndex: 56,
+  ),
+];
+
+// ---------------------------------------------------------------------------
 // Disposed steps
 // ---------------------------------------------------------------------------
 

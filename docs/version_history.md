@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.743 - Case Reference field rules are now the palette's outline grey (#76777D), one token darker than outline-variant, which was nearly invisible on the #F2F4F6 field box.
+Version: 0.0.744 - Law names: the statute list is now synced, firm-shared data seeded with the 57 Acts of LawsOfBangladesh.md under its seven categories; no screen changes yet.
 --------------------------------------
 
 ## Version History Log:
@@ -757,3 +757,4 @@ Version: 0.0.740 - Case Reference: the form's field boxes take the shared 8 px w
 Version: 0.0.741 - Case Reference: the field's gray bottom rule now follows the box's rounded bottom edge instead of stopping short of each corner.
 Version: 0.0.742 - Case Reference: the field's gray rule now follows the box's own bottom corners instead of scooping a bite into them.
 Version: 0.0.743 - Case Reference field rules are now the palette's outline grey (#76777D), one token darker than outline-variant, which was nearly invisible on the #F2F4F6 field box.
+Version: 0.0.744 - Law names: the statute list is now synced, firm-shared data seeded with the 57 Acts of LawsOfBangladesh.md under its seven categories; no screen changes yet.

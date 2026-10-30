@@ -25,9 +25,11 @@ import '../../features/settings/data/case_types_repository.dart';
 import '../../features/settings/data/court_categories_repository.dart';
 import '../../features/settings/data/courts_repository.dart';
 import '../../features/settings/data/delete_requests_repository.dart';
+import '../../features/settings/data/laws_repository.dart';
 import '../../features/settings/data/local/case_types_dao.dart';
 import '../../features/settings/data/local/court_categories_dao.dart';
 import '../../features/settings/data/local/courts_dao.dart';
+import '../../features/settings/data/local/laws_dao.dart';
 import '../../features/settings/data/local/on_behalfs_dao.dart';
 import '../../features/settings/data/local/steps_dao.dart';
 import '../../features/settings/data/local/user_preferences_dao.dart';
@@ -189,6 +191,16 @@ final stepsRepositoryProvider = FutureProvider<StepsRepository>((ref) async {
   final db = await ref.watch(databaseProvider.future);
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalStepsRepository(StepsDao(db), sync);
+});
+
+/// Provider for [LawsRepository].
+///
+/// The law-name list behind the case-reference dropdown and Settings → Edit
+/// Law Names. Firm-shared like the court list, so a chamber sees one list.
+final lawsRepositoryProvider = FutureProvider<LawsRepository>((ref) async {
+  final db = await ref.watch(databaseProvider.future);
+  final sync = await ref.watch(syncWriteHelperProvider.future);
+  return LocalLawsRepository(LawsDao(db), sync);
 });
 
 /// Provider for [CaseTypesRepository].

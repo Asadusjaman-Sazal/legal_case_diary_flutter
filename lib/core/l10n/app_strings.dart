@@ -186,6 +186,21 @@ abstract class AppStrings {
   static const String generalAppTitle = "appTitle";
   static const String generalTomorrow = "general_tomorrow";
 
+  // lawCategory
+  static const String lawCategoryGroup = "lawCategory";
+  static const String lawCategoryConstitutioncourtspractice =
+      "lawCategory_constitutionCourtsPractice";
+  static const String lawCategoryCivilprocedureevidence =
+      "lawCategory_civilProcedureEvidence";
+  static const String lawCategoryContractlandpropertybusiness =
+      "lawCategory_contractLandPropertyBusiness";
+  static const String lawCategoryFamilypersonallaw =
+      "lawCategory_familyPersonalLaw";
+  static const String lawCategoryCriminallaw = "lawCategory_criminalLaw";
+  static const String lawCategoryTaxfinance = "lawCategory_taxFinance";
+  static const String lawCategoryLaboureverydayregulation =
+      "lawCategory_labourEverydayRegulation";
+
   // localeScratch
   static const String localeScratchGroup = "localeScratch";
   static const String localeScratchBengalisample =

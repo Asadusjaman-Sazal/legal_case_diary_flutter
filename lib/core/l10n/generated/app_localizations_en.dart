@@ -1824,6 +1824,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lowerCourtCategory_tribunals => 'Tribunals';
 
   @override
+  String get lawCategory_constitutionCourtsPractice =>
+      'Constitution, Courts & Practice';
+
+  @override
+  String get lawCategory_civilProcedureEvidence => 'Civil Procedure & Evidence';
+
+  @override
+  String get lawCategory_contractLandPropertyBusiness =>
+      'Contract, Land, Property & Business';
+
+  @override
+  String get lawCategory_familyPersonalLaw => 'Family & Personal Law';
+
+  @override
+  String get lawCategory_criminalLaw => 'Criminal Law';
+
+  @override
+  String get lawCategory_taxFinance => 'Tax & Finance';
+
+  @override
+  String get lawCategory_labourEverydayRegulation =>
+      'Labour & Everyday Regulation';
+
+  @override
   String get onBehalf_plaintiff => 'Plaintiff';
 
   @override

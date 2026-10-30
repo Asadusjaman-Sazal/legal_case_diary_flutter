@@ -39,6 +39,7 @@ void main() {
           'court_categories',
           'courts',
           'steps',
+          'laws',
           'case_types',
           'on_behalfs',
           'notes',

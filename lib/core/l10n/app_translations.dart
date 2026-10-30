@@ -261,6 +261,23 @@ class AppTranslations {
       AppStrings.generalAppTitle: _loc.appTitle,
       AppStrings.generalTomorrow: _loc.general_tomorrow,
     },
+    // The seven headings a law name is grouped under. A law row stores one of
+    // these keys in `laws.category`, so the heading follows the app's language
+    // while the law's own name stays exactly as it was seeded.
+    AppStrings.lawCategoryGroup: <String, String>{
+      AppStrings.lawCategoryConstitutioncourtspractice:
+          _loc.lawCategory_constitutionCourtsPractice,
+      AppStrings.lawCategoryCivilprocedureevidence:
+          _loc.lawCategory_civilProcedureEvidence,
+      AppStrings.lawCategoryContractlandpropertybusiness:
+          _loc.lawCategory_contractLandPropertyBusiness,
+      AppStrings.lawCategoryFamilypersonallaw:
+          _loc.lawCategory_familyPersonalLaw,
+      AppStrings.lawCategoryCriminallaw: _loc.lawCategory_criminalLaw,
+      AppStrings.lawCategoryTaxfinance: _loc.lawCategory_taxFinance,
+      AppStrings.lawCategoryLaboureverydayregulation:
+          _loc.lawCategory_labourEverydayRegulation,
+    },
     AppStrings.localeScratchGroup: <String, String>{
       AppStrings.localeScratchBengalisample: _loc.localeScratch_bengaliSample,
       // localeScratchCurrentlanguage: parameterized; use _loc.localeScratch_currentLanguage(...).

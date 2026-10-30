@@ -15,6 +15,8 @@ import 'package:legal_case_diary/core/constants/pre_seeded_data.dart'
         districtSessionsCriminalId,
         highCourtDivisionId,
         seedCategories,
+        seedLawCategories,
+        seedLaws,
         allSeedCourts;
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/database/seed_migration_runner.dart';
@@ -35,7 +37,7 @@ void main() {
 
     test('applies seed_v1 and inserts all reference data', () async {
       final applied = await runner.runMigrations();
-      expect(applied, 2);
+      expect(applied, 3);
 
       final categories = await db.select(db.courtCategories).get();
       final caseCategories = await db.select(db.caseCategories).get();
@@ -43,6 +45,7 @@ void main() {
       final caseTypes = await db.select(db.caseTypes).get();
       final onBehalfs = await db.select(db.onBehalfs).get();
       final courts = await db.select(db.courts).get();
+      final laws = await db.select(db.laws).get();
 
       expect(categories, hasLength(seedCategories.length));
       expect(
@@ -73,6 +76,7 @@ void main() {
         ),
       );
       expect(courts, hasLength(allSeedCourts.length));
+      expect(laws, hasLength(seedLaws.length));
 
       // All seeded rows must be built-in (not custom, not user-modified).
       for (final cat in categories) {
@@ -106,12 +110,28 @@ void main() {
         expect(court.isUserModified, false);
       }
 
+      // Every seeded law carries one of the seven categories and the name the
+      // reference document gives it, in seed order.
+      final categoryIds = seedLawCategories.map((cat) => cat.id).toSet();
+      for (final law in laws) {
+        expect(law.isCustom, false);
+        expect(law.isUserModified, false);
+        expect(law.isDeleted, false);
+        expect(categoryIds, contains(law.category));
+      }
+      final byOrder = laws.toList()
+        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      expect(
+        byOrder.map((law) => law.name).toList(),
+        seedLaws.map((law) => law.name).toList(),
+      );
+
       // Migration ledger must record seed_v1.
       final migrations = await db.select(db.seedMigrations).get();
-      expect(migrations, hasLength(2));
+      expect(migrations, hasLength(3));
       expect(
         migrations.map((m) => m.migrationId),
-        containsAll(['seed_v1', 'seed_v2']),
+        containsAll(['seed_v1', 'seed_v2', 'seed_v3']),
       );
       expect(migrations.every((m) => m.checksum.isNotEmpty), true);
       expect(migrations.every((m) => m.appliedAt > 0), true);
@@ -121,7 +141,7 @@ void main() {
       'does not re-apply a migration already recorded in the ledger',
       () async {
         final first = await runner.runMigrations();
-        expect(first, 2);
+        expect(first, 3);
 
         final second = await runner.runMigrations();
         expect(second, 0);

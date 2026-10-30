@@ -40,6 +40,7 @@ class SeedMigrationRunner {
   static List<_NamedMigration> _migrations() => <_NamedMigration>[
     _NamedMigration('seed_v1', _checksumV1, _applySeedV1),
     _NamedMigration('seed_v2', _checksumV2, _applySeedV2),
+    _NamedMigration('seed_v3', _checksumV3, _applySeedV3),
   ];
 
   /// Checksum for seed_v1 – base64-encoded SHA-256 of the version string.
@@ -72,6 +73,18 @@ class SeedMigrationRunner {
       (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
     );
     return base64Encode(utf8.encode('seed_v2:$hash'));
+  }
+
+  /// Checksum for seed_v3, which seeds the 57 law names a case reference may
+  /// cite, each under one of the seven law categories.
+  static String get _checksumV3 {
+    const payload = 'seed_v3_law_names_by_category';
+    final bytes = utf8.encode(payload);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
+    return base64Encode(utf8.encode('seed_v3:$hash'));
   }
 
   // ---------------------------------------------------------------------------
@@ -121,6 +134,14 @@ class SeedMigrationRunner {
     await _seedOnBehalfs(db);
     await _seedCourts(db);
     await _removeObsoleteAppellateAndHighCourtRows(db);
+  }
+
+  /// Seeds the law-name list. Separate from seed_v1 so an install that already
+  /// ran the court seed still receives it, and rerunnable like every other
+  /// migration: an absent ID is inserted, a built-in row is refreshed, and a
+  /// row the user renamed or the firm added is left alone.
+  static Future<void> _applySeedV3(AppDatabase db) async {
+    await _seedLaws(db);
   }
 
   // ---------------------------------------------------------------------------
@@ -284,6 +305,30 @@ class SeedMigrationRunner {
           court.orderIndex,
           _nowMs,
         ],
+      );
+    }
+  }
+
+  /// Upserts the 57 pre-seeded law names, each with its category and order.
+  ///
+  /// A built-in row the user renamed (`is_user_modified = 1`) is preserved, the
+  /// same rule every other reference list follows; a row the user or their firm
+  /// added is not in [seedLaws] at all and is never touched.
+  static Future<void> _seedLaws(AppDatabase db) async {
+    for (final law in seedLaws) {
+      await db.customStatement(
+        '''INSERT INTO laws
+           (id, name, category, order_index, is_custom, is_user_modified,
+            user_id, firm_id,
+            updated_at, version, synced_at, is_deleted, last_modified_by)
+           VALUES (?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+           ON CONFLICT(id) DO UPDATE SET
+             name = excluded.name,
+             category = excluded.category,
+             order_index = excluded.order_index,
+             updated_at = excluded.updated_at
+           WHERE laws.is_user_modified = 0''',
+        [law.id, law.name, law.categoryId, law.orderIndex, _nowMs],
       );
     }
   }

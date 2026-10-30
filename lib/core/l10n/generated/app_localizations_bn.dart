@@ -1830,6 +1830,31 @@ class AppLocalizationsBn extends AppLocalizations {
   String get lowerCourtCategory_tribunals => 'ট্রাইব্যুনাল সমূহ';
 
   @override
+  String get lawCategory_constitutionCourtsPractice =>
+      'সংবিধান, আদালত ও অনুশীলন';
+
+  @override
+  String get lawCategory_civilProcedureEvidence =>
+      'দেওয়ানি কার্যবিধি ও সাক্ষ্য';
+
+  @override
+  String get lawCategory_contractLandPropertyBusiness =>
+      'চুক্তি, ভূমি, সম্পত্তি ও ব্যবসা';
+
+  @override
+  String get lawCategory_familyPersonalLaw => 'পরিবার ও ব্যক্তিগত আইন';
+
+  @override
+  String get lawCategory_criminalLaw => 'ফৌজদারি আইন';
+
+  @override
+  String get lawCategory_taxFinance => 'কর ও অর্থায়ন';
+
+  @override
+  String get lawCategory_labourEverydayRegulation =>
+      'শ্রম ও দৈনন্দিন নিয়ন্ত্রণ';
+
+  @override
   String get onBehalf_plaintiff => 'বাদী';
 
   @override

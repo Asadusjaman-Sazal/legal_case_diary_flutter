@@ -224,6 +224,19 @@ syncTableBindings = <String, SyncTableBinding>{
           OnBehalf.fromJson(_camel(row)).toCompanion(false),
         ),
   ),
+  'law': SyncTableBinding(
+    entityType: 'law',
+    tableName: 'laws',
+    deleteLocal: (db, id) =>
+        (db.delete(db.laws)..where((row) => row.id.equals(id))).go(),
+    markSynced: (db, id, version, syncedAt) =>
+        (db.update(db.laws)..where((row) => row.id.equals(id))).write(
+          LawsCompanion(version: Value(version), syncedAt: Value(syncedAt)),
+        ),
+    applyServerRow: (db, row) => db
+        .into(db.laws)
+        .insertOnConflictUpdate(Law.fromJson(_camel(row)).toCompanion(false)),
+  ),
   'delete_request': SyncTableBinding(
     entityType: 'delete_request',
     tableName: 'delete_requests',

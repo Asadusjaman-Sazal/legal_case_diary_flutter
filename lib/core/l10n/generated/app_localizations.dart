@@ -3219,6 +3219,48 @@ abstract class AppLocalizations {
   /// **'Tribunals'**
   String get lowerCourtCategory_tribunals;
 
+  /// No description provided for @lawCategory_constitutionCourtsPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Constitution, Courts & Practice'**
+  String get lawCategory_constitutionCourtsPractice;
+
+  /// No description provided for @lawCategory_civilProcedureEvidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Civil Procedure & Evidence'**
+  String get lawCategory_civilProcedureEvidence;
+
+  /// No description provided for @lawCategory_contractLandPropertyBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract, Land, Property & Business'**
+  String get lawCategory_contractLandPropertyBusiness;
+
+  /// No description provided for @lawCategory_familyPersonalLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Family & Personal Law'**
+  String get lawCategory_familyPersonalLaw;
+
+  /// No description provided for @lawCategory_criminalLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Criminal Law'**
+  String get lawCategory_criminalLaw;
+
+  /// No description provided for @lawCategory_taxFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax & Finance'**
+  String get lawCategory_taxFinance;
+
+  /// No description provided for @lawCategory_labourEverydayRegulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour & Everyday Regulation'**
+  String get lawCategory_labourEverydayRegulation;
+
   /// No description provided for @onBehalf_plaintiff.
   ///
   /// In en, this message translates to:

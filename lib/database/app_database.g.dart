@@ -6965,6 +6965,791 @@ class StepsCompanion extends UpdateCompanion<Step> {
   }
 }
 
+class $LawsTable extends Laws with TableInfo<$LawsTable, Law> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LawsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isCustomMeta = const VerificationMeta(
+    'isCustom',
+  );
+  @override
+  late final GeneratedColumn<bool> isCustom = GeneratedColumn<bool>(
+    'is_custom',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_custom" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isUserModifiedMeta = const VerificationMeta(
+    'isUserModified',
+  );
+  @override
+  late final GeneratedColumn<bool> isUserModified = GeneratedColumn<bool>(
+    'is_user_modified',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_user_modified" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _firmIdMeta = const VerificationMeta('firmId');
+  @override
+  late final GeneratedColumn<String> firmId = GeneratedColumn<String>(
+    'firm_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncedAt = GeneratedColumn<int>(
+    'synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _lastModifiedByMeta = const VerificationMeta(
+    'lastModifiedBy',
+  );
+  @override
+  late final GeneratedColumn<String> lastModifiedBy = GeneratedColumn<String>(
+    'last_modified_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    category,
+    orderIndex,
+    isCustom,
+    isUserModified,
+    userId,
+    firmId,
+    updatedAt,
+    version,
+    syncedAt,
+    isDeleted,
+    lastModifiedBy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'laws';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Law> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
+    if (data.containsKey('is_custom')) {
+      context.handle(
+        _isCustomMeta,
+        isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
+      );
+    }
+    if (data.containsKey('is_user_modified')) {
+      context.handle(
+        _isUserModifiedMeta,
+        isUserModified.isAcceptableOrUnknown(
+          data['is_user_modified']!,
+          _isUserModifiedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    if (data.containsKey('firm_id')) {
+      context.handle(
+        _firmIdMeta,
+        firmId.isAcceptableOrUnknown(data['firm_id']!, _firmIdMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('last_modified_by')) {
+      context.handle(
+        _lastModifiedByMeta,
+        lastModifiedBy.isAcceptableOrUnknown(
+          data['last_modified_by']!,
+          _lastModifiedByMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Law map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Law(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+      isCustom: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_custom'],
+      )!,
+      isUserModified: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_user_modified'],
+      )!,
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
+      firmId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}firm_id'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}synced_at'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModifiedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_modified_by'],
+      ),
+    );
+  }
+
+  @override
+  $LawsTable createAlias(String alias) {
+    return $LawsTable(attachedDatabase, alias);
+  }
+}
+
+class Law extends DataClass implements Insertable<Law> {
+  /// Stable seed id for a built-in law, or a UUID for a user-added one.
+  final String id;
+
+  /// Display name, e.g. `The Penal Code, 1860`.
+  final String name;
+
+  /// The law category this name is listed under, as a stable ID from
+  /// `seedLawCategories` (`criminal_law`, `family_personal_law`, …).
+  ///
+  /// A heading rather than a row: the seven categories are code, and the
+  /// heading's label resolves through the matching `lawCategory_*` ARB key, so
+  /// the list groups the same way in the app whatever the language. A blank
+  /// value is a row an older build wrote before categories existed; it lists
+  /// under Other until a seed migration fills it.
+  final String category;
+
+  /// Display order; seeded laws keep their seed order, a new name is appended.
+  final int orderIndex;
+
+  /// True if added by the user/firm; false if pre-seeded.
+  final bool isCustom;
+
+  /// Whether the user/firm has renamed a pre-seeded law.
+  final bool isUserModified;
+
+  /// Creator of a custom law; null for pre-seeded rows.
+  final String? userId;
+
+  /// Firm scope; null for individuals & pre-seeded rows.
+  final String? firmId;
+  final int updatedAt;
+  final int? version;
+  final int? syncedAt;
+  final bool isDeleted;
+  final String? lastModifiedBy;
+  const Law({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.orderIndex,
+    required this.isCustom,
+    required this.isUserModified,
+    this.userId,
+    this.firmId,
+    required this.updatedAt,
+    this.version,
+    this.syncedAt,
+    required this.isDeleted,
+    this.lastModifiedBy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['category'] = Variable<String>(category);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['is_custom'] = Variable<bool>(isCustom);
+    map['is_user_modified'] = Variable<bool>(isUserModified);
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
+    if (!nullToAbsent || firmId != null) {
+      map['firm_id'] = Variable<String>(firmId);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || version != null) {
+      map['version'] = Variable<int>(version);
+    }
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<int>(syncedAt);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    if (!nullToAbsent || lastModifiedBy != null) {
+      map['last_modified_by'] = Variable<String>(lastModifiedBy);
+    }
+    return map;
+  }
+
+  LawsCompanion toCompanion(bool nullToAbsent) {
+    return LawsCompanion(
+      id: Value(id),
+      name: Value(name),
+      category: Value(category),
+      orderIndex: Value(orderIndex),
+      isCustom: Value(isCustom),
+      isUserModified: Value(isUserModified),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+      firmId: firmId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firmId),
+      updatedAt: Value(updatedAt),
+      version: version == null && nullToAbsent
+          ? const Value.absent()
+          : Value(version),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+      isDeleted: Value(isDeleted),
+      lastModifiedBy: lastModifiedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastModifiedBy),
+    );
+  }
+
+  factory Law.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Law(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      category: serializer.fromJson<String>(json['category']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      isCustom: serializer.fromJson<bool>(json['isCustom']),
+      isUserModified: serializer.fromJson<bool>(json['isUserModified']),
+      userId: serializer.fromJson<String?>(json['userId']),
+      firmId: serializer.fromJson<String?>(json['firmId']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      version: serializer.fromJson<int?>(json['version']),
+      syncedAt: serializer.fromJson<int?>(json['syncedAt']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModifiedBy: serializer.fromJson<String?>(json['lastModifiedBy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'category': serializer.toJson<String>(category),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'isCustom': serializer.toJson<bool>(isCustom),
+      'isUserModified': serializer.toJson<bool>(isUserModified),
+      'userId': serializer.toJson<String?>(userId),
+      'firmId': serializer.toJson<String?>(firmId),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'version': serializer.toJson<int?>(version),
+      'syncedAt': serializer.toJson<int?>(syncedAt),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModifiedBy': serializer.toJson<String?>(lastModifiedBy),
+    };
+  }
+
+  Law copyWith({
+    String? id,
+    String? name,
+    String? category,
+    int? orderIndex,
+    bool? isCustom,
+    bool? isUserModified,
+    Value<String?> userId = const Value.absent(),
+    Value<String?> firmId = const Value.absent(),
+    int? updatedAt,
+    Value<int?> version = const Value.absent(),
+    Value<int?> syncedAt = const Value.absent(),
+    bool? isDeleted,
+    Value<String?> lastModifiedBy = const Value.absent(),
+  }) => Law(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    category: category ?? this.category,
+    orderIndex: orderIndex ?? this.orderIndex,
+    isCustom: isCustom ?? this.isCustom,
+    isUserModified: isUserModified ?? this.isUserModified,
+    userId: userId.present ? userId.value : this.userId,
+    firmId: firmId.present ? firmId.value : this.firmId,
+    updatedAt: updatedAt ?? this.updatedAt,
+    version: version.present ? version.value : this.version,
+    syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModifiedBy: lastModifiedBy.present
+        ? lastModifiedBy.value
+        : this.lastModifiedBy,
+  );
+  Law copyWithCompanion(LawsCompanion data) {
+    return Law(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      category: data.category.present ? data.category.value : this.category,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+      isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
+      isUserModified: data.isUserModified.present
+          ? data.isUserModified.value
+          : this.isUserModified,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      firmId: data.firmId.present ? data.firmId.value : this.firmId,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      version: data.version.present ? data.version.value : this.version,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModifiedBy: data.lastModifiedBy.present
+          ? data.lastModifiedBy.value
+          : this.lastModifiedBy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Law(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('category: $category, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('isUserModified: $isUserModified, ')
+          ..write('userId: $userId, ')
+          ..write('firmId: $firmId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('version: $version, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModifiedBy: $lastModifiedBy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    category,
+    orderIndex,
+    isCustom,
+    isUserModified,
+    userId,
+    firmId,
+    updatedAt,
+    version,
+    syncedAt,
+    isDeleted,
+    lastModifiedBy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Law &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.category == this.category &&
+          other.orderIndex == this.orderIndex &&
+          other.isCustom == this.isCustom &&
+          other.isUserModified == this.isUserModified &&
+          other.userId == this.userId &&
+          other.firmId == this.firmId &&
+          other.updatedAt == this.updatedAt &&
+          other.version == this.version &&
+          other.syncedAt == this.syncedAt &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModifiedBy == this.lastModifiedBy);
+}
+
+class LawsCompanion extends UpdateCompanion<Law> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> category;
+  final Value<int> orderIndex;
+  final Value<bool> isCustom;
+  final Value<bool> isUserModified;
+  final Value<String?> userId;
+  final Value<String?> firmId;
+  final Value<int> updatedAt;
+  final Value<int?> version;
+  final Value<int?> syncedAt;
+  final Value<bool> isDeleted;
+  final Value<String?> lastModifiedBy;
+  final Value<int> rowid;
+  const LawsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.category = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.isCustom = const Value.absent(),
+    this.isUserModified = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.firmId = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.version = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModifiedBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LawsCompanion.insert({
+    required String id,
+    required String name,
+    this.category = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.isCustom = const Value.absent(),
+    this.isUserModified = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.firmId = const Value.absent(),
+    required int updatedAt,
+    this.version = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModifiedBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       updatedAt = Value(updatedAt);
+  static Insertable<Law> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? category,
+    Expression<int>? orderIndex,
+    Expression<bool>? isCustom,
+    Expression<bool>? isUserModified,
+    Expression<String>? userId,
+    Expression<String>? firmId,
+    Expression<int>? updatedAt,
+    Expression<int>? version,
+    Expression<int>? syncedAt,
+    Expression<bool>? isDeleted,
+    Expression<String>? lastModifiedBy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (category != null) 'category': category,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (isCustom != null) 'is_custom': isCustom,
+      if (isUserModified != null) 'is_user_modified': isUserModified,
+      if (userId != null) 'user_id': userId,
+      if (firmId != null) 'firm_id': firmId,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (version != null) 'version': version,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModifiedBy != null) 'last_modified_by': lastModifiedBy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LawsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? category,
+    Value<int>? orderIndex,
+    Value<bool>? isCustom,
+    Value<bool>? isUserModified,
+    Value<String?>? userId,
+    Value<String?>? firmId,
+    Value<int>? updatedAt,
+    Value<int?>? version,
+    Value<int?>? syncedAt,
+    Value<bool>? isDeleted,
+    Value<String?>? lastModifiedBy,
+    Value<int>? rowid,
+  }) {
+    return LawsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      orderIndex: orderIndex ?? this.orderIndex,
+      isCustom: isCustom ?? this.isCustom,
+      isUserModified: isUserModified ?? this.isUserModified,
+      userId: userId ?? this.userId,
+      firmId: firmId ?? this.firmId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      version: version ?? this.version,
+      syncedAt: syncedAt ?? this.syncedAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (isCustom.present) {
+      map['is_custom'] = Variable<bool>(isCustom.value);
+    }
+    if (isUserModified.present) {
+      map['is_user_modified'] = Variable<bool>(isUserModified.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (firmId.present) {
+      map['firm_id'] = Variable<String>(firmId.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<int>(syncedAt.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModifiedBy.present) {
+      map['last_modified_by'] = Variable<String>(lastModifiedBy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LawsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('category: $category, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('isUserModified: $isUserModified, ')
+          ..write('userId: $userId, ')
+          ..write('firmId: $firmId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('version: $version, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModifiedBy: $lastModifiedBy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CaseTypesTable extends CaseTypes
     with TableInfo<$CaseTypesTable, CaseType> {
   @override
@@ -16329,6 +17114,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CasesTable cases = $CasesTable(this);
   late final $CaseHistoryTable caseHistory = $CaseHistoryTable(this);
   late final $StepsTable steps = $StepsTable(this);
+  late final $LawsTable laws = $LawsTable(this);
   late final $CaseTypesTable caseTypes = $CaseTypesTable(this);
   late final $NotesTable notes = $NotesTable(this);
   late final $CaseReferencesTable caseReferences = $CaseReferencesTable(this);
@@ -16357,6 +17143,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cases,
     caseHistory,
     steps,
+    laws,
     caseTypes,
     notes,
     caseReferences,
@@ -21253,6 +22040,356 @@ typedef $$StepsTableProcessedTableManager =
       Step,
       PrefetchHooks Function({bool courtCategoryId})
     >;
+typedef $$LawsTableCreateCompanionBuilder =
+    LawsCompanion Function({
+      required String id,
+      required String name,
+      Value<String> category,
+      Value<int> orderIndex,
+      Value<bool> isCustom,
+      Value<bool> isUserModified,
+      Value<String?> userId,
+      Value<String?> firmId,
+      required int updatedAt,
+      Value<int?> version,
+      Value<int?> syncedAt,
+      Value<bool> isDeleted,
+      Value<String?> lastModifiedBy,
+      Value<int> rowid,
+    });
+typedef $$LawsTableUpdateCompanionBuilder =
+    LawsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> category,
+      Value<int> orderIndex,
+      Value<bool> isCustom,
+      Value<bool> isUserModified,
+      Value<String?> userId,
+      Value<String?> firmId,
+      Value<int> updatedAt,
+      Value<int?> version,
+      Value<int?> syncedAt,
+      Value<bool> isDeleted,
+      Value<String?> lastModifiedBy,
+      Value<int> rowid,
+    });
+
+class $$LawsTableFilterComposer extends Composer<_$AppDatabase, $LawsTable> {
+  $$LawsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LawsTableOrderingComposer extends Composer<_$AppDatabase, $LawsTable> {
+  $$LawsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get firmId => $composableBuilder(
+    column: $table.firmId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LawsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LawsTable> {
+  $$LawsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCustom =>
+      $composableBuilder(column: $table.isCustom, builder: (column) => column);
+
+  GeneratedColumn<bool> get isUserModified => $composableBuilder(
+    column: $table.isUserModified,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get firmId =>
+      $composableBuilder(column: $table.firmId, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<int> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<String> get lastModifiedBy => $composableBuilder(
+    column: $table.lastModifiedBy,
+    builder: (column) => column,
+  );
+}
+
+class $$LawsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LawsTable,
+          Law,
+          $$LawsTableFilterComposer,
+          $$LawsTableOrderingComposer,
+          $$LawsTableAnnotationComposer,
+          $$LawsTableCreateCompanionBuilder,
+          $$LawsTableUpdateCompanionBuilder,
+          (Law, BaseReferences<_$AppDatabase, $LawsTable, Law>),
+          Law,
+          PrefetchHooks Function()
+        > {
+  $$LawsTableTableManager(_$AppDatabase db, $LawsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LawsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LawsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LawsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
+                Value<bool> isUserModified = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> firmId = const Value.absent(),
+                Value<int> updatedAt = const Value.absent(),
+                Value<int?> version = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> lastModifiedBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LawsCompanion(
+                id: id,
+                name: name,
+                category: category,
+                orderIndex: orderIndex,
+                isCustom: isCustom,
+                isUserModified: isUserModified,
+                userId: userId,
+                firmId: firmId,
+                updatedAt: updatedAt,
+                version: version,
+                syncedAt: syncedAt,
+                isDeleted: isDeleted,
+                lastModifiedBy: lastModifiedBy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                Value<String> category = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
+                Value<bool> isUserModified = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<String?> firmId = const Value.absent(),
+                required int updatedAt,
+                Value<int?> version = const Value.absent(),
+                Value<int?> syncedAt = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<String?> lastModifiedBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LawsCompanion.insert(
+                id: id,
+                name: name,
+                category: category,
+                orderIndex: orderIndex,
+                isCustom: isCustom,
+                isUserModified: isUserModified,
+                userId: userId,
+                firmId: firmId,
+                updatedAt: updatedAt,
+                version: version,
+                syncedAt: syncedAt,
+                isDeleted: isDeleted,
+                lastModifiedBy: lastModifiedBy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LawsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LawsTable,
+      Law,
+      $$LawsTableFilterComposer,
+      $$LawsTableOrderingComposer,
+      $$LawsTableAnnotationComposer,
+      $$LawsTableCreateCompanionBuilder,
+      $$LawsTableUpdateCompanionBuilder,
+      (Law, BaseReferences<_$AppDatabase, $LawsTable, Law>),
+      Law,
+      PrefetchHooks Function()
+    >;
 typedef $$CaseTypesTableCreateCompanionBuilder =
     CaseTypesCompanion Function({
       required String id,
@@ -25758,6 +26895,7 @@ class $AppDatabaseManager {
       $$CaseHistoryTableTableManager(_db, _db.caseHistory);
   $$StepsTableTableManager get steps =>
       $$StepsTableTableManager(_db, _db.steps);
+  $$LawsTableTableManager get laws => $$LawsTableTableManager(_db, _db.laws);
   $$CaseTypesTableTableManager get caseTypes =>
       $$CaseTypesTableTableManager(_db, _db.caseTypes);
   $$NotesTableTableManager get notes =>

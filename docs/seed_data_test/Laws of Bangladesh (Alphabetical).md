@@ -1,0 +1,1382 @@
+# Laws of Bangladesh — Alphabetical List
+
+Source: `bdlaws.minlaw.gov.bd`, page "Index of Laws of Bangladesh (Alphabetical)"
+(`/laws-of-bangladesh-alphabetical-index.html`), archived copy of **1 October 2026**.
+The live site did not respond from this machine, so the archived copy was used.
+
+**1296 laws** listed, of which **333 repealed laws are excluded**.
+
+The site gives each law only one name. 567 are named in English and are listed below A–Z;
+729 are named in Bengali on the site and are listed under "Bengali Names".
+
+---
+
+## English Names (567)
+
+
+### A
+
+- The Acquisition of Waste Land Act, 1950 (East Bengal Act)
+- The Acting Judges Act, 1867
+- The Administrative Tribunals Act, 1980
+- The Administrator General's Act, 1913
+- The Aerial Ropeways Act, 1923
+- The Agricultural and Sanitary Improvement Act, 1920
+- The Agricultural Census Act, 1958
+- The Agricultural Debtors Act, 1935
+- The Agricultural Labour (Minimum Wages) Ordinance, 1984
+- The Agricultural Pests Ordinance, 1962 (East Pakistan Ordinance)
+- The Agricultural Produce (Grading and Marking) Act, 1937
+- The Agricultural Produce Cess Act, 1940
+- The Agricultural University Ordinance, 1961 (East Pakistan Ordinance)
+- The Agriculturists' Loans Act, 1884
+- The Air Force (Extension of Service) Act, 1952
+- The Air Force Act, 1953
+- The Aircraft (Removal of Danger to Safety) Ordinance, 1965
+- The Alienation of Land (Distressed Circumstances) (Restoration) Ordinance, 1976
+- The Allopathic System (Prevention of Misuse) Ordinance, 1962
+- The Alluvial Lands Act, 1920
+- The Alluvion (Amendment) Act, 1868
+- The Amusements Tax Act, 1922
+- The Anand Marriage Act, 1909
+- The Animals Slaughter (Restriction) and Meat Control Act, 1957 (East Pakistan Act)
+- The Antiquities Act, 1968
+- The Appropriation (Railways Supplementary) Act, 1979
+- The Appropriation (Railways Supplementary) Act, 1980
+- The Appropriation (Railways Supplementary) Act, 1981
+- The Appropriation (Railways Supplementary) Ordinance, 1977
+- The Appropriation (Railways Supplementary) Ordinance, 1978
+- The Appropriation (Railways) Act, 1973
+- The Appropriation (Railways) Act, 1979
+- The Appropriation (Railways) Act, 1980
+- The Appropriation (Railways) Act, 1981
+- The Appropriation (Railways) Ordinance, 1976
+- The Appropriation (Railways) Ordinance, 1977
+- The Appropriation (Railways) Ordinance, 1978
+- The Appropriation (Supplementary) Act, 1974
+- The Appropriation (Supplementary) Act, 1975
+- The Appropriation (Supplementary) Act, 1979
+- The Appropriation (Supplementary) Act, 1980
+- The Appropriation (Supplementary) Act, 1981
+- The Appropriation (Supplementary) Ordinance, 1976
+- The Appropriation (Supplementary) Ordinance, 1977
+- The Appropriation (Supplementary) Ordinance, 1978
+- The Appropriation (Vote on Account) Act, 1973
+- The Appropriation (Vote on Account) Act, 1974
+- The Appropriation (Vote on Account) Act, 1975
+- The Appropriation Act, 1973
+- The Appropriation Act, 1974
+- The Appropriation Act, 1975
+- The Appropriation Act, 1979
+- The Appropriation Act, 1980
+- The Appropriation Act, 1981
+- The Appropriation Ordinance, 1976
+- The Appropriation Ordinance, 1977
+- The Appropriation Ordinance, 1978
+- The Armed Forces (Emergency Duties) Act, 1947
+- The Armed Forces (Recruitment and Conditions of Service) Act, 1948
+- The Armed Forces (Special Powers) Extension Ordinance, 1942
+- The Armed Forces (Special Powers) Ordinance, 1942
+- The Armed Forces Nursing Service Act, 1952
+- The Arms Act, 1878
+- The Army Act, 1952
+- The Army and Air Force Reserves Act, 1950
+- The Arya Marriage Validation Act, 1937
+- The Asian Development Bank Order, 1973 (President's Order)
+- The Attia Forest (Protection) Ordinance, 1982
+
+### B
+
+- The Bangabandhu National Agriculture Award Fund Ordinance, 1976
+- The Bangladesh (Adaptation of East Pakistan Intermediate and Secondary Education Ordinance) Order, 1972 (President's Order)
+- The Bangladesh (Adaptation of Existing Laws) Order, 1972 (President's Order)
+- The Bangladesh (Adaptation of Insurance Act) Order, 1972 (President's Order)
+- The Bangladesh (Adaptation of University Laws) Ordinance, 1972
+- The Bangladesh (Administration of Banks) Order, 1971 (Acting President's Order)
+- The Bangladesh (Administration of Financial Institutions) Order, 1972 (A.P.O.)
+- The Bangladesh (Budgetary Provisions) Order, 1972 (President's Order)
+- The Bangladesh (Collection of Taxes) Order, 1971 (Acting President's Order)
+- The Bangladesh (Demonetisation of Bank Notes) Order, 1972 (President's Order)
+- The Bangladesh (Legal Proceedings) (Second) Order, 1972 (President's Order)
+- The Bangladesh (Legal Proceedings) (Third) Order, 1972 (President's Order)
+- The Bangladesh (Legal Proceedings) Order, 1972 (President's Order)
+- The Bangladesh (Restoration of Evacuee Property) (Effect of Expiry) Act, 1975
+- The Bangladesh (Resumption of Easement Lands) Order, 1972 (President's Order)
+- The Bangladesh (Taking Over of Control and Management of Industrial and Commercial Concerns) Order, 1972 (Acting President's Order)
+- The Bangladesh (Vesting of Property and Assets) Order, 1972 (President's Order)
+- The Bangladesh (Whips) Order, 1972 (President's Order)
+- The Bangladesh Abandoned Children (Special Provisions) (Repeal) Ordinacne, 1982
+- The Bangladesh Abandoned Property (Control, Management and Disposal) Order, 1972 (President's Order)
+- Bangladesh Bank (Amendment) Act, 2020
+- Bangladesh Bank (Amendment) Act, 2026
+- The Bangladesh Bank (Demonetisation of Currency Notes) Order, 1972 (President's Order)
+- The Bangladesh Bank Order, 1972 (President's Order)
+- The Bangladesh Banks (Nationalisation) Order, 1972 (President's Order)
+- The Bangladesh Biman Order, 1972
+- The Bangladesh Chartered Accountants Order, 1973 (President's Order)
+- The Bangladesh Citizenship (Temporary Provisions) Order, 1972 (President's Order)
+- The Bangladesh Coinage Order, 1972 (President's Order)
+- Bangladesh Collaborators (Special Tribunals) Order, 1972
+- The Bangladesh Committee of Management (Temporary Arrangement) Order, 1972 (P.O.)
+- The Bangladesh Constituent Assembly Members (Cessation of Membership) Order, 1972 (P.O.)
+- The Bangladesh Consumer Supplies Corporation (Repeal) Act, 1981
+- The Bangladesh Currency Order, 1972 (President's Order)
+- The Bangladesh Export Processing Zones Authority Act, 1980
+- The Bangladesh Fisheries Development Corporation Act, 1973
+- The Bangladesh Girl Guides Association Act, 1973
+- The Bangladesh Government Hats and Bazars (Management) (Repeal) Ordinance, 1975
+- Bangladesh House Building Finance Corporation (Amendment) Act, 2021
+- Bangladesh House Building Finance Corporation (Amendment) Act, 2026
+- The Bangladesh House Building Finance Corporation Order, 1973 (President's Order).
+- The Bangladesh Industrial Development Corporation (Dissolution) Order, 1972 (President's Order)
+- The Bangladesh Industrial Development Corporation Order, 1972 (President's Order)
+- The Bangladesh Inland Water Transport Corporation Order, 1972 (President's Order)
+- The Bangladesh Insurance (Emergency Provisions) Order, 1972 (President's Order)
+- The Bangladesh Insurance (Nationalisation) Order, 1972 (President's Order)
+- The Bangladesh Insurance Corporation (Dissolution) Order, 1972 (President's Order)
+- The Bangladesh Irrigation Water Rate Ordinance, 1983
+- The Bangladesh Jute Corporation (Repeal) Act, 1993
+- The Bangladesh Jute Corporation (Repeal) Ordinance, 1976
+- The Bangladesh Krishi Bank Order, 1973 (President's Order)
+- The Bangladesh Land Holding (Limitation) Order, 1972 (President's Order)
+- Bangladesh Law Officers (Amendment) Act, 2026
+- The Bangladesh Law Officers Order, 1972 (President's Order)
+- The Bangladesh Laws (Amendment) Act, 1975
+- The Bangladesh Laws (Repealing and Amending) Order, 1973 (President's Order).
+- The Bangladesh Laws (Revision And Declaration) Act, 1973
+- The Bangladesh Legal Practitioner's and Bar Council Order, 1972 (President's Order)
+- Bangladesh Legal Practitioners and Bar Council (Amendment) Act, 2021
+- The Bangladesh Merchant Shipping Ordinance, 1983
+- The Bangladesh Names and Emblems (Prevention of Unauthorised Use) Order, 1972 (President's Order)
+- The Bangladesh National Anthem, Flag and Emblem Order, 1972 (President's Order)
+- The Bangladesh National Liberation Struggle (Indemnity) Order, 1973 (President's Order)
+- The Bangladesh Nationalised Enterprises and Statutory Corporation (Prohibition of Strikes and Unfair Labour Practices) Order, 1972 (President's Order)
+- Bangladesh Parjatan Corporation (Amendment) Act, 2022
+- The Bangladesh Parjatan Corporation Order, 1972 (President's Order)
+- The Bangladesh Passport Order, 1973 (President's Order).
+- The Bangladesh Petroleum Act, 1974
+- The Bangladesh Power Development Boards Order, 1972 (President's Order)
+- The Bangladesh Railway Board (Repeal) Ordinance, 1983
+- The Bangladesh Red Crescent Society Order, 1973 (President's Order)
+- The Bangladesh Scouts Order, 1972 (President's Order)
+- The Bangladesh Shilpa Bank Order, 1972 (President's Order)
+- The Bangladesh Shilpa Rin Sangstha Order, 1972 (President's Order)
+- The Bangladesh Special (Remuneration and Privileges) Order, 1972 (President's Order)
+- The Bangladesh Taxation Laws (Adaptation) Order, 1972 (President's Order)
+- The Bangladesh Telegraph and Telephone Board Ordinance, 1979
+- The Bangladesh Transfer of Immovable Property (Temporary Provisions) Order, 1972 (President's Order)
+- The Bangladesh Unani and Ayurvedic Practitioners Ordinance, 1983
+- The Bangladesh Women's Rehabilitation and Welfare Foundation (Repeal) Ordinance, 1984
+- The Banks and Financial Institutions Laws Amendment Act, 1980
+- The Bidi (Restriction of Manufacture) (Repeal) Act, 1974
+- The Bills of Lading Act, 1856
+- The Births, Deaths and Marriages Registration Act, 1886
+- The Blind Relief (Donation of Eye) Act, 1975
+- The Borstal Schools Act, 1928
+- The Building Construction Act, 1952 (East Bengal Act)
+- The Business Profits Tax Act, 1947
+
+### C
+
+- The Canals Act, 1864
+- The Cantonments (House Accommodation) Act, 1923
+- The Cantonments (Requisitioning of Immoveable Property) Ordinance, 1948
+- The Cantonments Pure Food Act, 1966
+- The Cantonments Rent Restriction Act, 1963
+- The Carriage by Air (International Convention) Act, 1966
+- The Carriage by Air (Supplementary Convention) Act, 1968
+- The Carriage By Air Act, 1934
+- The Carriage of Goods by Sea Act, 1925
+- The Carriers Act, 1865
+- The Cattle (Prevention of Trespass) Ordinance, 1959 (East Pakistan Ordinance)
+- The Cattle-trespass Act, 1871
+- The Census Order, 1972 (President's Order)
+- The Charitable and Religious Trusts Act, 1920
+- The Charitable Endowments Act, 1890
+- The Chartered Accountants Ordinance, 1961
+- The Chief Election Commissioner and Election Commissioners (Remuneration and Privileges) Ordinance, 1983
+- The Chittagong Development Authority (Land Acquisition Validation) Ordinance, 1963 (East Pakistan Ordinance)
+- The Chittagong Hill-tracts (Land Acquisition) Regulation, 1958
+- The Chittagong Hill-tracts Regulation, 1900
+- The Chittagong Metropolitan Police Ordinance, 1978
+- The Chittagong Muslim Institute Ordinance, 1959 (East Pakistan Ordinance)
+- The Chittagong University Act, 1973
+- The Christian Marriage Act, 1872
+- The Church of Scotland Kirk Sessions Act, 1899
+- The Cinematograph Act, 1918
+- The Citizenship Act, 1951
+- The Civil Courts (Amendment) Act, 2021
+- Civil Courts (Amendment) Act, 2026
+- The Civil Courts Act, 1887
+- The Civil Defence Act, 1952
+- The Claims for Maintenance (Recovery Abroad) Ordinance, 1959
+- The Coconut Committee Act, 1944
+- Code of Civil Procedure (Amendment) Act, 2026
+- The Code of Civil Procedure, 1908
+- Code of Criminal Procedure (Amendment) Act, 2026
+- The Code of Criminal Procedure, 1898
+- The Collective Fines Ordinance, 1942
+- The Commercial Documents Evidence Act, 1939
+- The Commissions of Inquiry (Second) Ordinance, 1958 (East Pakistan Ordinance No. LI of 1958).
+- The Commissions of Inquiry Act, 1956
+- The Companies (Foreign Interests) Act, 1918
+- The Comptroller and Auditor-General (Additional Functions) Act, 1974
+- The Conservator of Ports, Lands and Buildings (Recovery Of Possession) Act, 1967 (East Pakistan Act)
+- The Constitution of the People‌‌‍’s Republic of Bangladesh
+- The Contract Act, 1872
+- The Control of Disorderly and Dangerous Persons (Goondas) Act, 1954 (East Bengal Act)
+- The Control of Employment Ordinance, 1965
+- The Control of Entry Act, 1952
+- The Control of Essential Commodities (Extension to the Chittagong Hill-Tracts) Ordinance, 1970 (East Pakistan Ordinance)
+- The Control of Essential Commodities Act, 1956 (East Pakistan Act)
+- The Cotton Act, 1957
+- The Cotton Cess Act, 1923
+- The Cotton Cloth Act, 1918
+- The Cotton Ginning and Pressing Act, 1957 (East Pakistan Act)
+- The Cotton Industry (Statistics) Act, 1926
+- The Cotton Transport Act, 1923
+- The Court of Wards Act, 1879
+- The Court-fees Act, 1870
+- The Criminal Law (Amendment) Act, 1948 (East Bengal Act)
+- The Criminal Law (Industrial Areas) Amendment Act, 1942 (Bengal Act)
+- The Criminal Law Amendment Act, 1938
+- The Criminal Law Amendment Act, 1958
+- The Criminal Law Amendment Ordinance, 1944
+- The Culturable Waste Land (Utilization) Ordinance, 1959 (East Pakistan Ordinance)
+- The Cutchi Memons Act, 1938
+
+### D
+
+- The Dangerous Cargoes Act, 1953
+- The Defence Services (Inquiry) (Special Provisions) Ordinance, 1969
+- The Destruction of Records Act, 1917
+- The Development Act, 1935
+- The Development of Industries (Control and Regulation) (Repeal) Act, 1990
+- The Development of Industries (Government Control) Act, 1949
+- The Dhaka Metropolitan Police Ordinance, 1976
+- The Dhaka University Order, 1973 (President's Order).
+- The Dhanmandai Residential Zone (Termination of Lease) Ordinance, 1959 (East Pakistan Ordinance)
+- The Diplomatic and Consular Officers (Oaths and Fees) Act, 1948
+- The Diplomatic Immunities (Commonwealth Countries Representatives) Act, 1957
+- The Diplomatic Immunities (Conferences with Commonwealth Countries) Act, 1963
+- The Dissolution of Muslim Marriages Act, 1939
+- The District Administration (Repeal) Ordinance, 1975
+- The Districts Act, 1836
+- The Divorce Act, 1869
+- The Domestic Servants' Registration Ordinance, 1961 (East Pakistan Ordinance)
+- The Dramatic Performances (Repeal) Act, 2001
+- The Drugs (Supplementary Provisions) Ordinance, 1986
+
+### E
+
+- The Easements Act, 1882
+- The East Pakistan Madrasah Education Ordinance (Repeal) Order, 1972 (President's Order)
+- The Embankment and Drainage Act, 1952 (East Bengal Act)
+- The Enemy Agents Ordinance, 1943
+- The Engineering and Technological University Ordinance, 1961 (East Pakistan Ordinance)
+- The Essential Articles (Price Control and Anti-Hoarding) Act, 1953 (East Bengal Act)
+- The Essential Commodities Act, 1957
+- The Essential Personnel (Registration) Ordinance, 1948
+- The Essential Services (Maintenance) Act, 1952
+- The Essential Services (Second) Ordinance, 1958 (East Pakistan Ordinance)
+- The Essential Services Laws (Amendment) Act, 1974
+- The ESSO Undertakings Acquisition Act, 1975
+- Evidence (Amendment) Act, 2022
+- The Evidence Act, 1872
+- The Ex-Government Servants (Employment with Foreign Governments) (Prohibition) Act, 1966
+- The Excess Profits Tax Act, 1940
+- The Excise (Malt Liquors) Act, 1890
+- The Excise Duty on Minerals (Labour Welfare) Act, 1967
+- The Excises and Salt (Amendment) Act, 2026
+- The Excises and Salt Act and the Finance Act (Chittagong Hill-tracts) Regulation, 1944
+- The Excises and Salt Act, 1944
+- The Explosive Substances Act, 1908
+- The Explosives Act, 1884
+- The Extradition Act, 1974
+- The Eye Surgery (Restriction) Ordinance, 1960
+
+### F
+
+- The Famine Insurance Fund Act, 1937 (Bengal Act)
+- The Fatal Accidents Act, 1855
+- The Ferries Act, 1885
+- The Film Development Corporation Act, 1957 (East Pakistan Act)
+- The Finance (1971–1972) Order, 1972 (President's Order)
+- The Finance (Third) Ordinance, 1958 (East Pakistan Ordinance)
+- The Finance Act, 1957 (East Pakistan Act)
+- The Finance Act, 1967 (East Pakistan Act)
+- The Finance Act, 1973
+- The Finance Act, 1974
+- The Finance Act, 1975
+- The Finance Act, 1979
+- The Finance Act, 1980
+- The Finance Act, 1981
+- The Finance Order, 1972 (President's Order)
+- The Finance Ordinance, 1976
+- The Finance Ordinance, 1977
+- The Finance Ordinance, 1978
+- The Finance Ordinance, 1982
+- The Finance Ordinance, 1983
+- The Finance Ordinance, 1984
+- The Finance Ordinance, 1985
+- The Finance Ordinance, 1986
+- The Financial Institutions Laws Amendment Ordinance, 1977
+- The Foreign Exchange Regulation Act, 1947
+- The Foreign Marriage Act, 1903
+- The Foreign Private Investment (Promotion and Protection) Act, 1980
+- The Foreign Recruiting Act, 1874
+- The Foreign Relations Act, 1932
+- The Foreign Voluntary Organisations (Acquisition of Immovable Property) Regulation Ordinance, 1983
+- The Foreigners Act, 1946
+- The Forest Act, 1927
+- The Forest Industries Development Corporation Ordinance, 1959 (East Pakistan Ordinance)
+
+### G
+
+- The General Clauses Act, 1897
+- The Geneva Convention Implementing Act, 1936
+- The Ghousul Azam Abdul Qader Jillani Mosque Trust (Repeal) Ordinance, 1985
+- The Government and Local Authority Lands and Buildings (Recovery of Possession) Ordinance, 1970 (East Pakistan Ordinance)
+- The Government Buildings Act, 1899
+- The Government Educational and Training Institutions (Adaptation) Order, 1972 (President's Order)
+- The Government Fisheries (Protection) Ordinance, 1959 (East Pakistan Ordinance)
+- The Government Grants Act, 1895
+- The Government of Bangladesh (Services Screening) (Repeal) Ordinance, 1977
+- The Government of Bangladesh (Services) (Repeal) Ordinance, 1975
+- The Government Savings Banks Act, 1873
+- The Government Servants (Review of Penalties) (Dissolution of Review Board) Ordinance, 1978
+- The Government Servants (Review of Penalties) Ordinance, 1975
+- The Government-owned Newspapers (Management) Act, 1975
+- The Guardians and Wards Act, 1890
+
+### H
+
+- The Haor Development Board (Dissolution) Ordinance, 1982
+- The Hindu Disposition of Property Act, 1916
+- The Hindu Gains of Learning Act, 1930
+- The Hindu Inheritance (Removal of Disabilities) Act, 1928
+- The Hindu Law of Inheritance (Amendment) Act, 1929
+- The Hindu Marriage Disabilities Removal Act, 1946
+- The Hindu Married Women's Right to Separate Residence and Maintenance Act, 1946
+- The Hindu Widow's Re-marriage Act, 1856
+- The Hindu Women's Rights to Property (Extension to Agricultural Land) Act, 1943 (Assam Act)
+- The Hindu Women's Rights to Property Act, 1937
+- The Housing and Building Research Institute Ordinance, 1977
+- The Hundred-Taka Demonetised Notes (Mode of Payment and Recovery of Taxes) Act, 1975
+
+### I
+
+- The Identification of Prisoners Act, 1920
+- The Import of Goods (Price Equalisation Surcharge) Act, 1967
+- The Imports and Exports (Control) Act, 1950
+- The Income-tax and Excess Profits Tax (Emergency) Ordinance, 1942
+- The Indecent Advertisements Prohibition Act, 1963
+- The Indemnity (Repeal) Act, 1996
+- The Industrial Development Corporation Ordinance, 1962
+- The Industrial Relations (Regulation) (Repeal) Ordinance, 1984
+- The Industrial Statistics Act, 1942
+- The Inland Shipping Ordinance, 1976
+- The Inland Water Transport Authority Ordinance, 1958 (East Pakistan Ordinance)
+- The Institute of Islamic Education and Research (Repeal) Ordinance, 1982
+- Intermediate and Secondary Education (Amendment) Act, 2021
+- The Intermediate and Secondary Education Ordinance, 1961 (East Pakistan Ordinance)
+- International Crimes (Tribunals) (Amendment) Act, 2026
+- The International Crimes (Tribunals) Act, 1973
+- The International Financial Organisations Order, 1972 (President's Order)
+- The Irrigation Act, 1876
+- The Islamic Development Bank Act, 1975
+- The Islamic Foundation Act, 1975
+
+### J
+
+- The Jahangirnagar University Act, 1973
+- The Jatiya Rakkhi Bahini (Absorption in the Army) Ordinance, 1975
+- The Judicial Officer's Protection Act, 1850
+- The Junior Cadet Corps Act, 1953
+- The Jute Companies (Acquisition of Shares) Ordinance, 1975
+- The Jute Regulation Act, 1940 (Bengal Act)
+
+### K
+
+- The Kazis Act, 1880
+- The Khulna Metropolitan Police Ordinance, 1985
+
+### L
+
+- The Lac Cess Act, 1930
+- The Land Dues (Rounding off to Decimal Coins) Ordinance, 1961 (East Pakistan Ordinance)
+- The Land Improvement Loans Act, 1883
+- The Law of Evidence Amendment Act, 1956 (East Pakistan Act)
+- The Law Reforms Ordinance, 1978
+- The Law Reports Act, 1875
+- The Legal Practitioners (Fees) Act, 1926
+- The Legal Representative Suits Act, 1855
+- The Lepers (Repeal) Act, 2011
+- The Limitation Act, 1908
+- The Local Authorities Loans Act, 1914
+- The Local Authorities Pensions and Gratuities Act, 1919
+- The Local Government (Upazila Parishad and Upazila Administration Reorganisation) (Repeal) Act, 1992
+
+### M
+
+- The Maintenance Orders Enforcement Act, 1921
+- The Majority Act, 1875
+- The Manoeuvres, Field Firing and Artillery Practice Act, 1938
+- The Married Women's Property Act, 1874
+- Medical Colleges (Governing Bodies) (Repeal) Act, 2021
+- Medical Degrees (Repeal) Act, 2021
+- The Medical Practice and Private Clinics and Laboratories (Regulation) Ordinance, 1982
+- The Members of Parliament (Determination of Dispute) Act, 1980
+- The Members of Parliament (Remuneration and Allowances) (Amendment) Act, 2026
+- The Members of Parliament (Remuneration and Allowances) Order, 1973 (President's Order)
+- The Members of the Bangladesh Public Service Commission (Terms and Conditions of Service) Act, 1974
+- The Metal Tokens Act, 1889
+- The Military Stores (Unlawful Possession) Ordinance, 1943
+- The Mines Act, 1923
+- The Minimum Wages (Fixation) (Repeal) Ordinance, 1977
+- The Mining Settlements Act, 1912
+- The Ministers, Ministers of State and Deputy Ministers (Remuneration and Privileges) Act, 1973
+- The Money-Lenders Act, 1933
+- The Money-Lenders Act, 1940 (Bengal Act)
+- The Motor Vehicles Tax Act, 1932
+- The Municipal Taxation Act, 1881
+- The Muslim Family Laws Ordinance, 1961
+- The Muslim Marriages and Divorces (Registration) Act, 1974
+- The Muslim Personal Law (Shariat) Application Act, 1937
+- The Mussalman Wakf Validating Act, 1913
+- The Mussalman Wakf Validating Act, 1930
+
+### N
+
+- The National Board of Revenue Order, 1972 (President's Order)
+- The National Guard Act, 1950
+- The National Service Ordinance, 1970
+- The Nationalised Banks (Transfer of Business) Act, 1975
+- The Naturalization Act, 1926
+- The Naval Academy (Award of Degrees) Ordinance, 1965
+- The Naval Armament Act, 1923
+- The Navy (Extension of Service) Act, 1950
+- The Navy Ordinance, 1961
+- Negotiable Instruments (Amendment) Act, 2026
+- The Negotiable Instruments Act, 1881
+- The Newspapers (Annulment of Declaration) (Repeal) Ordinance, 1976
+- The Non-Agricultural Tenancy Act, 1949 (East Bengal Act)
+- The Notaries Ordinance, 1961
+- The Note-Books (Prohibition) Act, 1980
+
+### O
+
+- The Oaths Act, 1873
+- The Obstructions in Fairways Act, 1881
+- The Off-shore Islands Development Board (Dissolution) Ordinance, 1982
+- The Official Receiver's Act, 1938 (Bengal Act)
+- The Official Secrets Act, 1923
+- The Official Trustees Act, 1913
+- The Oil and Gas Development Corporation (Repeal) Act, 1974
+- The Oilseeds Committee Act, 1946
+- The Ombudsman Act, 1980
+- The Ordnance Factories Board (Repeal) Act, 1989
+- The Orphanages and Widows' Homes Act, 1944 (Bengal Act)
+
+### P
+
+- The Pakistan Television Corporation (Taking Over) Order, 1972 (President's Order)
+- The Parsi Marriage and Divorce Act, 1936
+- The Partition Act, 1893
+- The Partnership Act, 1932
+- The Passport (Offences) Act, 1952
+- The Passport Act, 1920
+- The Penal Code, 1860
+- The Pensions Act, 1871
+- The Petroleum Products (Development Surcharge) Ordinance, 1961
+- The Pharmacy Ordinance, 1976
+- The Pilotage Ordinance, 1969 (East Pakistan Ordinance)
+- The Places of Public Amusement Act, 1933
+- The Poisons Act, 1919
+- The Police (Incitement to Disaffection) Act, 1922
+- The Police Act, 1861
+- The Police Officers (Special Provisions) Ordinance, 1976
+- The Political Parties Ordinance, 1978
+- The Port Authorities Lands and Buildings (Recovery of Possession) Ordinance, 1962
+- The Ports Act, 1908
+- The Post Office Act, 1898
+- The Post Office Cash Certificates Act, 1917
+- The Post Office National Savings Certificates Ordinance, 1944
+- The Power Alcohol Ordinance, 1959
+- The President's (Remuneration and Privileges) Act, 1975
+- The Press Council Act, 1974
+- The Prevention of Corruption Act, 1947
+- The Prevention of Interference with Aids to Navigation Ordinance, 1962 (East Pakistan Ordinance)
+- The Prevention of Transfer of Property and Removal of Documents and Records Act, 1952 (East Bengal Act)
+- The Primary Education (Repeal) Ordinance, 1983
+- The Primary Education Laws (Repeal) Act, 1974
+- The Primary Schools (Taking Over) Act, 1974
+- The Prime Minister's (Remuneration and Privileges) Act, 1975
+- The Printing Corporation (Vesting) Order, 1972 (President's Order)
+- The Printing Presses and Publications (Declaration and Registration) Act, 1973
+- The Prisoners Act, 1900
+- The Prisons Act, 1894
+- The Private Fisheries Protection Act, 1889
+- The Private Forests Ordinance, 1959 (East Pakistan Ordinance)
+- The Probation of Offenders Ordinance, 1960
+- Protection and Conservation of Fish (Amendment) Act, 2026
+- The Protection and Conservation of Fish Act, 1950 (East Bengal Act)
+- The Protection of Muslim Pilgrims Act, 1896
+- The Protection of Ports (Special Measures) Act, 1948
+- The Protective Duties Act, 1950
+- The Provident Funds Act, 1925
+- The Provisional Collection of Taxes Act, 1931
+- The Public Accountant's Default Act, 1850
+- The Public Corporations (Management Co-ordination) Ordinance, 1986
+- The Public Demands Recovery Act, 1913 (Bengal Act)
+- Public Examinations (Offences) (Amendment) Act, 2026
+- The Public Examinations (Offences) Act, 1980
+- The Public Investments (Financial Safeguards) Ordinance, 1960
+- The Public Parks Act, 1904
+- The Public Servants (Inquiries) Act, 1850
+- Public Servants (Retirement) (Amendment) Act, 2012
+- The Publication of Books (Regulation and Control) Ordinance, 1965 (East Pakistan Ordinance)
+
+### R
+
+- The Railway Servants Benevolent Fund Ordinance, 1969 (East Pakistan Ordinance)
+- The Railway Servants Group Insurance Ordinance, 1969 (East Pakistan Ordinance)
+- The Railways (Local Authorities' Taxation) Act, 1941
+- The Railways Act, 1890
+- The Rajshahi University Act, 1973
+- The Raw Jute Taxation Act, 1941 (Bengal Act)
+- The Reciprocity Act, 1943
+- The Record of Jute Growers (Border Areas) Act, 1974
+- The Refugees Rehabilitation Finance Corporation (Repeal) Act, 1974
+- Registration (Amendment) Act, 2026
+- The Registration (Extension of Limitation) Ordinance, 1975
+- The Registration Act, 1908
+- The Registration of Foreigners Act, 1939
+- The Registration of Private Schools Ordinance, 1962 (East Pakistan Ordinance)
+- The Regulation of Salary of Employees Laws Repeal Ordinance, 1977
+- The Religious Societies Act, 1880
+- The Rent Receipt Ordinance, 1959 (East Pakistan Ordinance)
+- Representation of the People (Amendment) Act, 2023
+- Representation of the People (Amendment) Act, 2026
+- The Representation of the People Order, 1972 (President's Order)
+- The Reservists (Reinstatement in Civil Employment) Ordinance, 1965
+- The Riot And Civil Commotion Risks Insurance Ordinance, 1947
+
+### S
+
+- The Sairat Mahals (Management) Ordinance, 1959 (East Pakistan Ordinance)
+- The Sale of Goods Act, 1930
+- The Santosh Islamic University (Board of Trustees) Ordinance, 1983
+- The Sarais Act, 1867
+- The Securities Act, 1920
+- The Securities and Exchange Ordinance, 1969
+- The Service Tenants (Protection) Act, 1952 (East Bengal Act)
+- The Services (Temporary Powers) Ordinance, 1963 (East Pakistan Ordinance)
+- The Small Cause Courts Act, 1887
+- The Smoke-Nuisances Act, 1905
+- The Smuggling of Arms Act, 1934
+- The Societies Registration Act, 1860
+- The Society for the Prevention of Cruelty to Animals Ordinance, 1962 (East Pakistan Ordinance)
+- The Soldiers (Litigation) Act, 1925
+- The Speaker and Deputy Speaker (Remuneration and Privileges) Act, 1974
+- The Special Marriage Act, 1872
+- The Special Police Establishment (Repeal) Act, 1974
+- The Special Powers Act, 1974
+- The Specific Relief Act, 1877
+- The Stage-Carriages Act, 1861
+- The Stamp Act, 1899
+- The Stamp Duties (Additional Modes of Payment) Act, 1974
+- The Standard Time (Interpretation of References) Ordinance, 1943
+- The State Acquisition (Ad-interim Payment) Act, 1957 (East Pakistan Act)
+- The State Acquisition (Bonds) Act, 1957 (East Pakistan Act)
+- State Acquisition and Tenancy (Amendment) Act, 2023
+- The State Acquisition and Tenancy Act, 1950 (East Bengal Act)
+- The State Aid to Industries Act, 1931
+- The Statutory Corporations (Delegation of Powers) (Repeal) Ordinance, 1976
+- The Succession Act, 1925
+- The Sugar-Cane Act, 1934
+- The Suits Valuation Act, 1887
+- The Survey Act, 1875
+
+### T
+
+- The Tanks Improvement Act, 1939 (Bengal Act).
+- The Taxation on Income (Investigation Commission) Act, 1947
+- The Taxation Tribunal (Undisclosed Wealth) Act, 1953
+- The Tea (Control of Prices, Distribution and Movement) Ordinance, 1960
+- The Telegraph Act, 1885
+- The Territorial Force Act, 1950
+- The Territorial Waters and Maritime Zones Act, 1974
+- The Tolls (Army and Air-Force)Act, 1901
+- The Tolls Act, 1851
+- The Touts Act, 1879
+- The Town Improvement Act, 1953 (East Bengal Act)
+- The Trade Marks (Invalidation and Summary Registration) Order, 1973 (President's Order)
+- The Trading Corporation of Bangladesh Order, 1972 (President's Order)
+- The Transfer of Property Act, 1882
+- The Transfer of Railways (Repeal) Act, 1974
+- The Treasure-Trove Act, 1878
+- The Trusts Act, 1882
+
+### U
+
+- The Undesirable Advertisements Control Act, 1952 (East Bengal Act)
+- The Undesirable Companies (Second) Ordinance, 1958 (East Pakistan Ordinance)
+- The United Nations (Declaration of Death of Missing Persons) Act, 1956
+- The United Nations (Privileges and Immunities) Act, 1948
+- The United Nations (Security Council) Act, 1948
+- The Universities Laws Amendment Ordinance, 1975
+- The University Grants Commission of Bangladesh Order, 1973 (President's Order)
+- The University Laws Amendment Act, 1980
+- The Usurious Loans Act, 1918
+
+### V
+
+- The Vaccination Act, 1880
+- The Vehicles Act, 1927
+- The Vested and Non-Resident Property (Administration) (Repeal) Ordinance, 1976
+- The Voluntary Social Welfare Agencies (Registration and Control) Ordinance, 1961
+
+### W
+
+- The Waqfs Ordinance, 1962 (East Pakistan Ordinance)
+- The War Injuries (Compensation Insurance) Act, 1943
+- The War Injuries Ordinance, 1941
+- The Whipping Act, 1909
+- The White Phosphorus Matches Prohibition Act, 1913
+- The Wireless Telegraphy Act, 1933
+- The Works of Defence Act, 1903
+
+---
+
+## Bengali Names (729)
+
+- Sugar (Road Development Cess) (রহিতকরণ) আইন, ২০১৮
+- অগ্নি প্রতিরোধ ও নির্বাপণ আইন, ২০০৩
+- অপরাধ সম্পর্কিত বিষয়ে পারস্পরিক সহায়তা অধ্যাদেশ, ২০১২
+- অপরাধ সম্পর্কিত বিষয়ে পারস্পরিক সহায়তা আইন, ২০১২
+- অফশোর ব্যাংকিং আইন, ২০২৪
+- অর্থ (২০০৭-২০০৮ অর্থ বৎসর) আইন, ২০০৯
+- অর্থ (২০০৮-২০০৯ অর্থ বৎসর) আইন, ২০০৯
+- অর্থ (২০২৫-২০২৬ অর্থ বৎসর) আইন, ২০২৬
+- অর্থ আইন, ১৯৮৭
+- অর্থ আইন, ১৯৮৮
+- অর্থ আইন, ১৯৮৯
+- অর্থ আইন, ১৯৯০
+- অর্থ আইন, ১৯৯১
+- অর্থ আইন, ১৯৯২
+- অর্থ আইন, ১৯৯৩
+- অর্থ আইন, ১৯৯৪
+- অর্থ আইন, ১৯৯৫
+- অর্থ আইন, ১৯৯৬
+- অর্থ আইন, ১৯৯৭
+- অর্থ আইন, ১৯৯৮
+- অর্থ আইন, ১৯৯৯
+- অর্থ আইন, ২০০০
+- অর্থ আইন, ২০০১
+- অর্থ আইন, ২০০২
+- অর্থ আইন, ২০০৩
+- অর্থ আইন, ২০০৪
+- অর্থ আইন, ২০০৫
+- অর্থ আইন, ২০০৬
+- অর্থ আইন, ২০০৯
+- অর্থ আইন, ২০১১
+- অর্থ আইন, ২০১৪
+- অর্থ আইন, ২০১৫
+- অর্থ আইন, ২০১৬
+- অর্থ আইন, ২০১৭
+- অর্থ আইন, ২০১৮
+- অর্থ আইন, ২০২০
+- অর্থ আইন, ২০২১
+- অর্থ আইন, ২০২২
+- অর্থ আইন, ২০২৩
+- অর্থ আইন, ২০২৪
+- অর্থ আইন, ২০২৬
+- অর্থ ঋণ আদালত আইন, ২০০৩
+- অর্পিত সম্পত্তি প্রত্যর্পণ আইন, ২০০১
+- অস্থাবর সম্পত্তি হুকুমদখল আইন, ১৯৮৮
+- আইন কমিশন আইন, ১৯৯৬
+- আইন-শৃঙ্খলা বিঘ্নকারী অপরাধ (দ্রুত বিচার) (সংশোধন) আইন, ২০২৪
+- আইন-শৃঙ্খলা বিঘ্নকারী অপরাধ (দ্রুত বিচার) আইন, ২০০২
+- আইনগত সহায়তা প্রদান (সংশোধন) আইন, ২০২৬
+- আইনগত সহায়তা প্রদান আইন, ২০০০
+- আকাশপথে পরিবহণ (মন্ট্রিল কনভেনশন) আইন, ২০২০
+- আদালত অবমাননা আইন, ২০১৩
+- আদালত কর্তৃক তথ্য-প্রযুক্তি ব্যবহার আইন, ২০২০
+- আদালত সংস্কার বাস্তবায়ন (সহায়ক বিধান) আইন, ২০০৪
+- আনসার বাহিনী আইন, ১৯৯৫
+- আনসার ব্যাটালিয়ন আইন, ২০২৩
+- আনসার-ভিডিপি উন্নয়ন ব্যাংক আইন, ১৯৯৫
+- আন্তজার্তিক মাতৃভাষা ইনস্টিটিউট আইন, ২০১০
+- আন্তর্জাতিক উদরাময় গবেষণা কেন্দ্র, বাংলাদেশ, আইন, ২০২২
+- আবহাওয়া আইন, ২০১৮
+- আভ্যন্তরীণ নৌযান শ্রমিক (নিয়োগ-নিয়ন্ত্রণ) আইন, ১৯৯২
+- আমানত সুরক্ষা আইন, ২০২৬
+- আর্মড পুলিশ ব্যাটালিয়ন (APBn) আইন, ২০২৬
+- আয়কর (সংশোধন) অধ্যাদেশ, ২০২৫
+- আয়কর আইন, ২০২৩
+- আয়োডিনযুক্ত লবণ আইন, ২০২১
+- ইট প্রস্তুত ও ভাটা স্থাপন (নিয়ন্ত্রণ) আইন, ২০১৩
+- ইনভেস্ট বাংলাদেশ আইন, ২০২৬
+- ইনভেস্টমেন্ট কর্পোরেশন অব বাংলাদেশ আইন, ২০১৪
+- ইন্টারন্যাশনাল ফিনান্স কর্পোরেশন আইন, ২০১৫
+- ইমাম ও মুয়াজ্জিন কল্যাণ ট্রাস্ট আইন, ২০০১
+- ইসলামি আরবি বিশ্ববিদ্যালয় আইন, ২০১৩
+- ইসলামী বিশ্ববিদ্যালয় আইন, ১৯৮০
+- উদ্ভিদ সংগনিরোধ আইন, ২০১১
+- উদ্ভিদের জাত সংরক্ষণ আইন, ২০১৯
+- উন্নয়ন বোর্ড আইনসমূহ (রহিতকরণ) আইন, ২০২৩
+- উন্নয়ন সারচার্জ ও লেভী (আরোপ ও আদায়) আইন, ২০১৫
+- উপজেলা পরিষদ (সংশোধন) আইন, ২০২৬
+- উপজেলা পরিষদ আইন, ১৯৯৮
+- উপানুষ্ঠানিক শিক্ষা আইন, ২০১৪
+- এক্সচেঞ্জেস ডিমিউচ্যুয়ালাইজেশন আইন, ২০১৩
+- এজেন্সি টু ইনোভেট (এটুআই) আইন, ২০২৩
+- এডমিরালটি কোর্ট আইন, ২০০০
+- এশিয়ান ইউনিভার্সিটি ফর উইমেন আইন, ২০০৬
+- এশিয়ান ইনফ্রাস্ট্রাকচার ইনভেস্টমেন্ট ব্যাংক আইন, ২০১৬
+- এশিয়ান রি-ইন্স্যুরেন্স কর্পোরেশন আইন, ২০১৩
+- এসিড অপরাধ দমন আইন, ২০০২
+- এসিড নিয়ন্ত্রণ আইন, ২০০২
+- ওজন ও পরিমাপ মানদণ্ড আইন, ২০১৮
+- ওয়াক্‌ফ (সম্পত্তি হস্তান্তর ও উন্নয়ন) বিশেষ বিধান আইন, ২০১৩
+- ঔষধ ও কসমেটিকস্ আইন, ২০২৩
+- কক্সবাজার উন্নয়ন কর্তৃপক্ষ আইন, ২০১৬
+- কপিরাইট আইন, ২০২৩
+- কবি নজরুল ইনস্টিটিউট আইন, ২০১৮
+- কমিউনিটি ক্লিনিক স্বাস্থ্য সহায়তা ট্রাস্ট আইন, ২০১৮
+- কর-ন্যায়পাল (রহিতকরণ ) আইন, ২০১১
+- কর্মসংস্থান ব্যাংক আইন, ১৯৯৮
+- কস্ট এন্ড ম্যানেজমেন্ট অ্যাকাউন্ট্যান্টস আইন, ২০১৮
+- কারাগারে আটক সাজাপ্রাপ্ত নারীদের বিশেষ সুবিধা আইন, ২০০৬
+- কাস্টমস (সংশোধন) অধ্যাদেশ, ২০২৫
+- কাস্টমস আইন, ২০২৩
+- কুমিল্লা উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- কুমিল্লা বিশ্ববিদ্যালয় আইন, ২০০৬
+- কুড়িগ্রাম কৃষি বিশ্ববিদ্যালয় আইন, ২০২১
+- কৃষি কাজে ভূগর্ভস্থ পানি ব্যবস্থাপনা আইন, ২০১৮
+- কৃষি বিপণন আইন, ২০১৮
+- কেবল টেলিভিশন নেটওয়ার্ক পরিচালনা আইন, ২০০৬
+- কোম্পানী (দ্বিতীয় সংশোধন) আইন, ২০২০
+- কোম্পানী (সংশোধন) আইন, ২০২০
+- কোম্পানী আইন, ১৯৯৪
+- ক্যাডার বহির্ভূত প্রথম ও দ্বিতীয় শ্রেণীর গেজেটেড কর্মকর্তা (শুল্ক, আবগারী ও ভ্যাট) নিয়োগ ও কর্মের শর্তাবলী আইন, ২০০০
+- ক্যাডেট কলেজ আইন, ২০১৭
+- ক্যান্টনমেন্ট আইন, ২০১৮
+- ক্ষুদ্র নৃ-গোষ্ঠী সাংস্কৃতিক প্রতিষ্ঠান আইন, ২০১০
+- খনি ও খনিজ সম্পদ (নিয়ন্ত্রণ ও উন্নয়ন) আইন, ১৯৯২
+- খাগড়াছড়ি পার্বত্য জেলা পরিষদ আইন, ১৯৮৯
+- খাদ্যদ্রব্য উৎপাদন, মজুত, স্থানান্তর, পরিবহণ, সরবরাহ, বিতরণ ও বিপণন (ক্ষতিকর কার্যক্রম প্রতিরোধ) আইন, ২০২৩
+- খুলনা উন্নয়ন কর্তৃপক্ষ আইন, ২০১৮
+- খুলনা কৃষি বিশ্ববিদ্যালয় আইন, ২০১৫
+- খুলনা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০৩
+- খুলনা বিশ্ববিদ্যালয় আইন, ১৯৯০
+- খুলনা মেডিক্যাল বিশ্ববিদ্যালয়, আইন, ২০২১
+- খ্রিস্টান ধর্মীয় কল্যাণ ট্রাস্ট আইন, ২০১৮
+- গণকর্মচারী (বিদেশি নাগরিকের সহিত বিবাহ) আইন, ২০১৫
+- গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান
+- গণভোট অধ্যাদেশ, ২০২৫
+- গণভোট আইন, ১৯৯১
+- গাজীপুর উন্নয়ন কর্তৃপক্ষ আইন, ২০২০
+- গাজীপুর মহানগরী পুলিশ আইন, ২০১৮
+- গান্ধী আশ্রম (ট্রাস্টি বোর্ড) আইন, ২০২১
+- গুম প্রতিরোধ ও প্রতিকার (সংশোধন) অধ্যাদেশ, ২০২৬
+- গুম প্রতিরোধ ও প্রতিকার অধ্যাদেশ, ২০২৫
+- গুম প্রতিরোধ ও প্রতিকার আইন, ২০২৬
+- গ্রাম আদালত (সংশোধন) আইন, ২০২৪
+- গ্রাম আদালত আইন, ২০০৬
+- গ্রাম প্রতিরক্ষা দল আইন, ১৯৯৫
+- গ্রাম সরকার (রহিতকরণ) আইন, ২০০৯
+- গ্রামীণ ব্যাংক (সংশোধন) আইন, ২০২৬
+- গ্রামীণ ব্যাংক আইন, ২০১৩
+- চট্টগ্রাম উন্নয়ন কর্তৃপক্ষ আইন, ২০১৮
+- চট্টগ্রাম প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০৩
+- চট্টগ্রাম বন্দর কর্তৃপক্ষ আইন, ২০২২
+- চট্টগ্রাম ভেটেরিনারি ও এনিম্যাল সাইন্সেস বিশ্ববিদ্যালয় আইন, ২০০৬
+- চট্টগ্রাম মেডিকেল বিশ্ববিদ্যালয় আইন, ২০১৬
+- চট্টগ্রাম শাহী জামে মসজিদ আইন, ২০২৩
+- চলচ্চিত্র সংসদ (নিবন্ধন) আইন, ২০১১
+- চা আইন, ২০১৬
+- চাঁদপুর বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০২০
+- চার্টার্ড সেক্রেটারীজ আইন, ২০১০
+- চিংড়ি চাষ অভিকর আইন, ১৯৯২
+- চিড়িয়াখানা আইন, ২০২৩
+- জগন্নাথ বিশ্ববিদ্যালয় আইন, ২০০৫
+- জননিরাপত্তা (বিশেষ বিধান) (রহিতকরণ) আইন, ২০০২
+- জনস্বার্থ সংশ্লিষ্ট তথ্য প্রকাশ (সুরক্ষা প্রদান) আইন, ২০১১
+- জন্ম ও মৃত্যু নিবন্ধন আইন, ২০০৪
+- জলবায়ু পরিবর্তন ট্রাস্ট আইন, ২০১০
+- জাতির পিতার পরিবার-সদস্যগণের নিরাপত্তা (রহিতকরণ) আইন, ২০০১
+- জাতির পিতার পরিবার-সদস্যগণের নিরাপত্তা (রহিতকরণ) আইন, ২০২৬
+- জাতির পিতার প্রতিকৃতি সংরক্ষণ ও প্রদর্শন (রহিতকরণ) আইন, ২০০২
+- জাতীয় উপাত্ত ব্যবস্থাপনা আইন, ২০২৬
+- জাতীয় কবি কাজী নজরুল ইসলাম বিশ্ববিদ্যালয় আইন, ২০০৬
+- জাতীয় কম্পিউটার প্রশিক্ষণ ও গবেষণা একাডেমী আইন, ২০০৫
+- জাতীয় ক্রীড়া পরিষদ (সংশোধন) আইন, ২০২৬
+- জাতীয় ক্রীড়া পরিষদ আইন, ২০১৮
+- জাতীয় ক্রীড়াসেবী কল্যাণ ফাউন্ডেশন আইন, ২০১১
+- জাতীয় গৃহায়ন কর্তৃপক্ষ আইন, ২০০০
+- জাতীয় গ্রন্থকেন্দ্র আইন, ১৯৯৫
+- জাতীয় দক্ষতা উন্নয়ন কর্তৃপক্ষ আইন, ২০১৮
+- জাতীয় নদী রক্ষা কমিশন আইন, ২০১৩
+- জাতীয় পরিকল্পনা ও উন্নয়ন একাডেমি আইন, ২০১৮
+- জাতীয় পরিচয় নিবন্ধন আইন, ২০১০
+- জাতীয় পরিচয় নিবন্ধন আইন, ২০২৩
+- জাতীয় প্রতিবন্ধী উন্নয়ন ফাউন্ডেশন আইন, ২০২৩
+- জাতীয় প্রাথমিক শিক্ষা একাডেমি আইন, ২০২৪
+- জাতীয় বিজ্ঞান ও প্রযুক্তি জাদুঘর আইন, ২০১০
+- জাতীয় বিশ্ববিদ্যালয় আইন, ১৯৯২
+- জাতীয় মহিলা সংস্থা আইন, ১৯৯১
+- জাতীয় মানবাধিকার কমিশন (রহিতকরণ ও পুনঃপ্রচলন) আইন, ২০২৬
+- জাতীয় মানবাধিকার কমিশন আইন, ২০২৬
+- জাতীয় মুক্তিযোদ্ধা কাউন্সিল (সংশোধন) আইন, ২০২৬
+- জাতীয় মুক্তিযোদ্ধা কাউন্সিল আইন, ২০২২‌
+- জাতীয় যুব উন্নয়ন ইনস্টিটিউট আইন, ২০১৮
+- জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড আইন, ২০১৮
+- জাতীয় সংসদ (সংরক্ষিত মহিলা আসন) নির্বাচন (সংশোধন) আইন, ২০২৩
+- জাতীয় সংসদ (সংরক্ষিত মহিলা আসন) নির্বাচন আইন, ২০০৪
+- জাতীয় সংসদ সচিবালয় (অন্তর্বর্তীকালীন বিশেষ বিধান) (রহিতকরণ) আইন, ২০২৬
+- জাতীয় সংসদ সচিবালয় আইন, ১৯৯৪
+- জাতীয় সংসদের নির্বাচনি এলাকার সীমানা নির্ধারণ (সংশোধন) আইন, ২০২৬
+- জাতীয় সংসদের নির্বাচনি এলাকার সীমানা নির্ধারণ আইন, ২০২১
+- জাতীয় স্থানীয় সরকার ইনষ্টিটিউট আইন, ১৯৯২
+- জুলাই গণঅভ্যুত্থান (সুরক্ষা ও দায় নির্ধারণ) আইন, ২০২৬
+- জুলাই গণঅভ্যুত্থান স্মৃতি জাদুঘর আইন, ২০২৬
+- জুলাই গণঅভ্যুত্থানে শহিদ পরিবার এবং জুলাই যোদ্ধাদের কল্যাণ ও পুনর্বাসন আইন, ২০২৬
+- জুয়া প্রতিরোধ আইন, ২০২৬
+- জেলা (পার্বত্য চট্টগ্রাম জেলাসমূহে বলবৎকরণ) আইন, ২০২৩
+- জেলা পরিষদ (সংশোধন) আইন, ২০২২
+- জেলা পরিষদ (সংশোধন) আইন, ২০২৬
+- জেলা পরিষদ আইন, ২০০০
+- টেকসই ও নবায়নযোগ্য জ্বালানি উন্নয়ন কর্তৃপক্ষ আইন, ২০১২
+- ট্রেডমার্ক আইন, ২০০৯
+- ঠাকুরগাঁও বিশ্ববিদ্যালয় আইন, ২০২৩
+- ডিঅক্সিরাইবোনিউক্লিক এসিড (ডিএনএ) আইন, ২০১৪
+- ডিপজিটরি আইন, ১৯৯৯
+- ঢাকা এলিভেটেড এক্সপ্রেসওয়ে প্রকল্প (ভূমি অধিগ্রহণ) আইন , ২০১১
+- ঢাকা পরিবহন সমন্বয় কর্তৃপক্ষ আইন, ২০১২
+- ঢাকা প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয়, গাজীপুর আইন,২০০৩
+- ঢাকা বিদ্যুৎ বিতরণ কর্তৃপক্ষ আইন, ১৯৯০
+- ঢাকা সেন্ট্রাল ইউনিভার্সিটি আইন, ২০২৬
+- তথ্য অধিকার (সংশোধন) অধ্যাদেশ, ২০২৬
+- তথ্য অধিকার আইন, ২০০৯
+- তথ্য ও যোগাযোগ প্রযুক্তি আইন, ২০০৬
+- তফসিলভুক্ত দরগাহ্‌ (পরিচালনা ও ব্যবস্থাপনা) রহিতকরণ আইন, ১৯৯৪
+- ত্রাণ ও পুনর্বাসন সারচার্জ আইন, ১৯৮৮
+- দানকর আইন, ১৯৯০
+- দুর্নীতি দমন কমিশন (সংশোধন) অধ্যাদেশ, ২০২৫
+- দুর্নীতি দমন কমিশন আইন, ২০০৪
+- দুর্যোগ ব্যবস্থাপনা আইন, ২০১২
+- দেউলিয়া বিষয়ক আইন, ১৯৯৭
+- দেওয়াল লিখন ও পোস্টার লাগানো (নিয়ন্ত্রণ) আইন, ২০১২
+- দ্রুত বিচার ট্রাইব্যুনাল আইন, ২০০২
+- ধূমপান ও তামাকজাত দ্রব্য ব্যবহার (নিয়ন্ত্রণ) (সংশোধন) আইন, ২০২৬
+- ধূমপান ও তামাকজাত দ্রব্য ব্যবহার (নিয়ন্ত্রণ) আইন, ২০০৫
+- নদী গবেষণা ইনষ্টিটিউট আইন, ১৯৯০
+- নভোথিয়েটার আইন, ২০১০
+- নারায়ণগঞ্জ উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- নারী ও শিশু নির্যাতন দমন (সংশোধন) আইন, ২০২০
+- নারী ও শিশু নির্যাতন দমন (সংশোধন) আইন, ২০২৬
+- নারী ও শিশু নির্যাতন দমন আইন, ২০০০
+- নিউ ডেভেলপমেন্ট ব্যাংক আইন, ২০২৩
+- নিউরো-ডেভেলপমেন্টাল প্রতিবন্ধী সুরক্ষা ট্রাস্ট আইন, ২০১৩
+- নিরাপদ খাদ্য আইন, ২০১৩
+- নিরাপদ রক্ত পরিসঞ্চালন আইন, ২০০২
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৮৭
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৮৮
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৮৯
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৯০
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৯১
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৯১
+- নির্দিষ্টকরণ (অগ্রিম মঞ্জুরী দান) আইন, ১৯৯২
+- নির্দিষ্টকরণ (সম্পূরক) (২০০৬-০৭ অর্থ বৎসর) আইন, ২০০৯
+- নির্দিষ্টকরণ (সম্পূরক) (২০০৭-০৮ অর্থ বৎসর) আইন, ২০০৯
+- নির্দিষ্টকরণ (সম্পূরক) (২০২৪-২৫ অর্থবৎসর) আইন, ২০২৬
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৮৭
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৮৮
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৮৯
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯০
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯১
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯২
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৩
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৪
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৫
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৭
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৮
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ১৯৯৯
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০০
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০১
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০২
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৩
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৪
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৫
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৬
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৬
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০০৯
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১০
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১১
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১২
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৩
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৪
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৫
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৬
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৭
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৮
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০১৯
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২০
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২১
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২২
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২৩
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২৪
+- নির্দিষ্টকরণ (সম্পূরক) আইন, ২০২৬
+- নির্দিষ্টকরণ (২০০৭-০৮ অর্থ বৎসর) আইন, ২০০৯
+- নির্দিষ্টকরণ (২০০৮-০৯ অর্থ বৎসর) আইন, ২০০৯
+- নির্দিষ্টকরণ (২০২৫-২০২৬ অর্থ বৎসর) আইন, ২০২৬
+- নির্দিষ্টকরণ আইন, ১৯৮৮
+- নির্দিষ্টকরণ আইন, ১৯৮৯
+- নির্দিষ্টকরণ আইন, ১৯৯০
+- নির্দিষ্টকরণ আইন, ১৯৯২
+- নির্দিষ্টকরণ আইন, ১৯৯৩
+- নির্দিষ্টকরণ আইন, ১৯৯৪
+- নির্দিষ্টকরণ আইন, ১৯৯৫
+- নির্দিষ্টকরণ আইন, ১৯৯৬
+- নির্দিষ্টকরণ আইন, ১৯৯৭
+- নির্দিষ্টকরণ আইন, ১৯৯৮
+- নির্দিষ্টকরণ আইন, ১৯৯৯
+- নির্দিষ্টকরণ আইন, ২০০০
+- নির্দিষ্টকরণ আইন, ২০০১
+- নির্দিষ্টকরণ আইন, ২০০২
+- নির্দিষ্টকরণ আইন, ২০০৩
+- নির্দিষ্টকরণ আইন, ২০০৪
+- নির্দিষ্টকরণ আইন, ২০০৫
+- নির্দিষ্টকরণ আইন, ২০০৯
+- নির্দিষ্টকরণ আইন, ২০১০
+- নির্দিষ্টকরণ আইন, ২০১১
+- নির্দিষ্টকরণ আইন, ২০১২
+- নির্দিষ্টকরণ আইন, ২০১৩
+- নির্দিষ্টকরণ আইন, ২০১৪
+- নির্দিষ্টকরণ আইন, ২০১৫
+- নির্দিষ্টকরণ আইন, ২০১৬
+- নির্দিষ্টকরণ আইন, ২০১৭
+- নির্দিষ্টকরণ আইন, ২০১৮
+- নির্দিষ্টকরণ আইন, ২০১৯
+- নির্দিষ্টকরণ আইন, ২০২০
+- নির্দিষ্টকরণ আইন, ২০২১
+- নির্দিষ্টকরণ আইন, ২০২২
+- নির্দিষ্টকরণ আইন, ২০২৩
+- নির্দিষ্টকরণ আইন, ২০২৪
+- নির্দিষ্টকরণ আইন, ২০২৬
+- নির্দিষ্টকরণ এ্যাক্ট, ১৯৮৭
+- নির্বাচন কমিশন সচিবালয় (সংশোধন) আইন, ২০২৬
+- নির্বাচন কমিশন সচিবালয় আইন, ২০০৯
+- নির্বাচন কর্মকর্তা (বিশেষ বিধান) (সংশোধন) আইন, ২০২৬
+- নির্বাচন কর্মকর্তা (বিশেষ বিধান) আইন, ১৯৯১
+- নির্যাতন এবং হেফাজতে মৃত্যু (নিবারণ) আইন, ২০১৩
+- নোয়াখালী বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- ন্যাশনাল ইনস্টিটিউট অব বায়োটেকনোলজি আইন, ২০১০
+- পটুয়াখালী বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- পণ্য উৎপাদনশীল রাষ্ট্রায়ত্ত শিল্প প্রতিষ্ঠান শ্রমিক (চাকরির শর্তাবলী) আইন, ২০১৮
+- পণ্যে পাটজাত মোড়কের বাধ্যতামূলক ব্যবহার আইন, ২০১০
+- পদ্মা বহুমুখী সেতু প্রকল্প (ভূমি অধিগ্রহণ) আইন, ২০০৯
+- পরিত্যক্ত বাড়ি (সম্পূরক বিধানাবলি) (সংশোধন) আইন, ২০২৬
+- পরিত্যক্ত বাড়ি (সম্পূরক বিধানাবলি) আইন, ২০২৩
+- পরিবেশ আদালত আইন, ২০১০
+- পরিশোধ ও নিষ্পত্তি ব্যবস্থা আইন, ২০২৪
+- পরিসংখ্যান আইন, ২০১৩
+- পর্নোগ্রাফি নিয়ন্ত্রণ আইন, ২০১২
+- পল্লী উন্নয়ন একাডেমি, গোপালগঞ্জ আইন, ২০১২
+- পল্লী উন্নয়ন একাডেমি, জামালপুর আইন, ২০২৩
+- পল্লী উন্নয়ন একাডেমি, রংপুর আইন, ২০২৩
+- পল্লী দারিদ্র বিমোচন ফাউন্ডেশন আইন, ১৯৯৯
+- পল্লী বিদ্যুতায়ন বোর্ড আইন, ২০১৩
+- পল্লী সঞ্চয় ব্যাংক আইন, ২০১৪
+- পশু জবাই ও মাংসের মান নিয়ন্ত্রন আইন, ২০১১
+- পশুরোগ আইন, ২০০৫
+- পাওয়ার অব অ্যাটর্নি আইন, ২০১২
+- পাট আইন, ২০১৭
+- পানি সম্পদ পরিকল্পনা আইন, ১৯৯২
+- পানি সরবরাহ ও পয়ঃনিষ্কাশন কর্তৃপক্ষ (সংশোধন) আইন, ২০২৬
+- পানি সরবরাহ ও পয়ঃনিষ্কাশন কর্তৃপক্ষ আইন, ১৯৯৬
+- পাবনা বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- পাবলিক প্রকিউরমেন্ট (সংশোধন) আইন, ২০২৬
+- পাবলিক প্রকিউরমেন্ট আইন, ২০০৬
+- পাবলিক বিশ্ববিদ্যালয় শিক্ষক (অবসর গ্রহণ) (বিশেষ বিধান) আইন, ২০১২
+- পারমাণবিক বিদ্যুৎ কেন্দ্র আইন, ২০১৫
+- পারিবারিক আদালত আইন, ২০২৩
+- পারিবারিক সহিংসতা (প্রতিরোধ ও সুরক্ষা) আইন, ২০১০
+- পার্বত্য চট্টগ্রাম আঞ্চলিক পরিষদ আইন, ১৯৯৮
+- পার্বত্য চট্টগ্রাম উন্নয়ন বোর্ড আইন, ২০১৪
+- পার্বত্য চট্টগ্রাম ভূমি-বিরোধ নিষ্পত্তি কমিশন আইন, ২০০১
+- পার্বত্য জেলাসমূহ (আইন রহিত ও প্রয়োগ এবং বিশেষ বিধান) আইন, ১৯৮৯
+- পায়রা বন্দর কর্তৃপক্ষ আইন, ২০১৩
+- পায়রা বন্দর প্রকল্প (ভূমি অধিগ্রহণ) আইন, ২০১৬
+- পিতা-মাতার ভরণ-পোষণ আইন, ২০১৩
+- পুলিশ কমিশন অধ্যাদেশ, ২০২৫
+- পুলিশ ষ্টাফ কলেজ আইন, ২০০২
+- পেট্রোলিয়াম আইন, ২০১৬
+- প্রচলিত আইন ও আইনগত দলিল (অভিযোজন) আইন, ১৯৯৪
+- প্রতিবন্ধী ব্যক্তির অধিকার ও সুরক্ষা আইন, ২০১৩
+- প্রতিযোগিতা আইন, ২০১২
+- প্রতিরক্ষা কর্মবিভাগ (সর্বাধিনায়কতা) আইন, ২০১৬
+- প্রতিরক্ষা-বাহিনীসমূহের প্রধানদের (নিয়োগ, বেতন, ভাতা এবং অন্যান্য সুবিধা) আইন, ২০১৮
+- প্রধান নির্বাচন কমিশনার ও অন্যান্য নির্বাচন কমিশনার নিয়োগ আইন, ২০২২
+- প্রধানমন্ত্রীর শিক্ষা সহায়তা ট্রাস্ট আইন, ২০১২
+- প্রবাসী কল্যাণ ব্যাংক আইন, ২০১০
+- প্রাণিকল্যাণ আইন, ২০১৯
+- প্রাথমিক শিক্ষা (বাধ্যতামূলক করণ) আইন, ১৯৯০
+- প্রেস ইনস্টিটিউট বাংলাদেশ (পিআইবি) আইন, ২০১৮
+- ফরমালিন নিয়ন্ত্রণ আইন, ২০১৫
+- ফাইনান্সিয়াল রিপোর্টিং আইন, ২০১৫
+- ফাইন্যান্স কোম্পানি আইন, ২০২৩
+- বগুড়া পল্লী উন্নয়ন একাডেমী আইন, ১৯৯০
+- বগুড়া বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- বগুড়া বিশ্ববিদ্যালয় আইন, ২০২৬
+- বঙ্গবন্ধু ক্রীড়াসেবী কল্যাণ ফাউন্ডেশন (সংশোধন) আইন, ২০২৬
+- বঙ্গবন্ধু জাতীয় কৃষি পুরস্কার ট্রাস্ট আইন, ২০১৬
+- বঙ্গবন্ধু দারিদ্র্য বিমোচন ও পল্লী উন্নয়ন একাডেমি (সংশোধন) আইন, ২০২৬
+- বঙ্গবন্ধু বিজ্ঞান ও প্রযুক্তি ফেলোশিপ ট্রাস্ট (সংশোধন) আইন, ২০২৬
+- বঙ্গবন্ধু শেখ মুজিব মেডিক্যাল বিশ্ববিদ্যালয় (সংশোধন) আইন, ২০২৩
+- বঙ্গবন্ধু শেখ মুজিব মেডিক্যাল বিশ্ববিদ্যালয় (সংশোধন) আইন, ২০২৬
+- বঙ্গবন্ধু শেখ মুজিবুর রহমান নভোথিয়েটার (সংশোধন) আইন, ২০২৬
+- বঙ্গমাতা শেখ ফজিলাতুন্নেছা মুজিব মেডিক্যাল বিশ্ববিদ্যালয়, সিলেট (সংশোধন) আইন, ২০২৬
+- বন ও বৃক্ষ সংরক্ষণ আইন, ২০২৬
+- বন্যপ্রাণী (সংরক্ষণ ও নিরাপত্তা) আইন, ২০২৬
+- বরিশাল উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- বরিশাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- বরিশাল মহানগরী পুলিশ আইন, ২০০৯
+- বরেন্দ্র বহুমুখী উন্নয়ন কর্তৃপক্ষ আইন, ২০১৮
+- বর্ডার গার্ড বাংলাদেশ আইন, ২০১০
+- বস্ত্র আইন, ২০১৮
+- বাংলা একাডেমি আইন, ২০১৩
+- বাংলা ভাষা প্রচলন আইন, ১৯৮৭
+- বাংলাদশে ডেইরি উন্নয়ন বোর্ড আইন, ২০২৩
+- বাংলাদেশ অর্থনৈতিক অঞ্চল (সংশোধন) আইন, ২০২৩
+- বাংলাদেশ অ্যাক্রেডিটেশন কাউন্সিল আইন, ২০১৭
+- বাংলাদেশ ইউনিভার্সিটি অব প্রফেশনালস আইন, ২০০৯
+- বাংলাদেশ ইনস্টিটিউট অব ইন্টারন্যাশনাল এন্ড স্ট্র্যাটেজিক স্টাডিজ আইন, ২০১৩
+- বাংলাদেশ ইনস্টিটিউট অব পার্লামেন্টারী স্ট্যাডিজ আইন, ২০০১
+- বাংলাদেশ ইনস্টিটিউট অব ম্যানেজমেন্ট আইন, ২০২৩
+- বাংলাদেশ ইপিজেড শ্রম আইন, ২০১৯
+- বাংলাদেশ উন্নয়ন গবেষণা প্রতিষ্ঠান আইন, ২০১৭
+- বাংলাদেশ উন্মুক্ত বিশ্ববিদ্যালয় আইন, ১৯৯২
+- বাংলাদেশ ঋণ সালিসি আইন, ১৯৮৯
+- বাংলাদেশ এনার্জি রেগুলেটরি কমিশন (সংশোধন) আইন, ২০২০
+- বাংলাদেশ এনার্জি রেগুলেটরী কমিশন (সংশোধন) আইন, ২০২৩
+- বাংলাদেশ এনার্জি রেগুলেটরী কমিশন (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ এনার্জি রেগুলেটরী কমিশন আইন, ২০০৩
+- বাংলাদেশ এ্যাক্রেডিটেশন আইন, ২০০৬
+- বাংলাদেশ ওশানোগ্রাফিক রিসার্চ ইনস্টিটিউট আইন, ২০১৫
+- বাংলাদেশ কমপিউটার কাউন্সিল আইন, ১৯৯০
+- বাংলাদেশ কমার্স এন্ড ইনভেষ্টমেন্ট লিমিটেড (পুনর্গঠন) আইন, ১৯৯৭
+- বাংলাদেশ কর্মচারী কল্যাণ বোর্ড আইন, ২০০৪
+- বাংলাদেশ কলেজ অব ফিজিশিয়ানস্ এন্ড সার্জনস্ আইন, ২০১৮
+- বাংলাদেশ কারিগরি শিক্ষা বোর্ড (সংশোধন) আইন, ২০২১
+- বাংলাদেশ কারিগরি শিক্ষা বোর্ড আইন, ২০১৮
+- বাংলাদেশ কৃষি উন্নয়ন কর্পোরেশন আইন, ২০১৮
+- বাংলাদেশ কৃষি গবেষণা ইনস্টিটিউট (বারি) আইন, ২০১৭
+- বাংলাদেশ কৃষি গবেষণা কাউন্সিল আইন, ২০১২
+- বাংলাদেশ কোস্ট গার্ড আইন, ২০১৬
+- বাংলাদেশ ক্রীড়া শিক্ষা প্রতিষ্ঠান আইন, ২০২০
+- বাংলাদেশ ক্ষুদ্র ও কুটির শিল্প কর্পোরেশন আইন, ২০২৩
+- বাংলাদেশ গম ও ভুট্টা গবেষণা ইনস্টিটিউট আইন, ২০১৭
+- বাংলাদেশ গ্যাস (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ গ্যাস আইন, ২০১০
+- বাংলাদেশ চলচ্চিত্র এবং টেলিভিশন ইনস্টিটিউট আইন, ২০১৩
+- বাংলাদেশ চলচ্চিত্র শিল্পী কল্যাণ ট্রাস্ট আইন, ২০২১
+- বাংলাদেশ চলচ্চিত্র সার্টিফিকেশন আইন, ২০২৩
+- বাংলাদেশ চা শ্রমিক কল্যাণ তহবিল আইন, ২০১৬
+- বাংলাদেশ চিকিৎসা শিক্ষা অ্যাক্রেডিটেশন আইন, ২০২৩
+- বাংলাদেশ জাতীয় আরকাইভস আইন, ২০২১
+- বাংলাদেশ জাতীয় জাদুঘর আইন, ২০২২
+- বাংলাদেশ জাতীয় সমাজকল্যাণ পরিষদ আইন, ২০১৯
+- বাংলাদেশ জাহাজ পুনঃপ্রক্রিয়াজাতকরণ আইন, ২০১৮
+- বাংলাদেশ জীববৈচিত্র্য আইন, ২০১৭
+- বাংলাদেশ জ্বালানি ও বিদ্যুৎ গবেষণা কাউন্সিল আইন, ২০১৫
+- বাংলাদেশ টেক্সটাইল বিশ্ববিদ্যালয় আইন, ২০১০
+- বাংলাদেশ টেলিভিশন কর্তৃপক্ষ আইন, ২০০১
+- বাংলাদেশ টেলিভিশনের জন্য টেরেস্ট্রিয়াল টেলিভিশন সম্প্রচার সুবিধা সংরক্ষণ আইন, ২০০৯
+- বাংলাদেশ টেলিযোগাযোগ (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ টেলিযোগাযোগ আইন, ২০০১
+- বাংলাদেশ ট্যারিফ কমিশন (সংশোধন) আইন, ২০২০
+- বাংলাদেশ ট্যুর অপারেটর ও ট্যুর গাইড (নিবন্ধন ও পরিচালনা) আইন, ২০২১
+- বাংলাদেশ ট্রাভেল এজেন্সি (নিবন্ধন ও নিয়ন্ত্রণ) (সংশোধন) অধ্যাদেশ, ২০২৬
+- বাংলাদেশ ট্রাভেল এজেন্সি (নিবন্ধন ও নিয়ন্ত্রণ) (সংশোধন) আইন, ২০২১
+- বাংলাদেশ ট্রাভেল এজেন্সি (নিবন্ধন ও নিয়ন্ত্রণ) আইন, ২০১৩
+- বাংলাদেশ ট্রেড এন্ড ট্যারিফ কমিশন (সংশোধন) আইন, ২০২৪
+- বাংলাদেশ ট্রেড এন্ড ট্যারিফ কমিশন আইন, ১৯৯২
+- বাংলাদেশ তাঁত বোর্ড আইন, ২০১৩
+- বাংলাদেশ তেল, গ্যাস ও খনিজসম্পদ কর্পোরেশন আইন, ২০২২
+- বাংলাদেশ ধান গবেষণা ইনস্টিটিউট আইন, ২০১৭
+- বাংলাদেশ নার্সিং ও মিডওয়াইফারি কাউন্সিল (সংশোধন) আইন, ২০২৩
+- বাংলাদেশ নার্সিং ও মিডওয়াইফারি কাউন্সিল আইন, ২০১৬
+- বাংলাদেশ ন্যাশনাল ক্যাডেট কোর আইন, ২০১৬
+- বাংলাদেশ ন্যাশনাল সায়েন্টিফিক এন্ড টেকনিক্যাল ডকুমেন্টেশন সেন্টার (ব্যান্সডক) আইন, ২০১০
+- বাংলাদেশ পরমাণু কৃষি গবেষণা ইনস্টিটিউট (বিনা) আইন, ২০১৭
+- বাংলাদেশ পরমাণু শক্তি কমিশন আইন, ২০১৭
+- বাংলাদেশ পরমাণু শক্তি নিয়ন্ত্রণ আইন, ২০১২
+- বাংলাদেশ পরমানু শক্তি কমিশন (সংশোধন) আইন, ২০২২
+- বাংলাদেশ পরিবেশ সংরক্ষণ আইন, ১৯৯৫
+- বাংলাদেশ পর্যটন বোর্ড আইন, ২০১০
+- বাংলাদেশ পর্যটন সংরক্ষিত এলাকা ও বিশেষ পর্যটন অঞ্চল আইন, ২০১০
+- বাংলাদেশ পল্লী উন্নয়ন একাডেমি আইন, ২০১৭
+- বাংলাদেশ পল্লী উন্নয়ন বোর্ড আইন, ২০১৮
+- বাংলাদেশ পশু ও পশুজাত পণ্য সঙ্গনিরোধ আইন, ২০০৫
+- বাংলাদেশ পাট গবেষণা ইনস্টিটিউট আইন, ২০১৭
+- বাংলাদেশ পানি আইন, ২০১৩
+- বাংলাদেশ পানি উন্নয়ন বোর্ড আইন, ২০০০
+- বাংলাদেশ পাবলিক প্রকিউরমেন্ট অথরিটি আইন, ২০২৩
+- বাংলাদেশ পুলিশ কল্যাণ তহবিল আইন, ২০২৩
+- বাংলাদেশ পেটেন্ট আইন, ২০২৩
+- বাংলাদেশ পেট্রোলিয়াম ইন্সটিটিউট আইন, ২০০৪
+- বাংলাদেশ পেট্রোলিয়াম কর্পোরেশন আইন, ২০১৬
+- বাংলাদেশ প্রকৌশল গবেষণা কাউন্সিল আইন, ২০২০
+- বাংলাদেশ প্রাণিসম্পদ গবেষণা ইনস্টিটিউট আইন, ২০১৮
+- বাংলাদেশ ফলিত পুষ্টি গবেষণা ও প্রশিক্ষণ ইনস্টিটিউট আইন, ২০১২
+- বাংলাদেশ বনশিল্প উন্নয়ন কর্পোরেশন আইন, ২০২৬
+- বাংলাদেশ বাতিঘর আইন, ২০২০
+- বাংলাদেশ বিজ্ঞান ও শিল্প গবেষণা পরিষদ আইন, ২০১৩
+- বাংলাদেশ বিনিয়োগ উন্নয়ন কর্তৃপক্ষ (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ বিমান (Bangladesh Biman) (রহিত Bangladesh Biman Order, 1972 পুনর্বহাল এবং সংশোধন) আইন, ২০২৩
+- বাংলাদেশ বিল্ডিং রেগুলেটরি কর্তৃপক্ষ আইন, ২০২৬
+- বাংলাদেশ বেতার কর্তৃপক্ষ আইন, ২০০১
+- বাংলাদেশ বেসরকারি রপ্তানী প্রক্রিয়াকরণ অঞ্চল (রহিতকরণ) আইন, ২০২৬
+- বাংলাদেশ ভেটেরিনারি কাউন্সিল আইন, ২০১৯
+- বাংলাদেশ মহাকাশ গবেষণা ও দূর অনুধাবন প্রতিষ্ঠান আইন, ১৯৯১
+- বাংলাদেশ মাদ্রাসা শিক্ষা বোর্ড আইন, ২০২০
+- বাংলাদেশ মাদ্রাসা শিক্ষাবোর্ড (সংশোধন) আইন, ২০২১
+- বাংলাদেশ মুক্তিযোদ্ধা কল্যাণ ট্রাস্ট আইন, ২০১৮
+- বাংলাদেশ মেডিকেল ও ডেন্টাল কাউন্সিল আইন, ২০১০
+- বাংলাদেশ মেডিক্যাল বিশ্ববিদ্যালয় (দ্বিতীয় সংশোধন) আইন, ২০২৬
+- বাংলাদেশ মেডিক্যাল বিশ্ববিদ্যালয় আইন, ১৯৯৮
+- বাংলাদেশ মৎস্য গবেষণা ইনস্টিটিউট আইন, ২০১৮
+- বাংলাদেশ রাবার বোর্ড আইন, ২০১৩
+- বাংলাদেশ রিহ্যাবিলিটেশন কাউন্সিল আইন, ২০১৮
+- বাংলাদেশ রেফারেন্স ইনস্টিটিউট ফর কেমিক্যাল মেজারমেন্টস্ আইন, ২০২০
+- বাংলাদেশ রেশম উন্নয়ন বোর্ড আইন, ২০১৩
+- বাংলাদেশ লোক ও কারুশিল্প ফাউন্ডেশন আইন, ১৯৯৮
+- বাংলাদেশ লোক-প্রশাসন প্রশিক্ষণ কেন্দ্র আইন, ২০১৮
+- বাংলাদেশ শিপিং কর্পোরেশন আইন, ২০১৭
+- বাংলাদেশ শিল্প কারিগরি সহায়তা কেন্দ্র (বিটাক) আইন, ২০১৯
+- বাংলাদেশ শিল্প প্রতিষ্ঠান জাতীয়করণ আইন, ২০১৮
+- বাংলাদেশ শিল্প-নকশা আইন, ২০২৩
+- বাংলাদেশ শিল্পকলা একাডেমি (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ শিল্পী কল্যাণ ট্রাস্ট আইন, ২০০১
+- বাংলাদেশ শিশু একাডেমি আইন, ২০১৮
+- বাংলাদেশ শিশু হাসপাতাল ও ইনস্টিটিউট আইন, ২০২১
+- বাংলাদেশ শ্রম (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ শ্রম আইন, ২০০৬
+- বাংলাদেশ শ্রমিক কল্যাণ ফাউন্ডেশন আইন, ২০০৬
+- বাংলাদেশ সংবাদ সংস্থা আইন, ২০১৮
+- বাংলাদেশ সরকারি-বেসরকারি অংশীদারিত্ব (সংশোধন) আইন, ২০২৩
+- বাংলাদেশ সরকারী কর্ম কমিশন আইন, ২০২৩
+- বাংলাদেশ সাংবাদিক কল্যাণ ট্রাস্ট আইন, ২০১৪
+- বাংলাদেশ সিকিউরিটিজ অ্যান্ড এক্সচেঞ্জ কমিশন (সংশোধন) আইন, ২০২৬
+- বাংলাদেশ সিকিউরিটিজ অ্যান্ড এক্সচেঞ্জ কমিশন আইন, ১৯৯৩
+- বাংলাদেশ সুগারক্রপ গবেষণা ইনস্টিটিউট আইন, ২০১৯
+- বাংলাদেশ সুপ্রীম কোর্টের বিচারক (ছুটি, পেনশন ও বিশেষাধিকার) আইন, ২০২৩
+- বাংলাদেশ সুপ্রীম কোর্টের বিচারক (পারিতোষিক ও বিশেষাধিকার) আইন, ২০২১
+- বাংলাদেশ সুপ্রীম কোর্টের বিচারক (ভ্রমণ ভাতা) আইন, ২০২১
+- বাংলাদেশ সেতু কর্তৃপক্ষ আইন, ২০১৬
+- বাংলাদেশ স্ট্যান্ডার্ডস এন্ড টেস্টিং ইনস্টিটিউশন আইন, ২০১৮
+- বাংলাদেশ স্থলবন্দর কর্তৃপক্ষ আইন, ২০০১
+- বাংলাদেশ সড়ক পরিবহণ কর্তৃপক্ষ আইন, ২০১৭
+- বাংলাদেশ সড়ক পরিবহণ কর্পোরেশন আইন, ২০২০
+- বাংলাদেশ হাই-টেক পার্ক কর্তৃপক্ষ আইন, ২০১০
+- বাংলাদেশ হাওর ও জলাভূমি সংরক্ষণ আইন, ২০২৬
+- বাংলাদেশ হোটেল ও রেস্তোরাঁ আইন, ২০১৪
+- বাংলাদেশ হোমিওপ্যাথিক চিকিৎসা শিক্ষা আইন, ২০২৩
+- বাংলাদেশের পতাকাবাহী জাহাজ (স্বার্থরক্ষা) আইন, ২০১৯
+- বাণিজ্য সংগঠন (সংশোধন) আইন, ২০২৩
+- বাণিজ্য সংগঠন আইন, ২০২২
+- বাণিজ্যিক আদালত আইন, ২০২৬
+- বান্দরবান পার্বত্য জেলা পরিষদ আইন, ১৯৮৯
+- বালাইনাশক (পেস্টিসাইডস) আইন, ২০১৮
+- বালুমহাল ও মাটি ব্যবস্থাপনা (সংশোধন) আইন, ২০২৩
+- বালুমহাল ও মাটি ব্যবস্থাপনা আইন, ২০১০
+- বাল্যবিবাহ নিরোধ আইন, ২০১৭
+- বাস র‍্যাপিড ট্রানজিট (বিআরটি) আইন, ২০১৬
+- বাড়ী ভাড়া নিয়ন্ত্রণ আইন, ১৯৯১
+- বিচার প্রশাসন প্রশিক্ষণ ইনস্টিটিউট আইন, ১৯৯৫
+- বিজ্ঞান ও প্রযুক্তি উন্নয়ন ট্রাস্ট আইন, ২০১১
+- বিজ্ঞান ও প্রযুক্তি ফেলোশিপ ট্রাস্ট আইন, ২০১৬
+- বিদ্যুৎ আইন, ২০১৮
+- বিদ্যুৎ ও জ্বালানীর দ্রুত সরবরাহ বৃদ্ধি (বিশেষ বিধান) (রহিতকরণ) আইন, ২০২৬
+- বিদ্যুৎ ও জ্বালানীর দ্রুত সরবরাহ বৃদ্ধি (বিশেষ বিধান) (সংশোধন) আইন, ২০২১
+- বিমান-নিরাপত্তা বিরোধী অপরাধ দমন আইন, ১৯৯৭
+- বিরোধ মীমাংসা (পৌর এলাকা) বোর্ড আইন, ২০০৪
+- বিরোধীদলের নেতা এবং উপনেতা (পারিতোষিক ও বিশেষাধিকার) আইন, ২০২১
+- বিশেষ আদালত (অতিরিক্ত দায়িত্ব) আইন, ২০০৩
+- বিশেষ নিরাপত্তা বাহিনী (Special Security Force) (সংশোধন) আইন, ২০২৬
+- বিশেষ নিরাপত্তা বাহিনী (Special Security Force) আইন, ২০২১
+- বিশ্ববিদ্যালয় সংক্রান্ত কতিপয় আইন (সংশোধন) আইন, ২০২৬
+- বীজ আইন, ২০১৮
+- বীমা আইন, ২০১০
+- বীমা উন্নয়ন ও নিয়ন্ত্রণ কর্তৃপক্ষ (সংশোধন) আইন, ২০২৬
+- বীমা উন্নয়ন ও নিয়ন্ত্রণ কর্তৃপক্ষ আইন,২০১০
+- বীমা কর্পোরেশন আইন, ২০১৯
+- বেগম রোকেয়া বিশ্ববিদ্যালয়, রংপুর আইন, ২০০৯
+- বেসরকারি মেডিকেল কলেজ ও ডেন্টাল কলেজ আইন, ২০২২
+- বেসরকারী নিরাপত্তা সেবা আইন, ২০০৬
+- বেসরকারী প্রাথমিক শিক্ষক কল্যাণ ট্রাস্ট আইন, ২০০০
+- বেসরকারী বিশ্ববিদ্যালয় আইন, ২০১০
+- বেসরকারী শিক্ষক নিবন্ধন ও প্রত্যয়ন কর্তৃপক্ষ আইন, ২০০৫
+- বেসরকারী শিক্ষা প্রতিষ্ঠান শিক্ষক ও কর্মচারী অবসর সুবিধা (সংশোধন) অধ্যাদেশ, ২০২৬
+- বেসরকারী শিক্ষা প্রতিষ্ঠান শিক্ষক ও কর্মচারী অবসর সুবিধা আইন, ২০০২
+- বেসরকারী শিক্ষা প্রতিষ্ঠান শিক্ষক ও কর্মচারী কল্যাণ ট্রাষ্ট (সংশোধন) অধ্যাদেশ, ২০২৬
+- বেসরকারী শিক্ষা প্রতিষ্ঠান শিক্ষক ও কর্মচারী কল্যাণ ট্রাষ্ট আইন, ১৯৯০
+- বেসামরিক বিমান চলাচল (সংশোধন) অধ্যাদেশ, ২০২৬
+- বেসামরিক বিমান চলাচল আইন, ২০১৭
+- বেসামরিক বিমান চলাচল কর্তৃপক্ষ আইন, ২০১৭
+- বৈদেশিক অনুদান (স্বেচ্ছাসেবামূলক কার্যক্রম) রেগুলেশন (সংশোধন) আইন, ২০২৬
+- বৈদেশিক অনুদান (স্বেচ্ছাসেবামূলক কার্যক্রম) রেগুলেশন আইন, ২০১৬
+- বৈদেশিক কর্মসংস্থান ও অভিবাসী (সংশোধন) আইন, ২০২৩
+- বৈদেশিক কর্মসংস্থান ও অভিবাসী (সংশোধন) আইন, ২০২৬
+- বৈদেশিক কর্মসংস্থান ও অভিবাসী আইন, ২০১৩
+- বৌদ্ধ ধর্মীয় কল্যাণ ট্রাস্ট আইন, ২০১৮
+- ব্যক্তি মালিকানাধীন সড়ক পরিবহন শ্রমিক কল্যাণ তহবিল
+- ব্যক্তিগত উপাত্ত সুরক্ষা আইন, ২০২৬
+- ব্যাংক রেজল্যুশন (সংশোধন) আইন, ২০২৬
+- ব্যাংক রেজল্যুশন আইন, ২০২৬
+- ব্যাংক-কোম্পানী (সংশোধন) আইন, ২০২৩
+- ব্যাংক-কোম্পানী আইন, ১৯৯১
+- ব্যাংকার বহি সাক্ষ্য আইন, ২০২১
+- বয়লার আইন, ২০২২
+- ভবঘুরে ও নিরাশ্রয় ব্যক্তি (পুনর্বাসন) আইন, ২০১১
+- ভূমি অপরাধ প্রতিরোধ ও প্রতিকার আইন, ২০২৩
+- ভূমি আপীল বোর্ড আইন, ১৯৮৯
+- ভূমি উন্নয়ন কর আইন, ২০২৩
+- ভূমি ব্যবহার নিয়ন্ত্রণ ও কৃষিভূমি সুরক্ষা আইন, ২০২৬
+- ভূমি সংস্কার আইন, ২০২৩
+- ভূমি সংস্কার বোর্ড আইন, ১৯৮৯
+- ভূমি-খতিয়ান (পার্বত্য চট্টগ্রাম) অধ্যাদেশ, ১৯৮৪
+- ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯
+- ভোজ্যতেলে ভিটামিন ‘এ’ সমৃদ্ধকরণ আইন, ২০১৩
+- ভোটার তালিকা (সংশোধন) আইন, ২০২০
+- ভোটার তালিকা (সংশোধন) আইন, ২০২৬
+- ভোটার তালিকা আইন, ২০০৯
+- ভৌগোলিক নির্দেশক পণ্য (নিবন্ধন ও সুরক্ষা) আইন, ২০১৩
+- ভ্রমণ কর আইন, ২০০৩
+- মহা হিসাব নিরীক্ষক ও নিয়ন্ত্রক (পারিশ্রমিক ও বিশেষ অধিকার) আইন, ১৯৯৮
+- মহানগরী, বিভাগীয় শহর ও জেলা শহরের পৌর এলাকাসহ দেশের সকল পৌর এলাকার খেলার মাঠ, উন্মুক্ত স্থান, উদ্যান এবং প্রাকৃতিক জলাধার সংরক্ষণ আইন, ২০০০
+- মহাসড়ক আইন, ২০২১
+- মহেশখালী সমন্বিত উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- মাইক্রোক্রেডিট রেগুলেটরী অথরিটি আইন, ২০০৬
+- মাইক্রোফাইন্যান্স ব্যাংক অধ্যাদেশ, ২০২৬
+- মাওলানা ভাসানী বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- মাতৃদুগ্ধ বিকল্প, শিশু খাদ্য, বাণিজ্যিকভাবে প্রস্ত্ততকৃত শিশুর বাড়তি খাদ্য ও উহা ব্যবহারের সরঞ্জামাদি (বিপণন নিয়ন্ত্রণ) আইন, ২০১৩
+- মাদকদ্রব্য নিয়ন্ত্রণ (সংশোধন) আইন, ২০২০
+- মাদকদ্রব্য নিয়ন্ত্রণ (সংশোধন) আইন, ২০২৬
+- মাদকদ্রব্য নিয়ন্ত্রণ আইন, ২০১৮
+- মানব পাচার ও অভিবাসী চোরাচালান প্রতিরোধ ও দমন আইন, ২০২৬
+- মানবদেহে অঙ্গ-প্রত্যঙ্গ সংযোজন আইন, ২০২৬
+- মানসিক স্বাস্থ্য আইন, ২০১৮
+- মানিলন্ডারিং প্রতিরোধ অধ্যাদেশ, ২০১২
+- মানিলন্ডারিং প্রতিরোধ আইন, ২০১২
+- মাল্টি-লেভেল মার্কেটিং কার্যক্রম (নিয়ন্ত্রণ) আইন, ২০১৩
+- মূল্য সংযোজন কর ও সম্পূরক শুল্ক (দ্বিতীয় সংশোধন) অধ্যাদেশ, ২০২৫
+- মূল্য সংযোজন কর ও সম্পূরক শুল্ক (সংশোধন) আইন, ২০২৬
+- মূল্য সংযোজন কর ও সম্পূরক শুল্ক আইন, ২০১২
+- মেট্রোরেল আইন, ২০১৫
+- মোংলা বন্দর কর্তৃপক্ষ আইন, ২০২২
+- মোবাইল কোর্ট আইন, ২০০৯
+- মৎস্য ও মৎস্যপণ্য (পরিদর্শন ও মান নিয়ন্ত্রণ) আইন, ২০২০
+- মৎস্য সঙ্গনিরোধ আইন, ২০১৮
+- মৎস্য হ্যাচারি আইন, ২০১০
+- মৎস্যখাদ্য ও পশুখাদ্য আইন, ২০১০
+- ময়মনসিংহ উন্নয়ন কর্তৃপক্ষ (সংশোধন) অধ্যাদেশ, ২০২৬
+- ময়মনসিংহ উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- যমুনা বহুমুখী সেতু প্রকল্প (ভূমি অধিগ্রহণ) আইন, ১৯৯৫
+- যশোর বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- যাকাত তহবিল ব্যবস্থাপনা আইন, ২০২৩
+- যুব সংগঠন (নিবন্ধন এবং পরিচালনা) আইন, ২০১৫
+- যুবকল্যাণ তহবিল আইন, ২০১৬
+- যৌতুক নিরোধ আইন, ২০১৮
+- যৌথ অভিযান দায়মুক্তি আইন, ২০০৩
+- রংপুর উন্নয়ন কর্তৃপক্ষ (সংশোধন) অধ্যাদেশ, ২০২৬
+- রংপুর উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- রংপুর কারমাইকেল বিশ্ববিদ্যালয় আইন, ২০০৬
+- রংপুর বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- রংপুর মহানগরী পুলিশ আইন, ২০১৮
+- রপ্তানি উন্নয়ন ব্যুরো আইন, ২০১৫
+- রবীন্দ্র বিশ্ববিদ্যালয়, বাংলাদেশ আইন, ২০১৬
+- রাংগামাটি পার্বত্য জেলা পরিষদ আইন, ১৯৮৯
+- রাঙ্গামাটি বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- রাজধানী উন্নয়ন কর্তৃপক্ষ আইন, ২০২৬
+- রাজশাহী উন্নয়ন কর্তৃপক্ষ আইন, ২০১৮
+- রাজশাহী কৃষি উন্নয়ন ব্যাংক আইন, ২০১৪
+- রাজশাহী প্রকৌশল ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০৩
+- রাজশাহী মহানগরী পুলিশ আইন, ১৯৯২
+- রাজশাহী মেডিকেল বিশ্ববিদ্যালয় আইন, ২০১৬
+- রাজস্ব নীতি ও রাজস্ব ব্যবস্থাপনা (সংশোধন) অধ্যাদেশ, ২০২৫
+- রাজস্ব নীতি ও রাজস্ব ব্যবস্থাপনা অধ্যাদেশ, ২০২৫
+- রাষ্ট্রপতি নির্বাচন আইন, ১৯৯১
+- রাষ্ট্রপতির অবসরভাতা, আনুতোষিক ও অন্যান্য সুবিধা আইন, ২০১৬
+- রাসায়নিক অস্ত্র (নিষিদ্ধকরণ) আইন, ২০০৬
+- রিয়েল এস্টেট উন্নয়ন ও ব্যবস্থাপনা আইন, ২০১০
+- রেলওয়ে নিরাপত্তা বাহিনী আইন, ২০১৬
+- রেলওয়ে সম্পত্তি (অবৈধ দখল উদ্ধার) আইন, ২০১৬
+- লক্ষ্মীপুর বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০২৩
+- শাহ্‌জালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ১৯৮৭
+- শিশু আইন, ২০১৩
+- শিশু দিবাযত্ন কেন্দ্র আইন, ২০২১
+- শিশু-মাতৃ স্বাস্থ্য ইনস্‌টিটিউট আইন, ২০০২
+- শেখ রাসেল পল্লী উন্নয়ন একাডেমি, রংপুর (সংশোধন) আইন, ২০২৬
+- শেখ হাসিনা জাতীয় যুব উন্নয়ন ইনস্টিটিউট (সংশোধন) আইন, ২০২৬
+- শেখ হাসিনা পল্লী উন্নয়ন একাডেমি,জামালপুর (সংশোধন) আইন, ২০২৬
+- শেখ হাসিনা মেডিক্যাল বিশ্ববিদ্যালয়, খুলনা (সংশোধন) আইন, ২০২৬
+- শেরেবাংলা কৃষি বিশ্ববিদ্যালয় আইন, ২০০১
+- সংক্রামক রোগ (প্রতিরোধ, নিয়ন্ত্রণ ও নির্মূল) আইন, ২০১৮
+- সংযুক্ত তহবিল (অগ্রিম মঞ্জুরী দান ও নির্দিষ্টকরণ) আইন, ১৯৯৬
+- সংযুক্ত তহবিল (সম্পূরক মঞ্জুরী দান ও নির্দিষ্টকরণ) আইন, ১৯৯৬
+- সন্ত্রাস বিরোধী (সংশোধন) আইন, ২০২৬
+- সন্ত্রাস বিরোধী আইন, ২০০৯
+- সন্ত্রাসমূলক অপরাধ দমন (বিশেষ বিধান) আইন, ১৯৯৪
+- সমবায় সমিতি আইন, ২০০১
+- সরকারি অর্থ ও বাজেট ব্যবস্থাপনা আইন, ২০০৯
+- সরকারি ঋণ আইন, ২০২২
+- সরকারি চাকরি (সংশোধন) আইন, ২০২৩
+- সরকারি চাকরি (সংশোধন) আইন, ২০২৬
+- সরকারি চাকরি আইন, ২০১৮
+- সরকারি প্রাথমিক বিদ্যালয় শিক্ষক কল্যাণ ট্রাস্ট আইন, ২০২৩
+- সরকারি যানবাহন (ব্যবহার নিয়ন্ত্রণ) আইন, ২০১৫
+- সরকারি হিসাব নিরীক্ষা আইন, ২০২৬
+- সরকারি, স্বায়ত্তশাসিত, সংবিধিবদ্ধ সরকারি কর্তৃপক্ষ, পাবলিক নন-ফাইন্যানসিয়াল কর্পোরেশনসহ স্ব-শাসিত সংস্থাসমূহে সরাসরি নিয়োগের ক্ষেত্রে সর্বোচ্চ বয়সসীমা নির্ধারণ আইন, ২০২৬
+- সর্বজনীন পেনশন ব্যবস্থাপনা আইন, ২০২৩
+- সাইবার সুরক্ষা (সংশোধন) আইন, ২০২৬
+- সাইবার সুরক্ষা আইন, ২০২৬
+- সাতক্ষীরা বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০২৩
+- সামুদ্রিক মৎস্য (Marine Fisheries) আইন, ২০২০
+- সার ব্যবস্থাপনা আইন, ২০০৬
+- সালিস আইন, ২০০১
+- সিলেট উন্নয়ন কর্তৃপক্ষ আইন, ২০২৩
+- সিলেট কৃষি বিশ্ববিদ্যালয় আইন, ২০০৬
+- সিলেট মহানগরী পুলিশ আইন, ২০০৯
+- সিলেট মেডিকেল বিশ্ববিদ্যালয় (সংশোধন) আইন, ২০২৩
+- সিলেট মেডিকেল বিশ্ববিদ্যালয় আইন, ২০১৮
+- সুনামগঞ্জ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০২০
+- সুপ্রীম কোর্ট সচিবালয় (রহিতকরণ) আইন, ২০২৬
+- সুপ্রীম কোর্টের বিচারক নিয়োগ (রহিতকরণ) আইন, ২০২৬
+- সুরক্ষিত লেনদেন (অস্থাবর সম্পত্তি) আইন, ২০২৩
+- স্থানিক পরিকল্পনা আইন, ২০২৬
+- স্থানীয় সরকার (ইউনিয়ন পরিষদ) (সংশোধন) আইন, ২০২৪
+- স্থানীয় সরকার (ইউনিয়ন পরিষদ) (সংশোধন) আইন, ২০২৬
+- স্থানীয় সরকার (ইউনিয়ন পরিষদ) আইন, ২০০৯
+- স্থানীয় সরকার (পৌরসভা) আইন, ২০০৯
+- স্থানীয় সরকার (পৌরসভা) (সংশোধন) আইন, ২০২২
+- স্থানীয় সরকার (পৌরসভা) (সংশোধন) আইন, ২০২৬
+- স্থানীয় সরকার (সিটি কর্পোরেশন) (সংশোধন) আইন, ২০২৬
+- স্থানীয় সরকার (সিটি কর্পোরেশন) আইন, ২০০৯
+- স্থাবর সম্পত্তি অধিগ্রহণ ও হুকুমদখল আইন, ২০১৭
+- স্পেশাল রেসপন্স ব্যাটালিয়ন (SRB) আইন, ২০২৬
+- স্বায়ত্তশাসিত, আধা-স্বায়ত্তশাসিত, সংবিধিবদ্ধ সরকারি কর্তৃপক্ষ, পাবলিক নন-ফাইন্যানশিয়াল কর্পোরেশনসহ স্ব-শাসিত সংস্থাসমূহের তহবিলের উদ্বৃত্ত অর্থ সরকারি কোষাগারে জমা প্রদান আইন, ২০২০
+- সড়ক পরিবহণ আইন, ২০১৮
+- সড়ক রক্ষণাবেক্ষণ তহবিল বোর্ড আইন, ২০১৩
+- হজ ও ওমরাহ ব্যবস্থাপনা আইন, ২০২১
+- হবিগঞ্জ কৃষি বিশ্ববিদ্যালয় আইন, ২০২০
+- হাউজিং এন্ড বিল্ডিং রিসার্চ ইনস্টিটিউট আইন, ২০১৮
+- হাজী মোহাম্মদ দানেশ বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয় আইন, ২০০১
+- হাট ও বাজার (স্থাপন ও ব্যবস্থাপনা) আইন, ২০২৩
+- হিন্দু বিবাহ নিবন্ধন আইন, ২০১২
+- হিন্দুধর্মীয় কল্যাণ ট্রাস্ট আইন, ২০১৮
+- ১৯৭৫ সালের ১৫ আগস্ট হইতে ১৯৭৯ সালের ৯ এপ্রিল তারিখ পর্যন্ত সময়ের মধ্যে জারীকৃত কতিপয় অধ্যাদেশ কার্যকরকরণ (বিশেষ বিধান) আইন, ২০১৩
+- ১৯৮২ সালের ২৪ মার্চ হইতে ১৯৮৬ সালের ১১ নভেম্বর তারিখ পর্যন্ত সময়ের মধ্যে জারীকৃত কতিপয় অধ্যাদেশ কার্যকরকরণ (বিশেষ বিধান) আইন,২০১৩

@@ -9,4 +9,4 @@
 library;
 
 /// User-facing version string, e.g. `0.0.226`.
-const String appVersion = '0.0.743';
+const String appVersion = '0.0.744';

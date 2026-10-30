@@ -15,6 +15,7 @@ import 'tables/delete_requests_table.dart';
 import 'tables/case_notification_preferences_table.dart';
 import 'tables/firm_members_table.dart';
 import 'tables/firms_table.dart';
+import 'tables/laws_table.dart';
 import 'tables/notes_table.dart';
 import 'tables/profiles_table.dart';
 import 'tables/seed_migrations_table.dart';
@@ -36,6 +37,7 @@ part 'app_database.g.dart';
     CourtCategories,
     Courts,
     Steps,
+    Laws,
     CaseTypes,
     OnBehalfs,
     Notes,
@@ -58,7 +60,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 17;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -77,7 +79,9 @@ class AppDatabase extends _$AppDatabase {
   /// to the cached `profiles` and `firms` rows, then v12→v13 by adding the
   /// chamber logo's server-stamped path and version to the cached `firms` row,
   /// then v13→v14 by adding the profile picture's same two fields to `profiles`,
-  /// then v14→v15 by adding the requester's display name to `delete_requests`.
+  /// then v14→v15 by adding the requester's display name to `delete_requests`,
+  /// then v15→v16 by adding the law-name list (`laws`), then v16→v17 by adding
+  /// the law category that list groups its names under.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -172,6 +176,18 @@ class AppDatabase extends _$AppDatabase {
         // brings the name the server derived.
         await m.addColumn(deleteRequests, deleteRequests.requesterName);
       }
+      if (from < 16) {
+        // The law-name list for case references. A brand-new table, so the
+        // upgrade only adds it; `seed_v3` then fills the built-in names, so an
+        // existing install comes out of the upgrade with the same list a fresh
+        // install is created with.
+        await m.createTable(laws);
+      } else if (from < 17) {
+        // A v16 install created `laws` before the list grouped its names under
+        // a category. Additive and defaulted, so the column costs nothing and
+        // `seed_v3` fills the category on the next open.
+        await m.addColumn(laws, laws.category);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON;');
@@ -201,6 +217,10 @@ class AppDatabase extends _$AppDatabase {
   /// Active (non-deleted) steps.
   Selectable<Step> get activeSteps =>
       select(steps)..where((row) => row.isDeleted.equals(false));
+
+  /// Active (non-deleted) law names.
+  Selectable<Law> get activeLaws =>
+      select(laws)..where((row) => row.isDeleted.equals(false));
 
   /// Active (non-deleted) case types.
   Selectable<CaseType> get activeCaseTypes =>
@@ -256,6 +276,7 @@ class AppDatabase extends _$AppDatabase {
       await _purgeSyncableTable('case_categories', cutoffMs);
       await _purgeSyncableTable('courts', cutoffMs);
       await _purgeSyncableTable('steps', cutoffMs);
+      await _purgeSyncableTable('laws', cutoffMs);
       await _purgeSyncableTable('case_types', cutoffMs);
       await _purgeSyncableTable('on_behalfs', cutoffMs);
       await _purgeSyncableTable('notes', cutoffMs);

@@ -5370,6 +5370,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String deleteRequests_editWarnOwnBody(String date) {
+    return 'আপনি $date-এ এই রেকর্ডটি মুছে ফেলার অনুরোধ করেছিলেন। এখন আপনি এটি পরিবর্তন করলে সেই অনুরোধটি আবার নিশ্চিত করতে হবে।';
+  }
+
+  @override
   String get deleteRequests_editWarnContinue => 'সম্পাদনা চালিয়ে যান';
 
   @override

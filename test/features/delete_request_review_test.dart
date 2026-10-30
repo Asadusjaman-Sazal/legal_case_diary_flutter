@@ -1816,9 +1816,7 @@ void main() {
       await unmountApp(tester);
     });
 
-    testWidgets('says nothing when the request is the editor\'s own', (
-      tester,
-    ) async {
+    testWidgets('warns the requester in their own words', (tester) async {
       final overrides = await openScope();
       db = harness.db;
       await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
@@ -1836,8 +1834,18 @@ void main() {
       await tester.pumpAndSettle();
 
       final l = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(l.deleteRequests_editWarnTitle), findsNothing);
-      expect(answer, isTrue);
+      // The requester is warned too, with the first-person sentence instead of
+      // their own name (user request, 0.0.728).
+      expect(find.text(l.deleteRequests_editWarnTitle), findsOneWidget);
+      expect(
+        find.textContaining('You asked to delete this record'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text(l.deleteRequests_editWarnContinue));
+      await tester.pumpAndSettle();
+
+      expect(answer, isTrue, reason: 'the edit continues once acknowledged');
 
       await unmountApp(tester);
     });

@@ -159,7 +159,9 @@ Future<DeleteOutcome> deleteThroughFirmRules(
 ///
 /// [parentCaseId] covers a case step: approving a request on the case removes its
 /// steps too, so a step under a case someone asked to delete is worth the same
-/// warning. The requester's own request is skipped — they already know.
+/// warning. The requester's own request warns too (user request, 0.0.728), in its
+/// own words — *You asked to delete this record…* — because editing it now moves
+/// the record the reviewer would otherwise judge.
 Future<bool> confirmEditOfRequestedRecord(
   BuildContext context,
   WidgetRef ref, {
@@ -179,7 +181,6 @@ Future<bool> confirmEditOfRequestedRecord(
             request.status == 'pending' ||
             request.status == 'stale_review_required',
       )
-      .where((request) => request.requestedBy != userId)
       .where(
         (request) =>
             (request.entityType == entityType &&
@@ -192,17 +193,25 @@ Future<bool> confirmEditOfRequestedRecord(
   if (open == null) return true;
 
   final storedName = open.requesterName?.trim() ?? '';
+  final date = AppDateUtils.formatDateTimeDDMMYYYY(
+    open.createdAt,
+    locale: Localizations.localeOf(context).toString(),
+  );
+  final own = open.requestedBy == userId;
   final answer = await showAppDialog<bool>(
     context,
     title: Text(l.deleteRequests_editWarnTitle, textAlign: TextAlign.center),
     content: Text(
-      l.deleteRequests_editWarnBody(
-        storedName.isEmpty ? l.deleteRequests_unknownRequester : storedName,
-        AppDateUtils.formatDateTimeDDMMYYYY(
-          open.createdAt,
-          locale: Localizations.localeOf(context).toString(),
-        ),
-      ),
+      // The requester reads it in the first person: their own name would be
+      // noise, and the consequence is theirs either way (user request, 0.0.728).
+      own
+          ? l.deleteRequests_editWarnOwnBody(date)
+          : l.deleteRequests_editWarnBody(
+              storedName.isEmpty
+                  ? l.deleteRequests_unknownRequester
+                  : storedName,
+              date,
+            ),
       textAlign: TextAlign.justify,
     ),
     actions: (dialogContext) => [

@@ -454,12 +454,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   ).format(AppDateUtils.bangladeshDateTime(epochMs));
 
   /// Whole civil days between the Bangladesh start of today and [nextDateMs].
+  ///
+  /// Negative when the date has passed; the card reads the sign to choose its
+  /// Previous Date title and its "days ago" count.
   int _daysUntil(int nextDateMs) {
     final target = AppDateUtils.normalizeToBangladeshStartOfDay(nextDateMs);
-    final days =
-        (target - AppDateUtils.bangladeshTodayStartOfDay()) ~/
+    return (target - AppDateUtils.bangladeshTodayStartOfDay()) ~/
         Duration.millisecondsPerDay;
-    return days < 0 ? 0 : days;
   }
 
   /// Shared KanBan card shell: white surface, outline border, rounded top.
@@ -662,11 +663,13 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           style: AppTypography.headlineMd,
         ),
         const SizedBox(height: AppSpacing.xs),
-        // L2: location icon + court name; AD/HCD only: judges names line.
+        // L2: court icon + court name; AD/HCD only: judges names line.
         if (court != null) ...[
           Row(
             children: [
-              const Icon(Icons.location_on, size: 18),
+              // The courthouse glyph the Overdue Dates court title uses (user
+              // request, 0.0.723).
+              const Icon(Icons.account_balance, size: 18),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
@@ -1303,6 +1306,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   ) {
     final nextDate = current.nextDate;
     if (nextDate == null) return const SizedBox.shrink();
+    final daysUntil = _daysUntil(nextDate);
+    // A date already behind today is the case's previous hearing, not its next
+    // one (user request, 0.0.722).
+    final isPast = daysUntil < 0;
     final stepOrResult = current.lastStep?.trim().isNotEmpty == true
         ? context.l10n.stepNames(
             current.lastStep,
@@ -1326,14 +1333,17 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           Row(
             children: [
               Icon(
+                // The card's own calendar glyph; the court's courthouse icon
+                // belongs to the header line above (user request, 0.0.723).
                 Icons.calendar_today,
                 size: 16,
                 color: white.withValues(alpha: 0.8),
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                // Title Case from the ARB, exactly as the mockup draws it.
-                l.caseCard_nextDate,
+                // Title Case from the ARB; a date behind today reads as the
+                // previous one.
+                isPast ? l.caseCard_previousDate : l.caseCard_nextDate,
                 style: AppTypography.labelLg.copyWith(
                   color: white.withValues(alpha: 0.8),
                   letterSpacing: 1.2,
@@ -1366,7 +1376,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             children: [
               Expanded(
                 child: Text(
-                  l.caseDetailsScreen_daysRemaining(_daysUntil(nextDate)),
+                  isPast
+                      ? l.caseDetailsScreen_daysAgo(-daysUntil)
+                      : l.caseDetailsScreen_daysRemaining(daysUntil),
                   key: const ValueKey('case-detail-days-remaining'),
                   style: AppTypography.labelMd.copyWith(color: white),
                 ),
@@ -1384,7 +1396,14 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                   ),
                 ),
                 onPressed: _openReminderUpdate,
-                child: Text(l.caseDetailsScreen_setReminder),
+                // The same window either way; only the word changes, because a
+                // passed hearing is updated rather than reminded (user request,
+                // 0.0.723).
+                child: Text(
+                  isPast
+                      ? l.sharedActions_update
+                      : l.caseDetailsScreen_setReminder,
+                ),
               ),
             ],
           ),

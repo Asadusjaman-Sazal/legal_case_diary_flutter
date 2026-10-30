@@ -323,6 +323,17 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String caseDetailsScreen_daysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিন আগে',
+      one: '১ দিন আগে',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get caseDetailsScreen_setReminder => 'রিমাইন্ডার সেট করুন';
 
   @override

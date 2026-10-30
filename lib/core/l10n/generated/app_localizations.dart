@@ -656,6 +656,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{0 Days Remaining} =1{1 Day Remaining} other{{count} Days Remaining}}'**
   String caseDetailsScreen_daysRemaining(int count);
 
+  /// Count shown on the Next Date highlight card when the date has passed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Day Ago} other{{count} Days Ago}}'**
+  String caseDetailsScreen_daysAgo(int count);
+
   /// No description provided for @caseDetailsScreen_setReminder.
   ///
   /// In en, this message translates to:

@@ -19,6 +19,20 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The card's calendar, the court's icon, Update for a past date — COMPLETE (0.0.723)
+
+- **What was asked.** In the Case Detail screen: the Next/Previous Date card should use the calendar icon again; a Previous Date card should say **Update** where a Next Date card says **Set Reminder**; and the header's court line should use the court icon in place of the location pin.
+- **What changed.** The highlight card is back on `Icons.calendar_today`. The `account_balance` courthouse glyph moved up to the header's court line, replacing `Icons.location_on`. The card's button is the same key, handler and Quick Update window in both states; only its word changes — **Update** (`sharedActions_update`, আপডেট) when the date has passed, **Set Reminder** when it has not. The mockup was updated to match (rule 9).
+- **Checks.** `case_detail_test.dart` **22 cases** — the card asserts the calendar glyph, the header asserts one courthouse glyph and no location pin, the future card asserts **Set Reminder**, and the past card asserts **Update** and no **Set Reminder**; `flutter analyze` clean; full `flutter test` **2,210 passed**.
+- **Next.** Nothing open.
+
+### 2026-10-30 — The Next Date card reads the court and the past — COMPLETE (0.0.722)
+
+- **What was asked.** On the Case Detail screen, use the same court icon as the Overdue Dates screen's case card title; and when the Next Date card's date is in the past, title it **Previous Date** and count **N Days Ago** instead of the remaining days.
+- **What changed.** The highlight card's title row now draws `Icons.account_balance` — the courthouse glyph of the Overdue Dates court title — where it drew a calendar. `_daysUntil` now returns a signed day difference, and the card reads it: a date before the Bangladesh today shows **Previous Date** with **N Days Ago** (new key `caseDetailsScreen_daysAgo`, plural in both languages), while today and future dates keep **Next Date** and the remaining-days count. The date, step, blue fill and Set Reminder are untouched, and nothing outside the Case Detail screen changed. The Case Detail mockup's card was updated for rule 9.
+- **Checks.** `case_detail_test.dart` **22 cases** — the main card asserts the courthouse icon; a new case seeds a date three days ago and finds **Previous Date** and **3 Days Ago** with no **Next Date** and no remaining count. `flutter analyze` clean; full `flutter test` **2,210 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The awaiting-review cards date the request too — COMPLETE (0.0.721)
 
 - **What was asked.** For the firm owner, the delete requests awaiting review should also show date and time, like the Previous Delete Requests cards.

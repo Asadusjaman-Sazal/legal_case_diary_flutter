@@ -19,6 +19,20 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The chevron opens the popover and flips — COMPLETE (0.0.733)
+
+- **What was asked.** Tapping the chevron should open and close the popover, like the avatar; the panel should sit at the chevron's edge; and the chevron should point up while the panel is open.
+- **What changed.** `_ProfileIconButton` is stateful and its box is the avatar plus the badge; both are tap targets for the same popover, and a tap while it is open lands on the transparent barrier and dismisses it. The badge's icon flips to `expand_less` while the route is up. The popover is measured from the enlarged icon box, so it hangs 8 px below the chevron instead of over it.
+- **Checks.** `app_navigation_drawer_test.dart` **59 cases** — the chevron opens/closes and flips, the popover's 8 px gap is measured from the badge, and the badge is still outside the avatar's ring; `flutter analyze` clean; full `flutter test` **2,218 passed**.
+- **Next.** Nothing open.
+
+### 2026-10-30 — The chevron leaves the ring, the Subscriptions row navigates — COMPLETE (0.0.732)
+
+- **What was asked.** In the side menu: the avatar's down arrow should sit outside the frame ring; and the Subscriptions row should expand only via its arrow, while a normal tap opens Settings > Subscription.
+- **What changed.** The badge is drawn outside the ring — its top edge on the avatar's bottom, centred at 6 o'clock — with the stack allowed to paint out of bounds. In the popover, the Subscriptions row's label/plan area is its own tappable row that closes the panel and the drawer and opens `/settings/subscription`; a separate arrow button on the right expands and collapses the three children. Child labels, plan name and the member rules are untouched.
+- **Checks.** `app_navigation_drawer_test.dart` **58 cases** — the row navigates, the arrow expands without navigating, all three children open their pages, and the badge's position is outside the avatar's box; `flutter analyze` clean; full `flutter test` **2,217 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The plan moves into the profile popover — COMPLETE (0.0.731)
 
 - **What was asked.** In the side menu: put the avatar's chevron at 6 o'clock; make the profile button hold the email, **Account & Profile**, **Subscriptions** (plan name in a smaller font beneath, expanding to Manage Plan, Subscription Plans and Subscription History) and Logout; and remove the Current Plan row from the menu.

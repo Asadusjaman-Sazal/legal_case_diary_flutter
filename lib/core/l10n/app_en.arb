@@ -2560,6 +2560,8 @@
   "deleteRequests_fieldCaseType": "Case Type",
   "deleteRequests_fieldPetitioner": "Petitioner",
   "deleteRequests_fieldRespondent": "Respondent",
+  "deleteRequests_fieldPetitionerPhone": "Petitioner Phone",
+  "deleteRequests_fieldRespondentPhone": "Respondent Phone",
   "deleteRequests_fieldStep": "Step",
   "deleteRequests_fieldResult": "Result",
   "deleteRequests_fieldTitle": "Title",

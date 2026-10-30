@@ -5367,6 +5367,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_fieldRespondent => 'Respondent';
 
   @override
+  String get deleteRequests_fieldPetitionerPhone => 'Petitioner Phone';
+
+  @override
+  String get deleteRequests_fieldRespondentPhone => 'Respondent Phone';
+
+  @override
   String get deleteRequests_fieldStep => 'Step';
 
   @override

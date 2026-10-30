@@ -291,11 +291,6 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String caseDetailsScreen_historyAddedBy(String name) {
-    return '$name যোগ করেছেন';
-  }
-
-  @override
   String caseDetailsScreen_historySaveError(String message) {
     return 'ইতিহাসের এন্ট্রি সংরক্ষণ করা যায়নি: $message';
   }
@@ -5324,9 +5319,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_approve => 'অনুমোদন';
 
   @override
-  String get deleteRequests_reconfirm => 'পুনরায় নিশ্চিত করুন';
-
-  @override
   String get deleteRequests_reject => 'প্রত্যাখ্যান';
 
   @override
@@ -5358,7 +5350,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteRequests_staleBody =>
-      'অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। এখন যে সংস্করণটি আছে তা মুছতে পুনরায় নিশ্চিত করুন।';
+      'অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। এখন যে সংস্করণটি আছে তা মুছতে অনুমোদন করুন।';
 
   @override
   String get deleteRequests_current => 'এখন যেমন আছে';

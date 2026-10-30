@@ -290,11 +290,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String caseDetailsScreen_historyAddedBy(String name) {
-    return 'Added By $name';
-  }
-
-  @override
   String caseDetailsScreen_historySaveError(String message) {
     return 'Unable to save the history entry: $message';
   }
@@ -5301,9 +5296,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_approve => 'Approve';
 
   @override
-  String get deleteRequests_reconfirm => 'Reconfirm';
-
-  @override
   String get deleteRequests_reject => 'Reject';
 
   @override
@@ -5335,7 +5327,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequests_staleBody =>
-      'It changed after the request was made. Reconfirm to delete the version that exists now.';
+      'It changed after the request was made. Approve to delete the version that exists now.';
 
   @override
   String get deleteRequests_current => 'As It Is Now';

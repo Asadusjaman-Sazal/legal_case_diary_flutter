@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.723 - The Next Date card is back on its calendar icon, a Previous Date card says Update instead of Set Reminder, and the header's court line now wears the courthouse icon.
+Version: 0.0.727 - The review screen's action is Approve in every state; the separate Reconfirm label is gone because one approval now decides against the current record.
 --------------------------------------
 
 ## Version History Log:
@@ -737,3 +737,7 @@ Version: 0.0.720 - De-selecting the last card in the previous-request multi-sele
 Version: 0.0.721 - The firm owner's awaiting-review delete request cards now show the request's date and time as a third line, matching the Previous list.
 Version: 0.0.722 - The Case Detail Next Date card now wears the courthouse icon and, when its date is in the past, reads Previous Date with an N Days Ago count.
 Version: 0.0.723 - The Next Date card is back on its calendar icon, a Previous Date card says Update instead of Set Reminder, and the header's court line now wears the courthouse icon.
+Version: 0.0.724 - Case History halves the date-step gap and puts a bar between them, drops the Added By prefix, and the date card shows the case note in parentheses after the step.
+Version: 0.0.725 - Case History centres the bar between the date and step and down the row, and shows each note after the step in parentheses, moving it under the step when the line is too narrow.
+Version: 0.0.726 - The review screen now shows This Record Changed before any approval, and Reconfirm refreshes the request to the record's current version first so one tap completes.
+Version: 0.0.727 - The review screen's action is Approve in every state; the separate Reconfirm label is gone because one approval now decides against the current record.

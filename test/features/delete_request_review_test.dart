@@ -872,7 +872,7 @@ void main() {
       await unmountApp(tester);
     });
 
-    testWidgets('a stale review is reconfirmed, not re-created', (
+    testWidgets('a stale review is approved in one tap, not re-created', (
       tester,
     ) async {
       final overrides = await openScope();
@@ -888,10 +888,10 @@ void main() {
       await tester.pumpAndSettle();
 
       final l = await AppLocalizations.delegate.load(const Locale('en'));
-      // The screen says what changed and asks for a reconfirm rather than an
-      // approval it cannot honestly offer.
-      expect(find.text(l.deleteRequests_reconfirm), findsOneWidget);
-      expect(find.text(l.deleteRequests_approve), findsNothing);
+      // The screen says what changed and offers the one approval it now
+      // performs against the record as it is (user request, 0.0.727).
+      expect(find.text(l.deleteRequests_approve), findsOneWidget);
+      expect(find.text('Reconfirm'), findsNothing);
 
       await tester.tap(find.byKey(const ValueKey('delete-review-approve')));
       await tester.pumpAndSettle();
@@ -1055,6 +1055,121 @@ void main() {
         tester.getTopLeft(find.text(l.deleteRequests_current)).dy,
         lessThan(tester.getTopLeft(find.text(l.deleteRequests_original)).dy),
       );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a record changed before review shows at the first open', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      // The record moved on after the request: version 7 against the version 2
+      // the request recorded, still pending (no approval attempted yet).
+      await NotesDao(db).insert(
+        NotesCompanion(
+          id: const Value('note-1'),
+          userId: const Value('user-1'),
+          firmId: const Value('firm-1'),
+          title: const Value('Renamed Note'),
+          body: const Value('Body'),
+          createdAt: const Value(1000),
+          updatedAt: const Value(1500),
+          version: const Value(7),
+          lastModifiedBy: const Value('user-2'),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-2',
+        requesterName: 'Jannatul Ferdousi Rekha',
+        entityType: 'note',
+        entityId: 'note-1',
+        title: 'Old Title',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // The warning and the current record are on screen before any approval
+      // (user request, 0.0.726), and the action already reads Reconfirm.
+      expect(
+        find.text(
+          '${l.deleteRequests_staleTitle}. ${l.deleteRequests_staleBody}',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(l.deleteRequests_current), findsOneWidget);
+      expect(find.text('Renamed Note'), findsOneWidget);
+      expect(find.text(l.deleteRequests_approve), findsOneWidget);
+      expect(find.text('Reconfirm'), findsNothing);
+
+      // The approval is honest in one tap: the request adopts the record's
+      // current version before the approval is written, so the server does not
+      // have to park it (user request, 0.0.726). The two cards push the action
+      // below the fold on the test surface, so it is scrolled into view.
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('delete-review-approve')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-review-approve')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-review-confirm')));
+      await tester.pumpAndSettle();
+
+      final row = await DeleteRequestsDao(db).getById('r1');
+      expect(row!.status, 'approved');
+      expect(row.targetBaseVersion, 7);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a record unchanged at review keeps the plain approval', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      // The record is at the version the request recorded.
+      await NotesDao(db).insert(
+        NotesCompanion(
+          id: const Value('note-1'),
+          userId: const Value('user-1'),
+          firmId: const Value('firm-1'),
+          title: const Value('Land Dispute Note'),
+          body: const Value('Body'),
+          createdAt: const Value(1000),
+          updatedAt: const Value(1500),
+          version: const Value(2),
+          lastModifiedBy: const Value('user-2'),
+        ),
+      );
+      await seedRequest(
+        id: 'r1',
+        requestedBy: 'user-2',
+        entityType: 'note',
+        entityId: 'note-1',
+        title: 'Land Dispute Note',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(l.deleteRequests_staleTitle), findsNothing);
+      expect(find.text(l.deleteRequests_current), findsNothing);
+      expect(find.text(l.deleteRequests_approve), findsOneWidget);
+      expect(find.text('Reconfirm'), findsNothing);
 
       await unmountApp(tester);
     });

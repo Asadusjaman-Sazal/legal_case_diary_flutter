@@ -620,12 +620,6 @@ abstract class AppLocalizations {
   /// **'{count} Entries Total'**
   String caseDetailsScreen_entriesTotal(int count);
 
-  /// No description provided for @caseDetailsScreen_historyAddedBy.
-  ///
-  /// In en, this message translates to:
-  /// **'Added By {name}'**
-  String caseDetailsScreen_historyAddedBy(String name);
-
   /// No description provided for @caseDetailsScreen_historySaveError.
   ///
   /// In en, this message translates to:
@@ -9034,12 +9028,6 @@ abstract class AppLocalizations {
   /// **'Approve'**
   String get deleteRequests_approve;
 
-  /// No description provided for @deleteRequests_reconfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Reconfirm'**
-  String get deleteRequests_reconfirm;
-
   /// No description provided for @deleteRequests_reject.
   ///
   /// In en, this message translates to:
@@ -9097,7 +9085,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequests_staleBody.
   ///
   /// In en, this message translates to:
-  /// **'It changed after the request was made. Reconfirm to delete the version that exists now.'**
+  /// **'It changed after the request was made. Approve to delete the version that exists now.'**
   String get deleteRequests_staleBody;
 
   /// No description provided for @deleteRequests_current.

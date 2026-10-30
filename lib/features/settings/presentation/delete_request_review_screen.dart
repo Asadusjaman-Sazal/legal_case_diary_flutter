@@ -207,13 +207,24 @@ class _DeleteRequestReviewScreenState
       );
     }
 
-    final stale = request.status == 'stale_review_required';
-    // What exists now, when the server has parked the request as stale. Null
-    // when this device does not hold the record, which is not the same thing as
-    // the record being gone — the card is simply left out.
-    final current = stale
+    final parked = request.status == 'stale_review_required';
+    // What exists now, as this device holds it. It is read for a parked request
+    // and for a pending one, so a record that moved after the request was made
+    // can be shown as changed before any approval is attempted (user request,
+    // 0.0.726). Null when this device does not hold the record, which is not
+    // the same thing as the record being gone — the card is simply left out.
+    final current = request.status == 'pending' || parked
         ? ref.watch(deleteRequestTargetProvider(request.id)).value
         : null;
+    final currentVersion = current?['version'];
+    final locallyChanged =
+        request.status == 'pending' &&
+        currentVersion is int &&
+        currentVersion > request.targetBaseVersion;
+    // The server's own stale state, or the same answer read locally from the
+    // record's version.
+    final changed = parked || locallyChanged;
+    final shownCurrent = changed ? current : null;
     final locale = Localizations.localeOf(context).toString();
     // The request carries who asked inside it, so the line is right offline and
     // from the very first review. The profile lookup stays as the fallback for a
@@ -240,7 +251,7 @@ class _DeleteRequestReviewScreenState
           // record below and the two facts under it, so the screen now opens
           // on the warning that changes what is being asked, or on the record.
           // That warning sits above the details on purpose.
-          if (stale) ...[
+          if (changed) ...[
             AuthErrorBanner(
               text:
                   '${l.deleteRequests_staleTitle}. ${l.deleteRequests_staleBody}',
@@ -250,16 +261,20 @@ class _DeleteRequestReviewScreenState
           // Two cards when the record moved: what is there now, then the copy
           // the requester saw — so Reconfirm is a decision about the record that
           // exists rather than about an old snapshot. One card otherwise.
-          if (current != null) ...[
+          if (shownCurrent != null) ...[
             SettingsSectionLabel(l.deleteRequests_current),
             const SizedBox(height: AppSpacing.sm),
             _SnapshotCard(
-              rows: deleteRequestDetailRows(request.entityType, current, l),
+              rows: deleteRequestDetailRows(
+                request.entityType,
+                shownCurrent,
+                l,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
           SettingsSectionLabel(
-            current != null
+            shownCurrent != null
                 ? l.deleteRequests_original
                 : l.deleteRequests_snapshot,
           ),
@@ -332,13 +347,16 @@ class _DeleteRequestReviewScreenState
           _PrimaryButton(
             key: const ValueKey('delete-review-approve'),
             icon: Icons.delete_outline,
-            label: stale
-                ? l.deleteRequests_reconfirm
-                : l.deleteRequests_approve,
+            label: l.deleteRequests_approve,
             // Approving deletes data, so it is the error-coloured action; the
             // armed state is what makes the two buttons tell themselves apart.
             destructive: true,
-            onPressed: _busy ? null : () => _decide(approve: true),
+            // One approval is enough (user request, 0.0.727): a locally
+            // changed record refreshes the request's snapshot and base version
+            // first, so this tap decides against the version that exists now.
+            onPressed: _busy
+                ? null
+                : () => _decide(approve: true, refreshFirst: locallyChanged),
           ),
           const SizedBox(height: AppSpacing.sm),
           // The same button and the same size as Approve, in the app's black
@@ -357,7 +375,15 @@ class _DeleteRequestReviewScreenState
   }
 
   /// Writes one decision after confirming it, then returns to the list.
-  Future<void> _decide({required bool approve}) async {
+  ///
+  /// [refreshFirst] is the reconfirm of a record this device already knows has
+  /// changed: the request's snapshot and target version are re-taken from the
+  /// record as it stands, then the approval is written, so the server sees a
+  /// matching version instead of parking the request for a second tap.
+  Future<void> _decide({
+    required bool approve,
+    bool refreshFirst = false,
+  }) async {
     final l = AppLocalizations.of(context);
     // Captured before the write: the snackbar is shown after this screen pops,
     // and a context that has been popped can no longer find its messenger.
@@ -384,6 +410,11 @@ class _DeleteRequestReviewScreenState
     try {
       final viewModel = ref.read(deleteRequestsViewModelProvider.notifier);
       if (approve) {
+        // Best effort: when the record is not on this device the refresh does
+        // nothing and the server's own park-then-reconfirm still stands.
+        if (refreshFirst) {
+          await viewModel.refreshSnapshot(widget.requestId);
+        }
         await viewModel.approve(
           widget.requestId,
           reviewNote: note.isEmpty ? null : note,

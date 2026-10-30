@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The bulk-clear actions are pinned under the list — COMPLETE (0.0.719)
+
+- **What was asked.** In the Previous Delete Requests section, move Cancel out of the top and put it to the left of Clear Selected, and pin both to the bottom while multi-select is on.
+- **What changed.** The heading is plain again. While selection mode is on, `_queueBody` returns a Column — the list on top, a bar beneath it — so **Cancel** (outlined, left) and **Clear Selected** (red filled, right) sit side by side at the Settings button height, fixed while the cards scroll. The bar exists only in selection mode. No data or other screen changed.
+- **Checks.** `delete_request_review_test.dart` **33 cases** — the two buttons share one row with Cancel left, they are outside the ListView, and a new case with eleven finished requests drags the list and finds the bar unmoved; Cancel still exits without hiding anything. `flutter analyze` clean; full `flutter test` **2,208 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — A previous request can be cleared from the screen — COMPLETE (0.0.718)
 
 - **What was asked.** In the Previous Delete Requests section (firm owner only): show the request's date and time as a third card line; a single press shows a Clear button like Withdraw Request that hides the card from the screen only; a long press allows a bulk clear, which also only hides cards.

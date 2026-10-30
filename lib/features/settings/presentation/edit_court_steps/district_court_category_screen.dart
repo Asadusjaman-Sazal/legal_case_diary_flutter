@@ -55,7 +55,6 @@ class DistrictCourtCategoryScreen extends ConsumerWidget {
 
     return SettingsSubPageModal(
       title: l.settingsLowerCourtCategories_title(districtLabel),
-      subtitle: l.settingsEditCourtNames_lowerCourts,
       child: _buildBody(context, courtsAsync, categoriesAsync),
     );
   }

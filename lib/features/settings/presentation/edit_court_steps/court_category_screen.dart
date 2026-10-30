@@ -33,8 +33,7 @@ class CourtCategoryScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
 
     return SettingsSubPageModal(
-      title: l.settingsEditCourtNames_lowerCourts,
-      subtitle: l.settingsCourtFlow_divisions,
+      title: l.settingsCourtFlow_divisions,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: divisions.length,

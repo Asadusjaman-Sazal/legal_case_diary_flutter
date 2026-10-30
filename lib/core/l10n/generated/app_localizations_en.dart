@@ -3459,6 +3459,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCourtFlow_districts => 'Districts';
 
   @override
+  String settingsCourtFlow_districtsWithDivision(String division) {
+    return 'Districts - $division Division';
+  }
+
+  @override
   String get settingsLowerCourtCategories_addTooltip => 'Add Court Category';
 
   @override

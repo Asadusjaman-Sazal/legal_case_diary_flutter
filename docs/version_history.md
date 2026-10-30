@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.729 - The review's case card now lists the client phone under the represented party, plus the case title or section, remarks, next date, step and note.
+Version: 0.0.730 - Lower-court settings headers now read Divisions, Districts - <division> Division, and <district> Court Categories, without their secondary lines.
 --------------------------------------
 
 ## Version History Log:
@@ -743,3 +743,4 @@ Version: 0.0.726 - The review screen now shows This Record Changed before any ap
 Version: 0.0.727 - The review screen's action is Approve in every state; the separate Reconfirm label is gone because one approval now decides against the current record.
 Version: 0.0.728 - Editing a record you asked to delete now warns you too, in the first person: You asked to delete this record... instead of your own name.
 Version: 0.0.729 - The review's case card now lists the client phone under the represented party, plus the case title or section, remarks, next date, step and note.
+Version: 0.0.730 - Lower-court settings headers now read Divisions, Districts - <division> Division, and <district> Court Categories, without their secondary lines.

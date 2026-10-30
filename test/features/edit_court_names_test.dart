@@ -411,7 +411,6 @@ void main() {
       await pumpDistrict(tester);
 
       expect(find.text('Dhaka Court Categories'), findsOneWidget);
-      expect(find.text('Lower Courts'), findsOneWidget);
       // The seeded categories with a Dhaka court and the user's own one; the
       // seeded category with no court there is not offered.
       expect(find.text('District Judge Court (Civil)'), findsOneWidget);

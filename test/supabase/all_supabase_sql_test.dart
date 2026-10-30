@@ -57,9 +57,14 @@ void main() {
       );
       expect(
         onDisk.length,
-        79,
+        81,
         reason:
-            'The owner'
+            'The Data API default-grants safeguard (2026-10-30) added two '
+            'files: future public tables keep their four DML grants for '
+            'signed-in users and the service role after Supabase stops '
+            'granting new tables automatically, and the legacy grant that '
+            'handed anonymous callers every table privilege is revoked for '
+            'those future tables. The owner'
             's firm device list (2026-10-29) added one file: one '
             'owner-only read so the Devices screen can name every device '
             'sharing the chamber'

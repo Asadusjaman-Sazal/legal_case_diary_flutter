@@ -19,6 +19,25 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — Future tables are closed to anonymous callers — COMPLETE (0.0.715)
+
+- **What was asked.** Revoke the legacy `anon` grant from the future-table default, so a table added tomorrow is not reachable by unauthenticated callers; verify exactly as before and be extra cautious.
+- **What changed.** `supabase/migrations/20261030110000_default_table_privileges_no_anon.sql` removes **all** table privileges from `anon` for tables created by the migration role. The whole set (`arwdDxtm`) is revoked rather than the four DML verbs, because truncate, references, trigger and maintain were part of the same legacy grant. Existing tables keep their grants; `authenticated` and `service_role` keep theirs.
+- **Caution.** The exact statement was first run against the live project inside a transaction that rolled back: the default ACL lost its `anon` entry and a probe table refused anonymous select while both other roles held all four verbs; nothing was committed by that rehearsal. It was then applied through the guarded tool (1 of 81 to apply; 81 versions recorded). A second post-apply probe confirmed the same result.
+- **Recorded.** Ledger regenerated at 81 sections under app version 0.0.715; the applier and ledger tests expect 81 migrations and `20261030110000` last; the plan's RLS section now states the revoke, its reason, the full-set detail and the one limit (tables created through the Supabase dashboard use the platform's own default, not this rule). Reversal is a comment in the migration: grant the legacy set back to `anon`.
+- **Checks.** `dart run tool/generate_all_supabase_sql.dart --check` OK; `migration_applier_test`, `all_supabase_sql_test`, `version_history_test` pass; `flutter analyze` clean; full `flutter test` **2,202 passed**.
+- **Next.** Nothing open. No app code changed.
+
+### 2026-10-30 — Future tables keep their Data API access — COMPLETE (0.0.714)
+
+- **What was asked.** Supabase's email says that from 2026-10-30 new tables in `public` no longer get automatic Data API grants. The approved response: an idempotent default-privileges migration, scoped to future tables, deliberately without `anon`.
+- **What changed.** `supabase/migrations/20261030100000_default_table_privileges.sql` sets `alter default privileges for role postgres in schema public` granting `select, insert, update, delete` on tables to `authenticated` and to `service_role`; `anon` is deliberately not granted. It cannot change an existing table (that is what `alter default privileges` means), so no current privilege moved.
+- **Applied and recorded.** The repo's guarded applier (`tool/apply_supabase_migrations.dart`) applied it to `lsthasywrdrhuuxnykau`: it reports 1 to apply, 80 versions recorded. The generated ledger (`supabase/AllSupabaseSql.md`) now carries the file under app version 0.0.714, and the applier and ledger tests now expect 80 migrations with `20261030100000` last.
+- **Live proof.** A rolled-back probe created a table as the migration role and asked `has_table_privilege`: `authenticated` and `service_role` each hold all four verbs. It also showed that the platform's own legacy default still grants `anon` on new tables at this moment — the project's statement neither adds nor removes that.
+- **Honest limits.** Because the old default already granted the same four verbs, today's `pg_default_acl` shows no visible change; this migration is the project's own guarantee for after Supabase's change, and a platform-side rewrite of the same default-ACL row could replace it. The durable rule is therefore stated in the plan's RLS section: **every migration that creates a table also writes that table's grants**, and a table with narrower rights (column-level grants, a closed `anon` grant) states them itself.
+- **Checks.** `dart run tool/generate_all_supabase_sql.dart --check` OK; `migration_applier_test`, `all_supabase_sql_test` and `version_history_test` pass; `flutter analyze` clean; full `flutter test` **2,202 passed**.
+- **Next.** Optional: revoke `anon` from the default table privileges so future tables are closed to unauthenticated callers even before Supabase's rollout removes the legacy grant. Not done — it changes the platform default beyond the approved statement.
+
 ### 2026-10-28 — Request Deletion goes red, and the shared window becomes a rule — COMPLETE (0.0.711)
 
 - **What was asked.** Make the **Request Deletion** window's **Send** red with white text; and record the shared-window policy so a new pop-over follows it and a later edit cannot change the shared window by accident.

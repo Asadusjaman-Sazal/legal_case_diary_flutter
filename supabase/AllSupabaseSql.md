@@ -120,6 +120,8 @@ checks that roll back) and the read-only counts
 | 0.0.684 | 2026-10-27 | `20261027130000_push_changes_check_row_firm.sql` | The permission verdict is weighed on the row as it exists. `push_changes_core` subtracts the scope columns before the write, and handed that same stripped row to `sync_can_write`, so every rule that needs the firm was weighed against a row with no firm: `can_edit_firm(null)` is false and the authorship clause decided alone — a chamber member could not edit a case, note or reference a colleague had authored, including the firm's owner, while `enforce_member_permission()` allows it because it reads `new.firm_id`. The check now receives `v_final` with the stored firm restored; the write still omits `firm_id`, so no payload can move a row between scopes. The body is the newest shipped one with that one statement changed. |
 | 0.0.685 | 2026-10-28 | `20261028100000_delete_request_target_closure.sql` | A delete request whose record someone else deleted closes itself. Nothing watched the record: a member with `can_delete` could delete the case a colleague had already asked about, and the request stayed pending for ever — in every reviewer's queue as work that could never succeed, in the requester's list as "waiting", clearable only by rejecting it, which records a decision that never happened. A trigger function on the four tables a request may name (`cases`, `case_history`, `notes`, `case_references`) now closes every still-open request for a tombstoned row as `already_deleted`, in the same transaction as the deletion, stamped by the deleter; an approval still ends approved because it writes after the tombstone it causes. The same migration backfills requests already left hanging and adds a partial unique index for at most one open request per record, so two colleagues can no longer queue two rows that end in one deletion and one pointless approval. |
 | 0.0.713 | 2026-10-29 | `20261029100000_firm_device_list.sql` | The chamber owner can see every device sharing the firm's slots. `device_state()` answers for the caller's own session, so the owner's Devices screen could only list the owner's phones while the other holders of the shared slots stayed invisible to the one person who manages them — and `user_devices` grants no read to any client role. `firm_device_list()` returns the chamber's slots, its associate count and every active device whose profile still points at that chamber, each with the member's current profile name, the registration snapshot as the fallback, `is_owner` and `is_current`. Owner-only: an associate or an individual reads `not_owner`, and nothing here writes. |
+| 0.0.714 | 2026-10-30 | `20261030100000_default_table_privileges.sql` | Future public tables keep the Data API access the app relies on. Supabase stops granting new tables in `public` to the API roles on 2026-10-30, so a table a later migration creates would be unreachable to `authenticated` until something granted it — as would a preview branch or a replayed schema. The statements set the default privileges for tables created by the migration role from now on: the four DML verbs to `authenticated` (every screen is behind sign-in, and RLS still scopes the rows) and to `service_role`; `anon` is deliberately left out because this app has no unauthenticated table access. No existing table's privileges change, and a new table that needs narrower rights still states them in its own migration. |
+| 0.0.715 | 2026-10-30 | `20261030110000_default_table_privileges_no_anon.sql` | Future public tables are closed to unauthenticated callers. Supabase's own default still grants `anon` every table privilege (`arwdDxtm`) on a new table in `public`; the app never calls the Data API without a session, so that grant is a leftover. The statement revokes the whole set from `anon` for tables created by the migration role from now on — the four DML verbs are not enough, because truncate, references, trigger and maintain are part of the same legacy grant. Existing tables keep their grants (a default privilege cannot touch an existing object), and `authenticated` and `service_role` keep the four DML verbs from the previous migration. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -20754,6 +20756,66 @@ comment on function public.firm_device_list() is
 
 revoke all on function public.firm_device_list() from public, anon;
 grant execute on function public.firm_device_list() to authenticated;
+```
+
+## App Version 0.0.714 — Data API — New Tables Keep Their Access
+
+### 0.0.714 · `20261030100000_default_table_privileges.sql`
+
+> **Created 2026-10-30.** Future public tables keep the Data API access the app relies on. Supabase stops granting new tables in `public` to the API roles on 2026-10-30, so a table a later migration creates would be unreachable to `authenticated` until something granted it — as would a preview branch or a replayed schema. The statements set the default privileges for tables created by the migration role from now on: the four DML verbs to `authenticated` (every screen is behind sign-in, and RLS still scopes the rows) and to `service_role`; `anon` is deliberately left out because this app has no unauthenticated table access. No existing table's privileges change, and a new table that needs narrower rights still states them in its own migration.
+
+```sql
+-- Future public tables keep the Data API access this app relies on.
+--
+-- Supabase stops granting new tables in `public` to the API roles on
+-- 2026-10-30: from then on a table created by a migration is reachable only
+-- after an explicit grant, and a preview branch or a replayed schema would be
+-- missing those grants. These two statements restore the old automatic
+-- behaviour under the project's own control, for tables created from now on by
+-- the migration role (`postgres`):
+--
+--   * `authenticated` — the app's only client role (every screen is behind
+--     sign-in). Row-level security still scopes each row; this only restores the
+--     table privileges the app already holds on the existing tables.
+--   * `service_role` — the server's own role, for any future server-side write.
+--
+-- `anon` is deliberately left out: this app has no unauthenticated table
+-- access, and granting it would only widen what an anonymous caller can reach.
+-- These defaults change no existing table: each keeps the privileges it has
+-- today, and a new table that needs narrower privileges (column-level grants or
+-- a closed `anon` grant) still states them in its own migration.
+alter default privileges for role postgres in schema public
+  grant select, insert, update, delete on tables to authenticated;
+
+alter default privileges for role postgres in schema public
+  grant select, insert, update, delete on tables to service_role;
+```
+
+## App Version 0.0.715 — Data API — New Tables Closed To Anonymous Callers
+
+### 0.0.715 · `20261030110000_default_table_privileges_no_anon.sql`
+
+> **Created 2026-10-30.** Future public tables are closed to unauthenticated callers. Supabase's own default still grants `anon` every table privilege (`arwdDxtm`) on a new table in `public`; the app never calls the Data API without a session, so that grant is a leftover. The statement revokes the whole set from `anon` for tables created by the migration role from now on — the four DML verbs are not enough, because truncate, references, trigger and maintain are part of the same legacy grant. Existing tables keep their grants (a default privilege cannot touch an existing object), and `authenticated` and `service_role` keep the four DML verbs from the previous migration.
+
+```sql
+-- Close future tables to unauthenticated callers.
+--
+-- Supabase's own default still hands `anon` every table privilege on a new
+-- `public` table (`arwdDxtm`: select, insert, update, delete, truncate,
+-- references, trigger, maintain). The app never calls the Data API without a
+-- session, so that grant is a leftover, not a feature: it is revoked here for
+-- tables created by the migration role from now on. Every existing table keeps
+-- the grants it already has — a default privilege cannot touch an existing
+-- object — and `authenticated` and `service_role` keep the four DML verbs
+-- granted by 20261030100000. The full set is revoked rather than the four DML
+-- verbs, so no part of the legacy grant survives on a future table.
+--
+-- Reversible with:
+--   alter default privileges for role postgres in schema public
+--     grant select, insert, update, delete, truncate, references, trigger,
+--       maintain on tables to anon;
+alter default privileges for role postgres in schema public
+  revoke all on tables from anon;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

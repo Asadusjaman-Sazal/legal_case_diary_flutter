@@ -23,6 +23,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/app_dialog_actions.dart';
 import '../../../shared/widgets/pull_to_sync.dart';
@@ -155,16 +156,22 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
               ),
         style: AppTypography.titleMd,
       ),
-      const SizedBox(height: AppSpacing.xs),
-      Text(
-        l.devices_subtitle,
-        style: AppTypography.bodyMd.copyWith(color: AppColors.onSurfaceVariant),
-      ),
+      // The owner reads the chamber's sharing note in place of the per-account
+      // sentence, at that sentence's size (user request, 0.0.716).
+      if (firm == null) ...[
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l.devices_subtitle,
+          style: AppTypography.bodyMd.copyWith(
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+      ],
       if ((firm?.value?.associates ?? 0) > 0) ...[
         const SizedBox(height: AppSpacing.xs),
         Text(
           l.settingsSubscription_usageSeatsNote,
-          style: AppTypography.bodySm.copyWith(
+          style: AppTypography.bodyMd.copyWith(
             color: AppColors.onSurfaceVariant,
           ),
         ),
@@ -328,7 +335,10 @@ class _DeviceRow extends StatelessWidget {
                 if (seen != null)
                   Text(
                     l.devices_lastUsed(
-                      MaterialLocalizations.of(context).formatShortDate(seen),
+                      AppDateUtils.formatDateTimeDDMMYYYY(
+                        seen.millisecondsSinceEpoch,
+                        locale: Localizations.localeOf(context).toString(),
+                      ),
                     ),
                     style: AppTypography.bodySm.copyWith(
                       color: AppColors.onSurfaceVariant,
@@ -391,7 +401,10 @@ class _AssociateDeviceRow extends StatelessWidget {
                 if (seen != null)
                   Text(
                     l.devices_lastUsed(
-                      MaterialLocalizations.of(context).formatShortDate(seen),
+                      AppDateUtils.formatDateTimeDDMMYYYY(
+                        seen.millisecondsSinceEpoch,
+                        locale: Localizations.localeOf(context).toString(),
+                      ),
                     ),
                     style: AppTypography.bodySm.copyWith(
                       color: AppColors.onSurfaceVariant,

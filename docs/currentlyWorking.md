@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The Devices screen names the time — COMPLETE (0.0.716)
+
+- **What was asked.** On the Devices screen, for the owner: remove *The devices that can use this account at the same time.* and give *Your associates and your own signed-in devices share these slots.* that sentence's size. For the owner and associates: show date and time in **Last used**.
+- **What changed.** Only `devices_screen.dart`: the per-account sentence is drawn when there is no chamber list (an associate or an individual), and the owner's summary now leads with the limit line and the shared-slots note at `bodyMd` — the same 14 pt and ink the removed sentence used. Both card types (`_DeviceRow` for the owner's/associate's own devices, `_AssociateDeviceRow` for associates' devices) print **Last used** through `AppDateUtils.formatDateTimeDDMMYYYY`: day and clock in Bangladesh time, with the locale's digits, instead of the short date alone. Nothing else on the screen moved.
+- **Checks.** `device_limit_test.dart` grew the three assertions (owner has no per-account sentence and the note is `bodyMd`; associate keeps the sentence; owner and associate cards show date and time), with the test fixtures given fixed UTC instants so the rendered Bangladesh time is identical on every machine. `flutter analyze` clean; full `flutter test` **2,202 passed**.
+- **Next.** Nothing open. No ARB key changed (the `devices_lastUsed` placeholder now receives a date-time string).
+
 ### 2026-10-30 — Future tables are closed to anonymous callers — COMPLETE (0.0.715)
 
 - **What was asked.** Revoke the legacy `anon` grant from the future-table default, so a table added tomorrow is not reachable by unauthenticated callers; verify exactly as before and be extra cautious.

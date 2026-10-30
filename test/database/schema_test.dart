@@ -201,56 +201,99 @@ void main() {
       expect(active.first.id, 'active');
     });
 
-    test(
-      'active and disposed queries handle every AD/HCD result term',
-      () async {
-        final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-        const disposedTerms = <String>[
-          'Dismissed',
-          'খারিজ',
-          'Disposed',
-          'নিষ্পত্তি',
-          'Discharged',
-          'অব্যহতি',
-        ];
-        for (var index = 0; index < disposedTerms.length; index++) {
-          await _insertCase(
-            db,
-            id: 'disposed-$index',
-            isDeleted: false,
-            updatedAt: now,
-            result: index == 0
-                ? 'Appeal ${disposedTerms[index].toUpperCase()} by the court'
-                : disposedTerms[index],
-          );
-        }
+    test('only Disposed disposes a higher-court result', () async {
+      // A higher court has no steps, so its Result field is the only signal —
+      // and only Disposed / নিষ্পত্তি counts (user request, 0.0.735). Dismissed
+      // and Discharged are results a live case can carry.
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+      const liveResults = <String>[
+        'Dismissed',
+        'খারিজ',
+        'Discharged',
+        'অব্যহতি',
+        'Pending hearing',
+      ];
+      for (var index = 0; index < liveResults.length; index++) {
         await _insertCase(
           db,
-          id: 'disposed-step',
+          id: 'live-$index',
           isDeleted: false,
           updatedAt: now,
-          lastStep: 'Disposed',
+          result: liveResults[index],
         );
-        await _insertCase(
-          db,
-          id: 'active-result',
-          isDeleted: false,
-          updatedAt: now,
-          result: 'Pending hearing',
-        );
+      }
+      await _insertCase(
+        db,
+        id: 'disposed-en',
+        isDeleted: false,
+        updatedAt: now,
+        // Matched inside a longer sentence and in any case, as the SQL does.
+        result: 'Appeal DISPOSED by the court',
+      );
+      await _insertCase(
+        db,
+        id: 'disposed-bn',
+        isDeleted: false,
+        updatedAt: now,
+        result: 'নিষ্পত্তি',
+      );
 
-        expect(await CasesDao(db).getActiveCaseCount(), 1);
-        final disposed = await CasesDao(db).getDisposed();
-        expect(disposed, hasLength(disposedTerms.length + 1));
-        expect(
-          disposed.map((item) => item.id),
-          containsAll(<String>[
-            ...List.generate(6, (index) => 'disposed-$index'),
-            'disposed-step',
-          ]),
+      expect(await CasesDao(db).getActiveCaseCount(), liveResults.length);
+      final disposed = await CasesDao(db).getDisposed();
+      expect(
+        disposed.map((item) => item.id),
+        containsAll(<String>['disposed-en', 'disposed-bn']),
+      );
+      expect(disposed, hasLength(2));
+    });
+
+    test('only the Disposed step disposes a lower-court case', () async {
+      // Every outcome step the disposed set used to hold leaves the case live.
+      const otherSteps = <String>[
+        'Withdrawal',
+        'Withdrawal under Section 248',
+        'Dismissal',
+        'Allowed',
+        'Rejected',
+        'Rejected Right Away',
+        'Conviction',
+        'Acquittal',
+        'Remand',
+        'Maintainance Not Necessary',
+      ];
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+      for (var index = 0; index < otherSteps.length; index++) {
+        await _insertCase(
+          db,
+          id: 'step-live-$index',
+          isDeleted: false,
+          updatedAt: now,
+          lastStep: otherSteps[index],
         );
-      },
-    );
+      }
+      await _insertCase(
+        db,
+        id: 'step-disposed',
+        isDeleted: false,
+        updatedAt: now,
+        lastStep: 'Disposed',
+      );
+      await _insertCase(
+        db,
+        id: 'step-disposed-bn',
+        isDeleted: false,
+        updatedAt: now,
+        lastStep: 'নিষ্পত্তি',
+      );
+
+      expect(await CasesDao(db).getActiveCaseCount(), otherSteps.length);
+      final disposed = await CasesDao(db).getDisposed();
+      expect(
+        disposed.map((item) => item.id),
+        containsAll(<String>['step-disposed', 'step-disposed-bn']),
+      );
+      expect(disposed, hasLength(2));
+    });
 
     test(
       'purgeSoftDeletedRecords does not remove unsynced tombstones',

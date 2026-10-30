@@ -1292,8 +1292,8 @@ void main() {
     // the column has to carry.
     await seedCase(
       id: 'PAST-1',
-      // Not a disposal term: a result that disposes the case (Dismissed,
-      // Disposed, Discharged) moves it to Disposed Cases and off this screen.
+      // Not a disposal term: only a result saying Disposed moves a higher-court
+      // case to Disposed Cases and off this screen.
       result: 'Judgment reserved',
       nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 86400000,
     );

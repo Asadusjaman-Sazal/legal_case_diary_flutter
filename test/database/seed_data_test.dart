@@ -115,10 +115,31 @@ void main() {
       }
     });
 
-    test('disposed-step set includes common disposed terms', () {
-      // Check that the explicit Disposed marker is present.
-      final hasDisposed = disposedStepIds.any((id) => id.endsWith('-disposed'));
-      expect(hasDisposed, true);
+    test('only the seeded Disposed step disposes a case', () {
+      // One step per lower-court category: that category's own Disposed step
+      // (user request, 0.0.735). The outcome steps that used to sit here —
+      // Withdrawal, Dismissal, Allowed, Conviction and the rest — are steps a
+      // case can end on while staying live, so they no longer dispose.
+      expect(disposedStepIds, hasLength(lowerCourtCategoryIds.length));
+      for (final id in disposedStepIds) {
+        expect(
+          id.endsWith('-disposed'),
+          true,
+          reason: '$id is not a Disposed step',
+        );
+        expect(stepLabelEn[id], 'Disposed');
+      }
+
+      // The names the SQL filter matches are that step's two labels, only.
+      expect(disposedStepNames, <String>{'Disposed', 'নিষ্পত্তি'});
+
+      // The higher courts give the same one answer from their Result field.
+      expect(disposedResultTermLabels.map((term) => term.en), <String>[
+        'Disposed',
+      ]);
+      expect(disposedResultTermLabels.map((term) => term.bn), <String>[
+        'নিষ্পত্তি',
+      ]);
     });
 
     test('all 8 divisions exist', () {

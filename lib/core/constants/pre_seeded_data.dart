@@ -19168,61 +19168,28 @@ final List<SeedCourt> allSeedCourts = [
 // ---------------------------------------------------------------------------
 
 /// Set of step stable IDs that count as "disposed".
-/// Used by Disposed/Active Cases screens — case disposal is derived
-/// from `last_step`, not a `status` column.
+///
+/// Used by the Disposed/Active Cases screens — case disposal is derived from
+/// `last_step`, not a `status` column.
+///
+/// **Only the seeded Disposed / নিষ্পত্তি step disposes a case (user request,
+/// 0.0.735).** Every other entry this set used to hold is an outcome a case
+/// reaches or passes through for its own reasons — Withdrawal, Dismissal,
+/// Allowed, Rejected, Rejected Right Away, Conviction, Acquittal, Remand,
+/// Maintainance Not Necessary, and the Section 248 withdrawal — so a case whose
+/// last step is one of them stays in Active Cases. The steps themselves are
+/// untouched and remain selectable in their categories; only their disposal
+/// meaning is removed.
 final Set<String> disposedStepIds = <String>{
-  // Lower-court disposed-step lists follow the supplied source-file order.
-  ..._lowerDisposedStepIds(districtCourtsCivilId, <String>[
-    'Withdrawal',
-    'Dismissal',
-    'Allowed',
-    'Rejected',
-    'Rejected Right Away',
-    'Maintainance Not Necessary',
-    'Disposed',
-  ]),
-  ..._lowerDisposedStepIds(districtSessionsCriminalId, <String>[
-    'Withdrawal under Section 248',
-    'Allowed',
-    'Rejected',
-    'Rejected Right Away',
-    'Conviction',
-    'Acquittal',
-    'Maintainance Not Necessary',
-    'Disposed',
-  ]),
+  // One step per lower-court category: the category's own Disposed step.
+  ..._lowerDisposedStepIds(districtCourtsCivilId, <String>['Disposed']),
+  ..._lowerDisposedStepIds(districtSessionsCriminalId, <String>['Disposed']),
   ..._lowerDisposedStepIds(metropolitanSessionsJudgeCriminalId, <String>[
-    'Withdrawal under Section 248',
-    'Allowed',
-    'Rejected',
-    'Rejected Right Away',
-    'Conviction',
-    'Acquittal',
-    'Maintainance Not Necessary',
     'Disposed',
   ]),
-  ..._lowerDisposedStepIds(chiefJudicialMagistrateId, <String>[
-    'Withdrawal under Section 248',
-    'Conviction',
-    'Acquittal',
-    'Maintainance Not Necessary',
-    'Disposed',
-  ]),
-  ..._lowerDisposedStepIds(chiefMetropolitanMagistrateId, <String>[
-    'Withdrawal under Section 248',
-    'Conviction',
-    'Acquittal',
-    'Maintainance Not Necessary',
-    'Disposed',
-  ]),
-  ..._lowerDisposedStepIds(executiveMagistrateId, <String>[
-    'Remand',
-    'Dismissal',
-    'Withdrawal',
-    'Rejected',
-    'Maintainance Not Necessary',
-    'Disposed',
-  ]),
+  ..._lowerDisposedStepIds(chiefJudicialMagistrateId, <String>['Disposed']),
+  ..._lowerDisposedStepIds(chiefMetropolitanMagistrateId, <String>['Disposed']),
+  ..._lowerDisposedStepIds(executiveMagistrateId, <String>['Disposed']),
 };
 
 /// Localized labels for a single disposed step.
@@ -19280,10 +19247,13 @@ final List<DisposedCategorySteps> disposedStepsByCategory = List.unmodifiable(
 /// from the free-text `result` field. These terms are matched case-insensitively
 /// against that field (see [CasesDao]), so the English forms are stored
 /// lower-cased to match the SQL `LIKE` comparison.
+///
+/// **Only Disposed / নিষ্পত্তি disposes a higher-court case (user request,
+/// 0.0.735)** — the same single answer the lower courts now give. *Dismissed*
+/// and *Discharged* are results a higher court can enter while the case is still
+/// live, so they leave it in Active Cases.
 const List<DisposedStepLabels> disposedResultTermLabels = <DisposedStepLabels>[
-  DisposedStepLabels(en: 'Dismissed', bn: 'খারিজ'),
   DisposedStepLabels(en: 'Disposed', bn: 'নিষ্পত্তি'),
-  DisposedStepLabels(en: 'Discharged', bn: 'অব্যহতি'),
 ];
 
 // ---------------------------------------------------------------------------

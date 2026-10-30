@@ -330,20 +330,29 @@ void main() {
         final nextDateCard = tester.widget<Container>(
           find.byKey(const ValueKey('case-detail-next-date-card')),
         );
-        final nextDateDecoration =
-            nextDateCard.decoration! as BoxDecoration;
+        final nextDateDecoration = nextDateCard.decoration! as BoxDecoration;
         expect(nextDateDecoration.color, const Color(0xFF316BF3));
         // The border matches the fill: the shared active black would ring the
         // blue card in a dark rim.
+        expect(nextDateDecoration.border!.top.color, const Color(0xFF316BF3));
+        // The card keeps its calendar glyph, while the header's court line
+        // wears the courthouse one (user request, 0.0.723).
         expect(
-          nextDateDecoration.border!.top.color,
-          const Color(0xFF316BF3),
+          find.descendant(
+            of: find.byKey(const ValueKey('case-detail-next-date-card')),
+            matching: find.byIcon(Icons.calendar_today),
+          ),
+          findsOneWidget,
         );
+        expect(find.byIcon(Icons.account_balance), findsOneWidget);
+        expect(find.byIcon(Icons.location_on), findsNothing);
         expect(find.text('5 Days Remaining'), findsOneWidget);
         expect(
           find.byKey(const ValueKey('case-detail-set-reminder')),
           findsOneWidget,
         );
+        // A next date keeps Set Reminder.
+        expect(find.text('Set Reminder'), findsOneWidget);
       },
     );
 
@@ -367,6 +376,29 @@ void main() {
         );
       },
     );
+
+    testWidgets('a past next date reads as Previous Date with days ago', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 3 * 86400000,
+      );
+      await pumpDetail(tester, caseId);
+
+      // A date behind today is the case's previous hearing (user request,
+      // 0.0.722).
+      expect(find.text('Previous Date'), findsOneWidget);
+      expect(find.text('3 Days Ago'), findsOneWidget);
+      expect(find.text('Next Date'), findsNothing);
+      expect(find.textContaining('Days Remaining'), findsNothing);
+      // A passed date updates rather than reminds (user request, 0.0.723).
+      expect(
+        find.byKey(const ValueKey('case-detail-set-reminder')),
+        findsOneWidget,
+      );
+      expect(find.text('Update'), findsOneWidget);
+      expect(find.text('Set Reminder'), findsNothing);
+    });
 
     testWidgets(
       'hides the phone when the role side is unknown and hides card without a date',

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.721 - The firm owner's awaiting-review delete request cards now show the request's date and time as a third line, matching the Previous list.
+Version: 0.0.723 - The Next Date card is back on its calendar icon, a Previous Date card says Update instead of Set Reminder, and the header's court line now wears the courthouse icon.
 --------------------------------------
 
 ## Version History Log:
@@ -735,3 +735,5 @@ Version: 0.0.718 - Previous delete requests show the request date and time, and 
 Version: 0.0.719 - The previous-request bulk clear now keeps Cancel and Clear Selected side by side in a bar pinned under the list, instead of a Cancel in the heading.
 Version: 0.0.720 - De-selecting the last card in the previous-request multi-select now ends selection mode automatically and returns the section to normal.
 Version: 0.0.721 - The firm owner's awaiting-review delete request cards now show the request's date and time as a third line, matching the Previous list.
+Version: 0.0.722 - The Case Detail Next Date card now wears the courthouse icon and, when its date is in the past, reads Previous Date with an N Days Ago count.
+Version: 0.0.723 - The Next Date card is back on its calendar icon, a Previous Date card says Update instead of Set Reminder, and the header's court line now wears the courthouse icon.

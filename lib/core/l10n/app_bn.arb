@@ -134,6 +134,15 @@
           }
       }
   },
+  "caseDetailsScreen_daysAgo": "{count, plural, =1{১ দিন আগে} other{{count} দিন আগে}}",
+  "@caseDetailsScreen_daysAgo": {
+      "description": "গত হয়ে যাওয়া তারিখের হাইলাইট কার্ডে দেখানো গণনা।",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
   "caseDetailsScreen_setReminder": "রিমাইন্ডার সেট করুন",
   "caseDetailsScreen_editHistoryEntry": "ইতিহাস এন্ট্রি সম্পাদনা",
   "caseDetailsScreen_caseNotFound": "মামলা পাওয়া যায়নি।",

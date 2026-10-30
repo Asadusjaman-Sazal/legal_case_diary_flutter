@@ -155,6 +155,15 @@
           }
       }
   },
+  "caseDetailsScreen_daysAgo": "{count, plural, =1{1 Day Ago} other{{count} Days Ago}}",
+  "@caseDetailsScreen_daysAgo": {
+      "description": "Count shown on the Next Date highlight card when the date has passed.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
   "caseDetailsScreen_setReminder": "Set Reminder",
   "caseDetailsScreen_editHistoryEntry": "Edit History Entry",
   "caseDetailsScreen_caseNotFound": "Case not found.",

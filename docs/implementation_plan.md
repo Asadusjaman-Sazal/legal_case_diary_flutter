@@ -315,6 +315,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Line 5 — Case Description KanBan Card:**
     - **Case Title & Remark** (title)
     - Two text boxes: `case_title_and_section` (Sections or Case Title) and `case_remarks` (Remarks or Case Summary)
+  - **Next Date highlight card (mockup extra, 0.0.722–0.0.723, user request):** a blue card after the history when the case has a `next_date`, titled **Next Date** with the card's own **calendar glyph**. When that date is behind today, the title reads **Previous Date**, the count reads **N Days Ago** (`caseDetailsScreen_daysAgo`) instead of the remaining-days countdown, and the action reads **Update** instead of **Set Reminder** — the same window and the same blue card otherwise. The header's court line, not this card, wears the **courthouse glyph** (`account_balance`) the Overdue Dates court title uses, in place of the old location pin.
   - **Other Information card (AD/HCD cases only):** Tender Number, Previous Court Case, and District of Origin boxes; sits between Line 5 and Line 6.
   - **Line 6 — Case History KanBan Card:**
     - Header: "Case History" with a time icon, a total history count ("x Entries Total"), and a Show/Hide button (only when more than 3 entries) that expands all entries or folds back to the newest 3; while expanded, the title row stays pinned at the top of the screen.

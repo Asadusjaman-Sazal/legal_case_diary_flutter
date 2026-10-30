@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.741 - Case Reference: the field's gray bottom rule now follows the box's rounded bottom edge instead of stopping short of each corner.
+Version: 0.0.743 - Case Reference field rules are now the palette's outline grey (#76777D), one token darker than outline-variant, which was nearly invisible on the #F2F4F6 field box.
 --------------------------------------
 
 ## Version History Log:
@@ -755,3 +755,5 @@ Version: 0.0.738 - Renamed the app to com.legumsoft.legalcasediary across Androi
 Version: 0.0.739 - Case Reference: the Add/Edit form's title band now uses the app black instead of the ink navy, matching the Quick Update window.
 Version: 0.0.740 - Case Reference: the form's field boxes take the shared 8 px window corner on all four sides, and the three single-line boxes grow 25% (32 to 40 px).
 Version: 0.0.741 - Case Reference: the field's gray bottom rule now follows the box's rounded bottom edge instead of stopping short of each corner.
+Version: 0.0.742 - Case Reference: the field's gray rule now follows the box's own bottom corners instead of scooping a bite into them.
+Version: 0.0.743 - Case Reference field rules are now the palette's outline grey (#76777D), one token darker than outline-variant, which was nearly invisible on the #F2F4F6 field box.

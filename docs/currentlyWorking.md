@@ -1,5 +1,23 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-30 — The Case Reference rule is dark enough to see — COMPLETE (0.0.743)
+
+- **What was asked.** Give the Case Reference fields a slightly stronger bottom rule, so the line is clearly visible on the near-white box.
+- **Why it was not visible.** The rule painted `AppColors.outlineVariant` (#C6C6CD) on the field fill `AppColors.surfaceContainerLow` (#F2F4F6). Those two greys are about **1.5:1** apart — far below the 3:1 a non-text element needs to be seen — so the rule was there but read as nothing.
+- **What changed.** One token step, not a new colour: the rule now uses that token's own parent, `AppColors.outline` (#76777D), at the same crisp 1 px stroke. The gap becomes about **4:1**, clear on the box without turning the field into an ink underline. The choice is named in one place, `_bottomRuleColor`, with a comment recording the measurement, so the next reader does not dial it back by "tidying".
+- **Mockup (rule 9).** The five form-field boxes in `mockup_html_screens/caseReference/code.html` moved from `border-outline-variant` to `border-outline`, and the block's header comment states why. The list screen's cards and chips were left alone — this change is the form fields' rule only.
+- **Checks.** `dart format` no changes; `flutter analyze lib/features/case_reference` — No issues found; `record_version.py` wrote 0.0.743. No Supabase SQL and no shared-frame file touched (the shared pop-over frame is unchanged).
+- **Next.** The phone pass: open Add or Edit Case Reference and confirm the rule under each box is now easy to see.
+
+### 2026-10-30 — The field's rule hugs the box instead of biting its corners — COMPLETE (0.0.742)
+
+- **What was asked.** The Case Reference text boxes' corners looked as if someone had bitten the two bottom corners out, like the Apple logo.
+- **Why.** 0.0.741's `_BottomRulePainter` called `arcToPoint` with its default `clockwise: true`. Walking the bottom edge left to right, the corner arcs turn the other way, so Flutter picked the centre at the box's **outer** corner and drew the arc as a quarter circle scooped *into* the box — the bite. One flag, two arcs.
+- **What changed.** Both arcs now pass `clockwise: false`, with a comment saying the flag is load-bearing so a later reader does not "tidy" it away.
+- **Proof.** Rendered the real Add Case Reference form at pixel ratio 2 in a throwaway widget test and read the corner's pixels row by row. Both bottom corners now sit on the box's own curve: 8 px above the bottom the rule is at the box's left edge, 5 px above it is 0.6 px in from the edge, and 2 px above it is 2.7 px in — the box's 8 px corner exactly. The bite would have put those last two at 7.4 px and 5.3 px, i.e. curving the wrong way. The right corner measured the same. Probe and image were removed; `library_search_test.dart` is back to its committed state and passes.
+- **Checks.** `flutter analyze` (whole project) clean; `library_search_test.dart` 7 passed; `record_version.py --check` OK. No Supabase SQL, no shared-frame file, no mockup change (its CSS border already curves with its rounded corners).
+- **Next.** The phone pass: open Add or Edit Case Reference and look at the bottom corners of a field.
+
 ### 2026-10-30 — The Case Reference field's gray rule follows its corners — COMPLETE (0.0.741)
 
 - **What was asked.** The gray line under each Case Reference text box did not match the box's rounded corners; make it match.

@@ -759,6 +759,16 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
 /// their line count rather than from a fixed box.
 const double _singleLineVerticalPadding = AppSpacing.gutter;
 
+/// The colour of the fields' bottom rule.
+///
+/// [AppColors.outlineVariant] (#C6C6CD) sat only ~1.5:1 against the box's
+/// [AppColors.surfaceContainerLow] (#F2F4F6) fill, so the rule all but vanished
+/// on the near-white box (user report). Its own parent token
+/// [AppColors.outline] (#76777D) is the same neutral grey one step darker and
+/// reads clearly without turning into a heavy ink line — thematically the
+/// app's field border, not a new colour (user request).
+const Color _bottomRuleColor = AppColors.outline;
+
 /// A labeled text field matching the mockup's bottom-border legal-input style.
 ///
 /// The box wears the shared pop-over window's corner ([AppDialogMetrics.corner])
@@ -812,7 +822,7 @@ class _Field extends StatelessWidget {
           // short of each rounded corner (user report, 0.0.741).
           child: CustomPaint(
             foregroundPainter: _BottomRulePainter(
-              color: AppColors.outlineVariant,
+              color: _bottomRuleColor,
               radius: AppDialogMetrics.corner,
             ),
             child: TextField(
@@ -865,16 +875,23 @@ class _BottomRulePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final corner = Radius.circular(r);
+    // `clockwise: false` is load-bearing. Walking left to right along the
+    // bottom edge, the corner arcs turn anticlockwise; the default
+    // (clockwise) makes `arcToPoint` pick the centre at the box's outer
+    // corner instead, which scoops a quarter circle *into* the box and reads
+    // as a bite out of each bottom corner (user report).
     final path = Path()
       ..moveTo(0, h - r)
-      ..arcToPoint(Offset(r, h), radius: corner)
+      ..arcToPoint(Offset(r, h), radius: corner, clockwise: false)
       ..lineTo(w - r, h)
-      ..arcToPoint(Offset(w, h - r), radius: corner);
+      ..arcToPoint(Offset(w, h - r), radius: corner, clockwise: false);
     canvas.drawPath(
       path,
       Paint()
         ..color = color
         ..style = PaintingStyle.stroke
+        // One crisp device-independent pixel: at the phones' 2x-3x pixel
+        // density this is a hairline, and a fractional width would only blur it.
         ..strokeWidth = 1,
     );
   }

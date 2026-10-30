@@ -4,15 +4,16 @@
 /// centre-aligned lines whose order flips between English ("Legal Case Diary /
 /// of / name") and Bengali ("name / এর / লিগ্যাল কেস ডায়েরি").
 ///
-/// It also guards the **current plan** row: it names the running plan, expands
-/// into Subscription Details and Subscription Plans rather than navigating, and
-/// each of those two rows opens the screen it names.
+/// It also guards the popover's **Subscriptions** row (0.0.731): it names the
+/// running plan beneath its label, expands into Manage Plan, Subscription Plans
+/// and Subscription History rather than navigating, and each child opens the
+/// screen it names. The drawer itself no longer carries a plan row.
 ///
-/// And it guards the **profile icon**: it carries a small chevron badge that
-/// marks it as a menu, and tapping it opens the account popover — anchored to
-/// the icon, lined up with the drawer's own left edge, outlined in the drawer's
-/// divider grey and naming the signed-in e-mail plus the three account actions,
-/// Profile, Manage Account and Logout, each of which does what it says.
+/// And it guards the **profile icon**: it carries a small chevron badge at
+/// 6 o'clock that marks it as a menu, and tapping it opens the account popover —
+/// anchored to the icon, lined up with the drawer's own left edge, outlined in
+/// the drawer's divider grey and naming the signed-in e-mail plus Account &
+/// Profile, Subscriptions and Logout, each of which does what it says.
 ///
 /// The panel itself is a **rounded window with transparent option rows** (user
 /// request): the app's 8 px window corner, the address line marked by its `@`
@@ -76,8 +77,8 @@ const String manageFirmMarker = 'Manage Firm Screen';
 const String deleteRequestsMarker = 'Delete Requests Screen';
 
 /// Markers rendered by the stand-in screens the account popover opens.
-const String profileMarker = 'Profile Screen';
-const String manageAccountMarker = 'Manage Account Screen';
+const String accountProfileMarker = 'Account & Profile Screen';
+const String subscriptionHistoryMarker = 'Subscription History Screen';
 const String loginMarker = 'Login Screen';
 
 /// The address the drawer's account sheet is expected to print.
@@ -286,10 +287,10 @@ void main() {
   /// Pumps the drawer on a router, sitting on [route], with the account's plan
   /// stubbed to [plan].
   ///
-  /// The plan row prints [currentPlanProvider], so stubbing that provider is
-  /// what proves the row reads it — a row that invented its own plan would
-  /// ignore the stub and print something else. The two routes are stand-ins
-  /// with distinct text, so a test can tell where a tap landed.
+  /// The Subscriptions row prints [currentPlanProvider], so stubbing that
+  /// provider is what proves the row reads it — a row that invented its own
+  /// plan would ignore the stub and print something else. The routes are
+  /// stand-ins with distinct text, so a test can tell where a tap landed.
   Future<GoRouter> pumpDrawerOnRouter(
     WidgetTester tester, {
     CurrentPlan plan = freePlan,
@@ -331,16 +332,17 @@ void main() {
             builder: (_, _) =>
                 const Scaffold(body: Text(subscriptionPlansMarker)),
           ),
-        // The three screens the account sheet opens.
-        if (route != AppRoutes.settingsProfile)
+        // The screens the account sheet opens.
+        if (route != AppRoutes.settingsAccountProfile)
           GoRoute(
-            path: AppRoutes.settingsProfile,
-            builder: (_, _) => const Scaffold(body: Text(profileMarker)),
+            path: AppRoutes.settingsAccountProfile,
+            builder: (_, _) => const Scaffold(body: Text(accountProfileMarker)),
           ),
-        if (route != AppRoutes.settingsManageAccount)
+        if (route != AppRoutes.settingsSubscriptionHistory)
           GoRoute(
-            path: AppRoutes.settingsManageAccount,
-            builder: (_, _) => const Scaffold(body: Text(manageAccountMarker)),
+            path: AppRoutes.settingsSubscriptionHistory,
+            builder: (_, _) =>
+                const Scaffold(body: Text(subscriptionHistoryMarker)),
           ),
         if (route != AppRoutes.login)
           GoRoute(
@@ -631,52 +633,38 @@ void main() {
     );
   });
 
-  testWidgets('the plan row names the running plan, then expands to two pages', (
+  testWidgets('the popover names the plan and expands to three pages', (
     tester,
   ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
-    // A paid plan, so the row is pinned to name the plan itself
-    // ("Pro · 3 Months") rather than falling back to the word Premium.
     final router = await pumpDrawerOnRouter(tester, plan: quarterlyPlan);
 
-    expect(drawerText(l.paywall_planProQuarterly), findsOneWidget);
-    // The caption says which fact that word is: a bare "Pro · 3 Months" beside
-    // a chevron would read as the name of a screen.
-    expect(drawerText(l.settingsSubscription_currentPlan), findsOneWidget);
-    expect(
-      tester.getTopLeft(drawerText(l.paywall_planProQuarterly)).dy,
-      lessThan(
-        tester.getTopLeft(drawerText(l.settingsSubscription_currentPlan)).dy,
-      ),
-    );
-
-    // Settings now leads this group (user request): it sits directly above the
-    // plan row with no divider between them, and the section divider that used
-    // to separate the two now sits above Settings.
-    final captionY = tester
-        .getTopLeft(drawerText(l.settingsSubscription_currentPlan))
-        .dy;
-    final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
-    expect(settingsY, lessThan(captionY));
-    expect(
-      drawerDividerYs(tester).where((y) => y > settingsY && y < captionY),
-      isEmpty,
-    );
-    expect(drawerDividerYs(tester).where((y) => y < settingsY), isNotEmpty);
-    expect(captionY, lessThan(tester.getTopLeft(drawerText(l.nav_print)).dy));
-
-    // Collapsed, neither destination is offered yet.
-    expect(drawerText(l.settingsSubscription_managePlanTitle), findsNothing);
-    expect(drawerText(l.paywall_title), findsNothing);
-
-    await tester.tap(drawerText(l.paywall_planProQuarterly));
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
 
-    // Expanding is not navigating: the app is still on the screen the drawer
-    // was opened from.
+    // The Subscriptions row names the running plan beneath its label.
+    expect(find.text(l.drawer_subscriptions), findsOneWidget);
+    expect(find.text(l.paywall_planProQuarterly), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text(l.drawer_subscriptions)).dy,
+      lessThan(tester.getTopLeft(find.text(l.paywall_planProQuarterly)).dy),
+    );
+
+    // Collapsed, none of the three destinations is offered yet.
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsNothing);
+    expect(find.text(l.paywall_title), findsNothing);
+    expect(find.text(l.payments_historyTitle), findsNothing);
+
+    await tester.tap(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+    );
+    await tester.pumpAndSettle();
+
+    // Expanding is not navigating.
     expect(router.state.matchedLocation, AppRoutes.dailyCauseList);
-    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
-    expect(drawerText(l.paywall_title), findsOneWidget);
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
+    expect(find.text(l.paywall_title), findsOneWidget);
+    expect(find.text(l.payments_historyTitle), findsOneWidget);
   });
 
   testWidgets('an ended plan carries its tag two spaces off the name', (
@@ -692,9 +680,11 @@ void main() {
       plan: (known: true, premium: false, planKey: null),
       tier: SubscriptionTier.pro,
     );
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
 
     final label = find.descendant(
-      of: find.byType(Drawer),
+      of: find.byKey(const ValueKey('drawer-account-popover')),
       matching: find.byType(CurrentPlanLabel),
     );
     expect(label, findsOneWidget);
@@ -721,9 +711,13 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final router = await pumpDrawerOnRouter(tester);
 
-    await tester.tap(drawerText(l.settingsManageAccount_planFree));
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
-    await tester.tap(drawerText(l.settingsSubscription_managePlanTitle));
+    await tester.tap(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.settingsSubscription_managePlanTitle));
     await tester.pumpAndSettle();
 
     expect(find.text(subscriptionDetailsMarker), findsOneWidget);
@@ -734,15 +728,36 @@ void main() {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final router = await pumpDrawerOnRouter(tester);
 
-    await tester.tap(drawerText(l.settingsManageAccount_planFree));
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+    );
     await tester.pumpAndSettle();
     // The second row carries the paywall's own title, which is the screen the
     // user asked for by that name.
-    await tester.tap(drawerText(l.paywall_title));
+    await tester.tap(find.text(l.paywall_title));
     await tester.pumpAndSettle();
 
     expect(find.text(subscriptionPlansMarker), findsOneWidget);
     expect(router.state.matchedLocation, AppRoutes.paywall);
+  });
+
+  testWidgets('Subscription History opens the history page', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final router = await pumpDrawerOnRouter(tester);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.payments_historyTitle));
+    await tester.pumpAndSettle();
+
+    expect(find.text(subscriptionHistoryMarker), findsOneWidget);
+    expect(router.state.matchedLocation, AppRoutes.settingsSubscriptionHistory);
   });
 
   testWidgets('the row is already open on a screen it leads to', (
@@ -755,10 +770,12 @@ void main() {
       tester,
       route: AppRoutes.settingsSubscriptionDetails,
     );
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
 
-    expect(drawerText(l.settingsSubscription_managePlanTitle), findsOneWidget);
+    expect(find.text(l.settingsSubscription_managePlanTitle), findsOneWidget);
     final blackTiles = find.descendant(
-      of: find.byType(Drawer),
+      of: find.byKey(const ValueKey('drawer-account-popover')),
       matching: find.byWidgetPredicate(
         (widget) => widget is Material && widget.color == Colors.black,
       ),
@@ -791,14 +808,18 @@ void main() {
       findsOneWidget,
       reason: 'the icon stays; only the caption went',
     );
-    // The three options, in the app's own words for them.
+    // The options, in the app's own words for them: Account & Profile, the
+    // Subscriptions row (with the plan beneath it) and Logout.
     expect(
       find.byKey(const ValueKey('drawer-account-profile')),
       findsOneWidget,
     );
-    expect(find.text(l.settingsScreen_profile), findsOneWidget);
-    expect(find.byKey(const ValueKey('drawer-account-manage')), findsOneWidget);
-    expect(find.text(l.settingsScreen_manageAccount), findsOneWidget);
+    expect(find.text(l.settingsScreen_accountAndProfile), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+      findsOneWidget,
+    );
+    expect(find.text(l.drawer_subscriptions), findsOneWidget);
     expect(find.byKey(const ValueKey('drawer-account-logout')), findsOneWidget);
     expect(find.text(l.settingsManageAccount_logout), findsOneWidget);
   });
@@ -837,8 +858,11 @@ void main() {
     // comparison is against the resting side-menu metric.
     final menuStyle = tester.widget<Text>(drawerText(l.nav_settings)).style;
     for (final option in [
-      (const ValueKey('drawer-account-profile'), l.settingsScreen_profile),
-      (const ValueKey('drawer-account-manage'), l.settingsScreen_manageAccount),
+      (
+        const ValueKey('drawer-account-profile'),
+        l.settingsScreen_accountAndProfile,
+      ),
+      (const ValueKey('drawer-account-subscriptions'), l.drawer_subscriptions),
       (const ValueKey('drawer-account-logout'), l.settingsManageAccount_logout),
     ]) {
       final style = tester
@@ -940,6 +964,13 @@ void main() {
     expect(badgeRect.width, lessThanOrEqualTo(16));
     expect(iconRect.contains(badgeRect.center), isTrue);
     expect(badgeRect.width, lessThan(iconRect.width));
+    // 6 o'clock: horizontally centred on the avatar and sitting on its bottom
+    // edge (user request, 0.0.731).
+    expect(
+      badgeRect.center.dx,
+      moreOrLessEquals(iconRect.center.dx, epsilon: 0.5),
+    );
+    expect(badgeRect.bottom, moreOrLessEquals(iconRect.bottom, epsilon: 0.5));
 
     // The chevron the drawer already uses for "a menu opens here".
     final chevron = find.descendant(
@@ -958,7 +989,9 @@ void main() {
     expect(decoration.border!.top.color, AppColors.outlineVariant);
   });
 
-  testWidgets('Profile in the popover opens the Profile page', (tester) async {
+  testWidgets('Account & Profile in the popover opens its page', (
+    tester,
+  ) async {
     final router = await pumpDrawerOnRouter(tester);
 
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
@@ -966,22 +999,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-account-profile')));
     await tester.pumpAndSettle();
 
-    expect(find.text(profileMarker), findsOneWidget);
-    expect(router.state.matchedLocation, AppRoutes.settingsProfile);
-  });
-
-  testWidgets('Manage Account in the popover opens the Manage Account page', (
-    tester,
-  ) async {
-    final router = await pumpDrawerOnRouter(tester);
-
-    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('drawer-account-manage')));
-    await tester.pumpAndSettle();
-
-    expect(find.text(manageAccountMarker), findsOneWidget);
-    expect(router.state.matchedLocation, AppRoutes.settingsManageAccount);
+    expect(find.text(accountProfileMarker), findsOneWidget);
+    expect(router.state.matchedLocation, AppRoutes.settingsAccountProfile);
   });
 
   testWidgets('Logout runs the branched logout and lands on Login', (

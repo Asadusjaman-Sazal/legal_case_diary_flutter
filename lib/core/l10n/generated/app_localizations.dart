@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'of'**
   String get drawerOf;
 
+  /// No description provided for @drawer_subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get drawer_subscriptions;
+
   /// No description provided for @drawer_rateApp.
   ///
   /// In en, this message translates to:

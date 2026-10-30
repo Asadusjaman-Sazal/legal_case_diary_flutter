@@ -107,16 +107,14 @@ void main() {
           courtCategoryId: Value(courtCategoryId),
         ),
       );
-      onBehalfId = await LocalOnBehalfsRepository(
-        OnBehalfsDao(db),
-        syncHelper,
-      ).insert(
-        OnBehalfsCompanion(
-          courtCategoryId: Value(courtCategoryId),
-          name: const Value('Plaintiff'),
-          orderIndex: const Value(1),
-        ),
-      );
+      onBehalfId = await LocalOnBehalfsRepository(OnBehalfsDao(db), syncHelper)
+          .insert(
+            OnBehalfsCompanion(
+              courtCategoryId: Value(courtCategoryId),
+              name: const Value('Plaintiff'),
+              orderIndex: const Value(1),
+            ),
+          );
     });
 
     tearDown(() async {
@@ -171,7 +169,16 @@ void main() {
       final dead = cases.singleWhere((row) => row['id'] == deadId);
 
       // Every global sync column is present and intact.
-      expect(alive.keys, containsAll(<String>['version', 'updated_at', 'is_deleted', 'synced_at', 'last_modified_by']));
+      expect(
+        alive.keys,
+        containsAll(<String>[
+          'version',
+          'updated_at',
+          'is_deleted',
+          'synced_at',
+          'last_modified_by',
+        ]),
+      );
       expect(alive['is_deleted'], 0);
       expect(dead['is_deleted'], 1);
       expect(dead['updated_at'], 4242);
@@ -219,94 +226,106 @@ void main() {
       expect(notes.single['is_deleted'], 1);
     });
 
-    test('exportSnapshot writes an encrypted container and records the archive', () async {
-      await addCase('110/2021');
-      final sink = _RecordingSink();
+    test(
+      'exportSnapshot writes an encrypted container and records the archive',
+      () async {
+        await addCase('110/2021');
+        final sink = _RecordingSink();
 
-      final result = await backup.exportSnapshot(
-        sink: sink,
-        appVersion: '0.0.227',
-        recoverySecret: _secret,
-        exportedAt: 1700000000000,
-        kdfIterations: 1000,
-      );
+        final result = await backup.exportSnapshot(
+          sink: sink,
+          appVersion: '0.0.227',
+          recoverySecret: _secret,
+          exportedAt: 1700000000000,
+          kdfIterations: 1000,
+        );
 
-      // The file itself is an authenticated container holding a self-verifying
-      // envelope: decrypt first, then read the versioned document inside.
-      expect(sink.written.keys.single, defaultBackupFileName(1700000000000));
-      final bytes = sink.written.values.single;
-      final container = EncryptedBackup.decode(utf8.decode(bytes));
-      expect(container.format, kEncryptedBackupFormat);
-      expect(container.formatVersion, kEncryptedBackupFormatVersion);
-      expect(container.checksum, checksumOfBytes(utf8.encode(result.envelope.encode())));
-      final decoded = BackupEnvelope.decode(
-        utf8.decode(await decryptBackup(container, recoverySecret: _secret)),
-      );
-      expect(decoded.schemaVersion, kBackupSchemaVersion);
-      expect(decoded.appVersion, '0.0.227');
-      expect(decoded.exportedAt, 1700000000000);
-      expect(decoded.verifyChecksum(), isTrue);
-      expect(decoded.tables['cases'], hasLength(1));
+        // The file itself is an authenticated container holding a self-verifying
+        // envelope: decrypt first, then read the versioned document inside.
+        expect(sink.written.keys.single, defaultBackupFileName(1700000000000));
+        final bytes = sink.written.values.single;
+        final container = EncryptedBackup.decode(utf8.decode(bytes));
+        expect(container.format, kEncryptedBackupFormat);
+        expect(container.formatVersion, kEncryptedBackupFormatVersion);
+        expect(
+          container.checksum,
+          checksumOfBytes(utf8.encode(result.envelope.encode())),
+        );
+        final decoded = BackupEnvelope.decode(
+          utf8.decode(await decryptBackup(container, recoverySecret: _secret)),
+        );
+        expect(decoded.schemaVersion, kBackupSchemaVersion);
+        expect(decoded.appVersion, '0.0.227');
+        expect(decoded.exportedAt, 1700000000000);
+        expect(decoded.verifyChecksum(), isTrue);
+        expect(decoded.tables['cases'], hasLength(1));
 
-      // The receipt and the recorded archive agree with the written bytes.
-      expect(result.path, '/tmp/${defaultBackupFileName(1700000000000)}');
-      expect(result.checksum, checksumOfBytes(bytes));
-      final archive = await backup.readArchiveState();
-      expect(archive.path, result.path);
-      expect(archive.checksum, result.checksum);
-      expect(archive.state, archiveStateComplete);
-      expect(archive.hasCompletedArchive, isTrue);
-    });
+        // The receipt and the recorded archive agree with the written bytes.
+        expect(result.path, '/tmp/${defaultBackupFileName(1700000000000)}');
+        expect(result.checksum, checksumOfBytes(bytes));
+        final archive = await backup.readArchiveState();
+        expect(archive.path, result.path);
+        expect(archive.checksum, result.checksum);
+        expect(archive.state, archiveStateComplete);
+        expect(archive.hasCompletedArchive, isTrue);
+      },
+    );
 
-    test('the exported file never contains the case data or the secret', () async {
-      await addCase('110/2021');
-      final sink = _RecordingSink();
+    test(
+      'the exported file never contains the case data or the secret',
+      () async {
+        await addCase('110/2021');
+        final sink = _RecordingSink();
 
-      await backup.exportSnapshot(
-        sink: sink,
-        appVersion: '0.0.227',
-        recoverySecret: _secret,
-        exportedAt: 1700000000000,
-        kdfIterations: 1000,
-      );
+        await backup.exportSnapshot(
+          sink: sink,
+          appVersion: '0.0.227',
+          recoverySecret: _secret,
+          exportedAt: 1700000000000,
+          kdfIterations: 1000,
+        );
 
-      // §12.3.1: no plaintext export ever reaches storage.
-      final file = utf8.decode(sink.written.values.single);
-      expect(file, isNot(contains('110/2021')));
-      expect(file, isNot(contains('Alice')));
-      expect(file, isNot(contains('schema_version')));
-      expect(file, isNot(contains(_secret)));
-      // It is the container: a wrong secret cannot open it.
-      await expectLater(
-        decryptBackup(
-          EncryptedBackup.decode(file),
-          recoverySecret: 'not the passphrase',
-        ),
-        throwsA(isA<BackupDecryptionException>()),
-      );
-    });
+        // §12.3.1: no plaintext export ever reaches storage.
+        final file = utf8.decode(sink.written.values.single);
+        expect(file, isNot(contains('110/2021')));
+        expect(file, isNot(contains('Alice')));
+        expect(file, isNot(contains('schema_version')));
+        expect(file, isNot(contains(_secret)));
+        // It is the container: a wrong secret cannot open it.
+        await expectLater(
+          decryptBackup(
+            EncryptedBackup.decode(file),
+            recoverySecret: 'not the passphrase',
+          ),
+          throwsA(isA<BackupDecryptionException>()),
+        );
+      },
+    );
 
-    test('exportSnapshot without a secret writes the readable envelope', () async {
-      await addCase('110/2021');
-      final sink = _RecordingSink();
+    test(
+      'exportSnapshot without a secret writes the readable envelope',
+      () async {
+        await addCase('110/2021');
+        final sink = _RecordingSink();
 
-      final result = await backup.exportSnapshot(
-        sink: sink,
-        appVersion: '0.0.227',
-        exportedAt: 1700000000000,
-      );
+        final result = await backup.exportSnapshot(
+          sink: sink,
+          appVersion: '0.0.227',
+          exportedAt: 1700000000000,
+        );
 
-      // No secret means no sealing: the file is the versioned JSON envelope,
-      // which is what the default "encryption off" writes.
-      final file = utf8.decode(sink.written.values.single);
-      final decoded = BackupEnvelope.decode(file);
-      expect(decoded.schemaVersion, kBackupSchemaVersion);
-      expect(decoded.tables['cases'], hasLength(1));
-      // And it is recorded exactly like the sealed export.
-      expect(result.checksum, checksumOfBytes(sink.written.values.single));
-      final archive = await backup.readArchiveState();
-      expect(archive.hasCompletedArchive, isTrue);
-    });
+        // No secret means no sealing: the file is the versioned JSON envelope,
+        // which is what the default "encryption off" writes.
+        final file = utf8.decode(sink.written.values.single);
+        final decoded = BackupEnvelope.decode(file);
+        expect(decoded.schemaVersion, kBackupSchemaVersion);
+        expect(decoded.tables['cases'], hasLength(1));
+        // And it is recorded exactly like the sealed export.
+        expect(result.checksum, checksumOfBytes(sink.written.values.single));
+        final archive = await backup.readArchiveState();
+        expect(archive.hasCompletedArchive, isTrue);
+      },
+    );
 
     test('a failed write never records a completed archive', () async {
       final sink = _FailingSink();
@@ -377,38 +396,41 @@ void main() {
       expect(notes.single['updated_at'], isA<int>());
     });
 
-    test('a workbook import replaces only the tables the file carries', () async {
-      await notesRepo.insertNote(
-        const NotesCompanion(title: Value('Mine'), body: Value('Body')),
-      );
-      final bytes = await backup.buildExcelWorkbook(
-        appVersion: '0.0.262',
-        exportedAt: 1758844800000,
-      );
+    test(
+      'a workbook import replaces only the tables the file carries',
+      () async {
+        await notesRepo.insertNote(
+          const NotesCompanion(title: Value('Mine'), body: Value('Body')),
+        );
+        final bytes = await backup.buildExcelWorkbook(
+          appVersion: '0.0.262',
+          exportedAt: 1758844800000,
+        );
 
-      final result = await backup.restoreSnapshot(
-        backup: backup.openExcelBackup(bytes),
-        ownerId: identity.getId(),
-        replaceExisting: true,
-      );
+        final result = await backup.restoreSnapshot(
+          backup: backup.openExcelBackup(bytes),
+          ownerId: identity.getId(),
+          replaceExisting: true,
+        );
 
-      expect(result.replacedExisting, isTrue);
-      expect(result.tableCount, excelSheetTables.length);
-      // The note survives its own replace...
-      final notes = await db
-          .customSelect('SELECT COUNT(*) AS n FROM notes')
-          .getSingle();
-      expect(notes.data['n'], 1);
-      // ...and the court the file never carried is still there, which is what
-      // keeps a partial file from emptying the diary's reference data.
-      final courts = await db
-          .customSelect(
-            'SELECT COUNT(*) AS n FROM courts WHERE id = ?',
-            variables: <Variable>[Variable(courtId)],
-          )
-          .getSingle();
-      expect(courts.data['n'], 1);
-    });
+        expect(result.replacedExisting, isTrue);
+        expect(result.tableCount, excelSheetTables.length);
+        // The note survives its own replace...
+        final notes = await db
+            .customSelect('SELECT COUNT(*) AS n FROM notes')
+            .getSingle();
+        expect(notes.data['n'], 1);
+        // ...and the court the file never carried is still there, which is what
+        // keeps a partial file from emptying the diary's reference data.
+        final courts = await db
+            .customSelect(
+              'SELECT COUNT(*) AS n FROM courts WHERE id = ?',
+              variables: <Variable>[Variable(courtId)],
+            )
+            .getSingle();
+        expect(courts.data['n'], 1);
+      },
+    );
 
     test('a scoped file only asks about the tables it would replace', () async {
       await notesRepo.insertNote(
@@ -450,111 +472,124 @@ void main() {
       expect(courts, contains('Example — $excelSampleRowLabel'));
     });
 
-    test('the Courts sheet groups lower courts by district, AD and HCD first',
-        () async {
-      final prefs = await SharedPreferences.getInstance();
-      final syncHelper = SyncWriteHelper(
-        SyncQueueDao(db),
-        LocalIdentityService(prefs),
-      );
-      final categories = LocalCourtCategoriesRepository(
-        CourtCategoriesDao(db),
-        syncHelper,
-      );
-      final courts = LocalCourtsRepository(CourtsDao(db), syncHelper);
-      final highCourt = await categories.insert(
-        CourtCategoriesCompanion(
-          nameKey: const Value('high_court_division'),
-          courtLevel: const Value('high_court'),
-          orderIndex: const Value(0),
-        ),
-      );
-      final civil = await categories.insert(
-        CourtCategoriesCompanion(
-          nameKey: const Value('district_courts_civil'),
-          courtLevel: const Value('lower'),
-          orderIndex: const Value(2),
-        ),
-      );
-      final sessions = await categories.insert(
-        CourtCategoriesCompanion(
-          nameKey: const Value('district_sessions_criminal'),
-          courtLevel: const Value('lower'),
-          orderIndex: const Value(3),
-        ),
-      );
-      // AD/HCD first (no district), then the lower courts of one district in
-      // court-category order, then the next district.
-      await courts.insert(CourtsCompanion(
-        courtName: const Value('High Court Division Court'),
-        higherLowerCourts: const Value('higher_courts'),
-        courtCategoryId: Value(highCourt),
-        orderIndex: const Value(0),
-      ));
-      await courts.insert(CourtsCompanion(
-        courtName: const Value('Dhaka Civil Court'),
-        higherLowerCourts: const Value('lower_courts'),
-        courtCategoryId: Value(civil),
-        district: const Value('dhaka'),
-        orderIndex: const Value(1),
-      ));
-      await courts.insert(CourtsCompanion(
-        courtName: const Value('Dhaka Sessions Court'),
-        higherLowerCourts: const Value('lower_courts'),
-        courtCategoryId: Value(sessions),
-        district: const Value('dhaka'),
-        orderIndex: const Value(1),
-      ));
-      await courts.insert(CourtsCompanion(
-        courtName: const Value('Gazipur Civil Court'),
-        higherLowerCourts: const Value('lower_courts'),
-        courtCategoryId: Value(civil),
-        district: const Value('gazipur'),
-        orderIndex: const Value(2),
-      ));
+    test(
+      'the Courts sheet groups lower courts by district, AD and HCD first',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        final syncHelper = SyncWriteHelper(
+          SyncQueueDao(db),
+          LocalIdentityService(prefs),
+        );
+        final categories = LocalCourtCategoriesRepository(
+          CourtCategoriesDao(db),
+          syncHelper,
+        );
+        final courts = LocalCourtsRepository(CourtsDao(db), syncHelper);
+        final highCourt = await categories.insert(
+          CourtCategoriesCompanion(
+            nameKey: const Value('high_court_division'),
+            courtLevel: const Value('high_court'),
+            orderIndex: const Value(0),
+          ),
+        );
+        final civil = await categories.insert(
+          CourtCategoriesCompanion(
+            nameKey: const Value('district_courts_civil'),
+            courtLevel: const Value('lower'),
+            orderIndex: const Value(2),
+          ),
+        );
+        final sessions = await categories.insert(
+          CourtCategoriesCompanion(
+            nameKey: const Value('district_sessions_criminal'),
+            courtLevel: const Value('lower'),
+            orderIndex: const Value(3),
+          ),
+        );
+        // AD/HCD first (no district), then the lower courts of one district in
+        // court-category order, then the next district.
+        await courts.insert(
+          CourtsCompanion(
+            courtName: const Value('High Court Division Court'),
+            higherLowerCourts: const Value('higher_courts'),
+            courtCategoryId: Value(highCourt),
+            orderIndex: const Value(0),
+          ),
+        );
+        await courts.insert(
+          CourtsCompanion(
+            courtName: const Value('Dhaka Civil Court'),
+            higherLowerCourts: const Value('lower_courts'),
+            courtCategoryId: Value(civil),
+            district: const Value('dhaka'),
+            orderIndex: const Value(1),
+          ),
+        );
+        await courts.insert(
+          CourtsCompanion(
+            courtName: const Value('Dhaka Sessions Court'),
+            higherLowerCourts: const Value('lower_courts'),
+            courtCategoryId: Value(sessions),
+            district: const Value('dhaka'),
+            orderIndex: const Value(1),
+          ),
+        );
+        await courts.insert(
+          CourtsCompanion(
+            courtName: const Value('Gazipur Civil Court'),
+            higherLowerCourts: const Value('lower_courts'),
+            courtCategoryId: Value(civil),
+            district: const Value('gazipur'),
+            orderIndex: const Value(2),
+          ),
+        );
 
-      final bytes = await backup.buildExcelTemplateWorkbook(
-        appVersion: '0.0.264',
-        districtLabel: (id) => 'DISTRICT:$id',
-      );
-      final sheet = _workbookParts(bytes)['xl/worksheets/sheet6.xml']!;
+        final bytes = await backup.buildExcelTemplateWorkbook(
+          appVersion: '0.0.264',
+          districtLabel: (id) => 'DISTRICT:$id',
+        );
+        final sheet = _workbookParts(bytes)['xl/worksheets/sheet6.xml']!;
 
-      // The district column carries the district's name, not its id.
-      expect(sheet, contains('DISTRICT:dhaka'));
-      expect(sheet, contains('DISTRICT:gazipur'));
-      // AD/HCD stay above every district-grouped lower court...
-      expect(
-        sheet.indexOf('High Court Division Court'),
-        lessThan(sheet.indexOf('Dhaka Civil Court')),
-      );
-      // ...and within a district the courts follow court-category order.
-      expect(
-        sheet.indexOf('Dhaka Civil Court'),
-        lessThan(sheet.indexOf('Dhaka Sessions Court')),
-      );
-      expect(
-        sheet.indexOf('Dhaka Sessions Court'),
-        lessThan(sheet.indexOf('Gazipur Civil Court')),
-      );
-    });
+        // The district column carries the district's name, not its id.
+        expect(sheet, contains('DISTRICT:dhaka'));
+        expect(sheet, contains('DISTRICT:gazipur'));
+        // AD/HCD stay above every district-grouped lower court...
+        expect(
+          sheet.indexOf('High Court Division Court'),
+          lessThan(sheet.indexOf('Dhaka Civil Court')),
+        );
+        // ...and within a district the courts follow court-category order.
+        expect(
+          sheet.indexOf('Dhaka Civil Court'),
+          lessThan(sheet.indexOf('Dhaka Sessions Court')),
+        );
+        expect(
+          sheet.indexOf('Dhaka Sessions Court'),
+          lessThan(sheet.indexOf('Gazipur Civil Court')),
+        );
+      },
+    );
 
-    test('the sample restores, its case row quoting the real court and role', () async {
-      final bytes = await backup.buildExcelTemplateWorkbook(
-        appVersion: '0.0.263',
-      );
+    test(
+      'the sample restores, its case row quoting the real court and role',
+      () async {
+        final bytes = await backup.buildExcelTemplateWorkbook(
+          appVersion: '0.0.263',
+        );
 
-      // The reader skips the sample's reference and Guide sheets, so the file the
-      // user downloaded is the file they can fill in and restore.
-      final opened = backup.openExcelBackup(bytes);
-      expect(opened.kind, BackupFileKind.excel);
-      final cases = (opened.tables['cases'] as List)
-          .cast<Map<String, dynamic>>();
-      expect(cases, hasLength(1));
-      // The example case points at data this diary really holds, so it is a
-      // workable starting point rather than a row of column names.
-      expect(cases.single['court_id'], courtId);
-      expect(cases.single['on_behalf_id'], onBehalfId);
-    });
+        // The reader skips the sample's reference and Guide sheets, so the file the
+        // user downloaded is the file they can fill in and restore.
+        final opened = backup.openExcelBackup(bytes);
+        expect(opened.kind, BackupFileKind.excel);
+        final cases = (opened.tables['cases'] as List)
+            .cast<Map<String, dynamic>>();
+        expect(cases, hasLength(1));
+        // The example case points at data this diary really holds, so it is a
+        // workable starting point rather than a row of column names.
+        expect(cases.single['court_id'], courtId);
+        expect(cases.single['on_behalf_id'], onBehalfId);
+      },
+    );
 
     test('a hand-added workbook row with a blank id is given one', () {
       final specs = backup.excelColumnSpecsFor('notes');
@@ -594,7 +629,8 @@ void main() {
       String two(int v) => v.toString().padLeft(2, '0');
       final amPm = at.hour >= 12 ? 'pm' : 'am';
       final h = at.hour % 12 == 0 ? 12 : at.hour % 12;
-      final expected = 'Backup_${two(at.day)}-${two(at.month)}-'
+      final expected =
+          'Backup_${two(at.day)}-${two(at.month)}-'
           '${two(at.year % 100)}_${two(h)}-${two(at.minute)}-'
           '${two(at.second)}$amPm.lcbak';
       expect(defaultBackupFileName(stamp), expected);
@@ -625,15 +661,15 @@ void main() {
 
   group('backupDocumentsDirectory', () {
     const channel = MethodChannel(
-      'com.legalcasediary.app/public_downloads',
+      'com.legumsoft.legalcasediary/public_downloads',
     );
 
     test('uses the public Downloads folder when the host answers', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {
-        expect(call.method, 'path');
-        return '/storage/emulated/0/Download';
-      });
+            expect(call.method, 'path');
+            return '/storage/emulated/0/Download';
+          });
       addTearDown(
         () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, null),
@@ -646,31 +682,35 @@ void main() {
       );
     });
 
-    test('falls back to the documents folder when the host has no channel', () async {
-      // No handler is installed for the public-downloads channel, so it throws
-      // MissingPluginException and the resolver falls back to the private
-      // documents directory.
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-            const MethodChannel('plugins.flutter.io/path_provider'),
-            (call) async => 'C:/PrivateDocuments',
-          );
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+    test(
+      'falls back to the documents folder when the host has no channel',
+      () async {
+        // No handler is installed for the public-downloads channel, so it throws
+        // MissingPluginException and the resolver falls back to the private
+        // documents directory.
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
               const MethodChannel('plugins.flutter.io/path_provider'),
-              null,
-            ),
-      );
+              (call) async => 'C:/PrivateDocuments',
+            );
+        addTearDown(
+          () => TestDefaultBinaryMessengerBinding
+              .instance
+              .defaultBinaryMessenger
+              .setMockMethodCallHandler(
+                const MethodChannel('plugins.flutter.io/path_provider'),
+                null,
+              ),
+        );
 
-      final folder = await backupDocumentsDirectory();
-      expect(
-        folder.path.replaceAll(r'\', '/'),
-        'C:/PrivateDocuments/LegalCaseDiary',
-      );
-    });
+        final folder = await backupDocumentsDirectory();
+        expect(
+          folder.path.replaceAll(r'\', '/'),
+          'C:/PrivateDocuments/LegalCaseDiary',
+        );
+      },
+    );
   });
-
 }
 
 /// A plausible, non-empty value for one column of the sample row.

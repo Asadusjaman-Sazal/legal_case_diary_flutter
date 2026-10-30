@@ -116,7 +116,8 @@ class FilePickerBackupGateway implements BackupFileGateway {
 /// share this folder, which is also what lets restore skip the picker when the
 /// folder holds one file.
 Future<Directory> backupDocumentsDirectory() async {
-  final base = (await sharedDownloadsDirectory()) ??
+  final base =
+      (await sharedDownloadsDirectory()) ??
       await getApplicationDocumentsDirectory();
   return Directory('${base.path}${Platform.pathSeparator}LegalCaseDiary');
 }
@@ -131,7 +132,7 @@ Future<Directory> backupDocumentsDirectory() async {
 Future<Directory?> sharedDownloadsDirectory() async {
   try {
     const channel = MethodChannel(
-      'com.legalcasediary.app/public_downloads',
+      'com.legumsoft.legalcasediary/public_downloads',
     );
     final path = await channel.invokeMethod<String>('path');
     return path == null || path.isEmpty ? null : Directory(path);
@@ -186,9 +187,7 @@ class LocalArchiveSink implements BackupArchiveSink {
   }) async {
     final base =
         await (directoryProvider?.call() ?? getApplicationDocumentsDirectory());
-    final directory = Directory(
-      '${base.path}${Platform.pathSeparator}backups',
-    );
+    final directory = Directory('${base.path}${Platform.pathSeparator}backups');
     if (!await directory.exists()) await directory.create(recursive: true);
     final file = File('${directory.path}${Platform.pathSeparator}$fileName');
     await file.writeAsBytes(bytes, flush: true);
@@ -358,4 +357,3 @@ final backupFolderFirstSinkProvider = Provider<BackupArchiveSink>(
     fallback: ref.watch(backupFileGatewayProvider),
   ),
 );
-

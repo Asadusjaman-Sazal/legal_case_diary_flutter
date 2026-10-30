@@ -44,7 +44,7 @@ Three consequences worth knowing before you start:
 | --- | --- |
 | Google Cloud **project number** | `38386857573` (the project that already holds the Web client `…g0bkds`) |
 | **Firebase project id** | `legalcasediary-17985` — the id paired with that number; the key in §6 and the send endpoint are built from it |
-| Android **package name** | `com.legalcasediary.app` |
+| Android **package name** | `com.legumsoft.legalcasediary` |
 | Supabase project | `lsthasywrdrhuuxnykau` (**never** the other project) |
 
 **Use the project you already have.** Do not create a new Google Cloud project for Firebase: the
@@ -72,7 +72,7 @@ apply.
 ## 4. Step 2 — Register The Android App
 
 1. On the project overview, click the **Android** icon (**Add app → Android**).
-2. **Android package name**: `com.legalcasediary.app` — exactly, or FCM will not deliver.
+2. **Android package name**: `com.legumsoft.legalcasediary` — exactly, or FCM will not deliver.
 3. **App nickname**: `Legal Case Diary`.
 4. **Debug signing certificate SHA-1**: *leave it empty.* FCM does not use it — the SHA-1 is what
    Google sign-in matches against, and
@@ -80,6 +80,13 @@ apply.
    registered those clients. Entering it here can raise the console's *"the Android package name and
    its fingerprint are already in use"* error, which is expected and does not need resolving.
 5. Click **Register app**.
+
+> **The package was renamed in 0.0.738 (`com.legalcasediary.app` → `com.legumsoft.legalcasediary`), and
+> Firebase is keyed on the package name.** If the project already has the old Android app, add a
+> **second** Android app with the new package in the same Firebase project, then download
+> `google-services.json` again — it will carry both clients, and the Gradle plugin picks the one whose
+> `package_name` matches `applicationId`. Replace the local copy and re-encode the CI secret (§5). Never
+> edit the package name inside the file by hand: that is a registration, not a string.
 
 ---
 
@@ -110,7 +117,7 @@ an id that differs means a second Firebase project was created, and §3 must be 
 worked around.
 
 **Sanity check while the file is open:** it should list a `project_number` of `38386857573` and a
-`package_name` of `com.legalcasediary.app`. If the package name differs, the app was registered wrong
+`package_name` of `com.legumsoft.legalcasediary`. If the package name differs, the app was registered wrong
 — delete it in Firebase (**Project settings → Your apps**) and repeat §4 rather than editing the file
 by hand.
 
@@ -184,7 +191,7 @@ project, which is why Firebase's own setup wizard can be finished while this one
 ## 7. Step 5 — Verify, In Order
 
 1. **Both halves exist.** Firebase console → **Project settings → Your apps** shows
-   `com.legalcasediary.app`; Supabase → **Edge Functions → Secrets** shows `FCM_SERVICE_ACCOUNT`.
+   `com.legumsoft.legalcasediary`; Supabase → **Edge Functions → Secrets** shows `FCM_SERVICE_ACCOUNT`.
 2. **A build still works.** `flutter build apk --debug` (or `dart run tool/flutter_with_env.dart run`)
    with `android/app/google-services.json` present. Missing-file errors at this point mean §5.
 3. **Sign-in still works.** Sign in with Google after this change — it must behave exactly as before.
@@ -222,10 +229,10 @@ project, which is why Firebase's own setup wizard can be finished while this one
 - [x] Firebase added to the **existing** Google Cloud project `38386857573` (no new project) — the file
       pairs that number with the id `legalcasediary-17985`
 - [x] Analytics declined, or removed (the `services` block has no `analytics_service`)
-- [x] Android app registered as `com.legalcasediary.app`, SHA-1 field left empty (one client, no
+- [x] Android app registered as `com.legumsoft.legalcasediary`, SHA-1 field left empty (one client, no
       `certificate_hash`)
 - [x] `android/app/google-services.json` in place locally — `project_number` `38386857573`,
-      `package_name` `com.legalcasediary.app`, and an `api_key`/`current_key` the plugin needs
+      `package_name` `com.legumsoft.legalcasediary`, and an `api_key`/`current_key` the plugin needs
 - [ ] `GOOGLE_SERVICES_JSON_BASE64` stored as a GitHub Actions secret
 - [x] `google-services.json`'s `project_id` (`legalcasediary-17985`) equals the key's `project_id` (§6)
 - [ ] **Firebase Cloud Messaging API** enabled on `38386857573` (§6.1 — the page reads *Manage*)

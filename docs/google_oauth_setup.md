@@ -60,7 +60,7 @@ none of them. If a guide tells you to add one for Google sign-in, it is describi
 | --- | --- |
 | Google Cloud **project number** | `38386857573` |
 | **Web client ID** (already exists) | `38386857573-050dnjr3vd1lvli3kf134s7u81g0bkds.apps.googleusercontent.com` |
-| Android **package name** | `com.legalcasediary.app` |
+| Android **package name** | `com.legumsoft.legalcasediary` |
 | **Debug** SHA-1 | `9D:8B:8E:D1:6A:52:C0:4B:B9:67:7B:C1:A2:71:3C:81:11:FD:B2:9D` |
 | **Release** SHA-1 | `EB:7A:81:19:03:5C:EF:B0:D4:A3:2E:86:43:FB:09:F1:8A:25:9D:6B` |
 | **Google Play app-signing** SHA-1 | *not known to the repository — read it from Play Console, §7* |
@@ -268,9 +268,12 @@ Go to **Clients** → **Create client** → *Application type*: **Android**.
 
 Fill in the form exactly:
 
-- **Package name**: `com.legalcasediary.app`
+- **Package name**: `com.legumsoft.legalcasediary`
   (the same value as `namespace`/`applicationId` in `android/app/build.gradle.kts`; a single typo here
-  makes sign-in fail silently).
+  makes sign-in fail silently). **The package was renamed from `com.legalcasediary.app` in 0.0.738**, so
+  every Android client registered under the old name is now obsolete: create the debug and release
+  clients again with the new package, and leave the old ones in place (harmless) until the old build is
+  gone from every test phone.
 - **SHA-1 certificate fingerprint**: paste one fingerprint from §2, or from the Play Console for the
   Play client.
 - *Name*: make it self-describing, e.g. `Legal Case Diary — Android Debug`.
@@ -305,8 +308,8 @@ Skip this entirely until you actually build for iPhone. Nothing in the Android f
 *Application type*: **iOS**. You need:
 
 - **Bundle ID** — the iOS equivalent of the package name, read from `ios/Runner.xcodeproj` (or ask the
-  developer who created the iOS target). It is *not* `com.legalcasediary.app` unless someone set it that
-  way deliberately.
+  developer who created the iOS target). It is *not* the Android package name; the iOS target carries
+  `com.legumsoft.legalcasediary` unless someone deliberately set a different bundle id.
 - **App Store ID** — optional, and only once the app is on the App Store.
 - **Team ID** — the 10-character Apple team identifier; needed only if you enable App Check.
 
@@ -356,7 +359,7 @@ In the Supabase dashboard for the **`lsthasywrdrhuuxnykau`** project only
      The dashboard default is `http://localhost:3000`, which is a dead page the moment a link is opened
      on a phone — and the usual reason a link "goes to `localhost:3000` instead of the app". Point it at
      a real page you control (see §10.1).
-   - **Redirect URLs.** An allow-list. Add `com.legalcasediary.app://login-callback` (see §10.1);
+   - **Redirect URLs.** An allow-list. Add `com.legumsoft.legalcasediary://login-callback` (see §10.1);
      without it Supabase silently discards the redirect the app asks for and falls back to the Site URL.
 6. Confirm the Web client's **Authorized redirect URI** is the callback used in §9 — a different list
    from the one above, and the one that raises `redirect_uri_mismatch` when it is wrong.
@@ -372,14 +375,14 @@ Supabase writes the destination into every link it mails. The app now names its 
 link opens the app instead of a browser page that is not there.
 
 What the app does (`SupabaseConfig.authRedirectUrl`, `signUpIndividual`, `sendPasswordRecoveryCode`):
-passes `emailRedirectTo` / `redirectTo` = `com.legalcasediary.app://login-callback`. The matching
+passes `emailRedirectTo` / `redirectTo` = `com.legumsoft.legalcasediary://login-callback`. The matching
 `<intent-filter>` is already in `android/app/src/main/AndroidManifest.xml`, together with
 `flutter_deeplinking_enabled = false`, which is what lets the app (not the Flutter engine) receive the
 URI. **Nothing in the app needs editing for this to work** — only the dashboard values below.
 
 Two things you must set in the Supabase dashboard for `lsthasywrdrhuuxnykau`:
 
-1. **Redirect URLs** → add the exact string `com.legalcasediary.app://login-callback`.
+1. **Redirect URLs** → add the exact string `com.legumsoft.legalcasediary://login-callback`.
    Scheme, host, no trailing slash, no path. Supabase matches it as a URL pattern; a typo means the
    redirect is dropped and the Site URL is used instead — the original symptom.
 2. **Site URL** → a real page (not `http://localhost:3000`). It is still used for any link that carries no
@@ -398,7 +401,7 @@ Testing the deep link without waiting for a mail:
 
 ```bash
 adb shell am start -a android.intent.action.VIEW \
-  -d "com.legalcasediary.app://login-callback#error_code=otp_expired&error_description=test"
+  -d "com.legumsoft.legalcasediary://login-callback#error_code=otp_expired&error_description=test"
 ```
 
 That is a *deliberately invalid* link: it opens the app and shows the failure path, which proves the
@@ -443,7 +446,7 @@ Work down this list; each step has a clear pass/fail.
 | `redirect_uri_mismatch` | Only relevant to web/browser flows; the Web client's authorized redirect URI does not match. |
 | Error says the package name and fingerprint are already in use | Duplicate client — find it in this project's Clients list and delete it, or you are in the wrong project. |
 | It fails, then works an hour later with no change | Propagation delay, §11 step 2. |
-| An e-mail link opens a browser page (`localhost:3000`) instead of the app | Supabase **Site URL** is still the development default, or `com.legalcasediary.app://login-callback` is missing from **Redirect URLs**. §10.1. |
+| An e-mail link opens a browser page (`localhost:3000`) instead of the app | Supabase **Site URL** is still the development default, or `com.legumsoft.legalcasediary://login-callback` is missing from **Redirect URLs**. §10.1. |
 | Sheet closes with *"No Connection. Check Your Internet And Try Again."* | The new pre-flight probe could not reach the project. The phone's Wi-Fi has no uplink (the link is up, the internet is not) — switch to mobile data. `ConnectivityMonitor` reports the *link*, so only this probe can see it. |
 | Sheet closes, no message, phone on a Wi-Fi network with no internet | A build without the pre-flight probe (older than 0.0.348) reported this as a dismissal and said nothing at all. Rebuild with the wrapper. |
 
@@ -476,12 +479,12 @@ Work down this list; each step has a clear pass/fail.
 - [ ] *Authorized domains* holds `lsthasywrdrhuuxnykau.supabase.co` (mandatory; `supabase.co` alone is rejected — it is a public suffix)
 - [ ] Scopes: `openid` + `userinfo.email` + `userinfo.profile` only
 - [ ] Web client present, with Supabase's callback in **Authorized redirect URIs**
-- [ ] Android client for the **debug** SHA-1 + `com.legalcasediary.app`
-- [ ] Android client for the **release** SHA-1 + `com.legalcasediary.app`
+- [ ] Android client for the **debug** SHA-1 + `com.legumsoft.legalcasediary`
+- [ ] Android client for the **release** SHA-1 + `com.legumsoft.legalcasediary`
 - [ ] Android client for the **Play app-signing** SHA-1 (when publishing via Play)
 - [ ] Supabase Google provider enabled on `lsthasywrdrhuuxnykau` with the Web client ID + secret
 - [ ] Supabase **Site URL** is a real page, not `http://localhost:3000`
-- [ ] `com.legalcasediary.app://login-callback` is in Supabase **Redirect URLs**
+- [ ] `com.legumsoft.legalcasediary://login-callback` is in Supabase **Redirect URLs**
 - [ ] Reset Password e-mail template contains `{{ .Token }}` (the in-app code flow needs it)
 - [ ] A sign-up confirmation mail opens the app when tapped on the device
 - [ ] `dart run tool/flutter_with_env.dart run -d <device>` signs in successfully

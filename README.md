@@ -185,7 +185,7 @@ admin notifications that Firebase Cloud Messaging delivers would not exist in th
 
 `android/app/google-services.json` is git-ignored like `env.json`, so a machine that builds for Android needs
 its own copy — [`docs/firebase_fcm_setup.md`](docs/firebase_fcm_setup.md) walks through creating the Firebase
-project, registering the Android app with package `com.legalcasediary.app`, and reading the FCM admin key.
+project, registering the Android app with package `com.legumsoft.legalcasediary`, and reading the FCM admin key.
 
 ## Running With A Backend
 
@@ -217,7 +217,7 @@ backend.
 
 Native Google sign-in needs two Android OAuth clients in the **same Google Cloud project as the web
 client** the build passes as `GOOGLE_WEB_CLIENT_ID`, one per signing certificate, all with the package
-name `com.legalcasediary.app`.
+name `com.legumsoft.legalcasediary`.
 
 | Build | Keystore | SHA-1 | SHA-256 |
 | --- | --- | --- | --- |
@@ -251,7 +251,7 @@ no longer looks like a dismissal — but the cause is still server-side configur
 - **Register the signing certificate.** Add an Android OAuth client for the SHA-1 of the build being run
   (debug, release, *and* the Google Play **App signing key certificate** from Play Console → App integrity,
   because Play re-signs uploads with its own key). A certificate mismatch is the other usual cause of `[16]`.
-- **Check the package name** on each Android client: `com.legalcasediary.app`, with no typo or variant.
+- **Check the package name** on each Android client: `com.legumsoft.legalcasediary`, with no typo or variant.
 - **Check `GOOGLE_WEB_CLIENT_ID`** — it must be the *Web* client from that same project, and the value
   Supabase Auth is configured to trust; a Web client from another project fails the same way.
 - **Publish or allowlist the consent screen.** While the OAuth consent screen is in *Testing*, every
@@ -264,7 +264,7 @@ no longer looks like a dismissal — but the cause is still server-side configur
 The mails Supabase sends send the user back to the app through one custom scheme:
 
 ```text
-com.legalcasediary.app://login-callback
+com.legumsoft.legalcasediary://login-callback
 ```
 
 The build passes it as `emailRedirectTo`/`redirectTo` on sign-up and password recovery, and

@@ -25,7 +25,7 @@ import 'package:share_plus/share_plus.dart';
 /// no store listing), so this is the placeholder the user chose — the single
 /// line to change the day the app goes live.
 const String appStoreUrl =
-    'https://play.google.com/store/apps/details?id=com.legalcasediary.app';
+    'https://play.google.com/store/apps/details?id=com.legumsoft.legalcasediary';
 
 /// What a Share action did, so the caller can word its message.
 enum AppShareOutcome {

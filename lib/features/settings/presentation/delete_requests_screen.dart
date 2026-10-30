@@ -60,6 +60,15 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   /// The row a quick decision is being written for, so it cannot be tapped twice.
   String? _busyId;
 
+  /// Previous rows hidden from this screen only — nothing is written back to
+  /// the request or the record (user request).
+  final Set<String> _clearedPrevious = <String>{};
+
+  /// The previous rows ticked for a bulk clear, and whether a long press put
+  /// that section into selection mode.
+  final Set<String> _selectedPrevious = <String>{};
+  bool _selectingPrevious = false;
+
   /// Records that the reviewer's decisions on this account's requests have been
   /// read, so the Settings badge stops counting them.
   ///
@@ -121,6 +130,9 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
     final previous = isOwner
         ? ref.watch(previousDeleteRequestsProvider)
         : const <DeleteRequest>[];
+    final visiblePrevious = previous
+        .where((request) => !_clearedPrevious.contains(request.id))
+        .toList(growable: false);
     final locale = Localizations.localeOf(context).toString();
 
     return ListView(
@@ -160,24 +172,66 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
-        if (previous.isNotEmpty) ...[
+        if (visiblePrevious.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          SettingsSectionLabel(l.deleteRequests_previous),
+          if (_selectingPrevious)
+            Row(
+              children: [
+                Expanded(
+                  child: SettingsSectionLabel(l.deleteRequests_previous),
+                ),
+                TextButton(
+                  key: const ValueKey('delete-request-clear-cancel'),
+                  onPressed: _exitPreviousSelection,
+                  child: Text(l.sharedActions_cancel),
+                ),
+              ],
+            )
+          else
+            SettingsSectionLabel(l.deleteRequests_previous),
           const SizedBox(height: AppSpacing.sm),
-          for (final request in previous) ...[
+          for (final request in visiblePrevious) ...[
             _RequestRow(
               request: request,
               l: l,
               locale: locale,
-              // A finished request is audit history: it keeps its outcome pill
-              // and the requester's name, and it offers no action or screen.
+              // A finished request is audit history: it keeps its outcome pill,
+              // the requester's name and the moment it was raised, and it offers
+              // no review screen. A tap shows its Clear action; a long press
+              // starts the section's bulk clear (user request).
               showStatusChip: true,
               showChevron: false,
               requesterName: _requesterName(request, l),
-              onTap: null,
+              thirdLine: AppDateUtils.formatDateTimeDDMMYYYY(
+                request.createdAt,
+                locale: locale,
+              ),
+              selected: _selectedPrevious.contains(request.id),
+              expanded: !_selectingPrevious && _expandedId == request.id,
+              actions: !_selectingPrevious && _expandedId == request.id
+                  ? _clearPreviousAction(request, l)
+                  : null,
+              onTap: _selectingPrevious
+                  ? () => _togglePreviousSelected(request.id)
+                  : () => _toggleExpanded(request.id),
+              onLongPress: () => _startPreviousSelection(request.id),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
+          if (_selectingPrevious)
+            FilledButton(
+              key: const ValueKey('delete-request-clear-selected'),
+              onPressed: _selectedPrevious.isEmpty
+                  ? null
+                  : _clearSelectedPrevious,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.onError,
+                textStyle: AppTypography.titleMd,
+                minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+              ),
+              child: Text(l.deleteRequests_clearSelected),
+            ),
         ],
       ],
     );
@@ -257,6 +311,58 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   void _toggleExpanded(String id) {
     setState(() => _expandedId = _expandedId == id ? null : id);
   }
+
+  /// A long press starts the previous section's bulk clear with this row ticked.
+  void _startPreviousSelection(String id) {
+    setState(() {
+      _expandedId = null;
+      _selectingPrevious = true;
+      _selectedPrevious.add(id);
+    });
+  }
+
+  /// Ticks or un-ticks one previous row while the section is selecting.
+  void _togglePreviousSelected(String id) {
+    setState(() {
+      if (!_selectedPrevious.remove(id)) _selectedPrevious.add(id);
+    });
+  }
+
+  /// Leaves the bulk clear without hiding anything.
+  void _exitPreviousSelection() {
+    setState(() {
+      _selectingPrevious = false;
+      _selectedPrevious.clear();
+    });
+  }
+
+  /// Hides every ticked previous row from this screen; no request or record is
+  /// touched (user request).
+  void _clearSelectedPrevious() {
+    setState(() {
+      _clearedPrevious.addAll(_selectedPrevious);
+      _selectedPrevious.clear();
+      _selectingPrevious = false;
+    });
+  }
+
+  /// One previous row's Clear action: the Withdraw Request button's shape, and
+  /// it hides the row from this screen only (user request).
+  Widget _clearPreviousAction(DeleteRequest request, AppLocalizations l) =>
+      FilledButton(
+        key: ValueKey('delete-request-clear-${request.id}'),
+        onPressed: () => setState(() {
+          _expandedId = null;
+          _clearedPrevious.add(request.id);
+        }),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.error,
+          foregroundColor: AppColors.onError,
+          textStyle: AppTypography.titleMd,
+          minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+        ),
+        child: Text(l.deleteRequests_clear),
+      );
 
   /// The reviewer's quick decision: the review screen's pair, side by side.
   Widget _reviewActions(DeleteRequest request, AppLocalizations l) {
@@ -409,6 +515,8 @@ class _RequestRow extends StatelessWidget {
     this.expanded = false,
     this.actions,
     this.showChevron = true,
+    this.selected = false,
+    this.thirdLine,
   });
 
   final DeleteRequest request;
@@ -448,6 +556,13 @@ class _RequestRow extends StatelessWidget {
   /// device can tell. Only the requester's own list passes a true value.
   final bool changed;
 
+  /// Whether the row is ticked in the previous section's bulk clear.
+  final bool selected;
+
+  /// A third line under the entity/requester line, drawn as given (the previous
+  /// section passes the request's date and time, with no label).
+  final String? thirdLine;
+
   @override
   Widget build(BuildContext context) {
     final content = Column(
@@ -464,8 +579,8 @@ class _RequestRow extends StatelessWidget {
                   color: AppColors.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
                 ),
-                child: const Icon(
-                  Icons.delete_outline,
+                child: Icon(
+                  selected ? Icons.check_circle : Icons.delete_outline,
                   color: AppColors.primary,
                 ),
               ),
@@ -497,6 +612,15 @@ class _RequestRow extends StatelessWidget {
                         color: AppColors.onSurfaceVariant,
                       ),
                     ),
+                    if (thirdLine != null)
+                      Text(
+                        thirdLine!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
                     if (changed)
                       Text(
                         l.deleteRequests_changed,
@@ -537,7 +661,9 @@ class _RequestRow extends StatelessWidget {
       color: AppColors.surfaceContainerLowest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-        side: BorderSide(color: AppColors.outlineVariant),
+        side: BorderSide(
+          color: selected ? AppColors.primary : AppColors.outlineVariant,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

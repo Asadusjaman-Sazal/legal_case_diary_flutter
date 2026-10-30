@@ -5216,6 +5216,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRequests_previous => 'Previous Delete Requests';
 
   @override
+  String get deleteRequests_clear => 'Clear';
+
+  @override
+  String get deleteRequests_clearSelected => 'Clear Selected';
+
+  @override
   String get deleteRequests_mine => 'My Requests';
 
   @override

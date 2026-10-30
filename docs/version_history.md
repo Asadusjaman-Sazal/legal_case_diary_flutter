@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.717 - The firm owner's Delete Requests screen keeps a Previous Delete Requests list under the queue, showing finished requests with their outcome and no actions.
+Version: 0.0.718 - Previous delete requests show the request date and time, and can be cleared from the screen one at a time or in bulk after a long press; no record is ever deleted.
 --------------------------------------
 
 ## Version History Log:
@@ -731,3 +731,4 @@ Version: 0.0.714 - A new migration sets default table privileges for future publ
 Version: 0.0.715 - Future public tables are now closed to anonymous callers: a second migration revokes the legacy anon grant from the default privileges, leaving signed-in and service access unchanged.
 Version: 0.0.716 - The owner's Devices screen drops the per-account sentence and shows the chamber's sharing note at that size; every device card now names last used with the date and time.
 Version: 0.0.717 - The firm owner's Delete Requests screen keeps a Previous Delete Requests list under the queue, showing finished requests with their outcome and no actions.
+Version: 0.0.718 - Previous delete requests show the request date and time, and can be cleared from the screen one at a time or in bulk after a long press; no record is ever deleted.

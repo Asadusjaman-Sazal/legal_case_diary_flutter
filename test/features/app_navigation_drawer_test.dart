@@ -1489,30 +1489,28 @@ void main() {
     );
   });
 
-  testWidgets(
-    'Manage Firm sits in its own section between Notes and Settings',
-    (tester) async {
-      final l = await AppLocalizations.delegate.load(const Locale('en'));
-      await pumpDrawerOnRouter(
-        tester,
-        profile: firmProfile(role: 'owner'),
-        firm: firmRow(),
-      );
+  testWidgets('Firm sits in its own section between Notes and Settings', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+    );
 
-      // An owner's row names what they do there, and it sits after Notes and
-      // before Settings (user request).
-      final rowY = tester.getTopLeft(drawerText(l.manageAssociates_title)).dy;
-      final notesY = tester.getTopLeft(drawerText(l.nav_notes)).dy;
-      final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
-      expect(rowY, greaterThan(notesY));
-      expect(rowY, lessThan(settingsY));
+    // An owner's group sits after Notes and before Settings (user request).
+    final titleY = tester.getTopLeft(drawerKey('drawer-firm-header')).dy;
+    final notesY = tester.getTopLeft(drawerText(l.nav_notes)).dy;
+    final settingsY = tester.getTopLeft(drawerText(l.nav_settings)).dy;
+    expect(titleY, greaterThan(notesY));
+    expect(titleY, lessThan(settingsY));
 
-      // A section of its own, like the Admin Panel's: a divider on either side.
-      final dividers = drawerDividerYs(tester);
-      expect(dividers.where((y) => y > notesY && y < rowY), isNotEmpty);
-      expect(dividers.where((y) => y > rowY && y < settingsY), isNotEmpty);
-    },
-  );
+    // A section of its own, like the Admin Panel's: a divider on either side.
+    final dividers = drawerDividerYs(tester);
+    expect(dividers.where((y) => y > notesY && y < titleY), isNotEmpty);
+    expect(dividers.where((y) => y > titleY && y < settingsY), isNotEmpty);
+  });
 
   testWidgets('an individual without a firm is offered Create a Firm', (
     tester,
@@ -1526,10 +1524,32 @@ void main() {
     expect(drawerText(l.manageAssociates_title), findsNothing);
   });
 
-  testWidgets('the firm row badges what is waiting and opens the firm page', (
+  testWidgets('an owner gets the Firm cascade, like an associate', (
     tester,
   ) async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
+    await pumpDrawerOnRouter(
+      tester,
+      profile: firmProfile(role: 'owner'),
+      firm: firmRow(),
+    );
+
+    // Closed, with the two screens it holds still hidden.
+    expect(drawerText(l.settingsFirm_title), findsOneWidget);
+    expect(drawerKey('drawer-firm-manage'), findsNothing);
+    expect(drawerKey('drawer-firm-queue'), findsNothing);
+
+    await tester.tap(drawerKey('drawer-firm-header'));
+    await tester.pumpAndSettle();
+
+    // The pair the firm page holds, named for the owner's own two acts.
+    expect(drawerText(l.manageAssociates_title), findsOneWidget);
+    expect(drawerText(l.deleteRequests_title), findsOneWidget);
+  });
+
+  testWidgets('the owner Firm group badges what is waiting, then opens it', (
+    tester,
+  ) async {
     final router = await pumpDrawerOnRouter(
       tester,
       profile: firmProfile(role: 'owner'),
@@ -1537,22 +1557,24 @@ void main() {
       firmBadgeCount: 2,
     );
 
+    // The count rides the closed group, so a waiting request is visible without
+    // expanding it.
     expect(
       find.descendant(of: find.byType(Badge), matching: find.text('2')),
       findsOneWidget,
     );
 
-    // The count is the reason to tap, so the tap lands where the request can be
-    // read: the firm page, one tap from its own Delete Requests row.
-    await tester.tap(drawerText(l.manageAssociates_title));
+    // The queue is its own row now, one tap from the count that asked for it.
+    await tester.tap(drawerKey('drawer-firm-header'));
     await tester.pumpAndSettle();
-    expect(router.state.matchedLocation, AppRoutes.settingsFirm);
+    await tester.tap(drawerKey('drawer-firm-queue'));
+    await tester.pumpAndSettle();
+    expect(router.state.matchedLocation, AppRoutes.settingsDeleteRequests);
   });
 
-  testWidgets('with nothing waiting the firm row opens Manage Firm itself', (
+  testWidgets('with nothing waiting the owner Firm group opens Manage Firm', (
     tester,
   ) async {
-    final l = await AppLocalizations.delegate.load(const Locale('en'));
     final router = await pumpDrawerOnRouter(
       tester,
       profile: firmProfile(role: 'owner'),
@@ -1560,7 +1582,9 @@ void main() {
     );
 
     expect(find.byType(Badge), findsNothing);
-    await tester.tap(drawerText(l.manageAssociates_title));
+    await tester.tap(drawerKey('drawer-firm-header'));
+    await tester.pumpAndSettle();
+    await tester.tap(drawerKey('drawer-firm-manage'));
     await tester.pumpAndSettle();
     expect(router.state.matchedLocation, AppRoutes.settingsManageAssociates);
   });
@@ -1630,7 +1654,7 @@ void main() {
     );
 
     final adminY = tester.getTopLeft(drawerText(l.nav_adminPanel)).dy;
-    final rowY = tester.getTopLeft(drawerText(l.manageAssociates_title)).dy;
+    final rowY = tester.getTopLeft(drawerKey('drawer-firm-header')).dy;
     expect(rowY, greaterThan(adminY));
 
     // One section, not two: nothing separates the panel from the row under it.

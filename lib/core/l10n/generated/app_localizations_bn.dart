@@ -5390,6 +5390,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_fieldRespondent => 'বিবাদী';
 
   @override
+  String get deleteRequests_fieldPetitionerPhone => 'বাদীর ফোন';
+
+  @override
+  String get deleteRequests_fieldRespondentPhone => 'বিবাদীর ফোন';
+
+  @override
   String get deleteRequests_fieldStep => 'ধাপ';
 
   @override

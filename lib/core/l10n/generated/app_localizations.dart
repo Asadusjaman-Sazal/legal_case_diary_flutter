@@ -9154,6 +9154,18 @@ abstract class AppLocalizations {
   /// **'Respondent'**
   String get deleteRequests_fieldRespondent;
 
+  /// No description provided for @deleteRequests_fieldPetitionerPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Petitioner Phone'**
+  String get deleteRequests_fieldPetitionerPhone;
+
+  /// No description provided for @deleteRequests_fieldRespondentPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Respondent Phone'**
+  String get deleteRequests_fieldRespondentPhone;
+
   /// No description provided for @deleteRequests_fieldStep.
   ///
   /// In en, this message translates to:

@@ -26,9 +26,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/print/print_document.dart';
 import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/on_behalf_side.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../auth/presentation/auth_widgets.dart';
@@ -95,8 +97,9 @@ String deleteRequestSummary(DeleteRequest request, AppLocalizations l) {
 List<(String, String)> deleteRequestDetailRows(
   String entityType,
   Map<String, dynamic> snapshot,
-  AppLocalizations l,
+  BuildContext context,
 ) {
+  final l = AppLocalizations.of(context);
   String value(String key) => (snapshot[key] ?? '').toString().trim();
 
   final rows = <(String, String)>[];
@@ -114,7 +117,43 @@ List<(String, String)> deleteRequestDetailRows(
         caseTypeAndCaseNumber(value('case_type'), value('case_number')),
       );
       add(l.deleteRequests_fieldPetitioner, value('petitioner'));
+      // The client's number sits under the party the case is pleaded for, the
+      // same on-behalf rule the party card and pre-filled message use (user
+      // request, 0.0.729).
+      final side =
+          representedSideOfId(value('on_behalf_id')) ?? PartySide.petitioner;
+      if (side == PartySide.petitioner) {
+        add(l.deleteRequests_fieldPetitionerPhone, value('party_phone'));
+      }
       add(l.deleteRequests_fieldRespondent, value('respondent'));
+      if (side == PartySide.respondent) {
+        add(l.deleteRequests_fieldRespondentPhone, value('party_phone'));
+      }
+      add(
+        l.addEditCaseSheet_caseTitleAndSection,
+        value('case_title_and_section'),
+      );
+      add(l.addEditCaseSheet_caseRemarks, value('case_remarks'));
+      final nextDate = snapshot['next_date'];
+      if (nextDate is int) {
+        final past =
+            AppDateUtils.normalizeToBangladeshStartOfDay(nextDate) <
+            AppDateUtils.bangladeshTodayStartOfDay();
+        add(
+          past ? l.caseCard_previousDate : l.addEditCaseSheet_nextDate,
+          AppDateUtils.formatDisplayDate(
+            nextDate,
+            todayLabel: l.dailyCauseListScreen_today,
+            tomorrowLabel: l.dailyCauseListScreen_tomorrow,
+            locale: l.localeName,
+          ),
+        );
+      }
+      add(
+        l.addEditCaseSheet_step,
+        context.l10n.stepNames(value('last_step')) ?? '',
+      );
+      add(l.addEditCaseSheet_note, value('notes_results'));
     case 'case_history':
       add(l.deleteRequests_fieldStep, value('last_step'));
       add(l.deleteRequests_fieldResult, value('note_result'));
@@ -268,7 +307,7 @@ class _DeleteRequestReviewScreenState
               rows: deleteRequestDetailRows(
                 request.entityType,
                 shownCurrent,
-                l,
+                context,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -283,7 +322,7 @@ class _DeleteRequestReviewScreenState
             rows: deleteRequestDetailRows(
               request.entityType,
               deleteRequestSnapshotMap(request),
-              l,
+              context,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),

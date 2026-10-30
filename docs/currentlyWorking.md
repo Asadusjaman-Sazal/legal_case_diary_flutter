@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The review's case card lists the whole record — COMPLETE (0.0.729)
+
+- **What was asked.** In Review Deletion Request, the case card should list the client phone under petitioner or respondent (by the case), section or case title, remarks, next date, step and note — alongside the existing Case Number, Petitioner and Respondent.
+- **What changed.** `deleteRequestDetailRows` takes the screen's `BuildContext` (the step is localized in the active language) and adds: the client phone under the side the case is pleaded for, resolved by the existing `representedSideOfId` on the snapshot's `on_behalf_id` (the same on-behalf rule as the party card), with new *Petitioner Phone* / *Respondent Phone* labels; the case title or section; remarks; next date (labelled Previous Date when past, with Today/Tomorrow spelled out); the localized step; and the note. Both the *As It Is Now* and *When the Request Was Made* cards use the same renderer, so a changed record shows its own values.
+- **Checks.** `delete_request_review_test.dart` **37 cases** — a full case snapshot shows the respondent phone directly under the respondent and no petitioner phone, plus every added row and value; `flutter analyze` clean; full `flutter test` **2,216 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The requester's own edit is warned too — COMPLETE (0.0.728)
 
 - **What was asked.** When the member who raised the delete request edits the item, warn them with the same **Requested for Deletion** window, but say *You asked to delete this record…* instead of their name.

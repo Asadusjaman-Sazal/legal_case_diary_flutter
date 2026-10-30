@@ -2348,6 +2348,8 @@
   "deleteRequests_fieldCaseType": "মামলার ধরন",
   "deleteRequests_fieldPetitioner": "বাদী",
   "deleteRequests_fieldRespondent": "বিবাদী",
+  "deleteRequests_fieldPetitionerPhone": "বাদীর ফোন",
+  "deleteRequests_fieldRespondentPhone": "বিবাদীর ফোন",
   "deleteRequests_fieldStep": "ধাপ",
   "deleteRequests_fieldResult": "ফলাফল",
   "deleteRequests_fieldTitle": "শিরোনাম",

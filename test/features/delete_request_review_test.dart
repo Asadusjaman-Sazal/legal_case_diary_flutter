@@ -1221,6 +1221,78 @@ void main() {
       await unmountApp(tester);
     });
 
+    testWidgets('a case card lists the phone, record details, step and note', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      final nextDate = AppDateUtils.bangladeshTodayStartOfDay() + 5 * 86400000;
+      await seedRequest(
+        id: 'r1',
+        entityType: 'case',
+        entityId: 'case-1',
+        requestedBy: 'user-2',
+        requesterName: 'Jannatul Ferdousi Rekha',
+        snapshot: <String, dynamic>{
+          'case_type': 'Civil Appeal-',
+          'case_number': '345/25',
+          'petitioner': 'Alice',
+          'respondent': 'Bob',
+          'on_behalf_id': 'onbehalf-test-respondent',
+          'party_phone': '+8801711000000',
+          'case_title_and_section': 'Partition Suit (Section 4)',
+          'case_remarks': 'Dispute over ancestral property.',
+          'next_date': nextDate,
+          'last_step': 'Filing',
+          'notes_results': 'Need to call the client.',
+        },
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestReviewScreen(requestId: 'r1'),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      // The client's number sits under the party the case is pleaded for
+      // (user request, 0.0.729).
+      expect(find.text(l.deleteRequests_fieldRespondentPhone), findsOneWidget);
+      expect(find.text('+8801711000000'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text(l.deleteRequests_fieldRespondentPhone)).dy,
+        greaterThan(
+          tester.getTopLeft(find.text(l.deleteRequests_fieldRespondent)).dy,
+        ),
+      );
+      expect(find.text(l.deleteRequests_fieldPetitionerPhone), findsNothing);
+      // The rest of the case record.
+      expect(find.text(l.addEditCaseSheet_caseTitleAndSection), findsOneWidget);
+      expect(find.text('Partition Suit (Section 4)'), findsOneWidget);
+      expect(find.text(l.addEditCaseSheet_caseRemarks), findsOneWidget);
+      expect(find.text('Dispute over ancestral property.'), findsOneWidget);
+      expect(find.text(l.addEditCaseSheet_nextDate), findsOneWidget);
+      expect(
+        find.text(
+          AppDateUtils.formatDisplayDate(
+            nextDate,
+            todayLabel: l.dailyCauseListScreen_today,
+            tomorrowLabel: l.dailyCauseListScreen_tomorrow,
+            locale: l.localeName,
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(l.addEditCaseSheet_step), findsOneWidget);
+      expect(find.text('Filing'), findsOneWidget);
+      expect(find.text(l.addEditCaseSheet_note), findsOneWidget);
+      expect(find.text('Need to call the client.'), findsOneWidget);
+
+      await unmountApp(tester);
+    });
+
     testWidgets(
       'the name on the request reads right with no profile cached here',
       (tester) async {

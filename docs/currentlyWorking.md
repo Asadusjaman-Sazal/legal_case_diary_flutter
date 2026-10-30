@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The requester's own edit is warned too — COMPLETE (0.0.728)
+
+- **What was asked.** When the member who raised the delete request edits the item, warn them with the same **Requested for Deletion** window, but say *You asked to delete this record…* instead of their name.
+- **What changed.** `confirmEditOfRequestedRecord` no longer filters out the editor's own request. When the open request belongs to the editor, the body is the new first-person key `deleteRequests_editWarnOwnBody` (*You asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.* / Bengali equivalent); otherwise the existing name-and-date body is used. Title, justified body, Continue and Cancel are unchanged, and the warning still never blocks.
+- **Checks.** `delete_request_review_test.dart` **36 cases** — the own-request case now expects the warning and the first-person sentence and still continues to a true answer; `flutter analyze` clean; full `flutter test` **2,215 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The review's action is Approve, no Reconfirm — COMPLETE (0.0.727)
 
 - **What was asked.** Since the reviewer no longer has to approve twice, remove the Reconfirm label and use Approve.

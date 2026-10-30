@@ -9118,6 +9118,12 @@ abstract class AppLocalizations {
   /// **'{name} asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.'**
   String deleteRequests_editWarnBody(String name, String date);
 
+  /// No description provided for @deleteRequests_editWarnOwnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.'**
+  String deleteRequests_editWarnOwnBody(String date);
+
   /// No description provided for @deleteRequests_editWarnContinue.
   ///
   /// In en, this message translates to:

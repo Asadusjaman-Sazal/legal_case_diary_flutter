@@ -2335,6 +2335,14 @@
           }
       }
   },
+  "deleteRequests_editWarnOwnBody": "আপনি {date}-এ এই রেকর্ডটি মুছে ফেলার অনুরোধ করেছিলেন। এখন আপনি এটি পরিবর্তন করলে সেই অনুরোধটি আবার নিশ্চিত করতে হবে।",
+  "@deleteRequests_editWarnOwnBody": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
   "deleteRequests_editWarnContinue": "সম্পাদনা চালিয়ে যান",
   "deleteRequests_fieldCaseNumber": "মামলা নম্বর",
   "deleteRequests_fieldCaseType": "মামলার ধরন",

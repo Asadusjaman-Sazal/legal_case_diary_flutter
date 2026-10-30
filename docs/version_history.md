@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.727 - The review screen's action is Approve in every state; the separate Reconfirm label is gone because one approval now decides against the current record.
+Version: 0.0.728 - Editing a record you asked to delete now warns you too, in the first person: You asked to delete this record... instead of your own name.
 --------------------------------------
 
 ## Version History Log:
@@ -741,3 +741,4 @@ Version: 0.0.724 - Case History halves the date-step gap and puts a bar between 
 Version: 0.0.725 - Case History centres the bar between the date and step and down the row, and shows each note after the step in parentheses, moving it under the step when the line is too narrow.
 Version: 0.0.726 - The review screen now shows This Record Changed before any approval, and Reconfirm refreshes the request to the record's current version first so one tap completes.
 Version: 0.0.727 - The review screen's action is Approve in every state; the separate Reconfirm label is gone because one approval now decides against the current record.
+Version: 0.0.728 - Editing a record you asked to delete now warns you too, in the first person: You asked to delete this record... instead of your own name.

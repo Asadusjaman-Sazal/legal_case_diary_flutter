@@ -5347,6 +5347,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String deleteRequests_editWarnOwnBody(String date) {
+    return 'You asked to delete this record on $date. If you change it now, that request will have to be confirmed again.';
+  }
+
+  @override
   String get deleteRequests_editWarnContinue => 'Continue Editing';
 
   @override

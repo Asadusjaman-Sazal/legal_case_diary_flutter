@@ -2547,6 +2547,14 @@
           }
       }
   },
+  "deleteRequests_editWarnOwnBody": "You asked to delete this record on {date}. If you change it now, that request will have to be confirmed again.",
+  "@deleteRequests_editWarnOwnBody": {
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
   "deleteRequests_editWarnContinue": "Continue Editing",
   "deleteRequests_fieldCaseNumber": "Case Number",
   "deleteRequests_fieldCaseType": "Case Type",

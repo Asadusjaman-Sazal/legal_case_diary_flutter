@@ -64,7 +64,7 @@ abstract final class SupabaseConfig {
   /// under the project's *Redirect URLs*, or Supabase ignores it and falls back
   /// to the Site URL again.
   static const String authRedirectUrl =
-      'com.legalcasediary.app://login-callback';
+      'com.legumsoft.legalcasediary://login-callback';
 
   /// True when this build can reach the backend.
   ///

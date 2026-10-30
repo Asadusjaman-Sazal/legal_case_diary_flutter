@@ -21,7 +21,7 @@ import 'package:flutter/services.dart';
 /// Public so a test can answer it: the refusal below is a fact about the host,
 /// and the only way to exercise it without a device is to speak on this channel.
 const MethodChannel appInstallChannel = MethodChannel(
-  'com.legalcasediary.app/app_install',
+  'com.legumsoft.legalcasediary/app_install',
 );
 
 /// The host's error code for *this APK is not signed like this app*.

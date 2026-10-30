@@ -61,7 +61,7 @@ const Map<String, Widget> _bottomNavScreens = <String, Widget>{
 
 /// The channel `MainActivity.kt` serves for the Exit App? window's close.
 const MethodChannel _exitChannel = MethodChannel(
-  'com.legalcasediary.app/app_exit',
+  'com.legumsoft.legalcasediary/app_exit',
 );
 
 /// A stand-in for the screen a destination is opened from, and for the

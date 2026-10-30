@@ -111,7 +111,7 @@ abstract final class AndroidNotificationGateway {
 
   /// The app's own package id, needed to open its settings page.
   /// Kept equal to `applicationId` in `android/app/build.gradle.kts`.
-  static const String _applicationId = 'com.legalcasediary.app';
+  static const String _applicationId = 'com.legumsoft.legalcasediary';
 
   /// Notification id of the one-off test alert.
   static const int testNotificationId = 1300;
@@ -121,7 +121,7 @@ abstract final class AndroidNotificationGateway {
   /// Served by `MainActivity.kt`; the protocol carries a single method, so the
   /// Dart side names no Android class and the Windows port ignores it.
   static const MethodChannel _setupChannel = MethodChannel(
-    'com.legalcasediary.app/device_setup',
+    'com.legumsoft.legalcasediary/device_setup',
   );
 
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -131,8 +131,8 @@ abstract final class AndroidNotificationGateway {
   static bool _initialized = false;
 
   /// Resolves the Android side of the notifications plugin.
-  static AndroidFlutterLocalNotificationsPlugin? get _androidPlugin =>
-      _plugin.resolvePlatformSpecificImplementation<
+  static AndroidFlutterLocalNotificationsPlugin? get _androidPlugin => _plugin
+      .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
       >();
 
@@ -248,11 +248,7 @@ abstract final class AndroidNotificationGateway {
         title: alert.title,
         body: alert.body,
         notificationDetails: NotificationDetails(
-          android: _details(
-            channelName,
-            channelDescription,
-            body: alert.body,
-          ),
+          android: _details(channelName, channelDescription, body: alert.body),
         ),
         // The payload is the case id; a tap deep-links to that case's detail.
         payload: alert.caseId,
@@ -396,10 +392,7 @@ abstract final class AndroidNotificationGateway {
   static Future<DeviceIdentity> deviceIdentity() async {
     try {
       final info = await DeviceInfoPlugin().androidInfo;
-      return DeviceIdentity(
-        manufacturer: info.manufacturer,
-        brand: info.brand,
-      );
+      return DeviceIdentity(manufacturer: info.manufacturer, brand: info.brand);
     } catch (error, stackTrace) {
       reportFailure(error, stackTrace);
       return const DeviceIdentity();
@@ -432,9 +425,7 @@ abstract final class AndroidNotificationGateway {
           ),
         );
       case OemSettingsTarget.autoStart:
-        for (final component in _autoStartComponents(
-          oemFamilyFor(device),
-        )) {
+        for (final component in _autoStartComponents(oemFamilyFor(device))) {
           if (await _launchIntent(AndroidIntent(componentName: component))) {
             return true;
           }
@@ -458,7 +449,9 @@ abstract final class AndroidNotificationGateway {
   }
 
   /// OEM auto-start / startup-manager pages, tried in order.
-  static List<String> _autoStartComponents(OemFamily family) => switch (family) {
+  static List<String> _autoStartComponents(
+    OemFamily family,
+  ) => switch (family) {
     OemFamily.xiaomi => const [
       'com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity',
       'com.miui.securitycenter/com.miui.powercenter.PowerSettings',

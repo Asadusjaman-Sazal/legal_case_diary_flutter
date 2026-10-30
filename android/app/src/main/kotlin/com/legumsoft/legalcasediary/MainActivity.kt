@@ -1,4 +1,4 @@
-package com.legalcasediary.app
+package com.legumsoft.legalcasediary
 
 import android.content.Context
 import android.content.Intent
@@ -247,15 +247,15 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     private companion object {
-        const val CHANNEL = "com.legalcasediary.app/device_setup"
+        const val CHANNEL = "com.legumsoft.legalcasediary/device_setup"
 
         /// The Exit App? channel (`lib/core/services/app_exit.dart`).
-        const val EXIT_CHANNEL = "com.legalcasediary.app/app_exit"
+        const val EXIT_CHANNEL = "com.legumsoft.legalcasediary/app_exit"
 
         /// The public Downloads channel (`backupDocumentsDirectory`).
-        const val DOWNLOADS_CHANNEL = "com.legalcasediary.app/public_downloads"
+        const val DOWNLOADS_CHANNEL = "com.legumsoft.legalcasediary/public_downloads"
 
         /// The in-app update install channel (`lib/features/settings/presentation/app_install.dart`).
-        const val INSTALL_CHANNEL = "com.legalcasediary.app/app_install"
+        const val INSTALL_CHANNEL = "com.legumsoft.legalcasediary/app_install"
     }
 }

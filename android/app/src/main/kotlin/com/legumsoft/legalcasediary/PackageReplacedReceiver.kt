@@ -1,4 +1,4 @@
-package com.legalcasediary.app
+package com.legumsoft.legalcasediary
 
 import android.content.BroadcastReceiver
 import android.content.Context

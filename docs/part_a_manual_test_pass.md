@@ -28,13 +28,13 @@ adb install -r build/app/outputs/flutter-apk/app-debug.apk
 flutter run -d <device-id>
 ```
 
-**Helpers** (package id `com.legalcasediary.app`)
+**Helpers** (package id `com.legumsoft.legalcasediary`)
 
 | Purpose | Command |
 |---|---|
 | List devices | `flutter devices` |
-| Reset the app completely (fresh install state) | `adb shell pm clear com.legalcasediary.app` |
-| Read the app's stored flags (debug builds only) | `adb shell run-as com.legalcasediary.app cat /data/data/com.legalcasediary.app/shared_prefs/FlutterSharedPreferences.xml` |
+| Reset the app completely (fresh install state) | `adb shell pm clear com.legumsoft.legalcasediary` |
+| Read the app's stored flags (debug builds only) | `adb shell run-as com.legumsoft.legalcasediary cat /data/data/com.legumsoft.legalcasediary/shared_prefs/FlutterSharedPreferences.xml` |
 | Pull a backup off the phone | `adb pull /sdcard/Download/<name>.lcbak` |
 | Flutter logs only | `adb logcat -s flutter` |
 | Screenshot for the record | `adb exec-out screencap -p > shot.png` |

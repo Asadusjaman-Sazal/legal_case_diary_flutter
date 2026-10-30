@@ -43,7 +43,7 @@ import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import '../test_utils.dart';
 
 const String _mainActivity =
-    'android/app/src/main/kotlin/com/legalcasediary/app/MainActivity.kt';
+    'android/app/src/main/kotlin/com/legumsoft/legalcasediary/MainActivity.kt';
 const String _manifest = 'android/app/src/main/AndroidManifest.xml';
 
 /// A repository whose download writes real bytes and touches no network.

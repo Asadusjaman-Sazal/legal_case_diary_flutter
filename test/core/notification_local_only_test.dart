@@ -21,14 +21,16 @@ List<File> _sources() => Directory(_folder)
     .toList();
 
 /// Import URIs of one source file, as written in the file.
-List<String> _imports(File file) => RegExp(r"import\s+'([^']+)'")
-    .allMatches(file.readAsStringSync())
-    .map((match) => match.group(1)!)
-    .toList();
+List<String> _imports(File file) => RegExp(
+  r"import\s+'([^']+)'",
+).allMatches(file.readAsStringSync()).map((match) => match.group(1)!).toList();
 
 void main() {
   test('the notification sources exist', () {
-    expect(_sources().map((f) => f.uri.pathSegments.last), contains('notification_alarm_callback.dart'));
+    expect(
+      _sources().map((f) => f.uri.pathSegments.last),
+      contains('notification_alarm_callback.dart'),
+    );
   });
 
   test('nothing on the notification path imports a network package', () {
@@ -46,7 +48,8 @@ void main() {
           expect(
             import.contains(package),
             isFalse,
-            reason: '${file.path} imports $import — the job must stay local '
+            reason:
+                '${file.path} imports $import — the job must stay local '
                 '(plan §12.3: no background network, GPS or Supabase calls).',
           );
         }
@@ -66,7 +69,8 @@ void main() {
     expect(
       gateway.contains('if (armed.isEmpty) return;'),
       isTrue,
-      reason: 'Cancelling reminders must return before any platform call when '
+      reason:
+          'Cancelling reminders must return before any platform call when '
           'none was ever armed.',
     );
   });
@@ -86,7 +90,8 @@ void main() {
       expect(
         job.contains(symbol),
         isFalse,
-        reason: '$symbol appears in the alarm job — it must read the local '
+        reason:
+            '$symbol appears in the alarm job — it must read the local '
             'database only.',
       );
     }
@@ -107,7 +112,8 @@ void main() {
           expect(
             fileName,
             'android_notification_gateway.dart',
-            reason: '$fileName imports $package — the platform packages belong '
+            reason:
+                '$fileName imports $package — the platform packages belong '
                 'behind the gateway, so call sites and the Windows port stay '
                 'free of them.',
           );
@@ -121,8 +127,9 @@ void main() {
     // that keeps the expanded view readable is guarded at source level: with no
     // style, Android lays the text out itself and ellipsises a line, which is
     // how a long `Petitioner vs Respondent` line was cut short.
-    final gateway = File('${_folder}android_notification_gateway.dart')
-        .readAsStringSync();
+    final gateway = File(
+      '${_folder}android_notification_gateway.dart',
+    ).readAsStringSync();
 
     expect(
       gateway.contains('styleInformation: BigTextStyleInformation(body)'),
@@ -135,8 +142,9 @@ void main() {
   test('the job carries the case step and result into the alert body', () {
     // The step/result line is only as good as the wiring that fills it, and the
     // job itself needs a real database and the alarm isolate to run.
-    final job = File('${_folder}notification_alarm_callback.dart')
-        .readAsStringSync();
+    final job = File(
+      '${_folder}notification_alarm_callback.dart',
+    ).readAsStringSync();
 
     expect(
       job.contains('lastStep: row.lastStep'),
@@ -146,7 +154,8 @@ void main() {
     expect(
       job.contains('result: row.result'),
       isTrue,
-      reason: 'An AD/HCD case has no step, so the alert needs its Result — a '
+      reason:
+          'An AD/HCD case has no step, so the alert needs its Result — a '
           'silent drop here would leave those cases without that line.',
     );
   });
@@ -160,16 +169,16 @@ void main() {
       '${_folder}android_notification_gateway.dart',
     ).readAsStringSync();
     final activity = File(
-      'android/app/src/main/kotlin/com/legalcasediary/app/MainActivity.kt',
+      'android/app/src/main/kotlin/com/legumsoft/legalcasediary/MainActivity.kt',
     ).readAsStringSync();
 
     expect(
-      gateway.contains("'com.legalcasediary.app/device_setup'"),
+      gateway.contains("'com.legumsoft.legalcasediary/device_setup'"),
       isTrue,
       reason: 'The gateway must ask the channel the host activity serves.',
     );
     expect(
-      activity.contains('"com.legalcasediary.app/device_setup"'),
+      activity.contains('"com.legumsoft.legalcasediary/device_setup"'),
       isTrue,
     );
     expect(gateway.contains("'isIgnoringBatteryOptimizations'"), isTrue);
@@ -186,24 +195,28 @@ void main() {
   });
 
   test('the alarm entry point stays annotated for the AOT compiler', () {
-    final job = File('${_folder}notification_alarm_callback.dart')
-        .readAsStringSync();
+    final job = File(
+      '${_folder}notification_alarm_callback.dart',
+    ).readAsStringSync();
     expect(
       job.contains("@pragma('vm:entry-point')"),
       isTrue,
-      reason: 'AndroidAlarmManager resolves the job by callback handle; without '
+      reason:
+          'AndroidAlarmManager resolves the job by callback handle; without '
           'the annotation a release build can strip it.',
     );
     expect(
       job.contains('Future<void> notificationAlarmCallback(int alarmId)'),
       isTrue,
-      reason: 'The alarm hands the job its id, which is how a run knows which '
+      reason:
+          'The alarm hands the job its id, which is how a run knows which '
           'time slot it is posting for.',
     );
     expect(
       job.contains('AndroidNotificationGateway.alertMinutesForId(alarmId)'),
       isTrue,
-      reason: 'The alarm id is the only thing carrying the slot into the job '
+      reason:
+          'The alarm id is the only thing carrying the slot into the job '
           'isolate; dropping it would post every case at every slot.',
     );
   });

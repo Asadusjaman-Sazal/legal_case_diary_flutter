@@ -19,7 +19,7 @@ import 'package:flutter/services.dart';
 
 /// Channel served by `MainActivity.kt` for the one platform action Dart lacks.
 const MethodChannel _appExitChannel = MethodChannel(
-  'com.legalcasediary.app/app_exit',
+  'com.legumsoft.legalcasediary/app_exit',
 );
 
 /// Closes the app: finishes the task on Android, pops the widget elsewhere.

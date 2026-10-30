@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-30 — A firm owner's Firm entry is the same cascade — COMPLETE (0.0.734)
+
+- **What was asked.** In the side menu, a firm owner's firm entry should read like an associate's: a **Firm** option that extends to **Manage Firm** and **Delete Requests**.
+- **What changed.** `_FirmDrawerTile` now takes `isOwner`. For an owner the first child is labelled **Manage Firm** (opening `/settings/manage-associates`) instead of the chamber's name, and the group's title carries the waiting count while it is closed; the count moves onto the Delete Requests row as it opens, so exactly one badge shows at a time. The old owner shortcut — one row that routed to `/settings/firm` when something was waiting — is gone, because the queue is now its own row. An individual keeps the single **Create a Firm** row; there is no firm behind it to cascade to.
+- **Checks.** `flutter analyze` clean; `app_navigation_drawer_test.dart` **60 passed**, with three owner cases rewritten (the cascade and its hidden children, the collapsed count with the queue's destination, Manage Firm's destination) and the section position and admin placement now measured on the group's title row.
+- **Not changed.** No server work, and no mockup draws the side menu (rule 9).
+- **Next.** The phone pass: open the menu as an owner with a pending delete request, confirm the count shows while the group is closed, then open Firm and reach either screen.
+
 ### 2026-10-29 — The owner's Devices screen reads the whole chamber — COMPLETE (0.0.713)
 
 - **What was asked.** In Settings → Account & Profile → **Devices**, an owner should see how many devices the owner and the associates are using, listed in two sections: **Owner's Devices** and **Associates' Devices**.

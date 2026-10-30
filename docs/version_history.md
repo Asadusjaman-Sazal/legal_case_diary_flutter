@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.731 - The side menu's plan row is gone; the profile popover now holds Account & Profile, Subscriptions (plan name beneath, expanding to its three pages) and Logout, with the chevron at 6 o'clock.
+Version: 0.0.733 - The profile chevron now opens and closes the account popover like the avatar, points up while open, and the panel hangs from the chevron's edge instead of over it.
 --------------------------------------
 
 ## Version History Log:
@@ -745,3 +745,5 @@ Version: 0.0.728 - Editing a record you asked to delete now warns you too, in th
 Version: 0.0.729 - The review's case card now lists the client phone under the represented party, plus the case title or section, remarks, next date, step and note.
 Version: 0.0.730 - Lower-court settings headers now read Divisions, Districts - <division> Division, and <district> Court Categories, without their secondary lines.
 Version: 0.0.731 - The side menu's plan row is gone; the profile popover now holds Account & Profile, Subscriptions (plan name beneath, expanding to its three pages) and Logout, with the chevron at 6 o'clock.
+Version: 0.0.732 - The side menu's chevron now hangs outside the avatar's ring, and the Subscriptions row opens Settings > Subscription while only its arrow expands the pages.
+Version: 0.0.733 - The profile chevron now opens and closes the account popover like the avatar, points up while open, and the panel hangs from the chevron's edge instead of over it.

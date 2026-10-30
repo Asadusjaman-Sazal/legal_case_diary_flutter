@@ -78,6 +78,7 @@ const String deleteRequestsMarker = 'Delete Requests Screen';
 
 /// Markers rendered by the stand-in screens the account popover opens.
 const String accountProfileMarker = 'Account & Profile Screen';
+const String subscriptionSettingsMarker = 'Subscription Settings Screen';
 const String subscriptionHistoryMarker = 'Subscription History Screen';
 const String loginMarker = 'Login Screen';
 
@@ -337,6 +338,12 @@ void main() {
           GoRoute(
             path: AppRoutes.settingsAccountProfile,
             builder: (_, _) => const Scaffold(body: Text(accountProfileMarker)),
+          ),
+        if (route != AppRoutes.settingsSubscription)
+          GoRoute(
+            path: AppRoutes.settingsSubscription,
+            builder: (_, _) =>
+                const Scaffold(body: Text(subscriptionSettingsMarker)),
           ),
         if (route != AppRoutes.settingsSubscriptionHistory)
           GoRoute(
@@ -656,7 +663,7 @@ void main() {
     expect(find.text(l.payments_historyTitle), findsNothing);
 
     await tester.tap(
-      find.byKey(const ValueKey('drawer-account-subscriptions')),
+      find.byKey(const ValueKey('drawer-account-subscriptions-toggle')),
     );
     await tester.pumpAndSettle();
 
@@ -705,6 +712,22 @@ void main() {
     expect(spans[1].style?.color, AppColors.error);
   });
 
+  testWidgets('the Subscriptions row opens the Subscription page', (
+    tester,
+  ) async {
+    final router = await pumpDrawerOnRouter(tester);
+
+    await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('drawer-account-subscriptions')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(subscriptionSettingsMarker), findsOneWidget);
+    expect(router.state.matchedLocation, AppRoutes.settingsSubscription);
+  });
+
   testWidgets('Subscription Details opens the details sub-page', (
     tester,
   ) async {
@@ -714,7 +737,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
     await tester.tap(
-      find.byKey(const ValueKey('drawer-account-subscriptions')),
+      find.byKey(const ValueKey('drawer-account-subscriptions-toggle')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text(l.settingsSubscription_managePlanTitle));
@@ -731,7 +754,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
     await tester.tap(
-      find.byKey(const ValueKey('drawer-account-subscriptions')),
+      find.byKey(const ValueKey('drawer-account-subscriptions-toggle')),
     );
     await tester.pumpAndSettle();
     // The second row carries the paywall's own title, which is the screen the
@@ -750,7 +773,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
     await tester.pumpAndSettle();
     await tester.tap(
-      find.byKey(const ValueKey('drawer-account-subscriptions')),
+      find.byKey(const ValueKey('drawer-account-subscriptions-toggle')),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text(l.payments_historyTitle));
@@ -824,6 +847,43 @@ void main() {
     expect(find.text(l.settingsManageAccount_logout), findsOneWidget);
   });
 
+  testWidgets('the chevron opens and closes the popover, and flips while open', (
+    tester,
+  ) async {
+    await pumpDrawerOnRouter(tester);
+
+    final indicator = find.byKey(
+      const ValueKey('drawer-profile-icon-indicator'),
+    );
+    expect(
+      find.descendant(of: indicator, matching: find.byIcon(Icons.expand_more)),
+      findsOneWidget,
+      reason: 'closed: the arrow points down',
+    );
+
+    // The chevron is its own tap target (user request, 0.0.733).
+    await tester.tap(indicator);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('drawer-account-popover')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: indicator, matching: find.byIcon(Icons.expand_less)),
+      findsOneWidget,
+      reason: 'open: the arrow points up',
+    );
+
+    // The transparent barrier above the drawer takes the second tap, closing it.
+    await tester.tap(indicator);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('drawer-account-popover')), findsNothing);
+    expect(
+      find.descendant(of: indicator, matching: find.byIcon(Icons.expand_more)),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('the account popover is a rounded window', (tester) async {
     await pumpDrawerOnRouter(tester);
 
@@ -885,7 +945,9 @@ void main() {
     await pumpDrawerOnRouter(tester);
 
     final icon = find.byKey(const ValueKey('drawer-profile-icon'));
-    final iconRect = tester.getRect(icon);
+    final badgeRect = tester.getRect(
+      find.byKey(const ValueKey('drawer-profile-icon-indicator')),
+    );
 
     await tester.tap(icon);
     await tester.pumpAndSettle();
@@ -894,10 +956,11 @@ void main() {
       find.byKey(const ValueKey('drawer-account-popover')),
     );
 
-    // Just under the icon: it hangs off the icon rather than rising from the
-    // screen's foot, which is the difference between a popover and a sheet (a
-    // sheet's top edge on this 1400 px surface would be near 1150).
-    expect(popover.top - iconRect.bottom, moreOrLessEquals(8, epsilon: 0.01));
+    // Just under the chevron's edge (user request, 0.0.733): it hangs off the
+    // badge rather than rising from the screen's foot, which is the difference
+    // between a popover and a sheet (a sheet's top edge on this 1400 px surface
+    // would be near 1150).
+    expect(popover.top - badgeRect.bottom, moreOrLessEquals(8, epsilon: 0.01));
     expect(popover.top, lessThan(400));
   });
 
@@ -959,10 +1022,12 @@ void main() {
     expect(badge, findsOneWidget, reason: 'the avatar says it can be tapped');
 
     final badgeRect = tester.getRect(badge);
-    // Small, and inside the avatar's own box: an affordance, not a second avatar
-    // — it leaves the picture alone and does not grow the tap target.
+    // Small, and hanging below the avatar's box: an affordance, not a second
+    // avatar — it leaves the picture alone and has its own tap target.
     expect(badgeRect.width, lessThanOrEqualTo(16));
-    expect(iconRect.contains(badgeRect.center), isTrue);
+    // Outside the avatar's ring, hanging off its bottom edge (user request,
+    // 0.0.732).
+    expect(iconRect.contains(badgeRect.center), isFalse);
     expect(badgeRect.width, lessThan(iconRect.width));
     // 6 o'clock: horizontally centred on the avatar and sitting on its bottom
     // edge (user request, 0.0.731).
@@ -970,7 +1035,7 @@ void main() {
       badgeRect.center.dx,
       moreOrLessEquals(iconRect.center.dx, epsilon: 0.5),
     );
-    expect(badgeRect.bottom, moreOrLessEquals(iconRect.bottom, epsilon: 0.5));
+    expect(badgeRect.top, moreOrLessEquals(iconRect.bottom, epsilon: 0.5));
 
     // The chevron the drawer already uses for "a menu opens here".
     final chevron = find.descendant(

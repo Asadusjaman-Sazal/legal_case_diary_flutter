@@ -22,8 +22,9 @@
 /// **The profile icon is the account's own entry point** (user request): tapping
 /// the header avatar opens a popover anchored to it, naming the signed-in
 /// **e-mail** and offering **Account & Profile**, **Subscriptions** (the running
-/// plan named beneath the label, expanding into Manage Plan, Subscription Plans
-/// and Subscription History) and **Logout** (0.0.731).
+/// plan named beneath the label; the row opens Settings > Subscription, and its
+/// arrow expands into Manage Plan, Subscription Plans and Subscription History)
+/// and **Logout** (0.0.731–0.0.732).
 ///
 /// **The popover is a rounded window with transparent option rows** (user
 /// request, 0.0.435): its corners use the app's 8 px window radius so it reads
@@ -276,11 +277,11 @@ class AppNavigationDrawer extends ConsumerWidget {
   /// drawer, and **Logout** needs a live one for as long as its windows are up.
   /// The panel is therefore a widget with its own, and the two navigators reach
   /// it as state objects rather than as contexts.
-  void _openAccountSheet(
+  Future<void> _openAccountSheet(
     BuildContext iconContext,
     BuildContext drawerContext,
     WidgetRef ref,
-  ) {
+  ) async {
     final navigator = Navigator.of(iconContext, rootNavigator: true);
     final overlay = navigator.overlay?.context.findRenderObject() as RenderBox?;
     final icon = iconContext.findRenderObject() as RenderBox?;
@@ -301,7 +302,7 @@ class AppNavigationDrawer extends ConsumerWidget {
     final email = ref.read(authIdentityProvider)?.email ?? '';
     final drawerNavigator = Navigator.of(iconContext);
     final router = GoRouter.of(iconContext);
-    navigator.push<void>(
+    await navigator.push<void>(
       _AccountPopoverRoute(
         anchor: icon.localToGlobal(Offset.zero, ancestor: overlay) & icon.size,
         drawer:
@@ -420,7 +421,7 @@ class AppNavigationDrawer extends ConsumerWidget {
                       // The drawer's own context goes along with the icon's: the
                       // panel is as wide as the drawer and starts at its left
                       // edge, and only the drawer can say what those are.
-                      onPressed: (iconContext) =>
+                      onOpen: (iconContext) =>
                           _openAccountSheet(iconContext, context, ref),
                       child: CircleAvatar(
                         radius: 24,
@@ -1206,62 +1207,63 @@ class _SubscriptionsDrawerTileState
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-          child: Semantics(
-            button: true,
-            expanded: _expanded,
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(24),
-              child: InkWell(
-                key: const ValueKey('drawer-account-subscriptions'),
-                borderRadius: BorderRadius.circular(24),
-                onTap: () => setState(() => _expanded = !_expanded),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.workspace_premium_outlined,
-                        size: 22,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l.drawer_subscriptions,
-                              style: AppTypography.labelLg.copyWith(
-                                color: AppColors.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            // The running plan, a size down under the label
-                            // (user request).
-                            CurrentPlanLabel(
-                              firmPlanName: isMember,
-                              tagGap: '  ',
-                              style: AppTypography.bodySm.copyWith(
-                                color: AppColors.outline,
-                              ),
-                            ),
-                          ],
+          child: Row(
+            children: [
+              // The row itself leads to the Subscription page (user request,
+              // 0.0.732); only the arrow opens and closes the pages below it.
+              Expanded(
+                child: InkWell(
+                  key: const ValueKey('drawer-account-subscriptions'),
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () => widget.onOpen(AppRoutes.settingsSubscription),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.workspace_premium_outlined,
+                          size: 22,
+                          color: AppColors.onSurfaceVariant,
                         ),
-                      ),
-                      Icon(
-                        _expanded ? Icons.expand_less : Icons.expand_more,
-                        size: 22,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ],
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l.drawer_subscriptions,
+                                style: AppTypography.labelLg.copyWith(
+                                  color: AppColors.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              // The running plan, a size down under the label
+                              // (user request).
+                              CurrentPlanLabel(
+                                firmPlanName: isMember,
+                                tagGap: '  ',
+                                style: AppTypography.bodySm.copyWith(
+                                  color: AppColors.outline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              IconButton(
+                key: const ValueKey('drawer-account-subscriptions-toggle'),
+                onPressed: () => setState(() => _expanded = !_expanded),
+                icon: Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  size: 22,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
         if (_expanded) ...[
@@ -1437,61 +1439,104 @@ class _FirmDrawerTileState extends State<_FirmDrawerTile> {
 /// first render object *below* it, so this element's box is the avatar's own
 /// 48 px circle. It also carries the semantics label an icon-only button needs.
 ///
-/// The icon carries a **small chevron badge** at its bottom-centre, 6 o'clock
-/// (user request; bottom-right before 0.0.731): an avatar reads as a picture, so
-/// nothing said it could be tapped.
-/// The badge is deliberately tiny — a 16 px disc, filled with the panel's own
-/// background and ringed in the drawer's divider grey, holding the same
-/// `expand_more` the plan row uses — so it marks the icon as a menu without
-/// covering the face of the avatar or the name beside it. It sits inside the
-/// avatar's 48 px box, so it neither grows the tap target nor moves the
-/// rectangle the popover is measured from.
-class _ProfileIconButton extends StatelessWidget {
-  const _ProfileIconButton({required this.child, required this.onPressed});
+/// The icon carries a **small chevron badge** below its bottom edge, at 6
+/// o'clock (user request; bottom-right before 0.0.731, inside the ring until
+/// 0.0.732). An avatar reads as a picture, so nothing said it could be tapped.
+/// The badge — a 16 px disc, filled with the panel's own background and ringed in
+/// the drawer's divider grey — is **its own tap target**, opening and closing
+/// the same popover as the avatar (0.0.733), and it points up while the panel is
+/// open. The button's box is the avatar plus the badge, so the popover hangs from
+/// the chevron's edge rather than overlapping it.
+class _ProfileIconButton extends StatefulWidget {
+  const _ProfileIconButton({required this.child, required this.onOpen});
 
   /// The avatar to draw.
   final Widget child;
 
-  /// Called with this widget's own context, so the caller can measure it.
-  final void Function(BuildContext iconContext) onPressed;
+  /// Opens the account popover and completes when it is dismissed, so the
+  /// chevron can point up while the panel is up (user request, 0.0.733).
+  final Future<void> Function(BuildContext iconContext) onOpen;
 
+  @override
+  State<_ProfileIconButton> createState() => _ProfileIconButtonState();
+}
+
+class _ProfileIconButtonState extends State<_ProfileIconButton> {
   /// Diameter of the affordance badge — big enough to read at a glance,
   /// small enough to leave the avatar's own shape intact.
   static const double _badgeSize = 16;
+
+  /// The avatar's own diameter; the box adds the badge below it, so the popover
+  /// is measured from the chevron's edge rather than the face.
+  static const double _avatarSize = 48;
+
+  /// Whether the popover this button opened is still up.
+  bool _open = false;
+
+  /// Opens the panel; while it is up, the transparent barrier above the drawer
+  /// takes the tap and dismisses it, which completes [widget.onOpen].
+  Future<void> _toggle() async {
+    if (_open) return;
+    setState(() => _open = true);
+    try {
+      await widget.onOpen(context);
+    } finally {
+      if (mounted) setState(() => _open = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: AppLocalizations.of(context).settingsScreen_accountAndProfile,
-    child: InkWell(
-      key: const ValueKey('drawer-profile-icon'),
-      customBorder: const CircleBorder(),
-      onTap: () => onPressed(context),
+    child: SizedBox(
+      width: _avatarSize,
+      height: _avatarSize + _badgeSize,
       child: Stack(
         children: [
-          child,
           Positioned(
-            // Bottom-centre, 6 o'clock (user request, 0.0.731): the badge marks
-            // the whole avatar as a menu rather than sitting on one corner.
+            top: 0,
+            left: 0,
+            right: 0,
+            child: InkWell(
+              key: const ValueKey('drawer-profile-icon'),
+              customBorder: const CircleBorder(),
+              onTap: _toggle,
+              child: widget.child,
+            ),
+          ),
+          // The chevron is its own tap target, sitting outside the avatar's
+          // ring (user requests, 0.0.731–0.0.733).
+          Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: Center(
-              child: Container(
-                key: const ValueKey('drawer-profile-icon-indicator'),
-                width: _badgeSize,
+            child: InkWell(
+              // The outer Semantics already names the action; this second tap
+              // target is the same one, so it adds no duplicate announcement.
+              excludeFromSemantics: true,
+              onTap: _toggle,
+              child: SizedBox(
                 height: _badgeSize,
-                decoration: BoxDecoration(
-                  // The panel's own fill, so the badge reads as a cut-out marker
-                  // on the avatar rather than a second coloured dot.
-                  color: AppColors.surfaceContainerLowest,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.outlineVariant),
-                ),
-                child: const Icon(
-                  Icons.expand_more,
-                  size: 12,
-                  color: AppColors.onSurfaceVariant,
+                child: Center(
+                  child: Container(
+                    key: const ValueKey('drawer-profile-icon-indicator'),
+                    width: _badgeSize,
+                    height: _badgeSize,
+                    decoration: BoxDecoration(
+                      // The panel's own fill, so the badge reads as a cut-out
+                      // marker on the avatar rather than a second coloured dot.
+                      color: AppColors.surfaceContainerLowest,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.outlineVariant),
+                    ),
+                    child: Icon(
+                      // Up while the panel is open (user request, 0.0.733).
+                      _open ? Icons.expand_less : Icons.expand_more,
+                      size: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ),

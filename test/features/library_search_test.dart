@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -343,5 +344,22 @@ void main() {
 
       await unmount(tester);
     }
+  });
+
+  testWidgets('the Add Case Reference title band is the app black', (
+    tester,
+  ) async {
+    // The band was the ink navy the other headers wear; the app's one black is
+    // the same #000000 the Quick Update window's band uses.
+    await pumpLibrary(tester, const CaseReferenceScreen());
+    await tester.tap(find.byType(FloatingActionButton));
+    await settle(tester);
+
+    final band = tester.widget<Container>(
+      find.byKey(const ValueKey('reference-title')),
+    );
+    expect(band.color, AppColors.secondary);
+
+    await unmount(tester);
   });
 }

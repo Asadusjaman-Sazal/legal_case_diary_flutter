@@ -643,9 +643,13 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
       backgroundColor: AppColors.surface,
       body: Column(
         children: [
-          // Sticky top bar: centered title, close button at the right.
+          // Sticky top bar: centered title, close button at the right. The band
+          // is the app's black (#000000) — the same black the buttons, the side
+          // menu and the Quick Update window wear — rather than the ink navy
+          // the other headers use (user request).
           Container(
-            color: AppColors.primary,
+            key: const ValueKey('reference-title'),
+            color: AppColors.secondary,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
               vertical: AppSpacing.md,

@@ -435,6 +435,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
   - **Line 3:** `title_and_description`
   - **Line 4:** `comments_notes`
 - **Note:** Keep the hovering/selection effects intact from the mockup HTML file.
+- **Title band (0.0.739, user request):** the Add/Edit form's header is the app's **black** (`AppColors.secondary`, `#000000`) with white title and close icon, not the ink navy the other headers use — the same band the Quick Update window wears (0.0.671). The mockup was updated to match.
 - Case Reference screen access in firm mode: Notes are visible and editable like case entries to all members of the firm.
 
 ---

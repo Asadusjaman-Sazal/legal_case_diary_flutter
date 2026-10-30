@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-30 — The Case Reference title band is the app's black — COMPLETE (0.0.739)
+
+- **What was asked.** Only in the Case Reference screen: make the **Add Case Reference** window's title background the app's primary black.
+- **What changed.** The Add/Edit form's sticky top band moved from the ink navy `AppColors.primary` (`#0F172A`) to **`AppColors.secondary` (`#000000`)** — the one black the buttons, the side menu and the Quick Update window's band already wear (0.0.671 met the same request there). The band gained the key `reference-title` for the test; its white title and close icon, the five fields and the sticky Save button are unchanged, and the Add and Edit states share the band.
+- **Mockup (rule 9).** `mockup_html_screens/caseReference/code.html` now draws the form header on `bg-secondary`, and its comment reads "the app's black header".
+- **Checks.** `flutter analyze` clean; `library_search_test.dart` **7 passed**, including the new case that opens the form from the FAB and reads the band's colour as `AppColors.secondary`.
+- **Next.** The phone pass: open Add and Edit Case Reference and compare the band with the Quick Update window.
+
 ### 2026-10-30 — The app is now com.legumsoft.legalcasediary — COMPLETE (0.0.738)
 
 - **What was asked.** Rename the app package from `com.legalcasediary.app` to `com.legumsoft.legalcasediary` across the FCM setup, OAuth docs, deep links, channel names, tests and docs, then verify the build. The user confirmed Play Console has **no app record yet**, so this is the one moment the name is still free — a package is fixed for a Play listing the moment it is created and can never be changed or reused afterwards. The user also confirmed no device holds a pending reset link, so the old deep-link scheme was **dropped**, not kept alongside the new one.

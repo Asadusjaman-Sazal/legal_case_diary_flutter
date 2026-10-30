@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-30 — The Case Reference field's gray rule follows its corners — COMPLETE (0.0.741)
+
+- **What was asked.** The gray line under each Case Reference text box did not match the box's rounded corners; make it match.
+- **Why it did not match.** The old `Border(bottom: BorderSide(...))` on a rounded box paints a straight chord between the two corner arcs, so the rule ended in mid-air just before each corner while the box carried on curving up.
+- **What changed.** The rule is now painted by `_BottomRulePainter`, a `CustomPaint` foreground painter on the field's box, which strokes a path along the box's **own** bottom edge: the two 8 px corner arcs plus the straight run between them, using the exact same radius the box uses (`AppDialogMetrics.corner`). Halved radius on a box too short for two corners, so it can never run off the field.
+- **Proof.** Rendered the real Add Case Reference form in a widget test and inspected the captured image: the rule now turns up into both corners on all five boxes. The temporary test and its image were removed afterwards; `library_search_test.dart` is unchanged and passes.
+- **Checks.** `flutter analyze lib/features/case_reference` clean; `dart format` no changes; `record_version.py --check` OK. No Supabase SQL, no shared-frame file and no mockup change (the mockup's CSS `border-b` already curves into its `rounded-lg` corners).
+- **Next.** The phone pass: open Add Case Reference and look at a field's bottom corners.
+
 ### 2026-10-30 — The Case Reference form's boxes wear the shared corner and grow taller — COMPLETE (0.0.740)
 
 - **What was asked.** Only in the Add Case Reference window: make the text box corner the same as the shared pop-over window's corner, and make the Reference & Page No, Statute and Section/Article boxes 25 % taller.

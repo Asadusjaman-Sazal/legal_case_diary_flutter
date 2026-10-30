@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
@@ -805,33 +806,80 @@ class _Field extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surfaceContainerLow,
             borderRadius: BorderRadius.circular(AppDialogMetrics.corner),
-            border: Border(bottom: BorderSide(color: AppColors.outlineVariant)),
           ),
-          child: TextField(
-            controller: controller,
-            maxLines: maxLines,
-            textAlign: TextAlign.start,
-            textAlignVertical: TextAlignVertical.top,
-            decoration: InputDecoration(
-              hintText: placeholder,
-              hintStyle: TextStyle(
-                color: AppColors.outline.withValues(alpha: 0.5),
+          // The gray rule is painted along the box's own bottom edge rather
+          // than set as a `Border`, which would draw a straight chord and stop
+          // short of each rounded corner (user report, 0.0.741).
+          child: CustomPaint(
+            foregroundPainter: _BottomRulePainter(
+              color: AppColors.outlineVariant,
+              radius: AppDialogMetrics.corner,
+            ),
+            child: TextField(
+              controller: controller,
+              maxLines: maxLines,
+              textAlign: TextAlign.start,
+              textAlignVertical: TextAlignVertical.top,
+              decoration: InputDecoration(
+                hintText: placeholder,
+                hintStyle: TextStyle(
+                  color: AppColors.outline.withValues(alpha: 0.5),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: verticalPadding,
+                ),
+                isCollapsed: true,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
               ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: verticalPadding,
-              ),
-              isCollapsed: true,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              disabledBorder: InputBorder.none,
-              errorBorder: InputBorder.none,
-              focusedErrorBorder: InputBorder.none,
             ),
           ),
         ),
       ],
     ),
   );
+}
+
+/// Paints the field's gray bottom rule along the box's own bottom edge.
+///
+/// A `Border(bottom: ...)` on a rounded box paints a straight chord between the
+/// two corner arcs, leaving a visible break where the box curves away; this path
+/// follows the curve instead, so the rule rises into both corners and meets the
+/// sides (user report).
+class _BottomRulePainter extends CustomPainter {
+  const _BottomRulePainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // A box shorter than two radii has no straight bottom left to draw, so the
+    // curve shrinks with it rather than running off the box.
+    final r = math.min(radius, size.height / 2);
+    final w = size.width;
+    final h = size.height;
+    final corner = Radius.circular(r);
+    final path = Path()
+      ..moveTo(0, h - r)
+      ..arcToPoint(Offset(r, h), radius: corner)
+      ..lineTo(w - r, h)
+      ..arcToPoint(Offset(w, h - r), radius: corner);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_BottomRulePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }

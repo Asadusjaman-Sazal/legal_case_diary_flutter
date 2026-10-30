@@ -3473,6 +3473,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsCourtFlow_districts => 'জেলা';
 
   @override
+  String settingsCourtFlow_districtsWithDivision(String division) {
+    return 'জেলা - $division বিভাগ';
+  }
+
+  @override
   String get settingsLowerCourtCategories_addTooltip =>
       'আদালতের ক্যাটেগরি যোগ করুন';
 

@@ -1509,6 +1509,14 @@
   "@@_section_settingsLowerCourtCategories": "SETTINGS - DIVISIONS / DISTRICTS / LOWER COURT CATEGORIES  |  lib/features/settings/presentation/edit_court_steps/court_category_screen.dart, district_list_screen.dart, district_court_category_screen.dart, lower_court_category_list_screen.dart",
   "settingsCourtFlow_divisions": "বিভাগ",
   "settingsCourtFlow_districts": "জেলা",
+  "settingsCourtFlow_districtsWithDivision": "জেলা - {division} বিভাগ",
+  "@settingsCourtFlow_districtsWithDivision": {
+      "placeholders": {
+          "division": {
+              "type": "String"
+          }
+      }
+  },
   "settingsLowerCourtCategories_addTooltip": "আদালতের ক্যাটেগরি যোগ করুন",
   "settingsLowerCourtCategories_addTitle": "আদালতের ক্যাটেগরি যোগ করুন",
   "settingsLowerCourtCategories_editTitle": "আদালতের ক্যাটেগরি সম্পাদনা",

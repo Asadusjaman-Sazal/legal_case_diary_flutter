@@ -5941,6 +5941,12 @@ abstract class AppLocalizations {
   /// **'Districts'**
   String get settingsCourtFlow_districts;
 
+  /// No description provided for @settingsCourtFlow_districtsWithDivision.
+  ///
+  /// In en, this message translates to:
+  /// **'Districts - {division} Division'**
+  String settingsCourtFlow_districtsWithDivision(String division);
+
   /// No description provided for @settingsLowerCourtCategories_addTooltip.
   ///
   /// In en, this message translates to:

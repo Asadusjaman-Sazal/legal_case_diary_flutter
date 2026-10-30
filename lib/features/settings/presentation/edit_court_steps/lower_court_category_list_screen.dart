@@ -61,7 +61,6 @@ class LowerCourtCategoryListScreen extends ConsumerWidget {
 
     return SettingsSubPageModal(
       title: l.settingsLowerCourtCategories_title(districtLabel),
-      subtitle: l.settingsEditCourtNames_lowerCourts,
       floatingActionButton: _buildAddButton(context, ref),
       child: _buildBody(context, courtsAsync, categoriesAsync),
     );

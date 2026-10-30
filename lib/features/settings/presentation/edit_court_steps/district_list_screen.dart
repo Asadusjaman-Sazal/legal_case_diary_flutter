@@ -39,8 +39,7 @@ class DistrictListScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
 
     return SettingsSubPageModal(
-      title: l.settingsCourtFlow_divisionTitle(divisionLabel),
-      subtitle: l.settingsCourtFlow_districts,
+      title: l.settingsCourtFlow_districtsWithDivision(divisionLabel),
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: districts.length,

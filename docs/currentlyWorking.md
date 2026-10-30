@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The lower-court headers are single lines — COMPLETE (0.0.730)
+
+- **What was asked.** In Settings › Edit Court/Steps, change the lower-court headers to **Divisions**, **Districts - <division name> Division**, and **<District name> Court Categories**.
+- **What changed.** The division list is titled **Divisions** with no *Lower Courts* subtitle; the district list is titled **Districts - {division} Division** (new `settingsCourtFlow_districtsWithDivision` key) with no *Districts* subtitle; the district's category list keeps **{district} Court Categories** and loses its *Lower Courts* subtitle. Only the headers moved.
+- **Checks.** `edit_court_names_test.dart`, `lower_court_category_test.dart` and `court_names_steps_test.dart` **35 cases** pass after the district-category test dropped its old subtitle expectation; `flutter analyze` clean; full `flutter test` **2,216 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The review's case card lists the whole record — COMPLETE (0.0.729)
 
 - **What was asked.** In Review Deletion Request, the case card should list the client phone under petitioner or respondent (by the case), section or case title, remarks, next date, step and note — alongside the existing Case Number, Petitioner and Respondent.

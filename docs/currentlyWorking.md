@@ -19,6 +19,35 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The review's action is Approve, no Reconfirm — COMPLETE (0.0.727)
+
+- **What was asked.** Since the reviewer no longer has to approve twice, remove the Reconfirm label and use Approve.
+- **What changed.** The review screen's primary action reads **Approve** in every state (pending, stale, locally changed). The separate `deleteRequests_reconfirm` string was removed from both ARBs, and the stale warning's sentence now reads *Approve to delete the version that exists now.* (with the Bengali equivalent) so the copy matches the button. The refresh before the write is unchanged, so one tap still decides against the current record.
+- **Checks.** `delete_request_review_test.dart` **36 cases** — the stale and locally changed cases find **Approve** and no **Reconfirm**, and both store `approved` on the first tap; `flutter analyze` clean; full `flutter test` **2,215 passed**.
+- **Next.** Nothing open.
+
+### 2026-10-30 — The review warns before the approval — COMPLETE (0.0.726)
+
+- **What was asked.** When a member edits an item after a delete request was raised, the reviewer should see **This Record Changed** the first time they open the request, not only after approving it.
+- **Why it did not.** The review screen trusted only the server's `stale_review_required` status, which the server sets when an approval is refused. The local version signal existed only in the requester's own list.
+- **What changed.** Opening a pending request now also reads the record as this device holds it; when its version is **newer** than the request's `target_base_version`, the screen shows the same warning, the record *As It Is Now* above the requester's copy, and **Reconfirm**. A record the device does not hold, or an older copy, claims nothing — the server stays the authority. **Reconfirm** re-takes the request's snapshot and base version (`refreshSnapshot`) before approving, so the server matches the current version and one tap completes instead of parking the request. Both are backed by shipped server rules: the update policy admits a `can_delete` member, and the approval compares the request's base version with the target's.
+- **Checks.** `delete_request_review_test.dart` **36 cases** — a pending request against a newer note shows the banner/current card/Reconfirm and its reconfirm stores `approved` at the refreshed version 7; an unchanged note keeps the plain Approve. `flutter analyze` clean; full `flutter test` **2,215 passed**.
+- **Next.** Nothing open.
+
+### 2026-10-30 — The history bar centres, the note joins the step — COMPLETE (0.0.725)
+
+- **What was asked.** In Case History: the `|` divider should sit in the middle of the date and the step, and be centred horizontally and vertically in each card; and the note should follow the step in parentheses, dropping to the next line under the step when it cannot fit.
+- **What changed.** The date block is now as wide as its own date text (with `IntrinsicWidth` to keep the weekday centred), and the bar sits in a 32 px slot between it and the step, so the visible gaps are equal on both sides. The row is wrapped in `IntrinsicHeight` and the bar stretches to it, centring vertically. The step and its `(note)` are a `Wrap`: the note follows the step in muted body text while it fits, and moves as a whole to the next run — starting under the step — when it does not. A step-less entry keeps the old separate note line. The mockup was updated.
+- **Checks.** `case_detail_test.dart` **25 cases** — the bar is equidistant from the date and step and at the card's centre, a short note shares the step's line, and a long one drops under the step at the same left edge; the note-based assertions now expect the parentheses; `flutter analyze` clean; full `flutter test` **2,213 passed**. (The test runner hit a Windows file lock on `sqlite3mc.dll` from a leftover `flutter_tester.exe`; stopping that stale process fixed it — no code change.)
+- **Next.** Nothing open.
+
+### 2026-10-30 — Case History tightens, the date card carries the note — COMPLETE (0.0.724)
+
+- **What was asked.** In the Case Detail screen: halve the date-to-step gap in Case History and put a `|` divider between them; drop the "Added By" prefix so the entry shows only the member's name; and show the note in parentheses after the step on the Next/Previous Date card.
+- **What changed.** The history row's 16 px separator became an 8 px slot with a centred `|` (muted outline ink). The chamber attribution line now receives the name alone (`AttributionLine` already draws the person icon), and the now-unused `caseDetailsScreen_historyAddedBy` key left both ARBs. The date card's step line appends the trimmed `notes_results` in parentheses when one is set — the same line on the Next Date and Previous Date forms; a card without a note is unchanged. The mockup was updated (rule 9).
+- **Checks.** `case_detail_test.dart` **23 cases** — a divider is asserted in the history, the author line reads the two names with no `Added By`, and a new case finds **Filing (Need to call the client)**; `flutter analyze` clean; full `flutter test` **2,211 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The card's calendar, the court's icon, Update for a past date — COMPLETE (0.0.723)
 
 - **What was asked.** In the Case Detail screen: the Next/Previous Date card should use the calendar icon again; a Previous Date card should say **Update** where a Next Date card says **Set Reminder**; and the header's court line should use the court icon in place of the location pin.

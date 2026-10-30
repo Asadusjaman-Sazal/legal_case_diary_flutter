@@ -147,6 +147,7 @@ void main() {
       String courtId = 'court-test',
       String caseType = 'Civil Suit',
       String? lastStep,
+      String? notesResults,
       String? honorableJudges,
       String? tenderNumber,
       String? previousCourtCase,
@@ -180,6 +181,7 @@ void main() {
           caseTitleAndSection: const Value('Partition Suit (Title)'),
           caseRemarks: const Value('Dispute over ancestral property.'),
           nextDate: Value(nextDateMs),
+          notesResults: Value(notesResults),
           honorableJudges: Value(honorableJudges),
           tenderNumber: Value(tenderNumber),
           previousCourtCase: Value(previousCourtCase),
@@ -313,12 +315,37 @@ void main() {
         expect(
           tester
               .widget<Text>(
-                find.text('Respondent submitted written objection.'),
+                find.text('(Respondent submitted written objection.)'),
               )
               .textAlign,
           TextAlign.left,
         );
 
+        // The bar is centred between the date and the step, and halfway down
+        // the card (user request, 0.0.725).
+        expect(find.text('|'), findsWidgets);
+        final newestDate = tester.getRect(find.text('15/10/2026'));
+        final newestStep = tester.getRect(find.text('Steps for Hearing'));
+        final newestBar = tester.getRect(find.text('|').first);
+        expect(
+          (newestBar.center.dx - newestDate.right) -
+              (newestStep.left - newestBar.center.dx),
+          closeTo(0, 1.5),
+        );
+        final newestEntry = find.ancestor(
+          of: find.text('15/10/2026'),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget.key is ValueKey<String> &&
+                (widget.key! as ValueKey<String>).value.startsWith(
+                  'case-detail-history-entry-',
+                ),
+          ),
+        );
+        expect(
+          tester.getCenter(newestEntry).dy,
+          closeTo(newestBar.center.dy, 1),
+        );
         // Next Date highlight card + countdown.
         expect(
           find.byKey(const ValueKey('case-detail-next-date-card')),
@@ -356,6 +383,52 @@ void main() {
       },
     );
 
+    testWidgets('a short history note stays on the step line', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase();
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 10, 15),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 11, 20),
+        step: 'Filing',
+        note: 'Ok',
+      );
+      await pumpDetail(tester, caseId);
+
+      // The note follows the step while both fit (user request, 0.0.725).
+      final step = tester.getRect(find.text('Filing'));
+      final note = tester.getRect(find.text('(Ok)'));
+      expect(note.top, closeTo(step.top, 0.5));
+      expect(note.left, greaterThan(step.right));
+    });
+
+    testWidgets('a long history note drops under the step', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase();
+      await seedHistoryEntry(
+        caseId,
+        hearingEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 10, 15),
+        nextEpochMs: AppDateUtils.bangladeshCivilDateEpoch(2026, 11, 20),
+        step: 'Written Objection',
+        note:
+            'Respondent submitted written objection. Copy received by Advocate.',
+      );
+      await pumpDetail(tester, caseId);
+
+      // Too long for the step's line: the whole note moves to the next line,
+      // starting under the step (user request, 0.0.725).
+      final step = tester.getRect(find.text('Written Objection'));
+      final note = tester.getRect(
+        find.text(
+          '(Respondent submitted written objection. Copy received by Advocate.)',
+        ),
+      );
+      expect(note.top, greaterThan(step.top));
+      expect(note.left, closeTo(step.left, 0.5));
+    });
+
     testWidgets(
       'places the client phone under the petitioner for petitioner-side roles',
       (WidgetTester tester) async {
@@ -376,6 +449,20 @@ void main() {
         );
       },
     );
+
+    testWidgets('the date card shows the note after the step', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(
+        lastStep: 'Filing',
+        notesResults: 'Need to call the client',
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      );
+      await pumpDetail(tester, caseId);
+
+      // The note rides the step in parentheses (user request, 0.0.724).
+      expect(find.text('Filing (Need to call the client)'), findsOneWidget);
+    });
 
     testWidgets('a past next date reads as Previous Date with days ago', (
       WidgetTester tester,
@@ -553,7 +640,7 @@ void main() {
           .widget<Text>(find.text('Steps for Hearing'))
           .style!;
       final noteStyle = tester
-          .widget<Text>(find.text('Adjourned for witness.'))
+          .widget<Text>(find.text('(Adjourned for witness.)'))
           .style!;
       // Same size/line-height as the Note content...
       expect(stepStyle.fontSize, noteStyle.fontSize);
@@ -566,7 +653,7 @@ void main() {
         TextAlign.left,
       );
       expect(
-        tester.widget<Text>(find.text('Adjourned for witness.')).textAlign,
+        tester.widget<Text>(find.text('(Adjourned for witness.)')).textAlign,
         TextAlign.left,
       );
     });
@@ -680,7 +767,7 @@ void main() {
         'case-detail-history-entry-history-$nextMs-$hearingMs',
       );
       expect(find.byKey(entryKey), findsOneWidget);
-      expect(find.text('Old note.'), findsOneWidget);
+      expect(find.text('(Old note.)'), findsOneWidget);
 
       await tester.longPress(find.byKey(entryKey));
       await tester.pumpAndSettle();
@@ -734,7 +821,7 @@ void main() {
             ),
           );
       await pumpDetail(tester, caseId);
-      expect(find.text('Adjourned.'), findsOneWidget);
+      expect(find.text('(Adjourned.)'), findsOneWidget);
 
       await tester.longPress(
         find.byKey(ValueKey('case-detail-history-entry-$entryId')),
@@ -763,8 +850,8 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('history-edit-save')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Heard and adjourned.'), findsOneWidget);
-      expect(find.text('Adjourned.'), findsNothing);
+      expect(find.text('(Heard and adjourned.)'), findsOneWidget);
+      expect(find.text('(Adjourned.)'), findsNothing);
       final edited = await CaseHistoryDao(db).getById(entryId);
       expect(edited, isNotNull);
       expect(edited!.noteResult, 'Heard and adjourned.');
@@ -1017,7 +1104,7 @@ void main() {
         await pumpDetail(tester, caseId);
 
         expect(find.text('Rule discharged'), findsOneWidget);
-        expect(find.text('Full bench heard the matter.'), findsOneWidget);
+        expect(find.text('(Full bench heard the matter.)'), findsOneWidget);
         expect(find.text('Adjourned'), findsOneWidget);
         expect(find.text('Steps for Hearing'), findsNothing);
       },
@@ -1089,8 +1176,11 @@ void main() {
           // This account's own entry resolves to its name; a colleague's does
           // not, because the device holds only its own profile row — so it is
           // labelled, never guessed and never shown as a raw id.
-          expect(addedBy('Added By Adv. Abdul Kalam'), findsOneWidget);
-          expect(addedBy('Added By A Chamber Member'), findsOneWidget);
+          // The name alone: no "Added By" prefix (user request, 0.0.724). The
+          // exact match skips the parties card's "Lead Counsel: …" line.
+          expect(find.text('Adv. Abdul Kalam'), findsOneWidget);
+          expect(find.text('A Chamber Member'), findsOneWidget);
+          expect(addedBy('Added By'), findsNothing);
           expect(find.textContaining(colleague), findsNothing);
         });
       });

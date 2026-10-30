@@ -235,12 +235,13 @@
        than the three a collapsed card shows, so the Show toggle is drawn.
 
        One line is deliberately NOT drawn here: inside a chamber every entry
-       also carries "Added By [name]" under its note (firm-mode §9.9, Phase 14),
-       because several people write one case's history there and their entries
-       would otherwise be indistinguishable. This mockup draws an individual
-       lawyer's diary — the state where every entry is the same person's and the
-       line would repeat one name down the whole list — so the shipped body for
-       the state this file shows is exactly what is drawn above. The line is an
+       also carries the member's name alone under its note (firm-mode §9.9,
+       Phase 14; the "Added By" prefix was removed in 0.0.724), because several
+       people write one case's history there and their entries would otherwise
+       be indistinguishable. This mockup draws an individual lawyer's diary —
+       the state where every entry is the same person's and the line would
+       repeat one name down the whole list — so the shipped body for the state
+       this file shows is exactly what is drawn above. The line is an
        icon at 14 px beside bodySm text in the tertiary colour, the same shape
        the Review Conflict screen's editor line uses; a colleague whose name the
        device does not hold reads "A Chamber Member". -->
@@ -253,38 +254,40 @@
     </div>
 
     <!-- One entry: DD/MM/YYYY plus its weekday centered beneath on the left,
-         then Step (bold) and Note across the full remaining width, left
-         aligned. Long-press opens the history options sheet. -->
+         then a bar halfway across the gap, then Step (bold) and its Note in
+         parentheses across the full remaining width, left aligned. The note
+         moves under the step as a whole when the line cannot hold both
+         (0.0.725). Long-press opens the history options sheet. -->
     <div class="px-lg py-md border-b border-card-border flex items-start">
-      <div class="w-[104px] pt-[2px]">
+      <div class="pt-[2px]">
         <p class="font-case-number text-case-number text-on-surface">15/10/2026</p>
         <div class="mt-[2px] text-center font-label-md text-label-md text-on-surface-variant" style="letter-spacing:0.5px;">THU</div>
       </div>
-      <div class="ml-md flex-1">
-        <p class="font-body-md text-body-md font-semibold text-on-surface">Steps for Hearing</p>
-        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Adjourned due to absence of witness. Final notice issued to Petitioner side.</p>
+      <div class="flex items-center justify-center" style="width:32px;">|</div>
+      <div class="flex-1">
+        <p class="font-body-md text-body-md font-semibold text-on-surface">Steps for Hearing <span class="font-normal text-on-surface-variant">(Adjourned due to absence of witness. Final notice issued to Petitioner side.)</span></p>
       </div>
     </div>
 
     <div class="px-lg py-md border-b border-card-border flex items-start">
-      <div class="w-[104px] pt-[2px]">
+      <div class="pt-[2px]">
         <p class="font-case-number text-case-number text-on-surface">12/09/2026</p>
         <div class="mt-[2px] text-center font-label-md text-label-md text-on-surface-variant" style="letter-spacing:0.5px;">SAT</div>
       </div>
-      <div class="ml-md flex-1">
-        <p class="font-body-md text-body-md font-semibold text-on-surface">Written Objection</p>
-        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Respondent submitted written objection. Copy received by Advocate.</p>
+      <div class="flex items-center justify-center" style="width:32px;">|</div>
+      <div class="flex-1">
+        <p class="font-body-md text-body-md font-semibold text-on-surface">Written Objection <span class="font-normal text-on-surface-variant">(Respondent submitted written objection. Copy received by Advocate.)</span></p>
       </div>
     </div>
 
     <div class="px-lg py-md border-b border-card-border flex items-start">
-      <div class="w-[104px] pt-[2px]">
+      <div class="pt-[2px]">
         <p class="font-case-number text-case-number text-on-surface">05/08/2026</p>
         <div class="mt-[2px] text-center font-label-md text-label-md text-on-surface-variant" style="letter-spacing:0.5px;">WED</div>
       </div>
-      <div class="ml-md flex-1">
-        <p class="font-body-md text-body-md font-semibold text-on-surface">Service Return</p>
-        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Summons served on all respondents. SR report filed in court.</p>
+      <div class="flex items-center justify-center" style="width:32px;">|</div>
+      <div class="flex-1">
+        <p class="font-body-md text-body-md font-semibold text-on-surface">Service Return <span class="font-normal text-on-surface-variant">(Summons served on all respondents. SR report filed in court.)</span></p>
       </div>
     </div>
   </div>
@@ -292,9 +295,10 @@
   <div class="h-lg"></div>
 
   <!-- Next Date highlight card: the app's one black-filled card. The label is
-       Title Case from the ARB, the date is the headline, then the step, the
-       countdown and the pill action. Drawn only when the case has a next
-       date. The card keeps its calendar glyph; the courthouse icon the
+       Title Case from the ARB, the date is the headline, then the step (with
+       the case's note in parentheses when one is set), the countdown and the
+       pill action. Drawn only when the case has a next date. The card keeps
+       its calendar glyph; the courthouse icon the
        Overdue Dates court title uses sits on the court line in the header. A
        date behind today reads "Previous Date" with an "N Days Ago" count and
        an "Update" action instead of Set Reminder (0.0.722–0.0.723). -->

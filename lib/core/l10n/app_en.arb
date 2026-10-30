@@ -127,7 +127,6 @@
           }
       }
   },
-  "caseDetailsScreen_historyAddedBy": "Added By {name}",
   "@caseDetailsScreen_historyAddedBy": {
       "placeholders": {
           "name": {
@@ -2523,7 +2522,6 @@
   "deleteRequests_noteHint": "Add A Reason",
   "deleteRequests_noteClearText": "Clear texts",
   "deleteRequests_approve": "Approve",
-  "deleteRequests_reconfirm": "Reconfirm",
   "deleteRequests_reject": "Reject",
   "deleteRequests_approveTitle": "Approve Deletion?",
   "deleteRequests_approveBody": "The record will be deleted for everyone in the firm.",
@@ -2533,7 +2531,7 @@
   "deleteRequests_rejected": "Deletion Request Rejected.",
   "deleteRequests_failed": "Could not complete the review. Try again.",
   "deleteRequests_staleTitle": "This record changed",
-  "deleteRequests_staleBody": "It changed after the request was made. Reconfirm to delete the version that exists now.",
+  "deleteRequests_staleBody": "It changed after the request was made. Approve to delete the version that exists now.",
   "deleteRequests_current": "As It Is Now",
   "deleteRequests_original": "When the Request Was Made",
   "deleteRequests_changed": "Changed",

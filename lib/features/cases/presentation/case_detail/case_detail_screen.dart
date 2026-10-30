@@ -1203,91 +1203,125 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.cardBorder)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 104,
-            child: Padding(
+      // The height must be known before the divider can stretch to it; the
+      // history card sits in a scrolling column, whose height is unbounded.
+      child: IntrinsicHeight(
+        child: Row(
+          // Stretch gives the divider the row's full height, so its own
+          // centring puts it halfway down the card (user request, 0.0.725).
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatHistoryDate(l, entry.hearingDate),
-                    style: AppTypography.caseNumber,
-                  ),
-                  const SizedBox(height: 2),
-                  // Weekday sits centered under the date within the date column.
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      _formatHistoryWeekday(l, entry.hearingDate),
-                      style: AppTypography.labelMd.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                        letterSpacing: 0.5,
+              // The date block is as wide as its own date text, so the bar can
+              // sit halfway between it and the step; IntrinsicWidth gives the
+              // inner stretch a bounded width to centre the weekday in.
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatHistoryDate(l, entry.hearingDate),
+                      style: AppTypography.caseNumber,
+                    ),
+                    const SizedBox(height: 2),
+                    // Weekday sits centered under the date within the date
+                    // column.
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        _formatHistoryWeekday(l, entry.hearingDate),
+                        style: AppTypography.labelMd.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+            ),
+            // The bar sits halfway between the date and the step, in a gap the
+            // width of the old visible spacing, and centres itself vertically
+            // (user request, 0.0.725).
+            const SizedBox(
+              width: AppSpacing.xl,
+              child: Center(
+                child: Text(
+                  '|',
+                  style: TextStyle(fontSize: 14, color: AppColors.outline),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (mainContent != null && mainContent.isNotEmpty)
+                    // Step/Result and its note read as one line while both fit;
+                    // the note moves under the step as a whole when they do not
+                    // (user request, 0.0.725). The step stays bold and the note
+                    // stays muted, as the note line always read.
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: AppSpacing.xs,
+                      runSpacing: 2,
+                      children: [
+                        Text(
+                          mainContent,
+                          style: AppTypography.bodyMd.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                        if (trimmedNote != null && trimmedNote.isNotEmpty)
+                          Text(
+                            '($trimmedNote)',
+                            style: AppTypography.bodyMd.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                      ],
+                    )
+                  else if (trimmedNote != null && trimmedNote.isNotEmpty)
+                    Text(
+                      trimmedNote,
+                      style: AppTypography.bodyMd.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.left,
+                    )
+                  else
+                    Text(
+                      '—',
+                      style: AppTypography.bodySm.copyWith(
+                        color: AppColors.outline,
+                      ),
+                    ),
+                  // Drawn **only inside a chamber**, where several people write
+                  // one case's history and its entries would otherwise be
+                  // indistinguishable from each other. On an individual device
+                  // every entry is this account's own, so the line would repeat
+                  // one name down the whole list — the same reason the roster and
+                  // the delete-request requester are chamber-only surfaces.
+                  if (chamber) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    AttributionLine(
+                      // The name alone, without an "Added By" prefix (user
+                      // request, 0.0.724). `profiles` caches this account's own
+                      // row alone (rule 4), so a colleague's name is not here and
+                      // the neutral label stands in for it rather than a wrong
+                      // name or a raw id.
+                      label: authorName ?? l.sharedLabels_chamberMember,
+                    ),
+                  ],
                 ],
               ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (mainContent != null && mainContent.isNotEmpty)
-                  // Step/Result span the full content width and read left
-                  // aligned (Google Keep style). Same size as the Note (14/20)
-                  // but kept bold.
-                  Text(
-                    mainContent,
-                    style: AppTypography.bodyMd.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                if ((mainContent == null || mainContent.isEmpty) &&
-                    (trimmedNote == null || trimmedNote.isEmpty))
-                  Text(
-                    '—',
-                    style: AppTypography.bodySm.copyWith(
-                      color: AppColors.outline,
-                    ),
-                  ),
-                if (trimmedNote != null && trimmedNote.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    trimmedNote,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                ],
-                // Drawn **only inside a chamber**, where several people write
-                // one case's history and its entries would otherwise be
-                // indistinguishable from each other. On an individual device
-                // every entry is this account's own, so the line would repeat
-                // one name down the whole list — the same reason the roster and
-                // the delete-request requester are chamber-only surfaces.
-                if (chamber) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  AttributionLine(
-                    label: l.caseDetailsScreen_historyAddedBy(
-                      // `profiles` caches this account's own row alone (rule 4),
-                      // so a colleague's name is not here and the neutral label
-                      // stands in for it rather than a wrong name or a raw id.
-                      authorName ?? l.sharedLabels_chamberMember,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
     // Long-press opens the Edit/Delete option sheet; write actions require
@@ -1316,6 +1350,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
             courtCategoryId: _court?.courtCategoryId,
           )
         : (current.result?.trim().isNotEmpty == true ? current.result! : null);
+    final note = current.notesResults?.trim();
+    // The note rides the step in parentheses, the way the case cards read it
+    // (user request, 0.0.724).
+    final stepLine = stepOrResult == null || note == null || note.isEmpty
+        ? stepOrResult
+        : '$stepOrResult ($note)';
     final white = AppColors.onSecondaryContainer;
     return Container(
       key: const ValueKey('case-detail-next-date-card'),
@@ -1360,10 +1400,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          if (stepOrResult != null) ...[
+          if (stepLine != null) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
-              stepOrResult,
+              stepLine,
               style: AppTypography.titleMd.copyWith(
                 color: white.withValues(alpha: 0.9),
               ),

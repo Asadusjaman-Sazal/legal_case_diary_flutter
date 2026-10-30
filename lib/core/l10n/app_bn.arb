@@ -113,7 +113,6 @@
           }
       }
   },
-  "caseDetailsScreen_historyAddedBy": "{name} যোগ করেছেন",
   "@caseDetailsScreen_historyAddedBy": {
       "placeholders": {
           "name": {
@@ -2311,7 +2310,6 @@
   "deleteRequests_noteHint": "একটি কারণ যোগ করুন",
   "deleteRequests_noteClearText": "লেখা মুছুন",
   "deleteRequests_approve": "অনুমোদন",
-  "deleteRequests_reconfirm": "পুনরায় নিশ্চিত করুন",
   "deleteRequests_reject": "প্রত্যাখ্যান",
   "deleteRequests_approveTitle": "মুছে ফেলা অনুমোদন করবেন?",
   "deleteRequests_approveBody": "রেকর্ডটি ফার্মের সবার জন্য মুছে ফেলা হবে।",
@@ -2321,7 +2319,7 @@
   "deleteRequests_rejected": "ডিলিট অনুরোধ প্রত্যাখ্যান করা হয়েছে।",
   "deleteRequests_failed": "পর্যালোচনা সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।",
   "deleteRequests_staleTitle": "এই রেকর্ডটি পরিবর্তিত হয়েছে",
-  "deleteRequests_staleBody": "অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। এখন যে সংস্করণটি আছে তা মুছতে পুনরায় নিশ্চিত করুন।",
+  "deleteRequests_staleBody": "অনুরোধ করার পরে এটি পরিবর্তিত হয়েছে। এখন যে সংস্করণটি আছে তা মুছতে অনুমোদন করুন।",
   "deleteRequests_current": "এখন যেমন আছে",
   "deleteRequests_original": "অনুরোধ করার সময় যেমন ছিল",
   "deleteRequests_changed": "পরিবর্তিত",

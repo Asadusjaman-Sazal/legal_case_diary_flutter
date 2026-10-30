@@ -1,14 +1,15 @@
 /// Left navigation drawer for all case screens.
 ///
-/// Displays a profile header, grouped nav items, the account's **current plan**
-/// (expanding into Subscription Details and Subscription Plans) and Print/Share
-/// actions. Active item is highlighted with a black pill. Item visibility is
+/// Displays a profile header, grouped nav items and Print/Share actions. The
+/// account's **subscriptions** live in the profile popover (0.0.731) rather than
+/// in the menu. Active item is highlighted with a black pill. Item visibility is
 /// driven by [sideNavOptions] from [UserSettings].
 ///
-/// **The profile icon carries a small chevron badge** (user request, 0.0.433):
-/// a 16 px disc in the avatar's bottom-right corner, filled with the panel's own
-/// background and ringed in the divider grey, holding the `expand_more` the plan
-/// row uses — an affordance that marks the avatar as a menu without covering it.
+/// **The profile icon carries a small chevron badge** (user request, 0.0.433;
+/// moved to 6 o'clock in 0.0.731): a 16 px disc at the avatar's bottom-centre,
+/// filled with the panel's own background and ringed in the divider grey, holding
+/// the `expand_more` the drawer uses — an affordance that marks the avatar as a
+/// menu without covering it.
 /// **The panel lines up with the side menu, and is exactly its width** (user
 /// requests, 0.0.433 and 0.0.434): its left edge and its width are both the
 /// **drawer's own**, measured from the drawer's box at tap time — neither
@@ -20,9 +21,9 @@
 ///
 /// **The profile icon is the account's own entry point** (user request): tapping
 /// the header avatar opens a popover anchored to it, naming the signed-in
-/// **e-mail** and offering **Profile**, **Manage Account** and **Logout** — the
-/// three account actions that otherwise live two levels down under Settings >
-/// Account & Profile.
+/// **e-mail** and offering **Account & Profile**, **Subscriptions** (the running
+/// plan named beneath the label, expanding into Manage Plan, Subscription Plans
+/// and Subscription History) and **Logout** (0.0.731).
 ///
 /// **The popover is a rounded window with transparent option rows** (user
 /// request, 0.0.435): its corners use the app's 8 px window radius so it reads
@@ -515,17 +516,10 @@ class AppNavigationDrawer extends ConsumerWidget {
                       firmTile,
                     ],
                     const _DrawerDivider(),
-                    // Settings leads the bottom group, directly above the plan
-                    // row (user request).
+                    // Settings leads the bottom group (user request). The
+                    // account's subscriptions moved into the profile popover
+                    // (0.0.731), so the menu itself carries no plan row.
                     _buildItem(context, l, _settingsItem, isAdmin: isAdmin),
-                    // The account's plan, above Print/Share (user request): the
-                    // bottom group is where a user looks for what the account is
-                    // and what it can do with it, and it names the plan rather
-                    // than hiding it behind a tap. A firm associate has no plan
-                    // of their own — it is the chamber's, bought by its owner —
-                    // so the row is not drawn for them (0.0.690, user request).
-                    if (!firmAssociate)
-                      _PlanDrawerTile(currentRoute: currentRoute),
                     _DrawerNavTile(
                       icon: Icons.print_outlined,
                       label: l.nav_print,
@@ -1160,35 +1154,40 @@ class _CaseExpander extends StatelessWidget {
   }
 }
 
-/// The current plan, and the two subscription pages it opens (user request).
+/// The account's subscriptions, in the profile popover (user request, 0.0.731).
 ///
-/// The header **shows the plan** — [currentPlanProvider], the same derivation
-/// Subscription Details prints — and expands in place instead of navigating:
-/// once a user has read which plan is running, the two things they want are
-/// the page about it (**Subscription Details**) and the page that sells the
-/// next one (**Subscription Plans**). Each child row opens its screen and
-/// closes the drawer, exactly like every other drawer item.
-///
-/// It arrives expanded when the app is already on one of those two screens, so
-/// the active row is never hidden inside a collapsed header.
-class _PlanDrawerTile extends ConsumerStatefulWidget {
-  /// Creates the plan row for the active [currentRoute].
-  const _PlanDrawerTile({required this.currentRoute});
+/// The row names the running plan under its label and expands in place into the
+/// three subscription pages — Manage Plan (Firm Plan for a chamber member),
+/// Subscription Plans, and Subscription History (which a member does not have);
+/// each child closes the panel and the drawer and opens its screen, exactly like
+/// every other drawer row. It arrives expanded when the app is already on one of
+/// those screens.
+class _SubscriptionsDrawerTile extends ConsumerStatefulWidget {
+  const _SubscriptionsDrawerTile({
+    required this.currentRoute,
+    required this.onOpen,
+  });
 
-  /// The active GoRouter location, so the opened sub-page is the one filled.
+  /// The active GoRouter location, so a child on it is filled and the tile
+  /// arrives expanded.
   final String currentRoute;
 
+  /// Closes the panel and the drawer, then opens the route.
+  final void Function(String route) onOpen;
+
   @override
-  ConsumerState<_PlanDrawerTile> createState() => _PlanDrawerTileState();
+  ConsumerState<_SubscriptionsDrawerTile> createState() =>
+      _SubscriptionsDrawerTileState();
 }
 
-class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
+class _SubscriptionsDrawerTileState
+    extends ConsumerState<_SubscriptionsDrawerTile> {
   late bool _expanded;
 
-  /// Whether [route] is one of the two screens this row opens.
   static bool _opens(String route) =>
       route == AppRoutes.settingsSubscriptionDetails ||
-      route == AppRoutes.paywall;
+      route == AppRoutes.paywall ||
+      route == AppRoutes.settingsSubscriptionHistory;
 
   @override
   void initState() {
@@ -1196,22 +1195,15 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
     _expanded = _opens(widget.currentRoute);
   }
 
-  /// Closes the drawer and opens [route], unless it is already the screen.
-  void _open(String route) {
-    Navigator.of(context).pop();
-    if (widget.currentRoute != route) context.push(route);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // Both children are offered to every account: Manage Plan reads the plan
-    // and expiry, and Subscription Plans is where the owner renews the chamber
-    // and where a chamber member reads the ladder (read-only, 0.0.626).
+    // A chamber member reads the chamber's plan and has no own ledger, so the
+    // page is Firm Plan and History is not offered — the same rules as the
+    // Settings > Subscription page.
+    final isMember = ref.watch(firmMemberProvider);
     return Column(
       children: [
-        // The header keeps the drawer's own row metrics; only the children
-        // below it are indented, so the plan reads as their group title.
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
           child: Semantics(
@@ -1221,6 +1213,7 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(24),
               child: InkWell(
+                key: const ValueKey('drawer-account-subscriptions'),
                 borderRadius: BorderRadius.circular(24),
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Padding(
@@ -1239,24 +1232,19 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          // Two lines: the plan, and the caption saying what that
-                          // word is — a bare "Free" beside a chevron would read
-                          // as the name of a screen.
                           children: [
-                            // The same label Subscription Details prints, so
-                            // the red *[Limited Access]* tag appears here too.
-                            CurrentPlanLabel(
-                              // Two spaces before *[Limited Access]* (user
-                              // request): the drawer's row is wide, and the tag
-                              // needs to read as a note beside the name.
-                              tagGap: '  ',
+                            Text(
+                              l.drawer_subscriptions,
                               style: AppTypography.labelLg.copyWith(
                                 color: AppColors.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            Text(
-                              l.settingsSubscription_currentPlan,
+                            // The running plan, a size down under the label
+                            // (user request).
+                            CurrentPlanLabel(
+                              firmPlanName: isMember,
+                              tagGap: '  ',
                               style: AppTypography.bodySm.copyWith(
                                 color: AppColors.outline,
                               ),
@@ -1279,19 +1267,30 @@ class _PlanDrawerTileState extends ConsumerState<_PlanDrawerTile> {
         if (_expanded) ...[
           _DrawerNavTile(
             icon: Icons.star_outline,
-            label: l.settingsSubscription_managePlanTitle,
+            label: isMember
+                ? l.settingsSubscription_firmPlanTitle
+                : l.settingsSubscription_managePlanTitle,
             active:
                 widget.currentRoute == AppRoutes.settingsSubscriptionDetails,
             indent: _planSubIndent,
-            onTap: () => _open(AppRoutes.settingsSubscriptionDetails),
+            onTap: () => widget.onOpen(AppRoutes.settingsSubscriptionDetails),
           ),
           _DrawerNavTile(
             icon: Icons.add_shopping_cart_outlined,
             label: l.paywall_title,
             active: widget.currentRoute == AppRoutes.paywall,
             indent: _planSubIndent,
-            onTap: () => _open(AppRoutes.paywall),
+            onTap: () => widget.onOpen(AppRoutes.paywall),
           ),
+          if (!isMember)
+            _DrawerNavTile(
+              icon: Icons.history,
+              label: l.payments_historyTitle,
+              active:
+                  widget.currentRoute == AppRoutes.settingsSubscriptionHistory,
+              indent: _planSubIndent,
+              onTap: () => widget.onOpen(AppRoutes.settingsSubscriptionHistory),
+            ),
         ],
       ],
     );
@@ -1438,8 +1437,9 @@ class _FirmDrawerTileState extends State<_FirmDrawerTile> {
 /// first render object *below* it, so this element's box is the avatar's own
 /// 48 px circle. It also carries the semantics label an icon-only button needs.
 ///
-/// The icon carries a **small chevron badge** in its bottom-right corner (user
-/// request): an avatar reads as a picture, so nothing said it could be tapped.
+/// The icon carries a **small chevron badge** at its bottom-centre, 6 o'clock
+/// (user request; bottom-right before 0.0.731): an avatar reads as a picture, so
+/// nothing said it could be tapped.
 /// The badge is deliberately tiny — a 16 px disc, filled with the panel's own
 /// background and ringed in the drawer's divider grey, holding the same
 /// `expand_more` the plan row uses — so it marks the icon as a menu without
@@ -1471,23 +1471,28 @@ class _ProfileIconButton extends StatelessWidget {
         children: [
           child,
           Positioned(
+            // Bottom-centre, 6 o'clock (user request, 0.0.731): the badge marks
+            // the whole avatar as a menu rather than sitting on one corner.
+            left: 0,
             right: 0,
             bottom: 0,
-            child: Container(
-              key: const ValueKey('drawer-profile-icon-indicator'),
-              width: _badgeSize,
-              height: _badgeSize,
-              decoration: BoxDecoration(
-                // The panel's own fill, so the badge reads as a cut-out marker
-                // on the avatar rather than a second coloured dot.
-                color: AppColors.surfaceContainerLowest,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.outlineVariant),
-              ),
-              child: const Icon(
-                Icons.expand_more,
-                size: 12,
-                color: AppColors.onSurfaceVariant,
+            child: Center(
+              child: Container(
+                key: const ValueKey('drawer-profile-icon-indicator'),
+                width: _badgeSize,
+                height: _badgeSize,
+                decoration: BoxDecoration(
+                  // The panel's own fill, so the badge reads as a cut-out marker
+                  // on the avatar rather than a second coloured dot.
+                  color: AppColors.surfaceContainerLowest,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.outlineVariant),
+                ),
+                child: const Icon(
+                  Icons.expand_more,
+                  size: 12,
+                  color: AppColors.onSurfaceVariant,
+                ),
               ),
             ),
           ),
@@ -1612,23 +1617,23 @@ class _AccountPopoverState extends ConsumerState<_AccountPopover> {
           _DrawerNavTile(
             key: const ValueKey('drawer-account-profile'),
             icon: Icons.person_outline,
-            label: l.settingsScreen_profile,
+            label: l.settingsScreen_accountAndProfile,
             active: false,
             onTap: () {
               _closeDrawer();
               Navigator.of(context).pop();
-              router.push(AppRoutes.settingsProfile);
+              router.push(AppRoutes.settingsAccountProfile);
             },
           ),
-          _DrawerNavTile(
-            key: const ValueKey('drawer-account-manage'),
-            icon: Icons.manage_accounts_outlined,
-            label: l.settingsScreen_manageAccount,
-            active: false,
-            onTap: () {
+          // The account's plan and its pages, moved here from the menu itself
+          // (user request, 0.0.731). The row names the running plan beneath its
+          // label and expands in place into the three subscription pages.
+          _SubscriptionsDrawerTile(
+            currentRoute: router.state.matchedLocation,
+            onOpen: (route) {
               _closeDrawer();
               Navigator.of(context).pop();
-              router.push(AppRoutes.settingsManageAccount);
+              if (router.state.matchedLocation != route) router.push(route);
             },
           ),
           _DrawerNavTile(

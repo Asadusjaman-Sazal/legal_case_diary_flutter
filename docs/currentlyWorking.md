@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The plan moves into the profile popover — COMPLETE (0.0.731)
+
+- **What was asked.** In the side menu: put the avatar's chevron at 6 o'clock; make the profile button hold the email, **Account & Profile**, **Subscriptions** (plan name in a smaller font beneath, expanding to Manage Plan, Subscription Plans and Subscription History) and Logout; and remove the Current Plan row from the menu.
+- **What changed.** The header avatar's badge is centred on its bottom edge. The popover replaces Profile and Manage Account with one **Account & Profile** row (route `/settings/account-profile`) and a **Subscriptions** tile above Logout: the plan name sits under the label in `bodySm`, and the tile expands in place into Manage Plan (Firm Plan for a chamber member), Subscription Plans and Subscription History — the last hidden for a member, as on the Settings page. Each child closes the popover and the drawer and opens its route; the tile arrives expanded when the app is on one of those routes. `_PlanDrawerTile` and the menu's Current Plan row were deleted.
+- **Checks.** `app_navigation_drawer_test.dart` **57 cases** — popover rows, the plan label and its tag, expansion without navigating, all three children, expanded-on-route, the 6 o'clock badge, and the replaced plan-row tests; `flutter analyze` clean; full `flutter test` **2,216 passed**. New string `drawer_subscriptions` in both languages.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The lower-court headers are single lines — COMPLETE (0.0.730)
 
 - **What was asked.** In Settings › Edit Court/Steps, change the lower-court headers to **Divisions**, **Districts - <division name> Division**, and **<District name> Court Categories**.

@@ -27,6 +27,7 @@
   "nav_overdueDates": "Overdue Dates",
   "nav_adminPanel": "Admin Panel",
   "drawerOf": "of",
+  "drawer_subscriptions": "Subscriptions",
   "drawer_rateApp": "Rate App",
   "drawer_rateAppPending": "Rating opens with the Play Store release.",
   "drawer_caseScreensShowAll": "Show All Case Screens",

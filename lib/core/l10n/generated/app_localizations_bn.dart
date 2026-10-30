@@ -65,6 +65,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get drawerOf => 'এর';
 
   @override
+  String get drawer_subscriptions => 'সাবস্ক্রিপশন';
+
+  @override
   String get drawer_rateApp => 'অ্যাপে রেটিং দিন';
 
   @override

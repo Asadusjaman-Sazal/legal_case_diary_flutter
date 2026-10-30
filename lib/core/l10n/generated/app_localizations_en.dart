@@ -65,6 +65,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerOf => 'of';
 
   @override
+  String get drawer_subscriptions => 'Subscriptions';
+
+  @override
   String get drawer_rateApp => 'Rate App';
 
   @override

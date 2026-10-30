@@ -304,9 +304,20 @@ What is verified now:
   by `delete_requests_one_open_per_target`; and the function is internal and
   attached to all four tables. **Opens its own transaction, so run it wrapped:**
   `printf 'begin;\n' | cat - supabase/tests/delete_request_closure_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
-- Live state: 28 tables all with RLS on, 63 policies, 96 functions in `public`,
-  78 recorded versions — the newest `20261028100000` — and the 1,442 seeded
-  reference rows (1,016 courts).
+- `supabase/tests/laws_scope_test.sql` — **passes** (`LAWS OK`): the statute
+  list's shared contract. The seed is 57 built-in names over all seven
+  categories with order 0…56; an individual's own law is readable by its author
+  and invisible to another individual and to a chamber; a chamber's law lands in
+  the chamber from the owner's insert and is read by the associate, while another
+  chamber never sees it; an associate's rename is read by the owner and an
+  associate without `can_delete` cannot tombstone it while the owner can; a
+  built-in row is refused a tombstone; a payload cannot name somebody else as the
+  author, nor choose a firm or a scope owner; and `sync_entity_table('law')` is
+  `laws` at rank 0. **Opens its own transaction, so run it wrapped:**
+  `printf 'begin;\n' | cat - supabase/tests/laws_scope_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-`.
+- Live state: 29 tables all with RLS on, 66 policies, 97 functions in `public`,
+  83 recorded versions — the newest `20261030121000` — and the 1,499 seeded
+  reference rows (1,016 courts plus the 57 law names).
 - `get_advisors`: three INFO notes for the deny-all server-internal tables (by
   design, no policies) and the `anon`-executable SECURITY DEFINER family — see
   "Known gaps" below. No ERROR-level finding.
@@ -384,6 +395,12 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_join_gate_te
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_stored_tier_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_member_no_plan_test.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/firm_mode_dissolution_test.sql
+```
+
+The law-list proof opens its own transaction, so it is run wrapped:
+
+```bash
+printf 'begin;\n' | cat - supabase/tests/laws_scope_test.sql <(echo rollback;) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --file=-
 ```
 
 The delete-request review proof opens its own transaction, so it is run wrapped:

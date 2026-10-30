@@ -26,6 +26,7 @@ const List<String> domainTables = <String>[
   'steps',
   'case_types',
   'on_behalfs',
+  'laws',
   'delete_requests',
   'conflict_log',
 ];
@@ -1241,8 +1242,10 @@ void main() {
       expect(block, contains('jsonb_agg(v_results[k] order by k)'));
     });
 
-    test('maps exactly the twelve domain tables and orders them FK-safely', () {
-      final map = functionBlock(sql, 'sync_entity_table')!;
+    test('maps exactly the thirteen domain tables and orders them FK-safely', () {
+      // The newest body: the law list was added to both functions after the
+      // original twelve, so the shipped text is the last definition.
+      final map = lastFunctionBlock(sql, 'sync_entity_table')!;
       for (final table in domainTables) {
         expect(map, contains("'$table'"), reason: '$table is missing');
       }
@@ -1261,7 +1264,7 @@ void main() {
         );
       }
 
-      final rank = functionBlock(sql, 'sync_dependency_rank')!;
+      final rank = lastFunctionBlock(sql, 'sync_dependency_rank')!;
       // Config tables rank 0, cases rank 1, everything dependent rank 2 — so a
       // batch applies its foreign keys in the only order that can succeed.
       for (final table in <String>[
@@ -1271,6 +1274,7 @@ void main() {
         'steps',
         'case_types',
         'on_behalfs',
+        'laws',
       ]) {
         expect(rank, contains("'$table' then 0"), reason: '$table must rank 0');
       }

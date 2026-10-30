@@ -57,8 +57,12 @@ void main() {
       );
       expect(
         onDisk.length,
-        81,
+        83,
         reason:
+            'The law list (2026-10-30) added two files: `public.laws` with the '
+            'shared sync, guard, permission, broadcast and delta-index '
+            'contract, and the generated 57-row seed that names the same stable '
+            'IDs as the phone. '
             'The Data API default-grants safeguard (2026-10-30) added two '
             'files: future public tables keep their four DML grants for '
             'signed-in users and the service role after Supabase stops '

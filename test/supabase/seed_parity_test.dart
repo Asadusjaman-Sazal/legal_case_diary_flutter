@@ -33,6 +33,30 @@ void main() {
       );
     });
 
+    test('the committed law seed matches the app seed constants', () {
+      final file = File(lawsSeedMigrationPath);
+      expect(
+        file.existsSync(),
+        isTrue,
+        reason: 'missing $lawsSeedMigrationPath — run '
+            '`dart run tool/generate_supabase_seed.dart`',
+      );
+      expect(
+        normalizeSql(file.readAsStringSync()),
+        normalizeSql(buildLawsSeedSql()),
+        reason: 'the law seed migration is stale — run '
+            '`dart run tool/generate_supabase_seed.dart`',
+      );
+      expect(
+        buildLawsSeedSql(),
+        contains("('${seedLaws.first.id}', '${seedLaws.first.name}'"),
+      );
+      expect(
+        buildLawsSeedSql(),
+        contains("('${seedLaws.last.id}', '${seedLaws.last.name}'"),
+      );
+    });
+
     test('every built-in row is seeded under its stable ID', () {
       final sql = normalizeSql(buildReferenceSeedSql());
 
@@ -74,6 +98,13 @@ void main() {
       expect(inserts, 6, reason: 'six reference tables are seeded');
       expect(conflicts, inserts);
       expect(guards, inserts);
+      // The law list came later and has its own file; one table, one upsert.
+      expect(
+        RegExp(r'insert into public\.\w+')
+            .allMatches(normalizeSql(buildLawsSeedSql()))
+            .length,
+        1,
+      );
       // A seed never removes data and never hard-deletes.
       expect(sql.toLowerCase(), isNot(contains('delete from')));
       expect(sql.toLowerCase(), isNot(contains('drop table')));
@@ -99,8 +130,9 @@ void main() {
           'steps': 209,
           'case_types': 160,
           'on_behalfs': 40,
+          'laws': 57,
         },
-        reason: 'the six editable reference tables, as seeded',
+        reason: 'the seven editable reference tables, as seeded',
       );
     });
   });

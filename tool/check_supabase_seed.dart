@@ -36,9 +36,9 @@ class SeededTable {
   final String source;
 }
 
-/// The six editable reference tables and their app-side counts, derived the same
-/// way `tool/generate_supabase_seed.dart` derives them — so the two cannot drift
-/// without `test/supabase/seed_parity_test.dart` failing.
+/// The seven editable reference tables and their app-side counts, derived the
+/// same way `tool/generate_supabase_seed.dart` derives them — so the two cannot
+/// drift without `test/supabase/seed_parity_test.dart` failing.
 List<SeededTable> expectedSeedCounts() => <SeededTable>[
       SeededTable('court_categories', seedCategories.length, 'seedCategories'),
       SeededTable(
@@ -62,6 +62,7 @@ List<SeededTable> expectedSeedCounts() => <SeededTable>[
         seedCategories.fold<int>(0, (t, c) => t + c.onBehalfs.length),
         'seedCategories[].onBehalfs',
       ),
+      SeededTable('laws', seedLaws.length, 'seedLaws'),
     ];
 
 Future<void> main(List<String> args) async {

@@ -1099,6 +1099,41 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'object), and `authenticated` and `service_role` keep the four DML verbs '
         'from the previous migration.',
   ),
+  LedgerSection(
+    file: '20261030120000_laws_table.sql',
+    version: '0.0.745',
+    label:
+        'The statute list becomes a shared row set. `public.laws` is the seventh '
+        'push/pull domain reference table: the phone\'s law names, their seven '
+        'categories and their order, plus the two server-owned columns every '
+        'domain table carries (`server_updated_at` and the firm-mode '
+        '`scope_owner_id`). It takes the reference-table RLS matrix \u2014 built-in '
+        'rows readable by every install, a custom row only by its own firm-less '
+        'diary, its chamber or its dissolve scope owner \u2014 the table-level '
+        'revoke plus column grant that keeps `scope_owner_id` server-only, the '
+        'sync, delete, resurrection, permission and broadcast triggers, and the '
+        'three delta indexes. Eight functions are re-created with `laws` in the '
+        'list each one holds: `sync_entity_table` and `sync_dependency_rank` for '
+        'the push path, `sync_can_write` for the verdict on a law write, '
+        '`ensure_firm` so a chamber takes the owner\'s custom names at creation, '
+        '`holds_own_diary` so a custom law counts as the author\'s own diary, '
+        '`dissolve_firm` so they pass back to the owner, `purge_tombstones` so a '
+        'law tombstone finally ages out, and `delete_my_account` so an account\'s '
+        'custom names go with its other rows.',
+  ),
+  LedgerSection(
+    file: '20261030121000_laws_reference_data.sql',
+    version: '0.0.745',
+    label:
+        'The 57 built-in law names, generated from '
+        '`lib/core/constants/pre_seeded_data.dart` by '
+        '`tool/generate_supabase_seed.dart`: the list and order of '
+        '`docs/seed_data_test/LawsOfBangladesh.md`, under its seven category IDs, '
+        'with the same stable IDs the phone\'s `seed_v3` migration writes. The '
+        'upsert refreshes a built-in name and leaves a row the user or their '
+        'chamber renamed untouched, exactly as the six reference tables\' seed '
+        'does.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1136,6 +1171,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.745': 'Law List — The Statute List On The Server',
   '0.0.715': 'Data API — New Tables Closed To Anonymous Callers',
   '0.0.714': 'Data API — New Tables Keep Their Access',
   '0.0.713': 'Firm Devices — The Owner Sees Every Slot In Use',

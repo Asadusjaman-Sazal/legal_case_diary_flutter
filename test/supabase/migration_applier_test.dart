@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(81),
+        hasLength(83),
         reason:
+            'The law list (2026-10-30) added two files: `public.laws` and its '
+            'generated 57-row seed. '
             'The owner'
             's firm device list (2026-10-29) added one file: one '
             'owner-only read so the Devices screen can name every device '
@@ -166,7 +168,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(81),
+        hasLength(83),
         reason: 'versions must be unique',
       );
       expect(
@@ -175,7 +177,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261030110000');
+      expect(versions.last, '20261030121000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

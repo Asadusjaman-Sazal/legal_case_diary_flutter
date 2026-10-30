@@ -67,7 +67,12 @@ class ItemListScreen extends ConsumerWidget {
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
               onPressed: () => _add(context, ref, repo),
-              child: const Icon(Icons.add),
+              // The Add Case button, exactly: black fill, white `+` at 28 px
+              // (user request, 0.0.737).
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              tooltip: l.settingsItemList_addTitle,
+              child: const Icon(Icons.add, size: 28),
             ),
           ),
           child: repoAsync.when(
@@ -84,7 +89,11 @@ class ItemListScreen extends ConsumerWidget {
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
               onPressed: () => _add(context, ref, repo),
-              child: const Icon(Icons.add),
+              // The Add Case button, exactly (user request, 0.0.737).
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              tooltip: l.settingsItemList_addTitle,
+              child: const Icon(Icons.add, size: 28),
             ),
           ),
           child: repoAsync.when(
@@ -100,7 +109,11 @@ class ItemListScreen extends ConsumerWidget {
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
               onPressed: () => _add(context, ref, repo),
-              child: const Icon(Icons.add),
+              // The Add Case button, exactly (user request, 0.0.737).
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              tooltip: l.settingsItemList_addTitle,
+              child: const Icon(Icons.add, size: 28),
             ),
           ),
           child: repoAsync.when(

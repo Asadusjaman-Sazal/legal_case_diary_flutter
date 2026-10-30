@@ -242,6 +242,18 @@ void main() {
         BorderRadius.circular(settingsMenuCardRadius),
         reason: label,
       );
+      // The app's action black with a white label, like every other filled
+      // button — the ink navy read blue beside them (user request, 0.0.737).
+      expect(
+        (container.decoration! as BoxDecoration).color,
+        Colors.black,
+        reason: label,
+      );
+      expect(
+        tester.widget<Text>(find.text(label)).style?.color,
+        Colors.white,
+        reason: label,
+      );
     }
   });
 

@@ -49,6 +49,11 @@ abstract final class AppDialogMetrics {
       const TextStyle(fontSize: actionTextSize);
 
   /// The style for a text action.
+  ///
+  /// The black fill and white label are stated here rather than inherited from
+  /// the global button theme (user request, 0.0.736): a shared window must not
+  /// depend on another surface's colours, so no theme change can repaint its
+  /// actions in another colour. A window's own [foreground] still wins.
   static ButtonStyle textAction({
     double? minWidth,
     double? minHeight,
@@ -59,7 +64,8 @@ abstract final class AppDialogMetrics {
       minHeight ?? actionSize.height,
     ),
     textStyle: actionTextStyle,
-    foregroundColor: foreground,
+    backgroundColor: AppColors.secondary,
+    foregroundColor: foreground ?? AppColors.onSecondary,
   );
 
   /// The style for a filled action (primary or destructive).
@@ -83,6 +89,10 @@ abstract final class AppDialogMetrics {
   );
 
   /// The style for an outlined action.
+  ///
+  /// As with [textAction], the black fill, white label and black edge are named
+  /// here, so the one colour a shared window's light actions can wear is the
+  /// app's own action black (user request, 0.0.736).
   static ButtonStyle outlinedAction({
     double? minWidth,
     double? minHeight,
@@ -93,14 +103,16 @@ abstract final class AppDialogMetrics {
       minHeight ?? actionSize.height,
     ),
     textStyle: actionTextStyle,
-    foregroundColor: foreground,
+    backgroundColor: AppColors.secondary,
+    foregroundColor: foreground ?? AppColors.onSecondary,
+    side: const BorderSide(color: AppColors.secondary),
   );
 
-  /// The primary (ink) filled action.
+  /// The primary filled action: the app's action black.
   static ButtonStyle primaryAction({double? minWidth, double? minHeight}) =>
       filledAction(
-        background: AppColors.primary,
-        foreground: AppColors.onPrimary,
+        background: AppColors.secondary,
+        foreground: AppColors.onSecondary,
         minWidth: minWidth,
         minHeight: minHeight,
       );

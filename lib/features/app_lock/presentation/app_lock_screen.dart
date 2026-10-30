@@ -269,10 +269,13 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
           label: l.sharedActions_cancel,
           onPressed: () => Navigator.of(dialogContext).pop(false),
         ),
+        // Turning the lock off is the destructive choice of this window, so it
+        // wears the app's red fill with white ink like every other destructive
+        // action (user request, 0.0.736) — it was red text only.
         AppDialogAction(
           key: const ValueKey('app-lock-turn-off-confirm'),
           label: l.settingsAppLock_turnOffConfirm,
-          foreground: AppColors.error,
+          kind: AppDialogActionKind.destructive,
           onPressed: () => Navigator.of(dialogContext).pop(true),
         ),
       ],

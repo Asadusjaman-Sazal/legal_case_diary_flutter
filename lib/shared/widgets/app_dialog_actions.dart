@@ -17,7 +17,7 @@ enum AppDialogActionKind {
   /// Plain text action: Cancel, Close, Go Back.
   text,
 
-  /// Filled ink action: the app's black/primary button.
+  /// Filled black action: the app's own action black, `AppColors.secondary`.
   primary,
 
   /// Filled error action: approve/delete.
@@ -267,8 +267,12 @@ class AppDialogActions extends StatelessWidget {
           key: action.key,
           onPressed: action.onPressed,
           style: AppDialogMetrics.filledAction(
-            background: action.background ?? AppColors.primary,
-            foreground: action.foreground ?? AppColors.onPrimary,
+            // **The app's action black, not the ink navy** (user request,
+            // 0.0.736): every other button in the app is `AppColors.secondary`,
+            // and the frame was the one place still filling with
+            // `AppColors.primary` (#0F172A), which reads blue beside them.
+            background: action.background ?? AppColors.secondary,
+            foreground: action.foreground ?? AppColors.onSecondary,
             disabledBackground: action.disabledBackground,
             disabledForeground: action.disabledForeground,
             minWidth: minWidth,

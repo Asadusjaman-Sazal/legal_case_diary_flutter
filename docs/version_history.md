@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.739 - Case Reference: the Add/Edit form's title band now uses the app black instead of the ink navy, matching the Quick Update window.
+Version: 0.0.740 - Case Reference: the form's field boxes take the shared 8 px window corner on all four sides, and the three single-line boxes grow 25% (32 to 40 px).
 --------------------------------------
 
 ## Version History Log:
@@ -753,3 +753,4 @@ Version: 0.0.736 - Shared pop-over actions now paint the app's pure black, text/
 Version: 0.0.737 - Edit Court/Steps buttons now wear the app's black, and its Case Types, Steps and On Behalf add buttons match the Add Case button exactly.
 Version: 0.0.738 - Renamed the app to com.legumsoft.legalcasediary across Android, iOS, deep links, host channels, tests and docs; Firebase, OAuth clients and the Supabase redirect still need re-registering.
 Version: 0.0.739 - Case Reference: the Add/Edit form's title band now uses the app black instead of the ink navy, matching the Quick Update window.
+Version: 0.0.740 - Case Reference: the form's field boxes take the shared 8 px window corner on all four sides, and the three single-line boxes grow 25% (32 to 40 px).

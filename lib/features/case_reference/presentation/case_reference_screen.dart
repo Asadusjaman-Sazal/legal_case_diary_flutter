@@ -18,6 +18,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../core/theme/app_dialog_metrics.dart';
 import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
@@ -685,16 +686,19 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
                   label: l.caseReferenceScreen_referenceAndPageNo,
                   controller: _refNoController,
                   placeholder: l.caseReferenceScreen_refPlaceholder,
+                  verticalPadding: _singleLineVerticalPadding,
                 ),
                 _Field(
                   label: l.caseReferenceScreen_statute,
                   controller: _statuteController,
                   placeholder: l.caseReferenceScreen_statutePlaceholder,
+                  verticalPadding: _singleLineVerticalPadding,
                 ),
                 _Field(
                   label: l.caseReferenceScreen_sectionOrArticle,
                   controller: _sectionController,
                   placeholder: l.caseReferenceScreen_sectionPlaceholder,
+                  verticalPadding: _singleLineVerticalPadding,
                 ),
                 _Field(
                   label: l.caseReferenceScreen_titleAndDescription,
@@ -745,19 +749,37 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
   }
 }
 
+/// The single-line fields' vertical padding.
+///
+/// Measured in a widget test, a single-line box with [AppSpacing.sm] padding is
+/// 32 px tall, so the user's 25 % taller box is 40 px: padding grows to
+/// [AppSpacing.gutter] (12 px) and the text line keeps its own size. The
+/// multi-line fields keep the default padding, because their height comes from
+/// their line count rather than from a fixed box.
+const double _singleLineVerticalPadding = AppSpacing.gutter;
+
 /// A labeled text field matching the mockup's bottom-border legal-input style.
+///
+/// The box wears the shared pop-over window's corner ([AppDialogMetrics.corner])
+/// on all four sides, so a field and the window it may sit in read as one
+/// family (user request).
 class _Field extends StatelessWidget {
   const _Field({
     required this.label,
     required this.controller,
     required this.placeholder,
     this.maxLines = 1,
+    this.verticalPadding = AppSpacing.sm,
   });
 
   final String label;
   final TextEditingController controller;
   final String placeholder;
   final int maxLines;
+
+  /// Padding above and below the text inside the box. Only the single-line
+  /// fields raise it; see [_singleLineVerticalPadding].
+  final double verticalPadding;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -782,10 +804,7 @@ class _Field extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceContainerLow,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
+            borderRadius: BorderRadius.circular(AppDialogMetrics.corner),
             border: Border(bottom: BorderSide(color: AppColors.outlineVariant)),
           ),
           child: TextField(
@@ -798,9 +817,9 @@ class _Field extends StatelessWidget {
               hintStyle: TextStyle(
                 color: AppColors.outline.withValues(alpha: 0.5),
               ),
-              contentPadding: const EdgeInsets.symmetric(
+              contentPadding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
+                vertical: verticalPadding,
               ),
               isCollapsed: true,
               border: InputBorder.none,

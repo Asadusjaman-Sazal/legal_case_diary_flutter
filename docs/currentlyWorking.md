@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-30 — The Case Reference form's boxes wear the shared corner and grow taller — COMPLETE (0.0.740)
+
+- **What was asked.** Only in the Add Case Reference window: make the text box corner the same as the shared pop-over window's corner, and make the Reference & Page No, Statute and Section/Article boxes 25 % taller.
+- **Corner.** `_Field`'s box moved from an 8 px top-only radius to `BorderRadius.circular(AppDialogMetrics.corner)` on all four sides — it reads the shared frame's value rather than restating it (rule 17: the frame itself is untouched), so the fields and any window they sit in share one corner.
+- **Height.** A widget measurement put a single-line box at **32 px** (a 16 px text line plus 2 × 8 px of `AppSpacing.sm`), so the padding for those three fields became `AppSpacing.gutter` (12 px) and the box is **40 px** — exactly 1.25×, measured before and after. The two multi-line boxes keep the old padding, since their height comes from their line count.
+- **Mockup (rule 9).** `mockup_html_screens/caseReference/code.html` now uses `rounded-lg` on all five boxes and `py-gutter` on the three single-line ones, with the header comment stating the measurement.
+- **Checks.** `flutter analyze lib/features/case_reference` clean; `dart format` made no changes; `record_version.py --check` OK. No Supabase SQL and no shared-frame file changed.
+- **Next.** The phone pass: open Add and Edit Case Reference and compare a field's corner against a pop-over window.
+
 ### 2026-10-30 — The Case Reference title band is the app's black — COMPLETE (0.0.739)
 
 - **What was asked.** Only in the Case Reference screen: make the **Add Case Reference** window's title background the app's primary black.

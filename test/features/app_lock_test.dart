@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/database/encryption_key_manager.dart';
 import 'package:legal_case_diary/features/app_lock/data/app_lock_store.dart';
@@ -197,15 +198,14 @@ void main() {
 
       expect(find.byKey(const ValueKey('app-lock-setup')), findsOneWidget);
       expect(find.byKey(const ValueKey('app-lock-change')), findsNothing);
-      expect(
-        find.byKey(const ValueKey('app-lock-fingerprint')),
-        findsNothing,
-      );
+      expect(find.byKey(const ValueKey('app-lock-fingerprint')), findsNothing);
       expect(find.byKey(const ValueKey('app-lock-timing')), findsNothing);
       await unmountScreen(tester);
     });
 
-    testWidgets('setup asks, confirms, and swaps the rows over', (tester) async {
+    testWidgets('setup asks, confirms, and swaps the rows over', (
+      tester,
+    ) async {
       final store = await plainStore();
       await pumpScreen(tester, store: store);
 
@@ -234,10 +234,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(
-        find.text(l.settingsAppLock_enableFingerprint),
-        findsOneWidget,
-      );
+      expect(find.text(l.settingsAppLock_enableFingerprint), findsOneWidget);
       // The timing control is the header button, with its choices closed.
       expect(find.byKey(const ValueKey('app-lock-timing')), findsOneWidget);
       expect(
@@ -318,10 +315,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(biometrics.verifyCalls, 1);
       expect(find.text(l.settingsAppLock_fingerprintEnabled), findsOneWidget);
-      expect(
-        find.text(l.settingsAppLock_disableFingerprint),
-        findsOneWidget,
-      );
+      expect(find.text(l.settingsAppLock_disableFingerprint), findsOneWidget);
       expect(store.fingerprintEnabled, isTrue);
 
       // Off, refused: the device says no, so the state must not move.
@@ -382,9 +376,7 @@ void main() {
       );
       expect(
         tester
-            .widget<Text>(
-              find.byKey(const ValueKey('app-lock-timing-current')),
-            )
+            .widget<Text>(find.byKey(const ValueKey('app-lock-timing-current')))
             .data,
         l.settingsAppLock_whenAppStarts,
       );
@@ -459,7 +451,9 @@ void main() {
       );
 
       // Choosing writes the timing and collapses the section again.
-      await tester.tap(find.byKey(const ValueKey('app-lock-timing-every-open')));
+      await tester.tap(
+        find.byKey(const ValueKey('app-lock-timing-every-open')),
+      );
       await tester.pumpAndSettle();
       expect(store.timing, AppLockTiming.appOpenAndReturn);
       expect(
@@ -501,6 +495,19 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('app-lock-turn-off')));
       await tester.pumpAndSettle();
       expect(find.text(l.settingsAppLock_turnOffTitle), findsOneWidget);
+      // Turning the lock off is the destructive choice, so it wears the red
+      // fill with white ink (user request, 0.0.736).
+      final turnOff = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('app-lock-turn-off-confirm')),
+      );
+      expect(
+        turnOff.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+      expect(
+        turnOff.style?.foregroundColor?.resolve(<WidgetState>{}),
+        AppColors.onError,
+      );
       await tester.tap(find.text(l.sharedActions_cancel));
       await tester.pumpAndSettle();
       expect(await store.isSetup, isTrue);
@@ -589,8 +596,7 @@ void main() {
       bool fingerprint = false,
     }) async {
       SharedPreferences.setMockInitialValues(<String, Object>{
-        if (timing != AppLockTiming.appOpen)
-          'app_lock_timing': timing.name,
+        if (timing != AppLockTiming.appOpen) 'app_lock_timing': timing.name,
         if (fingerprint) 'app_lock_fingerprint_enabled': true,
       });
       final store = AppLockStore(
@@ -619,7 +625,9 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('en'),
             home: AppLockScope(
-              child: const Center(child: Text('App is under here', key: marker)),
+              child: const Center(
+                child: Text('App is under here', key: marker),
+              ),
             ),
           ),
         ),
@@ -655,9 +663,8 @@ void main() {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('en'),
-            builder: (context, child) => AppLockScope(
-              child: child ?? const SizedBox.shrink(),
-            ),
+            builder: (context, child) =>
+                AppLockScope(child: child ?? const SizedBox.shrink()),
             home: const Center(child: Text('App is under here', key: marker)),
           ),
         ),
@@ -679,7 +686,10 @@ void main() {
         // throw took the keypad down with it, fingerprint glyph and all.
         expect(tester.takeException(), isNull);
         expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
-        expect(find.byKey(const ValueKey('pin-pad-fingerprint')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('pin-pad-fingerprint')),
+          findsOneWidget,
+        );
 
         await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
         await tester.pumpAndSettle();
@@ -690,40 +700,39 @@ void main() {
       },
     );
 
-    testWidgets(
-      'five wrong pins rest the keypad but never the fingerprint',
-      (tester) async {
-        await pumpGate(
-          tester,
-          store: await seeded(fingerprint: true),
-          biometrics: FakeBiometrics(),
-        );
-        for (var i = 0; i < 5; i++) {
-          await enterPin(tester, '9999');
-          await tester.pumpAndSettle();
-        }
-        expect(
-          tester.widget<Text>(find.byKey(const ValueKey('pin-pad-message'))).data,
-          contains('Try again in'),
-        );
-
-        // The digits are resting…
-        await enterPin(tester, '1234');
-        await tester.pump();
-        expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
-
-        // …but the fingerprint is still the way back in: the rest is against
-        // guessing, not against the owner.
-        final glyph = tester.widget<IconButton>(
-          find.byKey(const ValueKey('pin-pad-fingerprint')),
-        );
-        expect(glyph.onPressed, isNotNull);
-        await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
+    testWidgets('five wrong pins rest the keypad but never the fingerprint', (
+      tester,
+    ) async {
+      await pumpGate(
+        tester,
+        store: await seeded(fingerprint: true),
+        biometrics: FakeBiometrics(),
+      );
+      for (var i = 0; i < 5; i++) {
+        await enterPin(tester, '9999');
         await tester.pumpAndSettle();
-        expect(find.text(l.settingsAppLock_unlockTitle), findsNothing);
-        await unmount(tester);
-      },
-    );
+      }
+      expect(
+        tester.widget<Text>(find.byKey(const ValueKey('pin-pad-message'))).data,
+        contains('Try again in'),
+      );
+
+      // The digits are resting…
+      await enterPin(tester, '1234');
+      await tester.pump();
+      expect(find.text(l.settingsAppLock_unlockTitle), findsOneWidget);
+
+      // …but the fingerprint is still the way back in: the rest is against
+      // guessing, not against the owner.
+      final glyph = tester.widget<IconButton>(
+        find.byKey(const ValueKey('pin-pad-fingerprint')),
+      );
+      expect(glyph.onPressed, isNotNull);
+      await tester.tap(find.byKey(const ValueKey('pin-pad-fingerprint')));
+      await tester.pumpAndSettle();
+      expect(find.text(l.settingsAppLock_unlockTitle), findsNothing);
+      await unmount(tester);
+    });
 
     testWidgets('a phone with a pin starts covered and opens with the pin', (
       tester,

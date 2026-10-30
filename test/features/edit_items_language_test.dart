@@ -185,6 +185,84 @@ void main() {
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);
   });
 
+  /// Pumps one list screen and checks its add button against the All Cases
+  /// Add Case button: black fill, white `+` at 28 px, its own tooltip.
+  Future<void> expectAddCaseButton(
+    WidgetTester tester,
+    Widget screen,
+    List<Override> overrides,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await pump(tester, screen, overrides);
+
+    final fab = tester.widget<FloatingActionButton>(
+      find.byType(FloatingActionButton),
+    );
+    expect(fab.backgroundColor, Colors.black);
+    expect(fab.foregroundColor, Colors.white);
+    expect(fab.tooltip, l.settingsItemList_addTitle);
+    expect(
+      tester
+          .widget<Icon>(
+            find.descendant(
+              of: find.byType(FloatingActionButton),
+              matching: find.byIcon(Icons.add),
+            ),
+          )
+          .size,
+      28,
+    );
+  }
+
+  testWidgets('the case-types add button is the Add Case button', (
+    tester,
+  ) async {
+    await expectAddCaseButton(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        caseTypesRepositoryProvider.overrideWith(
+          (ref) async => _FakeCaseTypesRepository([_customCaseType]),
+        ),
+      ],
+    );
+  });
+
+  testWidgets('the steps add button is the Add Case button', (tester) async {
+    await expectAddCaseButton(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.steps,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        stepsRepositoryProvider.overrideWith(
+          (ref) async => _FakeStepsRepository([_customStep]),
+        ),
+      ],
+    );
+  });
+
+  testWidgets('the on-behalf add button is the Add Case button', (
+    tester,
+  ) async {
+    await expectAddCaseButton(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.onBehalf,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        onBehalfsRepositoryProvider.overrideWith(
+          (ref) async => _FakeOnBehalfsRepository([_customOnBehalf]),
+        ),
+      ],
+    );
+  });
+
   testWidgets('the Delete Item window is centred and Delete is red', (
     tester,
   ) async {

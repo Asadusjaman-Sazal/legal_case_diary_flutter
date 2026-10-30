@@ -237,7 +237,10 @@ class _ActionButton extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          // The app's action black, like every other filled button here — the
+          // card's three management buttons were the ink navy, which read blue
+          // beside them (user request, 0.0.737).
+          color: Colors.black,
           borderRadius: BorderRadius.circular(settingsMenuCardRadius),
         ),
         child: Text(
@@ -245,7 +248,7 @@ class _ActionButton extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.labelLg.copyWith(color: AppColors.onPrimary),
+          style: AppTypography.labelLg.copyWith(color: Colors.white),
         ),
       ),
     ),

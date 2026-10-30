@@ -255,6 +255,88 @@ void main() {
     );
   });
 
+  testWidgets('every light action is the app black, never the ink navy', (
+    tester,
+  ) async {
+    await pumpHost(
+      tester,
+      surface: const Size(412, 900),
+      title: const Text('Colours'),
+      actions: (context) => [
+        AppDialogAction(label: 'Cancel', onPressed: () {}),
+        AppDialogAction(
+          label: 'Copy',
+          kind: AppDialogActionKind.outlined,
+          onPressed: () {},
+        ),
+        AppDialogAction(
+          label: 'Save',
+          kind: AppDialogActionKind.primary,
+          onPressed: () {},
+        ),
+        AppDialogAction(
+          label: 'Delete',
+          kind: AppDialogActionKind.destructive,
+          onPressed: () {},
+        ),
+      ],
+      mode: AppDialogActionMode.wrap,
+    );
+
+    /// The style the button actually paints with.
+    ButtonStyle? styleOf(String label) {
+      final button = tester.widget(
+        find
+            .ancestor(
+              of: find.text(label),
+              matching: find.byWidgetPredicate(
+                (widget) => widget is ButtonStyleButton,
+              ),
+            )
+            .first,
+      );
+      return switch (button) {
+        TextButton(:final style) => style,
+        OutlinedButton(:final style) => style,
+        FilledButton(:final style) => style,
+        _ => null,
+      };
+    }
+
+    /// The colour the label is really drawn in.
+    Color? inkOf(String label) =>
+        DefaultTextStyle.of(tester.element(find.text(label))).style.color;
+
+    // The three light kinds wear the app's own action black, and in particular
+    // never the ink navy `AppColors.primary` the frame used to fill with
+    // (user request, 0.0.736).
+    for (final label in <String>['Cancel', 'Copy', 'Save']) {
+      final style = styleOf(label)!;
+      expect(
+        style.backgroundColor!.resolve(<WidgetState>{}),
+        AppColors.secondary,
+        reason: '$label does not paint the action black',
+      );
+      expect(
+        style.backgroundColor!.resolve(<WidgetState>{}),
+        isNot(AppColors.primary),
+        reason: '$label still paints the ink navy',
+      );
+      expect(
+        style.foregroundColor!.resolve(<WidgetState>{}),
+        AppColors.onSecondary,
+        reason: '$label label is not white',
+      );
+      expect(inkOf(label), AppColors.onSecondary, reason: '$label drawn ink');
+    }
+
+    // The one coloured action keeps the error red with white ink.
+    final danger = styleOf('Delete')!;
+    expect(danger.backgroundColor!.resolve(<WidgetState>{}), AppColors.error);
+    expect(danger.foregroundColor!.resolve(<WidgetState>{}), AppColors.onError);
+    expect(inkOf('Delete'), AppColors.onError);
+  });
+
   testWidgets('a tall body is capped and scrolls', (tester) async {
     await pumpHost(
       tester,

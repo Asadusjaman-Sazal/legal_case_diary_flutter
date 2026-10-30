@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.735 - Only the Disposed step now disposes a case, and a higher-court case only when its Result says Disposed; every other outcome step or result leaves it in Active Cases.
+Version: 0.0.737 - Edit Court/Steps buttons now wear the app's black, and its Case Types, Steps and On Behalf add buttons match the Add Case button exactly.
 --------------------------------------
 
 ## Version History Log:
@@ -749,3 +749,5 @@ Version: 0.0.732 - The side menu's chevron now hangs outside the avatar's ring, 
 Version: 0.0.733 - The profile chevron now opens and closes the account popover like the avatar, points up while open, and the panel hangs from the chevron's edge instead of over it.
 Version: 0.0.734 - The side menu's Firm entry now cascades for a firm owner too: Firm expands to Manage Firm and Delete Requests, with the waiting count on the closed group and on the queue row.
 Version: 0.0.735 - Only the Disposed step now disposes a case, and a higher-court case only when its Result says Disposed; every other outcome step or result leaves it in Active Cases.
+Version: 0.0.736 - Shared pop-over actions now paint the app's pure black, text/outlined name their colours instead of inheriting them, and Turn Off App Lock is the red destructive action.
+Version: 0.0.737 - Edit Court/Steps buttons now wear the app's black, and its Case Types, Steps and On Behalf add buttons match the Add Case button exactly.

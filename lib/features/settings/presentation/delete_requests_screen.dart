@@ -155,9 +155,16 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
               locale: locale,
               showStatusChip: false,
               // Who asked, in place of the date (user request): the question a
-              // queued request puts to its reviewer is *who wants this gone*,
-              // and the moment it was raised is on the review screen itself.
+              // queued request puts to its reviewer is *who wants this gone*.
               requesterName: _requesterName(request, l),
+              // The owner reads when it was raised as a third line, exactly as
+              // the finished cards below show it (user request, 0.0.721).
+              thirdLine: isOwner
+                  ? AppDateUtils.formatDateTimeDDMMYYYY(
+                      request.createdAt,
+                      locale: locale,
+                    )
+                  : null,
               expanded: _expandedId == request.id,
               // A stale request's record moved: quick approval would judge a
               // version nobody has seen, so it keeps the review-screen trip.
@@ -349,9 +356,16 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   }
 
   /// Ticks or un-ticks one previous row while the section is selecting.
+  ///
+  /// Un-ticking the last ticked row ends selection mode, so the section
+  /// returns to normal without a second tap (user request, 0.0.720).
   void _togglePreviousSelected(String id) {
     setState(() {
-      if (!_selectedPrevious.remove(id)) _selectedPrevious.add(id);
+      if (!_selectedPrevious.remove(id)) {
+        _selectedPrevious.add(id);
+        return;
+      }
+      if (_selectedPrevious.isEmpty) _selectingPrevious = false;
     });
   }
 

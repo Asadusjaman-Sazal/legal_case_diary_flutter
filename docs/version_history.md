@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.719 - The previous-request bulk clear now keeps Cancel and Clear Selected side by side in a bar pinned under the list, instead of a Cancel in the heading.
+Version: 0.0.721 - The firm owner's awaiting-review delete request cards now show the request's date and time as a third line, matching the Previous list.
 --------------------------------------
 
 ## Version History Log:
@@ -733,3 +733,5 @@ Version: 0.0.716 - The owner's Devices screen drops the per-account sentence and
 Version: 0.0.717 - The firm owner's Delete Requests screen keeps a Previous Delete Requests list under the queue, showing finished requests with their outcome and no actions.
 Version: 0.0.718 - Previous delete requests show the request date and time, and can be cleared from the screen one at a time or in bulk after a long press; no record is ever deleted.
 Version: 0.0.719 - The previous-request bulk clear now keeps Cancel and Clear Selected side by side in a bar pinned under the list, instead of a Cancel in the heading.
+Version: 0.0.720 - De-selecting the last card in the previous-request multi-select now ends selection mode automatically and returns the section to normal.
+Version: 0.0.721 - The firm owner's awaiting-review delete request cards now show the request's date and time as a third line, matching the Previous list.

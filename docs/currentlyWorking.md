@@ -19,6 +19,20 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The awaiting-review cards date the request too — COMPLETE (0.0.721)
+
+- **What was asked.** For the firm owner, the delete requests awaiting review should also show date and time, like the Previous Delete Requests cards.
+- **What changed.** In the owner's queue, each `_RequestRow` now takes the same `thirdLine` the finished cards use: the request's date and time (`createdAt`, no label, Bangladesh time, localized digits), under the "entity · requester" line. A non-owner reviewer keeps the queue as it was — their rows still name the requester and carry no date line.
+- **Checks.** `delete_request_review_test.dart` **34 cases** — the owner's queue reading now expects the date-time line, the non-owner reviewer case asserts it is absent, and the owner's mixed queue/previous case counts three such lines; `flutter analyze` clean; full `flutter test` **2,209 passed**.
+- **Next.** Nothing open.
+
+### 2026-10-30 — Multi-select ends with its last card — COMPLETE (0.0.720)
+
+- **What was asked.** In the Previous Delete Requests section, keep multi-select active while at least one card is selected; un-ticking the last one should cancel multi-select automatically and return to normal.
+- **What changed.** `_togglePreviousSelected` now clears the selection mode when the ticked set becomes empty. One un-tick with another card still ticked keeps the pinned Cancel / Clear Selected bar; the un-tick that empties the set removes the bar and restores tap-to-expand on that same tap. Nothing is hidden or written.
+- **Checks.** `delete_request_review_test.dart` **34 cases** — the new case selects two, un-ticks one (bar stays), un-ticks the last (bar gone, both cards still visible); `flutter analyze` clean; full `flutter test` **2,209 passed**.
+- **Next.** Nothing open.
+
 ### 2026-10-30 — The bulk-clear actions are pinned under the list — COMPLETE (0.0.719)
 
 - **What was asked.** In the Previous Delete Requests section, move Cancel out of the top and put it to the left of Clear Selected, and pin both to the bottom while multi-select is on.

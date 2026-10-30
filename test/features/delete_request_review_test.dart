@@ -395,6 +395,12 @@ void main() {
         );
         expect(find.text(l.deleteRequests_statusApproved), findsOneWidget);
         expect(find.text(l.deleteRequests_statusRejected), findsOneWidget);
+        // The owner's awaiting-review card carries the same date-and-time line
+        // as the finished cards (user request, 0.0.721): three cards here.
+        expect(
+          find.text(AppDateUtils.formatDateTimeDDMMYYYY(1000, locale: 'en')),
+          findsNWidgets(3),
+        );
         expect(
           find.byKey(const ValueKey('delete-request-approve-r2')),
           findsNothing,
@@ -424,9 +430,13 @@ void main() {
       final l = await AppLocalizations.delegate.load(const Locale('en'));
       expect(find.text(l.deleteRequests_toReview), findsOneWidget);
       expect(find.text('Land Dispute Note'), findsOneWidget);
-      // The history section is the owner's (user request).
+      // The history section and its date line are the owner's (user request).
       expect(find.text(l.deleteRequests_previous), findsNothing);
       expect(find.text('Old Approved Note'), findsNothing);
+      expect(
+        find.text(AppDateUtils.formatDateTimeDDMMYYYY(1000, locale: 'en')),
+        findsNothing,
+      );
 
       await unmountApp(tester);
     });
@@ -585,6 +595,53 @@ void main() {
         find.byKey(const ValueKey('delete-request-clear-selected')),
         findsNothing,
       );
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('un-ticking the last card ends the bulk clear', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(
+        id: 'r2',
+        title: 'Old Approved Note',
+        status: 'approved',
+        reviewedBy: 'user-1',
+      );
+      await seedRequest(
+        id: 'r3',
+        title: 'Old Rejected Note',
+        status: 'rejected',
+        reviewedBy: 'user-1',
+      );
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      final bar = find.byKey(const ValueKey('delete-request-clear-selected'));
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r2')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r3')));
+      await tester.pumpAndSettle();
+
+      // One un-tick leaves the other selected: the bar stays.
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r3')));
+      await tester.pumpAndSettle();
+      expect(bar, findsOneWidget);
+
+      // Un-ticking the last selected card leaves multi-select by itself.
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r2')));
+      await tester.pumpAndSettle();
+      expect(bar, findsNothing);
+      expect(
+        find.byKey(const ValueKey('delete-request-clear-cancel')),
+        findsNothing,
+      );
+      // Nothing was hidden.
+      expect(find.text('Old Approved Note'), findsOneWidget);
+      expect(find.text('Old Rejected Note'), findsOneWidget);
 
       await unmountApp(tester);
     });
@@ -1146,21 +1203,18 @@ void main() {
       // same reading the record does.
       expect(find.text('Civil Appeal- 345/25'), findsOneWidget);
       // Its second line names who asked rather than dating the request (user
-      // request): the reviewer's question is who wants this gone, and the
-      // moment it was raised is on the review screen.
+      // request): the reviewer's question is who wants this gone; the moment
+      // it was raised is the third line below the name.
       expect(
         find.text(
           '${l.deleteRequests_entityCase} \u00b7 Jannatul Ferdousi Rekha',
         ),
         findsOneWidget,
       );
+      // The owner also reads when it was raised, as a third line (0.0.721).
       expect(
-        find.textContaining(
-          AppDateUtils.formatDateDDMMYYYY(1000, locale: 'en'),
-        ),
-        findsNothing,
-        reason:
-            'the queue row shows a person where the list used to show a date',
+        find.text(AppDateUtils.formatDateTimeDDMMYYYY(1000, locale: 'en')),
+        findsOneWidget,
       );
 
       await unmountApp(tester);

@@ -5213,6 +5213,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'No deletion requests awaiting review.';
 
   @override
+  String get deleteRequests_previous => 'Previous Delete Requests';
+
+  @override
   String get deleteRequests_mine => 'My Requests';
 
   @override

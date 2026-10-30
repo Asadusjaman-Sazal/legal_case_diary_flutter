@@ -111,9 +111,16 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
     return SettingsSubPageModal(title: l.deleteRequests_title, child: body);
   }
 
-  /// The reviewer's list: every request still waiting on a decision.
+  /// The reviewer's list: every request still waiting on a decision, and — for
+  /// the firm's owner only — the requests already finished (user request).
   Widget _queueBody(AppLocalizations l) {
     final queue = ref.watch(deleteReviewQueueProvider);
+    // The owner is the one who manages the chamber's queue; another reviewer
+    // (an associate with delete permission) keeps the queue alone.
+    final isOwner = !ref.watch(firmMemberProvider);
+    final previous = isOwner
+        ? ref.watch(previousDeleteRequestsProvider)
+        : const <DeleteRequest>[];
     final locale = Localizations.localeOf(context).toString();
 
     return ListView(
@@ -153,6 +160,25 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
+        if (previous.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          SettingsSectionLabel(l.deleteRequests_previous),
+          const SizedBox(height: AppSpacing.sm),
+          for (final request in previous) ...[
+            _RequestRow(
+              request: request,
+              l: l,
+              locale: locale,
+              // A finished request is audit history: it keeps its outcome pill
+              // and the requester's name, and it offers no action or screen.
+              showStatusChip: true,
+              showChevron: false,
+              requesterName: _requesterName(request, l),
+              onTap: null,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ],
       ],
     );
   }

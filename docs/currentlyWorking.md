@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — The owner keeps the reviewed delete requests — COMPLETE (0.0.717)
+
+- **What was asked.** On the Delete Requests screen, for the firm owner: keep the queue as it is, and also show the requests already reviewed under **Previous Delete Requests**.
+- **What changed.** `previousDeleteRequestsProvider` derives the finished rows from the firm-wide stream the screen already watches — everything the queue no longer holds, newest decision first by `updatedAt` — and the owner's screen draws them under the new heading with their outcome pill and the requester's name. A finished row is audit history: no quick actions, no chevron, no screen behind it. `stale_review_required` stays in the queue (the record moved; it still needs a decision). A member with delete permission who is not the owner keeps the queue alone, and the section is hidden while empty. New key `deleteRequests_previous` in English and Bengali; no server or query change.
+- **Checks.** `delete_request_review_test.dart` **29 cases** (two new: the owner's previous list, order and outcome with no actions; a non-owner reviewer without the section), and the quick-approval case now finds the approved row in the history rather than gone. `flutter analyze` clean; full `flutter test` **2,204 passed**.
+- **Next.** Nothing open. The section deliberately includes a request closed as *Already Deleted* (the record was deleted by someone else) because it is finished history; say so if it should be limited to approved and rejected only.
+
 ### 2026-10-30 — The Devices screen names the time — COMPLETE (0.0.716)
 
 - **What was asked.** On the Devices screen, for the owner: remove *The devices that can use this account at the same time.* and give *Your associates and your own signed-in devices share these slots.* that sentence's size. For the owner and associates: show date and time in **Last used**.

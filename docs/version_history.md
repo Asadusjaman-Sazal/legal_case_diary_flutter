@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.716 - The owner's Devices screen drops the per-account sentence and shows the chamber's sharing note at that size; every device card now names last used with the date and time.
+Version: 0.0.717 - The firm owner's Delete Requests screen keeps a Previous Delete Requests list under the queue, showing finished requests with their outcome and no actions.
 --------------------------------------
 
 ## Version History Log:
@@ -730,3 +730,4 @@ Version: 0.0.713 - An owner's Devices screen now lists the chamber's devices in 
 Version: 0.0.714 - A new migration sets default table privileges for future public tables, so new tables stay reachable to signed-in users after Supabase stops auto-granting Data API access.
 Version: 0.0.715 - Future public tables are now closed to anonymous callers: a second migration revokes the legacy anon grant from the default privileges, leaving signed-in and service access unchanged.
 Version: 0.0.716 - The owner's Devices screen drops the per-account sentence and shows the chamber's sharing note at that size; every device card now names last used with the date and time.
+Version: 0.0.717 - The firm owner's Delete Requests screen keeps a Previous Delete Requests list under the queue, showing finished requests with their outcome and no actions.

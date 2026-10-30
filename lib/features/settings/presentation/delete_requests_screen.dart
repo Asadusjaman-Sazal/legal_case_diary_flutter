@@ -135,7 +135,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
         .toList(growable: false);
     final locale = Localizations.localeOf(context).toString();
 
-    return ListView(
+    final list = ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.edgeMargin,
         AppSpacing.md,
@@ -174,21 +174,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
           ],
         if (visiblePrevious.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          if (_selectingPrevious)
-            Row(
-              children: [
-                Expanded(
-                  child: SettingsSectionLabel(l.deleteRequests_previous),
-                ),
-                TextButton(
-                  key: const ValueKey('delete-request-clear-cancel'),
-                  onPressed: _exitPreviousSelection,
-                  child: Text(l.sharedActions_cancel),
-                ),
-              ],
-            )
-          else
-            SettingsSectionLabel(l.deleteRequests_previous),
+          SettingsSectionLabel(l.deleteRequests_previous),
           const SizedBox(height: AppSpacing.sm),
           for (final request in visiblePrevious) ...[
             _RequestRow(
@@ -218,24 +204,65 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
-          if (_selectingPrevious)
-            FilledButton(
-              key: const ValueKey('delete-request-clear-selected'),
-              onPressed: _selectedPrevious.isEmpty
-                  ? null
-                  : _clearSelectedPrevious,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.onError,
-                textStyle: AppTypography.titleMd,
-                minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
-              ),
-              child: Text(l.deleteRequests_clearSelected),
-            ),
         ],
       ],
     );
+    // While the section is selecting, its two actions are pinned under the
+    // list instead of scrolling with it (user request): Cancel on the left,
+    // Clear Selected on the right.
+    if (!_selectingPrevious) return list;
+    return Column(
+      children: [
+        Expanded(child: list),
+        _previousSelectionBar(l),
+      ],
+    );
   }
+
+  /// The bulk clear's two actions, pinned to the bottom while selecting.
+  Widget _previousSelectionBar(AppLocalizations l) => Container(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.edgeMargin,
+      AppSpacing.sm,
+      AppSpacing.edgeMargin,
+      AppSpacing.md,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.background,
+      border: Border(top: BorderSide(color: AppColors.outlineVariant)),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            key: const ValueKey('delete-request-clear-cancel'),
+            onPressed: _exitPreviousSelection,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+              textStyle: AppTypography.titleMd,
+            ),
+            child: Text(l.sharedActions_cancel),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: FilledButton(
+            key: const ValueKey('delete-request-clear-selected'),
+            onPressed: _selectedPrevious.isEmpty
+                ? null
+                : _clearSelectedPrevious,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.onError,
+              textStyle: AppTypography.titleMd,
+              minimumSize: const Size.fromHeight(settingsPrimaryButtonHeight),
+            ),
+            child: Text(l.deleteRequests_clearSelected),
+          ),
+        ),
+      ],
+    ),
+  );
 
   /// Who asked for one queued request.
   ///

@@ -505,10 +505,25 @@ void main() {
       );
       await tester.pumpAndSettle();
       // The long press starts the section's selection; the other card is ticked
-      // by tapping it.
+      // by tapping it. The two actions sit side by side under the list, Cancel
+      // on the left (user request, 0.0.719).
+      final cancel = find.byKey(const ValueKey('delete-request-clear-cancel'));
+      final clearSelected = find.byKey(
+        const ValueKey('delete-request-clear-selected'),
+      );
+      expect(clearSelected, findsOneWidget);
+      expect(cancel, findsOneWidget);
       expect(
-        find.byKey(const ValueKey('delete-request-clear-selected')),
-        findsOneWidget,
+        tester.getCenter(cancel).dy,
+        closeTo(tester.getCenter(clearSelected).dy, 0.5),
+      );
+      expect(
+        tester.getCenter(cancel).dx,
+        lessThan(tester.getCenter(clearSelected).dx),
+      );
+      expect(
+        find.descendant(of: find.byType(ListView), matching: cancel),
+        findsNothing,
       );
       await tester.tap(find.byKey(const ValueKey('delete-request-row-r3')));
       await tester.pumpAndSettle();
@@ -524,6 +539,52 @@ void main() {
       expect(find.text(l.deleteRequests_previous), findsNothing);
       expect((await DeleteRequestsDao(db).getById('r2'))!.status, 'approved');
       expect((await DeleteRequestsDao(db).getById('r3'))!.status, 'rejected');
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('the bulk actions stay pinned while the list scrolls', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      // Enough finished requests for the list to scroll.
+      for (var i = 2; i <= 11; i++) {
+        await seedRequest(
+          id: 'r$i',
+          title: 'Old Note $i',
+          status: 'approved',
+          updatedAt: 1000 + i,
+          reviewedBy: 'user-1',
+        );
+      }
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      // The newest decision (r11) is the first card, so it is on screen.
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r11')),
+      );
+      await tester.pumpAndSettle();
+      final cancel = find.byKey(const ValueKey('delete-request-clear-cancel'));
+      final clearSelected = find.byKey(
+        const ValueKey('delete-request-clear-selected'),
+      );
+      final barTop = tester.getTopLeft(cancel).dy;
+
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pumpAndSettle();
+
+      expect(tester.getTopLeft(cancel).dy, closeTo(barTop, 0.5));
+      expect(clearSelected, findsOneWidget);
+
+      await tester.tap(cancel);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delete-request-clear-selected')),
+        findsNothing,
+      );
 
       await unmountApp(tester);
     });

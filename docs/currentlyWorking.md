@@ -19,6 +19,13 @@
 - **Not changed.** No server work: the trigger already broadcast the join, and `firm_members` stays the pull-only cache of this account's own row (rule 4). No mockup change — no pixels moved (rule 9).
 - **Next.** Re-test on the two phones: join with one account while the owner watches Manage Firm, and pull on the page after a join.
 
+### 2026-10-30 — A previous request can be cleared from the screen — COMPLETE (0.0.718)
+
+- **What was asked.** In the Previous Delete Requests section (firm owner only): show the request's date and time as a third card line; a single press shows a Clear button like Withdraw Request that hides the card from the screen only; a long press allows a bulk clear, which also only hides cards.
+- **What changed.** Each finished card now carries a third line with the request's own date and time (no label). A tap expands the card to one full-width red **Clear** button in the Withdraw Request's exact shape, which hides that row from the screen. A long press enters the section's selection mode — cards tick with a check mark and ink border, the heading gains **Cancel**, and a red **Clear Selected** button hides every ticked row. No status, tombstone or record is written; the hidden set lives in the screen's state, so reopening the screen restores the cards, and the section disappears when nothing is left visible. Two new strings in both languages: Clear (সরান) and Clear Selected (নির্বাচিতগুলো সরান).
+- **Checks.** `delete_request_review_test.dart` **32 cases** — the third line, the single Clear hiding the row while the database row keeps its status, a bulk clear of two rows with both requests intact, and Cancel hiding nothing; `flutter analyze` clean; full `flutter test` **2,207 passed**.
+- **Next.** Nothing open. A hidden card returns on the next visit by design; say so if it should stay hidden for the session across screens.
+
 ### 2026-10-30 — The owner keeps the reviewed delete requests — COMPLETE (0.0.717)
 
 - **What was asked.** On the Delete Requests screen, for the firm owner: keep the queue as it is, and also show the requests already reviewed under **Previous Delete Requests**.

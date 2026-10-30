@@ -8890,6 +8890,18 @@ abstract class AppLocalizations {
   /// **'Previous Delete Requests'**
   String get deleteRequests_previous;
 
+  /// No description provided for @deleteRequests_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get deleteRequests_clear;
+
+  /// No description provided for @deleteRequests_clearSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Selected'**
+  String get deleteRequests_clearSelected;
+
   /// No description provided for @deleteRequests_mine.
   ///
   /// In en, this message translates to:

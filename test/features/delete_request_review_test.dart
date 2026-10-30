@@ -399,10 +399,6 @@ void main() {
           find.byKey(const ValueKey('delete-request-approve-r2')),
           findsNothing,
         );
-        expect(
-          find.byKey(const ValueKey('delete-request-row-r2')),
-          findsNothing,
-        );
 
         await unmountApp(tester);
       },
@@ -431,6 +427,134 @@ void main() {
       // The history section is the owner's (user request).
       expect(find.text(l.deleteRequests_previous), findsNothing);
       expect(find.text('Old Approved Note'), findsNothing);
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a previous card dates the request and clears on screen only', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(
+        id: 'r2',
+        title: 'Old Approved Note',
+        status: 'approved',
+        reviewedBy: 'user-1',
+      );
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      // The request's date and time is the card's third line, without a label
+      // (user request, 0.0.718).
+      expect(
+        find.text(AppDateUtils.formatDateTimeDDMMYYYY(1000, locale: 'en')),
+        findsOneWidget,
+      );
+
+      // A tap shows one Clear, shaped like the Withdraw Request button.
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r2')));
+      await tester.pumpAndSettle();
+      final clear = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('delete-request-clear-r2')),
+      );
+      expect(
+        clear.style?.backgroundColor?.resolve(<WidgetState>{}),
+        AppColors.error,
+      );
+      expect(
+        clear.style?.foregroundColor?.resolve(<WidgetState>{}),
+        AppColors.onError,
+      );
+      await tester.tap(find.byKey(const ValueKey('delete-request-clear-r2')));
+      await tester.pumpAndSettle();
+
+      // Hidden from this screen only: the request itself is untouched.
+      expect(find.text('Old Approved Note'), findsNothing);
+      expect(await DeleteRequestsDao(db).getById('r2'), isNotNull);
+      expect((await DeleteRequestsDao(db).getById('r2'))!.status, 'approved');
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('a long press clears several previous cards, only on screen', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(
+        id: 'r2',
+        title: 'Old Approved Note',
+        status: 'approved',
+        reviewedBy: 'user-1',
+      );
+      await seedRequest(
+        id: 'r3',
+        title: 'Old Rejected Note',
+        status: 'rejected',
+        reviewedBy: 'user-1',
+      );
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r2')),
+      );
+      await tester.pumpAndSettle();
+      // The long press starts the section's selection; the other card is ticked
+      // by tapping it.
+      expect(
+        find.byKey(const ValueKey('delete-request-clear-selected')),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r3')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-clear-selected')),
+      );
+      await tester.pumpAndSettle();
+
+      // Both left the screen, and the section with them; the requests and the
+      // records are untouched.
+      expect(find.text('Old Approved Note'), findsNothing);
+      expect(find.text('Old Rejected Note'), findsNothing);
+      expect(find.text(l.deleteRequests_previous), findsNothing);
+      expect((await DeleteRequestsDao(db).getById('r2'))!.status, 'approved');
+      expect((await DeleteRequestsDao(db).getById('r3'))!.status, 'rejected');
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('cancelling the bulk clear hides nothing', (tester) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.owner);
+      await seedRequest(
+        id: 'r2',
+        title: 'Old Approved Note',
+        status: 'approved',
+        reviewedBy: 'user-1',
+      );
+
+      await pumpWithRouter(tester, const DeleteRequestsScreen(), overrides);
+
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r2')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('delete-request-clear-cancel')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Old Approved Note'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('delete-request-clear-selected')),
+        findsNothing,
+      );
 
       await unmountApp(tester);
     });
@@ -503,7 +627,12 @@ void main() {
       // Decided in place: the review screen was never opened, the row left the
       // queue and moved into the owner's history with its outcome.
       expect(find.text(l.deleteRequests_reviewTitle), findsNothing);
-      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+      // The row is no longer a queue row: it moved into the history without a
+      // quick action of its own.
+      expect(
+        find.byKey(const ValueKey('delete-request-approve-r1')),
+        findsNothing,
+      );
       expect(find.text(l.deleteRequests_previous), findsOneWidget);
       expect(find.text('Land Dispute Note'), findsOneWidget);
       expect(find.text(l.deleteRequests_statusApproved), findsOneWidget);

@@ -5240,6 +5240,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_previous => 'পূর্ববর্তী ডিলিট অনুরোধ';
 
   @override
+  String get deleteRequests_clear => 'সরান';
+
+  @override
+  String get deleteRequests_clearSelected => 'নির্বাচিতগুলো সরান';
+
+  @override
   String get deleteRequests_mine => 'আমার অনুরোধ';
 
   @override

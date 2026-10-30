@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/devices/device_install_secret.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/notifications/notification_scheduler.dart';
@@ -168,16 +169,16 @@ RegisteredDevice _device(String id, String label, {bool current = false}) =>
       id: id,
       label: label,
       platform: 'android',
-      lastSeenAt: DateTime(2026, 10, 20, 9),
+      lastSeenAt: DateTime.utc(2026, 10, 20, 3),
       isCurrent: current,
     );
 
 /// A chamber answer for the fixtures: two owner devices and two associates'.
-const FirmDeviceList _chamber = FirmDeviceList(
+final FirmDeviceList _chamber = FirmDeviceList(
   slots: 5,
   associates: 2,
   devices: [
-    FirmDevice(
+    const FirmDevice(
       id: 'o1',
       label: 'Samsung SM-A525F',
       platform: 'android',
@@ -191,8 +192,9 @@ const FirmDeviceList _chamber = FirmDeviceList(
       platform: 'android',
       memberName: 'Adv. Karim',
       isOwner: false,
+      lastSeenAt: DateTime.utc(2026, 10, 21, 4),
     ),
-    FirmDevice(
+    const FirmDevice(
       id: 'a2',
       label: 'Pixel 8',
       platform: 'android',
@@ -251,6 +253,13 @@ void main() {
     );
 
     expect(find.text('2 of 3 devices in use'), findsOneWidget);
+    // A per-account list keeps its own sentence, and Last used names the clock
+    // as well as the day (user request, 0.0.716).
+    expect(
+      find.text('The devices that can use this account at the same time.'),
+      findsOneWidget,
+    );
+    expect(find.text('Last used 20/10/2026, 09:00 AM'), findsNWidgets(2));
     expect(find.text('Samsung SM-A525F · This device'), findsOneWidget);
     expect(find.text('Xiaomi 13'), findsOneWidget);
     // Opening the screen reads the authoritative list from device_state.
@@ -292,6 +301,20 @@ void main() {
     // The line counts the whole chamber against its slots, not one account's
     // allowance, and each section states its own count.
     expect(find.text('4 of 5 firm devices in use'), findsOneWidget);
+    // The owner reads the sharing note instead of the per-account sentence,
+    // at that sentence's size (user request, 0.0.716).
+    expect(
+      find.text('The devices that can use this account at the same time.'),
+      findsNothing,
+    );
+    final sharingNote = tester.widget<Text>(
+      find.text(
+        'Your associates and your own signed-in devices share these slots.',
+      ),
+    );
+    expect(sharingNote.style?.fontSize, AppTypography.bodyMd.fontSize);
+    // An associate's card names the day and the time.
+    expect(find.text('Last used 21/10/2026, 10:00 AM'), findsOneWidget);
     expect(find.text("Owner's Devices (2)"), findsOneWidget);
     expect(find.text("Associates' Devices (2)"), findsOneWidget);
     expect(find.text('Samsung SM-A525F · This device'), findsOneWidget);
@@ -321,6 +344,10 @@ void main() {
     );
 
     expect(find.text('1 of 1 devices in use'), findsOneWidget);
+    expect(
+      find.text('The devices that can use this account at the same time.'),
+      findsOneWidget,
+    );
     expect(find.textContaining("Owner's Devices"), findsNothing);
     expect(find.textContaining("Associates' Devices"), findsNothing);
   });

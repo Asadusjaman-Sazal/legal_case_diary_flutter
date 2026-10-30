@@ -1068,6 +1068,37 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'snapshot as the fallback, `is_owner` and `is_current`. Owner-only: an '
         'associate or an individual reads `not_owner`, and nothing here writes.',
   ),
+  LedgerSection(
+    file: '20261030100000_default_table_privileges.sql',
+    version: '0.0.714',
+    label:
+        'Future public tables keep the Data API access the app relies on. '
+        'Supabase stops granting new tables in `public` to the API roles on '
+        '2026-10-30, so a table a later migration creates would be unreachable '
+        'to `authenticated` until something granted it \u2014 as would a preview '
+        'branch or a replayed schema. The statements set the default privileges '
+        'for tables created by the migration role from now on: the four DML '
+        'verbs to `authenticated` (every screen is behind sign-in, and RLS still '
+        'scopes the rows) and to `service_role`; `anon` is deliberately left out '
+        'because this app has no unauthenticated table access. No existing '
+        'table\'s privileges change, and a new table that needs narrower rights '
+        'still states them in its own migration.',
+  ),
+  LedgerSection(
+    file: '20261030110000_default_table_privileges_no_anon.sql',
+    version: '0.0.715',
+    label:
+        'Future public tables are closed to unauthenticated callers. Supabase\'s '
+        'own default still grants `anon` every table privilege (`arwdDxtm`) on a '
+        'new table in `public`; the app never calls the Data API without a '
+        'session, so that grant is a leftover. The statement revokes the whole '
+        'set from `anon` for tables created by the migration role from now on \u2014 '
+        'the four DML verbs are not enough, because truncate, references, '
+        'trigger and maintain are part of the same legacy grant. Existing tables '
+        'keep their grants (a default privilege cannot touch an existing '
+        'object), and `authenticated` and `service_role` keep the four DML verbs '
+        'from the previous migration.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1105,6 +1136,8 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.715': 'Data API — New Tables Closed To Anonymous Callers',
+  '0.0.714': 'Data API — New Tables Keep Their Access',
   '0.0.713': 'Firm Devices — The Owner Sees Every Slot In Use',
   '0.0.685': 'Delete Requests — A Request No Longer Outlives Its Record',
   '0.0.684':

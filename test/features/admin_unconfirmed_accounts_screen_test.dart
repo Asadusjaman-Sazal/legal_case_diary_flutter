@@ -62,6 +62,18 @@ class _FakeAdminRepository implements AdminRepository {
     calls.add('delete:$userId');
     return failure;
   }
+
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async =>
+      const <AdminSharedReference>[];
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async => null;
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async => null;
 }
 
 AdminUnconfirmedAccount _account({
@@ -106,7 +118,12 @@ void main() {
   ) async {
     await pump(
       tester,
-      _FakeAdminRepository(rows: [_account(id: 'a1'), _account(id: 'a2')]),
+      _FakeAdminRepository(
+        rows: [
+          _account(id: 'a1'),
+          _account(id: 'a2'),
+        ],
+      ),
     );
 
     expect(find.text('Non-verified Accounts'), findsOneWidget);
@@ -119,7 +136,12 @@ void main() {
   testWidgets('numbers the cards from 1', (tester) async {
     await pump(
       tester,
-      _FakeAdminRepository(rows: [_account(id: 'a1'), _account(id: 'a2')]),
+      _FakeAdminRepository(
+        rows: [
+          _account(id: 'a1'),
+          _account(id: 'a2'),
+        ],
+      ),
     );
 
     expect(find.text('1'), findsOneWidget);

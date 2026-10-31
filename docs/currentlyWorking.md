@@ -1,5 +1,16 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — The Admin Panel publishes the server-wide library (law-list plan, Phase 6 of 6) — COMPLETE (0.0.749)
+
+- **What was asked.** Phase 6 of the approved law-list plan: a Server-wide Case Reference row on the Admin Panel, opening a page that looks and works like the user's own library and publishes citations every account reads.
+- **One body, two screens.** The law list, the row model, the law grouping and the card moved into `reference_library.dart`; the user's screen and the admin page both draw it, so the replica cannot drift. This extraction is the phase's largest change and changes nothing visible on the user's screen (its suite still passes).
+- **The admin page.** `/admin-panel/shared-case-references`: law list first with counts, a law's citations next, the same law-name picker in the form. Rows are editable and deletable through three new `AdminRepository` methods against `public.shared_case_references`; the RLS admin policy is the boundary, and a policy refusal is worded as not-an-admin.
+- **Online only, by design.** Nothing is queued for this table, so an offline save or delete says so in plain words and sends nothing. Delete asks first through the shared confirmation window.
+- **Guarded.** The page renders nothing unless `adminStatusProvider` has confirmed the account, so a stale route cannot show the library to a non-admin.
+- **Proof.** New `test/features/admin_shared_references_screen_test.dart` (5 cases: law list → card, publishing reaching the repository, the offline refusal, the non-admin's empty page, edit plus delete). The panel test now expects the three rows. `flutter analyze` clean; the admin suites pass (111 across the panel, payment, unconfirmed and drawer tests).
+- **The law-list plan is complete.** Six phases: 0.0.744 laws as data, 0.0.745 the server table, 0.0.746 the Statute dropdown and Edit Law Names, 0.0.747 the two-level library, 0.0.748 the official library, 0.0.749 the Admin Panel page.
+- **Next.** The user's next bug-fix or polish request; no phase of this plan is open.
+
 ### 2026-10-31 — The server-wide citation library, end to end (law-list plan, Phase 5 of 6) — COMPLETE (0.0.748)
 
 - **What was asked.** Phase 5 of the approved law-list plan: official case references stored on the server, read by every phone, never editable there, and pinnable on one device without travelling to anyone else.

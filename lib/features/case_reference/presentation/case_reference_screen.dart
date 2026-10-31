@@ -17,8 +17,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
-import '../../../core/constants/pre_seeded_data.dart';
-import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/theme/app_dialog_metrics.dart';
@@ -26,7 +24,6 @@ import '../../../core/utils/scoped_search.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
 import '../../../shared/widgets/pull_to_sync.dart';
-import '../../../shared/widgets/read_only_lock.dart';
 import '../../../sync/sync_service.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../cases/presentation/cases_screen_modal.dart';
@@ -37,6 +34,7 @@ import '../../settings/presentation/delete_request_flow.dart';
 import '../../settings/presentation/edit_court_steps/next_order_index.dart';
 import '../data/local/shared_case_references_dao.dart';
 import 'law_name_dialog.dart';
+import 'reference_library.dart';
 import 'law_picker.dart';
 import 'reference_viewmodel.dart';
 
@@ -62,9 +60,6 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// existed still appears here as its own law.
   String? _openLaw;
 
-  /// The statute text a reference is filed under; blank reads as "no statute".
-  static String statuteKey(String? statute) => (statute ?? '').trim();
-
   /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
   /// runs as a Drift `LIKE` query across the reference's five text fields rather
   /// than filtering the rows this screen happened to have loaded.
@@ -72,7 +67,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// The runner holds the screen's display rows rather than `CaseReference`,
   /// because a law's page lists the user's own citations and the official
   /// library's together.
-  late final ScopedSearch<_RefRow> _search = ScopedSearch(
+  late final ScopedSearch<ReferenceRow> _search = ScopedSearch(
     fetch: _searchReferences,
   );
 
@@ -98,7 +93,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// The user's own rows keep the SQL query every library uses; the official
   /// cache is searched in memory by its own DAO, because it is a small
   /// pull-only set with no sync columns to query by.
-  Future<List<_RefRow>> _searchReferences(String query) async {
+  Future<List<ReferenceRow>> _searchReferences(String query) async {
     final ownRepository = await ref.read(referenceRepositoryProvider.future);
     final officialRepository = await ref.read(
       sharedReferenceRepositoryProvider.future,
@@ -106,13 +101,13 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     final own = await ownRepository.search(query);
     final official = await officialRepository.search(query);
     final law = _openLaw;
-    final rows = <_RefRow>[
-      for (final reference in own) _RefRow.own(reference),
-      for (final entry in official) _RefRow.official(entry),
+    final rows = <ReferenceRow>[
+      for (final reference in own) ReferenceRow.own(reference),
+      for (final entry in official) ReferenceRow.official(entry),
     ];
     if (law == null) return rows;
     return rows
-        .where((row) => statuteKey(row.statute) == law)
+        .where((row) => referenceStatuteKey(row.statute) == law)
         .toList(growable: false);
   }
 
@@ -172,7 +167,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     if (result is CaseReference && mounted) _showUndoSnackBar(result);
   }
 
-  Future<void> _confirmDelete(_RefRow row) async {
+  Future<void> _confirmDelete(ReferenceRow row) async {
     // An official citation is the admins' to change; the phone has no grant on
     // that table, so there is nothing here to confirm.
     final reference = row.own;
@@ -223,7 +218,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// An official citation's pin is this device's own arrangement, kept in the
   /// local-only pin table, so it needs no allowance: there is nothing to write
   /// to the server and nothing another phone would see.
-  void _togglePin(_RefRow row) {
+  void _togglePin(ReferenceRow row) {
     final official = row.official;
     if (official != null) {
       unawaited(
@@ -249,7 +244,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   ///
   /// An official citation has no editor on this device at all — it belongs to
   /// the admin-curated library — so tapping one opens nothing.
-  void _editIfWritable(_RefRow row) {
+  void _editIfWritable(ReferenceRow row) {
     final reference = row.own;
     if (reference == null) return;
     if (!ensureReferenceWritable(context, ref, reference.id)) return;
@@ -266,9 +261,9 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         const <OfficialReference>[];
     // The two libraries as the screen shows them: the user's own rows first, in
     // their own pinned-then-recent order, then the official ones.
-    final rows = <_RefRow>[
-      for (final reference in references) _RefRow.own(reference),
-      for (final entry in official) _RefRow.official(entry),
+    final rows = <ReferenceRow>[
+      for (final reference in references) ReferenceRow.own(reference),
+      for (final entry in official) ReferenceRow.official(entry),
     ];
     final allowance = ref.watch(writeAllowanceProvider).value;
     final law = _openLaw;
@@ -278,9 +273,9 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     final behavior = ScrollConfiguration(
       behavior: pullScrollBehavior(context),
       child: law == null
-          ? _LawList(
-              sections: _filterSections(
-                _lawSections(
+          ? ReferenceLawList(
+              sections: filterLawSections(
+                lawSectionsFor(
                   ref.watch(lawListProvider).value ?? const <Law>[],
                   rows,
                 ),
@@ -294,20 +289,22 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
             )
           : Column(
               children: [
-                _LawHeader(
+                ReferenceLawHeader(
                   label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
                   count: rows
-                      .where((row) => statuteKey(row.statute) == law)
+                      .where((row) => referenceStatuteKey(row.statute) == law)
                       .length,
                   onBack: _closeLaw,
                 ),
                 Expanded(
-                  child: _ReferenceList(
+                  child: ReferenceList(
                     isSearching: _isSearching,
                     references:
                         _search.rows ??
                         rows
-                            .where((row) => statuteKey(row.statute) == law)
+                            .where(
+                              (row) => referenceStatuteKey(row.statute) == law,
+                            )
                             .toList(growable: false),
                     totalCount: rows.length,
                     emptyMessage: l.caseReferenceScreen_noLawReferences,
@@ -350,639 +347,6 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     await ref.read(syncServiceProvider).retryNow();
     ref.invalidate(referenceViewModelProvider);
   }
-}
-
-/// One card's worth of data, from either library.
-///
-/// The user's own references and the official ones are two table classes with
-/// two write rules — one is queued and editable, the other is a pull-only cache
-/// of what an admin published — but a lawyer reads them as one library, so the
-/// screen renders both through this row and keeps the original behind [own] or
-/// [official].
-class _RefRow {
-  _RefRow.own(CaseReference reference)
-    : id = reference.id,
-      referenceAndPageNo = reference.referenceAndPageNo,
-      statute = reference.statute,
-      sectionOrArticle = reference.sectionOrArticle,
-      titleAndDescription = reference.titleAndDescription,
-      commentsNotes = reference.commentsNotes,
-      isPinned = reference.isPinned,
-      own = reference,
-      official = null;
-
-  _RefRow.official(OfficialReference entry)
-    : id = entry.row.id,
-      referenceAndPageNo = entry.row.referenceAndPageNo,
-      statute = entry.row.statute,
-      sectionOrArticle = entry.row.sectionOrArticle,
-      titleAndDescription = entry.row.titleAndDescription,
-      commentsNotes = entry.row.commentsNotes,
-      isPinned = entry.isPinned,
-      own = null,
-      official = entry;
-
-  final String id;
-  final String referenceAndPageNo;
-  final String? statute;
-  final String? sectionOrArticle;
-  final String? titleAndDescription;
-  final String? commentsNotes;
-  final bool isPinned;
-
-  /// The user's own row, or null when this is an official citation.
-  final CaseReference? own;
-
-  /// The official cache entry, or null when this is the user's own row.
-  final OfficialReference? official;
-
-  /// True for a server-wide citation the phone may not edit or delete.
-  bool get isOfficial => official != null;
-}
-
-/// One law row on the library's first level: the statute text and its count.
-class _LawRow {
-  const _LawRow({required this.key, required this.label, required this.count});
-
-  /// The statute text references carry; empty for a reference with no statute.
-  final String key;
-
-  /// The name to show; empty is rendered as **No statute**.
-  final String label;
-
-  /// How many references this law holds.
-  final int count;
-}
-
-/// One category heading and the laws under it that hold references.
-class _LawSection {
-  const _LawSection({required this.categoryId, required this.rows});
-
-  /// A seeded category id, or empty for the trailing **Other** section.
-  final String categoryId;
-
-  final List<_LawRow> rows;
-}
-
-/// The library's first level: every law that holds references, under its
-/// category, in the law list's order.
-///
-/// A law appears only when a reference names it, which is the user's rule — the
-/// headings are the law categories, not a browse-every-law catalogue. A statute
-/// text no law row owns is still listed, under **Other**, and a reference with
-/// no statute at all sits there as **No statute**, so nothing in the library is
-/// unreachable.
-List<_LawSection> _lawSections(List<Law> laws, List<_RefRow> references) {
-  final counts = <String, int>{};
-  for (final reference in references) {
-    final key = _CaseReferenceScreenState.statuteKey(reference.statute);
-    counts.update(key, (count) => count + 1, ifAbsent: () => 1);
-  }
-  if (counts.isEmpty) return const <_LawSection>[];
-
-  final sections = <_LawSection>[];
-  final claimed = <String>{};
-  for (final category in seedLawCategories) {
-    final rows = <_LawRow>[];
-    // `laws` arrives in display order (order_index, then name), so walking it
-    // gives each heading its own order without sorting again.
-    for (final law in laws) {
-      if (law.category != category.id || claimed.contains(law.name)) continue;
-      final count = counts[law.name];
-      if (count == null) continue;
-      claimed.add(law.name);
-      rows.add(_LawRow(key: law.name, label: law.name, count: count));
-    }
-    if (rows.isNotEmpty) {
-      sections.add(_LawSection(categoryId: category.id, rows: rows));
-    }
-  }
-
-  // Everything the list could not place: an old free-text statute, a name a
-  // newer release wrote, and the blank key.
-  final others =
-      counts.keys
-          .where((key) => key.isNotEmpty && !claimed.contains(key))
-          .toList()
-        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-  final otherRows = <_LawRow>[
-    for (final key in others)
-      _LawRow(key: key, label: key, count: counts[key]!),
-    if (counts.containsKey('')) _LawRow(key: '', label: '', count: counts['']!),
-  ];
-  if (otherRows.isNotEmpty) {
-    sections.add(_LawSection(categoryId: '', rows: otherRows));
-  }
-  return sections;
-}
-
-/// First-level search: it narrows **law names**, so a law whose citations do not
-/// contain the query is still offered when its own name does.
-List<_LawSection> _filterSections(List<_LawSection> sections, String query) {
-  final needle = query.trim().toLowerCase();
-  if (needle.isEmpty) return sections;
-  final filtered = <_LawSection>[];
-  for (final section in sections) {
-    final rows = section.rows
-        .where((row) => row.label.toLowerCase().contains(needle))
-        .toList(growable: false);
-    if (rows.isNotEmpty) {
-      filtered.add(_LawSection(categoryId: section.categoryId, rows: rows));
-    }
-  }
-  return filtered;
-}
-
-/// The law list body: category headings and law rows, pullable to sync.
-class _LawList extends StatelessWidget {
-  const _LawList({
-    required this.sections,
-    required this.isSearching,
-    required this.hasReferences,
-    required this.onOpen,
-    required this.onRefresh,
-  });
-
-  final List<_LawSection> sections;
-  final bool isSearching;
-  final bool hasReferences;
-  final ValueChanged<String> onOpen;
-  final Future<void> Function() onRefresh;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-
-    if (sections.isEmpty) {
-      // The same centred, semibold message the reference list shows, in a
-      // scrollable that always overscrolls so an empty library can be pulled
-      // to sync.
-      return RefreshIndicator(
-        onRefresh: onRefresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.6,
-              child: Center(
-                child: Text(
-                  isSearching && hasReferences
-                      ? l.sharedDialogs_noResults
-                      : l.caseReferenceScreen_empty,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final children = <Widget>[];
-    for (var i = 0; i < sections.length; i++) {
-      final section = sections[i];
-      if (i > 0) children.add(const SizedBox(height: AppSpacing.md));
-      children.add(
-        Padding(
-          key: ValueKey('law-section-${section.categoryId}'),
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.sm,
-            AppSpacing.md,
-            AppSpacing.xs,
-          ),
-          child: Text(
-            context.l10n.lawCategoryName(section.categoryId),
-            style: AppTypography.labelLg.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-      for (final row in section.rows) {
-        children.add(
-          Card(
-            key: ValueKey('law-row-${row.key}'),
-            elevation: 0,
-            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-            color: AppColors.surfaceContainerLowest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: AppColors.outlineVariant),
-            ),
-            child: ListTile(
-              title: Text(
-                row.label.isEmpty ? l.caseReferenceScreen_noStatute : row.label,
-                style: AppTypography.bodyLg,
-              ),
-              onTap: () => onOpen(row.key),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${row.count}',
-                    style: AppTypography.bodySm.copyWith(
-                      color: AppColors.tertiary,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  const Icon(Icons.chevron_right, color: AppColors.tertiary),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    }
-    children.add(const SizedBox(height: AppSpacing.lg));
-
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView(
-        padding: const EdgeInsets.only(top: AppSpacing.sm),
-        children: children,
-      ),
-    );
-  }
-}
-
-/// A law's page header: back to the law list, the law's name, and its count.
-class _LawHeader extends StatelessWidget {
-  const _LawHeader({
-    required this.label,
-    required this.count,
-    required this.onBack,
-  });
-
-  final String label;
-  final int count;
-  final Future<void> Function() onBack;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    color: AppColors.surfaceContainerLowest,
-    child: Row(
-      children: [
-        IconButton(
-          key: const ValueKey('law-back'),
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: onBack,
-        ),
-        Expanded(
-          child: Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.titleMd.copyWith(
-              color: AppColors.onBackground,
-            ),
-          ),
-        ),
-        Text(
-          '$count',
-          style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-        ),
-        const SizedBox(width: AppSpacing.md),
-      ],
-    ),
-  );
-}
-
-/// Scrollable reference list; the search bar lives in the modal above it.
-class _ReferenceList extends StatelessWidget {
-  const _ReferenceList({
-    required this.isSearching,
-    required this.references,
-    required this.totalCount,
-    this.emptyMessage,
-    this.writableReferenceIds,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onTogglePin,
-    required this.onRefresh,
-  });
-
-  final bool isSearching;
-  final List<_RefRow> references;
-  final int totalCount;
-
-  /// What an empty page says when no query is in force; a law's own page says
-  /// *No references for this law.* rather than the library's own message.
-  final String? emptyMessage;
-
-  /// References the allowance keeps editable, or null when every one is.
-  final Set<String>? writableReferenceIds;
-
-  final ValueChanged<_RefRow> onEdit;
-  final ValueChanged<_RefRow> onDelete;
-  final ValueChanged<_RefRow> onTogglePin;
-
-  /// Pull-down-to-sync, so an empty list is still syncable.
-  final Future<void> Function() onRefresh;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final children = <Widget>[];
-
-    if (references.isEmpty) {
-      // Nothing to list: one semibold message centred in the screen, exactly
-      // like the case-list empty state on Active Cases. It sits in a scrollable
-      // that always overscrolls, so an empty screen can still be pulled to
-      // sync — a bare `Center` has nothing to drag.
-      return RefreshIndicator(
-        onRefresh: onRefresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height * 0.6,
-              child: Center(
-                child: Text(
-                  isSearching && totalCount > 0
-                      ? l.sharedDialogs_noResults
-                      : (emptyMessage ?? l.caseReferenceScreen_empty),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    for (var i = 0; i < references.length; i++) {
-      if (i > 0) children.add(const SizedBox(height: AppSpacing.md));
-      final reference = references[i];
-      children.add(
-        _ReferenceCard(
-          row: reference,
-          // Only the user's own rows meet the lapse allowance; an official
-          // citation has no allowance to fall outside of.
-          isReadOnly:
-              !reference.isOfficial &&
-              writableReferenceIds != null &&
-              !writableReferenceIds!.contains(reference.id),
-          onEdit: () => onEdit(reference),
-          onDelete: () => onDelete(reference),
-          onTogglePin: () => onTogglePin(reference),
-        ),
-      );
-    }
-    children.add(const SizedBox(height: AppSpacing.lg));
-
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: children,
-      ),
-    );
-  }
-}
-
-/// A single reference card matching the mandatory mockup layout.
-class _ReferenceCard extends StatefulWidget {
-  const _ReferenceCard({
-    required this.row,
-    required this.isReadOnly,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onTogglePin,
-  });
-
-  /// The citation to draw, from either library.
-  final _RefRow row;
-
-  final bool isReadOnly;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-  final VoidCallback onTogglePin;
-
-  @override
-  State<_ReferenceCard> createState() => _ReferenceCardState();
-}
-
-class _ReferenceCardState extends State<_ReferenceCard> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final row = widget.row;
-    final l = AppLocalizations.of(context);
-    final borderColor = _hovered
-        ? AppColors.secondary
-        : AppColors.outlineVariant;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: Card(
-        elevation: _hovered ? 2 : 0,
-        color: AppColors.surfaceContainerLowest,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: borderColor),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: widget.onEdit,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.cardPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // L1: reference & page no + statute chips, 3-dot menu on the right.
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.xs,
-                        children: [
-                          _Chip(label: row.referenceAndPageNo),
-                          if (row.statute != null && row.statute!.isNotEmpty)
-                            _Chip(label: row.statute!),
-                          // Which library this row came from. An official
-                          // citation reads like any other card — it is a full
-                          // member of the library, merely one this device may
-                          // not change.
-                          if (row.isOfficial)
-                            _OfficialChip(
-                              label: l.caseReferenceScreen_official,
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (widget.isReadOnly) ...[
-                      const ReadOnlyLock(),
-                      const SizedBox(width: AppSpacing.xs),
-                    ],
-                    PopupMenuButton<String>(
-                      key: const ValueKey('reference-menu'),
-                      icon: const Icon(Icons.more_vert),
-                      color: AppColors.surfaceContainerLowest,
-                      onSelected: (value) {
-                        if (value == 'pin') {
-                          widget.onTogglePin();
-                        } else if (value == 'delete') {
-                          widget.onDelete();
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem<String>(
-                          key: const ValueKey('reference-pin'),
-                          value: 'pin',
-                          child: Row(
-                            children: [
-                              Icon(
-                                row.isPinned
-                                    ? Icons.push_pin
-                                    : Icons.push_pin_outlined,
-                                size: 18,
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Text(
-                                row.isPinned
-                                    ? l.caseReferenceScreen_unpin
-                                    : l.caseReferenceScreen_pin,
-                              ),
-                            ],
-                          ),
-                        ),
-                        // No Delete on an official row: the phone holds no
-                        // grant on the server table, and an entry the admin
-                        // library owns is not this user's to remove. The pin
-                        // above is theirs, and stays on this device.
-                        if (!row.isOfficial)
-                          PopupMenuItem<String>(
-                            key: const ValueKey('reference-delete'),
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.delete_outline,
-                                  size: 18,
-                                  color: AppColors.error,
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Text(
-                                  l.sharedActions_delete,
-                                  style: TextStyle(color: AppColors.error),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                // L2: section / article.
-                if (row.sectionOrArticle != null &&
-                    row.sectionOrArticle!.isNotEmpty)
-                  Text(
-                    row.sectionOrArticle!,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                // L3: title & description.
-                if (row.titleAndDescription != null &&
-                    row.titleAndDescription!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    row.titleAndDescription!,
-                    style: AppTypography.bodyMd.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-                // L4: comments / notes.
-                if (row.commentsNotes != null &&
-                    row.commentsNotes!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border(
-                        left: BorderSide(color: AppColors.secondary, width: 4),
-                      ),
-                    ),
-                    child: Text(
-                      row.commentsNotes!,
-                      style: AppTypography.labelMd.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The **Official** mark on a citation from the server-wide library.
-///
-/// Deliberately the same shape and size as [_Chip] but outlined rather than
-/// filled, so it reads as a label on the row rather than a second citation
-/// field — and stays legible next to two filled chips.
-class _OfficialChip extends StatelessWidget {
-  const _OfficialChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: AppColors.outline),
-    ),
-    child: Text(
-      label,
-      style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
-    ),
-  );
-}
-
-/// Small rounded chip used for the reference & page no and statute labels.
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.secondaryFixed,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      label,
-      style: AppTypography.labelMd.copyWith(color: AppColors.primary),
-    ),
-  );
 }
 
 /// Slide-up sheet for adding or editing a case reference.

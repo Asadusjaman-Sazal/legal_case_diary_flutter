@@ -136,11 +136,14 @@
 <!-- Task 23's Admin Panel. This is the reference for
      lib/features/admin/presentation/admin_panel_screen.dart.
 
-     The panel is a **menu**: two shared Settings sub-menu rows, each opening a
-     page of its own. It used to render the payment queue itself; that queue now
-     lives on the *Payment Requests* page
-     (admin_payment_requests_screen.dart), and *Non-verified Accounts*
-     (admin_unconfirmed_accounts_screen.dart) is the second page.
+     The panel is a **menu**: three shared Settings sub-menu rows, each opening
+     a page of its own. It used to render the payment queue itself; that queue
+     now lives on the *Payment Requests* page
+     (admin_payment_requests_screen.dart), *Non-verified Accounts*
+     (admin_unconfirmed_accounts_screen.dart) is the second page, and
+     *Server-wide Case Reference* (admin_shared_references_screen.dart) is the
+     third: the citation library every account reads, which the admin publishes
+     to from there.
 
      The frame is the signed-in admin's own: the case screens' header with the
      side menu, the title and the shared sync button, but no back arrow (the
@@ -177,7 +180,7 @@
     <span class="w-1"></span>
   </header>
 
-  <!-- Body: the two pages the panel holds. -->
+  <!-- Body: the three pages the panel holds. -->
   <div class="flex-1 px-edge-margin pt-md pb-xl flex flex-col gap-gutter">
 
     <!-- Payment Requests: the queue, with its Pending and Resolved sections. -->
@@ -200,6 +203,21 @@
         <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Sign-Ups Unconfirmed For Over 72 Hours</span>
       </span>
       <span class="font-title-md text-title-md text-on-surface-variant">3</span>
+    </button>
+
+    <!-- Server-wide Case Reference: the admin-curated citation library every
+         signed-in account reads. Its count is how many citations are published,
+         not how many are waiting, because this row is a library rather than a
+         queue. The page itself is the user's Case Reference screen over the
+         live server table: the same law list and cards, plus add, edit and
+         delete; a save needs the server and says so when it cannot reach it. -->
+    <button class="bg-surface border border-surface-container rounded-xl p-md flex items-center text-left active:opacity-80">
+      <span class="material-symbols-outlined text-primary text-[28px]">menu_book</span>
+      <span class="ml-md flex-1 flex flex-col">
+        <span class="font-body-lg text-body-lg text-on-surface">Server-wide Case Reference</span>
+        <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Citations Every Account Can Read</span>
+      </span>
+      <span class="font-title-md text-title-md text-on-surface-variant">57</span>
     </button>
 
   </div>

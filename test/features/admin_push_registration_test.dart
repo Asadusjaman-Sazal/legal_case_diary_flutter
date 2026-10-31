@@ -114,6 +114,18 @@ class _FakeAdmin implements AdminRepository {
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
       null;
+
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async =>
+      const <AdminSharedReference>[];
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async => null;
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async => null;
 }
 
 void main() {

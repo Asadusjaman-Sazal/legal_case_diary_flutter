@@ -70,6 +70,18 @@ class _FakeAdminRepository implements AdminRepository {
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
       null;
+
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async =>
+      const <AdminSharedReference>[];
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async => null;
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async => null;
 }
 
 /// One pending submission from a named payer.
@@ -101,7 +113,6 @@ String? _count(WidgetTester tester, int index) {
       .toList();
   return (cards[index].trailing as Text).data;
 }
-
 
 void main() {
   Future<void> pump(
@@ -163,11 +174,7 @@ void main() {
     required String marker,
     required String title,
   }) async {
-    await pump(
-      tester,
-      _FakeAdminRepository(),
-      routeMarker: <String>[marker],
-    );
+    await pump(tester, _FakeAdminRepository(), routeMarker: <String>[marker]);
 
     await tester.tap(find.text(title));
     await tester.pumpAndSettle();
@@ -175,24 +182,23 @@ void main() {
     expect(find.text('at $marker'), findsOneWidget, reason: marker);
   }
 
-  testWidgets('offers the two pages the panel holds', (tester) async {
+  testWidgets('offers the three pages the panel holds', (tester) async {
     await pump(tester, _FakeAdminRepository());
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(2));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
     final cards = tester
         .widgetList<SettingsMenuCard>(find.byType(SettingsMenuCard))
         .toList();
-    expect(
-      cards.map((card) => card.title),
-      <String>['Payment Requests', 'Non-verified Accounts'],
-    );
-    expect(
-      cards.map((card) => card.subtitle),
-      <String>[
-        'Approve Or Reject Submitted Payments',
-        'Sign-Ups Unconfirmed For Over 72 Hours',
-      ],
-    );
+    expect(cards.map((card) => card.title), <String>[
+      'Payment Requests',
+      'Non-verified Accounts',
+      'Server-wide Case Reference',
+    ]);
+    expect(cards.map((card) => card.subtitle), <String>[
+      'Approve Or Reject Submitted Payments',
+      'Sign-Ups Unconfirmed For Over 72 Hours',
+      'Citations Every Account Can Read',
+    ]);
   });
 
   testWidgets('the Payment Requests entry opens its own page', (tester) async {
@@ -253,7 +259,9 @@ void main() {
     expect((cards[1].trailing as Text).data, '3', reason: 'unconfirmed');
   });
 
-  testWidgets('re-reads both counts every time the panel opens', (tester) async {
+  testWidgets('re-reads both counts every time the panel opens', (
+    tester,
+  ) async {
     final repo = _FakeAdminRepository(
       rows: [_pending('1')],
       accounts: [_unconfirmed('a')],

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.748 - Phase 5 of Case Reference: official citations live on the server, reach every phone as a read-only cache and can be pinned on this device only.
+Version: 0.0.749 - Phase 6 of Case Reference: the Admin Panel publishes official citations from a Server-wide Case Reference page that saves to the server and refuses offline.
 --------------------------------------
 
 ## Version History Log:
@@ -762,3 +762,4 @@ Version: 0.0.745 - Law names: public.laws is live with its RLS, guards, broadcas
 Version: 0.0.746 - Phase 3 of the law list: the Statute box is a grouped law-name dropdown with an Add a Law Name window, and Settings gains Edit Law Names.
 Version: 0.0.747 - Phase 4 of Case Reference rebuilt: the library lists laws first, each opening its own references, with search at each level.
 Version: 0.0.748 - Phase 5 of Case Reference: official citations live on the server, reach every phone as a read-only cache and can be pinned on this device only.
+Version: 0.0.749 - Phase 6 of Case Reference: the Admin Panel publishes official citations from a Server-wide Case Reference page that saves to the server and refuses offline.

@@ -2985,6 +2985,96 @@ abstract class AppLocalizations {
   /// **'That did not work. Please try again.'**
   String get adminPanel_failedUnexpected;
 
+  /// No description provided for @adminPanel_sharedReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Server-wide Case Reference'**
+  String get adminPanel_sharedReferences;
+
+  /// No description provided for @adminPanel_sharedReferencesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Citations Every Account Can Read'**
+  String get adminPanel_sharedReferencesSubtitle;
+
+  /// No description provided for @adminSharedRefs_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the library…'**
+  String get adminSharedRefs_loading;
+
+  /// No description provided for @adminSharedRefs_loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The library could not be loaded.'**
+  String get adminSharedRefs_loadFailed;
+
+  /// No description provided for @adminSharedRefs_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No citation has been published yet.'**
+  String get adminSharedRefs_empty;
+
+  /// No description provided for @adminSharedRefs_addTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Official Reference'**
+  String get adminSharedRefs_addTitle;
+
+  /// No description provided for @adminSharedRefs_editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Official Reference'**
+  String get adminSharedRefs_editTitle;
+
+  /// No description provided for @adminSharedRefs_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline. Publishing a citation needs the server, so try again when you are connected.'**
+  String get adminSharedRefs_offline;
+
+  /// No description provided for @adminSharedRefs_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Official reference saved.'**
+  String get adminSharedRefs_saved;
+
+  /// No description provided for @adminSharedRefs_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Official reference deleted.'**
+  String get adminSharedRefs_deleted;
+
+  /// No description provided for @adminSharedRefs_deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete This Official Reference?'**
+  String get adminSharedRefs_deleteTitle;
+
+  /// No description provided for @adminSharedRefs_deleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will disappear from every account at their next sync. This cannot be undone.'**
+  String get adminSharedRefs_deleteBody;
+
+  /// No description provided for @adminSharedRefs_deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminSharedRefs_deleteConfirm;
+
+  /// No description provided for @adminSharedRefs_noLawReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'No references for this law yet.'**
+  String get adminSharedRefs_noLawReferences;
+
+  /// No description provided for @adminSharedRefs_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference & Page No is required.'**
+  String get adminSharedRefs_required;
+
   /// No description provided for @general_tomorrow.
   ///
   /// In en, this message translates to:

@@ -142,8 +142,10 @@ class _FakeAdmin implements AdminRepository {
   Future<AdminActionFailure?> approve(String submissionId) async => null;
 
   @override
-  Future<AdminActionFailure?> reject(String submissionId, {String? note}) async =>
-      null;
+  Future<AdminActionFailure?> reject(
+    String submissionId, {
+    String? note,
+  }) async => null;
 
   /// One unconfirmed account per signed-in account, so a leak is visible here
   /// too — the panel's badge counts these alongside the pending payments.
@@ -163,6 +165,18 @@ class _FakeAdmin implements AdminRepository {
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
       null;
+
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async =>
+      const <AdminSharedReference>[];
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async => null;
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async => null;
 }
 
 void main() {
@@ -220,91 +234,102 @@ void main() {
     );
   }
 
-  test('a switch to another account drops the previous one\'s live reads', () async {
-    harness.firm.members = const <FirmMemberSummary>[
-      FirmMemberSummary(
-        userId: 'user-a',
-        role: 'owner',
-        fullName: 'Adv. A',
-        canAdd: true,
-        canEdit: true,
-        canDelete: true,
-      ),
-    ];
-    harness.firm.invites = const <FirmInviteSummary>[
-      FirmInviteSummary(id: 'invite-a', createdAt: 1),
-    ];
+  test(
+    'a switch to another account drops the previous one\'s live reads',
+    () async {
+      harness.firm.members = const <FirmMemberSummary>[
+        FirmMemberSummary(
+          userId: 'user-a',
+          role: 'owner',
+          fullName: 'Adv. A',
+          canAdd: true,
+          canEdit: true,
+          canDelete: true,
+        ),
+      ];
+      harness.firm.invites = const <FirmInviteSummary>[
+        FirmInviteSummary(id: 'invite-a', createdAt: 1),
+      ];
 
-    final c = await container();
-    await signInAs(c, 'user-a');
+      final c = await container();
+      await signInAs(c, 'user-a');
 
-    // What A sees: their own history, their own admin panel, their own roster.
-    expect(
-      (await c.read(myPaymentSubmissionsProvider.future)).single.id,
-      'user-a-payment',
-    );
-    expect(await c.read(adminStatusProvider.future), isTrue);
-    expect(
-      (await c.read(adminPaymentRequestsProvider.future)).single.id,
-      'user-a-payment',
-    );
-    expect(
-      (await c.read(firmMembersListProvider.future)).single.userId,
-      'user-a',
-    );
-    expect((await c.read(firmInvitesListProvider.future)).single.id, 'invite-a');
+      // What A sees: their own history, their own admin panel, their own roster.
+      expect(
+        (await c.read(myPaymentSubmissionsProvider.future)).single.id,
+        'user-a-payment',
+      );
+      expect(await c.read(adminStatusProvider.future), isTrue);
+      expect(
+        (await c.read(adminPaymentRequestsProvider.future)).single.id,
+        'user-a-payment',
+      );
+      expect(
+        (await c.read(firmMembersListProvider.future)).single.userId,
+        'user-a',
+      );
+      expect(
+        (await c.read(firmInvitesListProvider.future)).single.id,
+        'invite-a',
+      );
 
-    // A's session ends on its own, and B signs in on the same device.
-    await sessionLost(c);
-    harness.firm.members = const <FirmMemberSummary>[];
-    harness.firm.invites = const <FirmInviteSummary>[];
-    await signInAs(c, 'user-b');
+      // A's session ends on its own, and B signs in on the same device.
+      await sessionLost(c);
+      harness.firm.members = const <FirmMemberSummary>[];
+      harness.firm.invites = const <FirmInviteSummary>[];
+      await signInAs(c, 'user-b');
 
-    expect(
-      (await c.read(myPaymentSubmissionsProvider.future)).single.id,
-      'user-b-payment',
-      reason: 'B reads B\'s ledger, never A\'s',
-    );
-    expect(
-      await c.read(adminStatusProvider.future),
-      isFalse,
-      reason: 'B is not an admin, so the panel must not open to them',
-    );
-    expect(
-      await c.read(adminPaymentRequestsProvider.future),
-      isEmpty,
-      reason: 'a non-admin\'s panel has no queue',
-    );
-    expect(await c.read(firmMembersListProvider.future), isEmpty);
-    expect(await c.read(firmInvitesListProvider.future), isEmpty);
+      expect(
+        (await c.read(myPaymentSubmissionsProvider.future)).single.id,
+        'user-b-payment',
+        reason: 'B reads B\'s ledger, never A\'s',
+      );
+      expect(
+        await c.read(adminStatusProvider.future),
+        isFalse,
+        reason: 'B is not an admin, so the panel must not open to them',
+      );
+      expect(
+        await c.read(adminPaymentRequestsProvider.future),
+        isEmpty,
+        reason: 'a non-admin\'s panel has no queue',
+      );
+      expect(await c.read(firmMembersListProvider.future), isEmpty);
+      expect(await c.read(firmInvitesListProvider.future), isEmpty);
 
-    expect(
-      payments.fetches,
-      2,
-      reason: 'the switch re-read the history rather than serving A\'s answer',
-    );
-    expect(admin.statusCalls, 2, reason: 'the switch asked the server again');
-  });
+      expect(
+        payments.fetches,
+        2,
+        reason:
+            'the switch re-read the history rather than serving A\'s answer',
+      );
+      expect(admin.statusCalls, 2, reason: 'the switch asked the server again');
+    },
+  );
 
-  test('a switch to another account drops the previous one\'s device record', () async {
-    final c = await container();
-    await signInAs(c, 'user-a');
-    await c
-        .read(profileFieldsProvider.notifier)
-        .save(const ProfileFields(fullName: 'Adv. A', mobile: '1711111111'));
+  test(
+    'a switch to another account drops the previous one\'s device record',
+    () async {
+      final c = await container();
+      await signInAs(c, 'user-a');
+      await c
+          .read(profileFieldsProvider.notifier)
+          .save(const ProfileFields(fullName: 'Adv. A', mobile: '1711111111'));
 
-    await sessionLost(c);
+      await sessionLost(c);
 
-    // The record is the previous holder's and outlives the session; a sign-in as
-    // somebody else is where it has to go.
-    expect(c.read(profileFieldsProvider).fullName, 'Adv. A');
-    await signInAs(c, 'user-b');
-    expect(
-      c.read(profileFieldsProvider).fullName,
-      isEmpty,
-      reason: 'B\'s account must not inherit the details A typed on this device',
-    );
-  });
+      // The record is the previous holder's and outlives the session; a sign-in as
+      // somebody else is where it has to go.
+      expect(c.read(profileFieldsProvider).fullName, 'Adv. A');
+      await signInAs(c, 'user-b');
+      expect(
+        c.read(profileFieldsProvider).fullName,
+        isEmpty,
+        reason:
+            'B\'s account must not inherit the details A typed on this device',
+      );
+    },
+  );
 
   test('a switch to another account wipes the leaving diary with its queue', () async {
     final c = await container();
@@ -361,9 +386,7 @@ void main() {
       syncQueueEntriesProvider,
       (previous, next) {
         final value = next.value;
-        if (value != null &&
-            value.isEmpty &&
-            !entriesCleared.isCompleted) {
+        if (value != null && value.isEmpty && !entriesCleared.isCompleted) {
           entriesCleared.complete(value.length);
         }
       },
@@ -460,13 +483,15 @@ void main() {
     expect(
       await c.read(adminStatusProvider.future),
       isTrue,
-      reason: 'signing in must ask the server again rather than serve the '
+      reason:
+          'signing in must ask the server again rather than serve the '
           'answer from the moment the session ended',
     );
     expect(
       admin.statusCalls,
       callsWithNoSession + 1,
-      reason: 'the sign-in asked the server again rather than serving the '
+      reason:
+          'the sign-in asked the server again rather than serving the '
           'answer the signed-out read left behind',
     );
   });

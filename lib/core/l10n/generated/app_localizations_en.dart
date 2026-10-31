@@ -1697,6 +1697,55 @@ class AppLocalizationsEn extends AppLocalizations {
       'That did not work. Please try again.';
 
   @override
+  String get adminPanel_sharedReferences => 'Server-wide Case Reference';
+
+  @override
+  String get adminPanel_sharedReferencesSubtitle =>
+      'Citations Every Account Can Read';
+
+  @override
+  String get adminSharedRefs_loading => 'Loading the library…';
+
+  @override
+  String get adminSharedRefs_loadFailed => 'The library could not be loaded.';
+
+  @override
+  String get adminSharedRefs_empty => 'No citation has been published yet.';
+
+  @override
+  String get adminSharedRefs_addTitle => 'Add Official Reference';
+
+  @override
+  String get adminSharedRefs_editTitle => 'Edit Official Reference';
+
+  @override
+  String get adminSharedRefs_offline =>
+      'You are offline. Publishing a citation needs the server, so try again when you are connected.';
+
+  @override
+  String get adminSharedRefs_saved => 'Official reference saved.';
+
+  @override
+  String get adminSharedRefs_deleted => 'Official reference deleted.';
+
+  @override
+  String get adminSharedRefs_deleteTitle => 'Delete This Official Reference?';
+
+  @override
+  String get adminSharedRefs_deleteBody =>
+      'It will disappear from every account at their next sync. This cannot be undone.';
+
+  @override
+  String get adminSharedRefs_deleteConfirm => 'Delete';
+
+  @override
+  String get adminSharedRefs_noLawReferences =>
+      'No references for this law yet.';
+
+  @override
+  String get adminSharedRefs_required => 'Reference & Page No is required.';
+
+  @override
   String get general_tomorrow => 'Tomorrow';
 
   @override

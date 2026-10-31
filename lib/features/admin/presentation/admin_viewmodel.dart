@@ -50,6 +50,23 @@ final adminUnconfirmedAccountsProvider =
       return ref.watch(adminRepositoryProvider).listUnconfirmedAccounts();
     });
 
+/// Every citation in the server-wide library, as the server holds it.
+///
+/// Empty for a non-admin, like the other admin lists: the panel's page is only
+/// reached from an admin row, and a queued read from an account that has lost
+/// the grant must not show anything either.
+final adminSharedReferencesProvider =
+    FutureProvider<List<AdminSharedReference>>((ref) async {
+      final isAdmin = await ref.watch(adminStatusProvider.future);
+      if (!isAdmin) return const <AdminSharedReference>[];
+      return ref.watch(adminRepositoryProvider).listSharedReferences();
+    });
+
+/// How many citations the server-wide library holds, for the panel's row.
+final adminSharedReferenceCountProvider = Provider<int>(
+  (ref) => ref.watch(adminSharedReferencesProvider).value?.length ?? 0,
+);
+
 /// The payment submissions still to be decided.
 ///
 /// The panel's Payment Requests row counts this, and

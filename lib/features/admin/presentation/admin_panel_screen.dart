@@ -57,6 +57,7 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
       if (!mounted) return;
       ref.invalidate(adminPaymentRequestsProvider);
       ref.invalidate(adminUnconfirmedAccountsProvider);
+      ref.invalidate(adminSharedReferencesProvider);
     });
   }
 
@@ -109,8 +110,10 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
           await ref.read(syncServiceProvider).retryNow();
           ref.invalidate(adminPaymentRequestsProvider);
           ref.invalidate(adminUnconfirmedAccountsProvider);
+          ref.invalidate(adminSharedReferencesProvider);
           await ref.read(adminPaymentRequestsProvider.future);
           await ref.read(adminUnconfirmedAccountsProvider.future);
+          await ref.read(adminSharedReferencesProvider.future);
         },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
@@ -126,9 +129,7 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
               subtitle: l.adminPanel_paymentRequestsSubtitle,
               // The count sits where the chevron would, beside the text (user
               // request) — the same shape the two payment sections use.
-              trailing: countTrailing(
-                ref.watch(adminPendingPaymentsProvider),
-              ),
+              trailing: countTrailing(ref.watch(adminPendingPaymentsProvider)),
               onTap: () => context.push(AppRoutes.adminPaymentRequests),
             ),
             const SizedBox(height: AppSpacing.gutter),
@@ -136,10 +137,18 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
               icon: Icons.person_off_outlined,
               title: l.adminPanel_unverifiedAccounts,
               subtitle: l.adminPanel_unverifiedAccountsSubtitle,
-              trailing: countTrailing(
-                ref.watch(adminUnconfirmedCountProvider),
-              ),
+              trailing: countTrailing(ref.watch(adminUnconfirmedCountProvider)),
               onTap: () => context.push(AppRoutes.adminUnverifiedAccounts),
+            ),
+            const SizedBox(height: AppSpacing.gutter),
+            SettingsMenuCard(
+              icon: Icons.menu_book_outlined,
+              title: l.adminPanel_sharedReferences,
+              subtitle: l.adminPanel_sharedReferencesSubtitle,
+              trailing: countTrailing(
+                ref.watch(adminSharedReferenceCountProvider),
+              ),
+              onTap: () => context.push(AppRoutes.adminSharedReferences),
             ),
           ],
         ),

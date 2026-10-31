@@ -163,9 +163,8 @@ class AdminPaymentRequest {
         mobileNo: json['mobile_no'] as String? ?? '',
       );
 
-  static DateTime? _instant(Object? value) => value is String
-      ? DateTime.tryParse(value)?.toLocal()
-      : null;
+  static DateTime? _instant(Object? value) =>
+      value is String ? DateTime.tryParse(value)?.toLocal() : null;
 }
 
 /// One account that signed up but never confirmed its address.
@@ -221,6 +220,66 @@ class AdminUnconfirmedAccount {
 /// lists it nor deletes it; named here only so the UI can word the same number.
 const int adminUnconfirmedMinAgeHours = 72;
 
+/// One citation in the server-wide reference library.
+///
+/// The Admin Panel's own row shape: it is the table's row without the
+/// server-managed columns, so what the admin types is what the pull delivers to
+/// every phone. The id is generated on this device when a citation is new, the
+/// same way the user's own references are created.
+class AdminSharedReference {
+  /// Creates a citation.
+  const AdminSharedReference({
+    required this.id,
+    required this.referenceAndPageNo,
+    this.statute,
+    this.sectionOrArticle,
+    this.titleAndDescription,
+    this.commentsNotes,
+  });
+
+  /// Reads one row as the Data API returned it.
+  factory AdminSharedReference.fromJson(Map<String, dynamic> json) =>
+      AdminSharedReference(
+        id: json['id'] as String? ?? '',
+        referenceAndPageNo: json['reference_and_page_no'] as String? ?? '',
+        statute: json['statute'] as String?,
+        sectionOrArticle: json['section_or_article'] as String?,
+        titleAndDescription: json['title_and_description'] as String?,
+        commentsNotes: json['comments_notes'] as String?,
+      );
+
+  /// UUID primary key.
+  final String id;
+
+  /// Reference and page number, e.g. `29 DLR (AD) 69`.
+  final String referenceAndPageNo;
+
+  /// The cited Act/statute name, as free text like the user's own references.
+  final String? statute;
+
+  /// Section or article number.
+  final String? sectionOrArticle;
+
+  /// Title and description of the principle.
+  final String? titleAndDescription;
+
+  /// Comments or notes the admin attaches.
+  final String? commentsNotes;
+
+  /// The writable columns, in the table's own snake_case names.
+  ///
+  /// `is_deleted` is deliberately absent: a delete is the toolbar's own action,
+  /// not an edit, so it cannot be set by saving a form.
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'id': id,
+    'reference_and_page_no': referenceAndPageNo,
+    'statute': statute,
+    'section_or_article': sectionOrArticle,
+    'title_and_description': titleAndDescription,
+    'comments_notes': commentsNotes,
+  };
+}
+
 /// The admin panel's data boundary.
 abstract class AdminRepository {
   /// Whether the signed-in account is a registered admin.
@@ -244,6 +303,18 @@ abstract class AdminRepository {
 
   /// Removes the unconfirmed account [userId]; null on success, else why not.
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId);
+
+  /// Every live citation in the server-wide library, by citation.
+  Future<List<AdminSharedReference>> listSharedReferences();
+
+  /// Inserts or updates [reference] in the server-wide library; null on
+  /// success, else why it was refused.
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  );
+
+  /// Removes [id] from the server-wide library; null on success, else why not.
+  Future<AdminActionFailure?> deleteSharedReference(String id);
 }
 
 /// Talks to the three admin RPCs.
@@ -289,7 +360,10 @@ class SupabaseAdminRepository implements AdminRepository {
   }
 
   @override
-  Future<AdminActionFailure?> reject(String submissionId, {String? note}) async {
+  Future<AdminActionFailure?> reject(
+    String submissionId, {
+    String? note,
+  }) async {
     try {
       final response = await _client.rpc(
         'admin_reject_payment',
@@ -327,6 +401,41 @@ class SupabaseAdminRepository implements AdminRepository {
     }
   }
 
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async {
+    final response = await _client
+        .from('shared_case_references')
+        .select()
+        .eq('is_deleted', false)
+        .order('reference_and_page_no');
+    return response.map(AdminSharedReference.fromJson).toList(growable: false);
+  }
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async {
+    try {
+      // An upsert by id: the form does not know whether the row is new, and
+      // the server's own `server_updated_at` trigger decides what the pull
+      // sees next.
+      await _client.from('shared_case_references').upsert(reference.toJson());
+      return null;
+    } on Object catch (error) {
+      return _failureFromError(error);
+    }
+  }
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async {
+    try {
+      await _client.from('shared_case_references').delete().eq('id', id);
+      return null;
+    } on Object catch (error) {
+      return _failureFromError(error);
+    }
+  }
+
   /// Maps the delete RPC's own `status`/`reason` to a failure, or null on
   /// success. Unlike the payment actions it answers `removed`, and its refusals
   /// are `not_found`, `confirmed` and `has_activity` — the last two are the
@@ -348,8 +457,8 @@ class SupabaseAdminRepository implements AdminRepository {
     return switch (response['status']) {
       'approved' || 'rejected' => null,
       'not_found' => AdminActionFailure.notFound,
-      'already_resolved' || 'already_approved' =>
-        AdminActionFailure.alreadyResolved,
+      'already_resolved' ||
+      'already_approved' => AdminActionFailure.alreadyResolved,
       'invalid_plan' || 'invalid_amount' => AdminActionFailure.unexpected,
       _ => AdminActionFailure.unexpected,
     };
@@ -359,8 +468,15 @@ class SupabaseAdminRepository implements AdminRepository {
   /// an exception carrying the server's message.
   static AdminActionFailure _failureFromError(Object error) {
     final message = error.toString().toLowerCase();
-    if (message.contains('admin_required')) return AdminActionFailure.notAnAdmin;
+    if (message.contains('admin_required')) {
+      return AdminActionFailure.notAnAdmin;
+    }
     if (message.contains('not_found')) return AdminActionFailure.notFound;
+    // A row-level security refusal on the shared library means the account is
+    // not an admin any more; the panel words it as such instead of as a fault.
+    if (message.contains('row-level security')) {
+      return AdminActionFailure.notAnAdmin;
+    }
     return AdminActionFailure.unexpected;
   }
 }
@@ -396,5 +512,18 @@ class UnavailableAdminRepository implements AdminRepository {
 
   @override
   Future<AdminActionFailure?> deleteUnconfirmedAccount(String userId) async =>
+      AdminActionFailure.notAnAdmin;
+
+  @override
+  Future<List<AdminSharedReference>> listSharedReferences() async =>
+      const <AdminSharedReference>[];
+
+  @override
+  Future<AdminActionFailure?> saveSharedReference(
+    AdminSharedReference reference,
+  ) async => AdminActionFailure.notAnAdmin;
+
+  @override
+  Future<AdminActionFailure?> deleteSharedReference(String id) async =>
       AdminActionFailure.notAnAdmin;
 }

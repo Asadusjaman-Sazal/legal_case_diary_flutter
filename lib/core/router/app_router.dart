@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/presentation/admin_panel_screen.dart';
+import '../../features/admin/presentation/admin_shared_references_screen.dart';
 import '../../features/admin/presentation/admin_payment_requests_screen.dart';
 import '../../features/admin/presentation/admin_unconfirmed_accounts_screen.dart';
 import '../../features/accounts_and_profile/presentation/accounts_profile_menu_screen.dart';
@@ -112,6 +113,8 @@ class AppRoutes {
   static const String adminPaymentRequests = '/admin-panel/payment-requests';
   static const String adminUnverifiedAccounts =
       '/admin-panel/unverified-accounts';
+  static const String adminSharedReferences =
+      '/admin-panel/shared-case-references';
   static const String settings = '/settings';
   static const String settingsLanguage = '/settings/language';
   static const String settingsAccountProfile = '/settings/account-profile';
@@ -625,6 +628,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.adminUnverifiedAccounts,
     builder: (context, state) => const AdminUnconfirmedAccountsScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.adminSharedReferences,
+    builder: (context, state) => const AdminSharedReferencesScreen(),
   ),
   // Settings tree
   GoRoute(

@@ -1702,6 +1702,54 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_failedUnexpected => 'এটি কাজ করেনি। আবার চেষ্টা করুন।';
 
   @override
+  String get adminPanel_sharedReferences => 'সার্ভার-ওয়াইড কেস রেফারেন্স';
+
+  @override
+  String get adminPanel_sharedReferencesSubtitle =>
+      'সব অ্যাকাউন্ট পড়তে পারে এমন রেফারেন্স';
+
+  @override
+  String get adminSharedRefs_loading => 'লাইব্রেরি লোড হচ্ছে…';
+
+  @override
+  String get adminSharedRefs_loadFailed => 'লাইব্রেরি লোড করা যায়নি।';
+
+  @override
+  String get adminSharedRefs_empty => 'এখনও কোনো রেফারেন্স প্রকাশিত হয়নি।';
+
+  @override
+  String get adminSharedRefs_addTitle => 'অফিসিয়াল রেফারেন্স যোগ করুন';
+
+  @override
+  String get adminSharedRefs_editTitle => 'অফিসিয়াল রেফারেন্স সম্পাদনা করুন';
+
+  @override
+  String get adminSharedRefs_offline =>
+      'আপনি অফলাইনে আছেন। রেফারেন্স প্রকাশ করতে সার্ভার দরকার, তাই সংযোগ ফিরে এলে আবার চেষ্টা করুন।';
+
+  @override
+  String get adminSharedRefs_saved => 'অফিসিয়াল রেফারেন্স সংরক্ষিত হয়েছে।';
+
+  @override
+  String get adminSharedRefs_deleted => 'অফিসিয়াল রেফারেন্স মোছা হয়েছে।';
+
+  @override
+  String get adminSharedRefs_deleteTitle => 'এই অফিসিয়াল রেফারেন্সটি মুছবেন?';
+
+  @override
+  String get adminSharedRefs_deleteBody =>
+      'পরের সিঙ্কে এটি প্রতিটি অ্যাকাউন্ট থেকে সরে যাবে। এটি ফেরানো যাবে না।';
+
+  @override
+  String get adminSharedRefs_deleteConfirm => 'মুছুন';
+
+  @override
+  String get adminSharedRefs_noLawReferences => 'এই আইনের কোনো রেফারেন্স নেই।';
+
+  @override
+  String get adminSharedRefs_required => 'রেফারেন্স ও পৃষ্ঠা নম্বর আবশ্যক।';
+
+  @override
   String get general_tomorrow => 'আগামীকাল';
 
   @override

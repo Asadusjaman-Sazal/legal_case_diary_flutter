@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.761 - Case Reference reopens on the law it was reading after visiting another screen; the open law now lives in the feature's provider.
+Version: 0.0.764 - The shared reference card gives its Case Note and Tags lines 50 percent more space above them than the lines before.
 --------------------------------------
 
 ## Version History Log:
@@ -775,3 +775,6 @@ Version: 0.0.758 - Parties to the Case joins both Case Reference libraries right
 Version: 0.0.759 - Both Case Reference screens share one card again: the case card's corner and fill, with Citation, bold Parties, Act/Law, Section, Case Note and tag chips.
 Version: 0.0.760 - The bottom bar now keeps the horizontal position the user scrolled it to when a tab tap mounts the next screen's bar.
 Version: 0.0.761 - Case Reference reopens on the law it was reading after visiting another screen; the open law now lives in the feature's provider.
+Version: 0.0.762 - The reference card's first line now fits the citation, compact Official mark and 3-dot; the menu shares the card's edge and the Case Note shows text alone.
+Version: 0.0.763 - Every shown line on the shared reference card now keeps the same 4 px gap above it as the first and second line, even when earlier lines are empty.
+Version: 0.0.764 - The shared reference card gives its Case Note and Tags lines 50 percent more space above them than the lines before.

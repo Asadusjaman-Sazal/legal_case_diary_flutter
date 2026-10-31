@@ -1,5 +1,26 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — More air above the case note and tags — COMPLETE (0.0.764)
+
+- **What was asked.** Increase the space between lines 4–5 and 5–6 by 50 % of the current space.
+- **The card.** Lines 2–4 keep the 4 px gap; line 5 (Case Note) and line 6 (Tags) now take 6 px. Each line owns its gap, so the Case Note still has 6 px above it when the Section is absent, and the tags keep 6 px when the Case Note is absent.
+- **Proof.** *every shown line keeps the first line gap above it* now asserts 4 px for lines 2–4 and 6 px for lines 5–6, including the sparse card; `flutter analyze` clean. Full suite: **2,253 passed**, with only the known pre-existing backup export-list failure. The mockup uses `mt-[6px]` above those lines (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-10-31 — Every card line keeps the first line's gap — COMPLETE (0.0.763)
+
+- **What was asked.** Use the 1→2 line gap for 2→3, 4→5 and 5→6, and give the next shown line that same space when a line is empty.
+- **The card.** All inter-line gaps are now the same 4 px (`_lineGap`); the 5 %/10 % extras from 0.0.762 are gone. Every conditional line adds its own gap, so a card missing Act/Law, Section or Tags keeps the same rhythm above whatever line follows.
+- **Proof.** New *every shown line keeps the first line gap above it* in `test/features/library_search_test.dart`: it measures all six lines apart, then a card with no Act/Law, Section or Tags and finds 4 px above each shown line; the suite passes; `flutter analyze` clean. Full suite: **2,253 passed**, with only the known pre-existing backup export-list failure. The mockup already uses the same 4 px (`mt-xs`), so no mockup change was owed.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-10-31 — The reference card's first line, menu edge and spacing — COMPLETE (0.0.762)
+
+- **What was asked.** Citation, Official chip and 3-dot on one line (small chip/button), the menu wearing the card's edge, case-card spacing for lines 1–3, 5 % more for the remaining gaps and 10 % more before tags, and the Case Note shown without its label.
+- **The card.** The first row is centred; the Official mark is compact (6×2 px padding, 6 px corner) and the button a 24 px box with an 18 px glyph. The menu's shape is the card's 4 px corner with `cardBorder`. Gaps: 4 px for lines 1→2 and 2→3, 4.2 px for 3→4 and 4→5, 4.4 px before the tags. The Case Note prints its text alone.
+- **Proof.** *an official citation is marked, read-only and pinnable* now asserts the three centres on one line and the menu's shape/edge; the Case Reference suite passes; `flutter analyze` clean. Full suite: **2,252 passed**, with only the known pre-existing backup export-list failure. The `caseReference` mockup was updated (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — The Case Reference screen remembers its open law — COMPLETE (0.0.761)
 
 - **The report.** Going from inside a law's references to another screen and back always reopened the law list.

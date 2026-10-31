@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/constants/app_colors.dart';
+import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
@@ -160,6 +161,7 @@ void main() {
     String description, {
     String? statute,
     String? parties,
+    String? section,
     String? caseNote,
     String? tags,
   }) => references.insertReference(
@@ -169,6 +171,7 @@ void main() {
       referenceAndPageNo: Value(citation),
       parties: Value(parties),
       statute: Value(statute),
+      sectionOrArticle: Value(section),
       titleAndDescription: Value(description),
       caseNote: Value(caseNote),
       tags: Value(tags),
@@ -451,6 +454,28 @@ void main() {
     expect(find.text('Official'), findsOneWidget);
     expect(find.textContaining('29 DLR'), findsOneWidget);
 
+    // Line 1 centres the citation, the Official mark and the menu on one line,
+    // and the menu wears the card's own 4 px edge (user request).
+    final citationCenter = tester.getCenter(find.textContaining('29 DLR'));
+    final officialCenter = tester.getCenter(find.text('Official'));
+    final menuCenter = tester.getCenter(
+      find.byKey(const ValueKey('reference-menu')),
+    );
+    expect((citationCenter.dy - officialCenter.dy).abs(), lessThan(0.5));
+    expect((citationCenter.dy - menuCenter.dy).abs(), lessThan(0.5));
+    final menuShape =
+        tester
+                .widget<PopupMenuButton<String>>(
+                  find.byKey(const ValueKey('reference-menu')),
+                )
+                .shape!
+            as RoundedRectangleBorder;
+    expect(
+      menuShape.borderRadius,
+      BorderRadius.circular(AppSpacing.cardRadius),
+    );
+    expect(menuShape.side.color, AppColors.cardBorder);
+
     // Tapping the card opens no editor: the entry is the admins' to change.
     await tester.tap(find.textContaining('29 DLR'));
     await settle(tester);
@@ -641,7 +666,7 @@ void main() {
       await settle(tester);
       expect(find.text('State v. Karim'), findsOneWidget);
       expect(find.text('evidence'), findsOneWidget);
-      expect(find.text('Case Note: Witness turned hostile.'), findsOneWidget);
+      expect(find.text('Witness turned hostile.'), findsOneWidget);
       expect(find.text('bail'), findsNWidgets(2));
 
       // The parties, the case note and a tag each find their citation.
@@ -670,6 +695,77 @@ void main() {
       await unmount(tester);
     },
   );
+
+  testWidgets('every shown line keeps the first line gap above it', (
+    tester,
+  ) async {
+    await seedReference(
+      'ref-1',
+      '45 DLR (AD) 1',
+      'Bail guidelines.',
+      statute: 'The Penal Code, 1860',
+      parties: 'State v. Karim',
+      section: 'Section 54',
+      caseNote: 'Witness turned hostile.',
+      tags: 'bail, evidence',
+    );
+    // No Act/Law, Section or Tags: the case note must still take the same gap
+    // above it (user request).
+    await seedReference(
+      'ref-2',
+      '12 BLC 99',
+      'Partition.',
+      parties: 'Rahman v. Salam',
+      caseNote: 'Survey record missing.',
+    );
+    await pumpLibrary(tester, const CaseReferenceScreen());
+    await openSearch(tester);
+
+    double gap(Finder above, Finder below) =>
+        tester.getTopLeft(below).dy - tester.getBottomLeft(above).dy;
+
+    // A card with every line shown uses the first line's gap throughout.
+    await tester.enterText(find.byType(TextField), '45 DLR');
+    await settle(tester);
+    final heading = find.byKey(const ValueKey('reference-card-heading'));
+    expect(gap(heading, find.text('State v. Karim')), closeTo(4, 0.01));
+    expect(
+      gap(find.text('State v. Karim'), find.text('The Penal Code, 1860')),
+      closeTo(4, 0.01),
+    );
+    expect(
+      gap(find.text('The Penal Code, 1860'), find.text('Section 54')),
+      closeTo(4, 0.01),
+    );
+    expect(
+      gap(find.text('Section 54'), find.text('Witness turned hostile.')),
+      closeTo(6, 0.01),
+    );
+    expect(
+      gap(
+        find.text('Witness turned hostile.'),
+        find.byKey(const ValueKey('reference-card-tags')),
+      ),
+      closeTo(6, 0.01),
+    );
+
+    // A card with empty lines skipped keeps the same gap above the next line.
+    await tester.enterText(find.byType(TextField), '12 BLC');
+    await settle(tester);
+    expect(
+      gap(
+        find.byKey(const ValueKey('reference-card-heading')),
+        find.text('Rahman v. Salam'),
+      ),
+      closeTo(4, 0.01),
+    );
+    expect(
+      gap(find.text('Rahman v. Salam'), find.text('Survey record missing.')),
+      closeTo(6, 0.01),
+    );
+
+    await unmount(tester);
+  });
 
   testWidgets(
     'the shared form reuses an existing tag and saves the case note',

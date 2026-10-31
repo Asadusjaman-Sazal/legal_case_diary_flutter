@@ -515,6 +515,14 @@ class ReferenceCard extends StatefulWidget {
 class _ReferenceCardState extends State<ReferenceCard> {
   bool _hovered = false;
 
+  /// The gap above lines 2–4: the case card's own 4 px, whatever the line's
+  /// number and whether or not an earlier line is empty (user request).
+  static const double _lineGap = AppSpacing.xs;
+
+  /// The gap above line 5 (Case Note) and line 6 (Tags): 50 % more than the
+  /// other lines (user request).
+  static const double _noteGap = _lineGap * 1.5;
+
   @override
   Widget build(BuildContext context) {
     final row = widget.row;
@@ -545,9 +553,12 @@ class _ReferenceCardState extends State<ReferenceCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Line 1: the citation, the Official mark and the menu.
+                // Line 1: the citation, the Official mark and the menu, one
+                // horizontal line. The mark and the button are small so they
+                // ride the citation's own line and never push line 2 down.
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  key: const ValueKey('reference-card-heading'),
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
@@ -558,19 +569,33 @@ class _ReferenceCardState extends State<ReferenceCard> {
                       ),
                     ),
                     if (row.isOfficial) ...[
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.xs),
                       _OfficialChip(label: l.caseReferenceScreen_official),
                     ],
                     if (widget.isReadOnly) ...[
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.xs),
                       const ReadOnlyLock(),
                     ],
                     if (pin != null || row.canDelete) ...[
                       const SizedBox(width: AppSpacing.xs),
                       PopupMenuButton<String>(
                         key: const ValueKey('reference-menu'),
-                        icon: const Icon(Icons.more_vert),
+                        // The menu wears the card's own edge: its 4 px corner
+                        // and the same border.
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.cardRadius,
+                          ),
+                          side: const BorderSide(color: AppColors.cardBorder),
+                        ),
                         color: AppColors.surfaceContainerLowest,
+                        // A 24 px button keeps the row on the citation's line
+                        // (user request).
+                        child: const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Icon(Icons.more_vert, size: 18),
+                        ),
                         onSelected: (value) {
                           if (value == 'pin') {
                             pin?.call();
@@ -630,7 +655,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                 ),
                 // Line 2: the parties, bold.
                 if (row.parties != null && row.parties!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: _lineGap),
                   Text(
                     row.parties!,
                     style: AppTypography.titleMd.copyWith(
@@ -642,7 +667,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                 ],
                 // Line 3: the Act/Law.
                 if (row.statute != null && row.statute!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: _lineGap),
                   Text(
                     row.statute!,
                     style: AppTypography.bodyMd.copyWith(
@@ -653,7 +678,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                 // Line 4: the section / article.
                 if (row.sectionOrArticle != null &&
                     row.sectionOrArticle!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: _lineGap),
                   Text(
                     row.sectionOrArticle!,
                     style: AppTypography.bodyMd.copyWith(
@@ -661,11 +686,11 @@ class _ReferenceCardState extends State<ReferenceCard> {
                     ),
                   ),
                 ],
-                // Line 5: the case note, under its own label.
+                // Line 5: the case note, its text alone.
                 if (row.caseNote != null && row.caseNote!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: _noteGap),
                   Text(
-                    '${l.caseReferenceScreen_caseNote}: ${row.caseNote}',
+                    row.caseNote!,
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
@@ -673,8 +698,9 @@ class _ReferenceCardState extends State<ReferenceCard> {
                 ],
                 // Line 6: each tag as its own chip.
                 if (tags.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: _noteGap),
                   Wrap(
+                    key: const ValueKey('reference-card-tags'),
                     spacing: AppSpacing.xs,
                     runSpacing: AppSpacing.xs,
                     children: [for (final tag in tags) _TagChip(label: tag)],
@@ -692,7 +718,8 @@ class _ReferenceCardState extends State<ReferenceCard> {
 /// The **Official** mark on a citation from the server-wide library.
 ///
 /// Outlined rather than filled, so it reads as a label on the row rather than
-/// another citation field, and it stays legible beside a tag chip.
+/// another citation field. It is deliberately small: it shares the citation's
+/// own line, beside the menu, rather than pushing line 2 down (user request).
 class _OfficialChip extends StatelessWidget {
   const _OfficialChip({required this.label});
 
@@ -700,13 +727,10 @@ class _OfficialChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     decoration: BoxDecoration(
       color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(6),
       border: Border.all(color: AppColors.outline),
     ),
     child: Text(

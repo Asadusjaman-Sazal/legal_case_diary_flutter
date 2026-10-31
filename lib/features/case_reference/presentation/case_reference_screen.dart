@@ -29,6 +29,7 @@ import '../../settings/data/write_allowance.dart';
 import '../../settings/presentation/delete_request_flow.dart';
 import '../data/local/shared_case_references_dao.dart';
 import 'law_picker.dart';
+import 'reference_detail_screen.dart';
 import 'reference_form_screen.dart';
 import 'reference_library.dart';
 import 'reference_viewmodel.dart';
@@ -128,7 +129,8 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   ///
   /// [initialStatute] preselects the law when the form is opened from that
   /// law's page, so a citation added there lands in the list being read.
-  Future<void> _openSheet({
+  /// Returns true when the form saved, which the detail uses to refresh.
+  Future<bool> _openSheet({
     CaseReference? reference,
     String? initialStatute,
   }) async {
@@ -145,7 +147,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       for (final row in own) row.tags,
       for (final entry in official) entry.row.tags,
     ]);
-    await Navigator.of(context).push<bool>(
+    final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => ReferenceFormScreen(
           title: isNew
@@ -175,6 +177,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         ),
       ),
     );
+    return saved == true;
   }
 
   /// Saves the shared form's values into the user's own library.
@@ -315,16 +318,37 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
         .setPinned(reference.id, !reference.isPinned);
   }
 
-  /// Phase 10: a read-only reference explains itself instead of opening the
-  /// editor.
+  /// Opens a card's read-only detail.
   ///
   /// An official citation has no editor on this device at all — it belongs to
-  /// the admin-curated library — so tapping one opens nothing.
-  void _editIfWritable(ReferenceRow row) {
-    final reference = row.own;
-    if (reference == null) return;
-    if (!ensureReferenceWritable(context, ref, reference.id)) return;
-    _openSheet(reference: reference);
+  /// the admin-curated library — so it carries no Edit action; an own row's
+  /// Edit runs the same allowance gate as before.
+  void _openDetail(ReferenceRow row) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ReferenceDetailScreen(
+          row: row,
+          onEdit: row.own == null ? null : (current) => _editRow(current),
+        ),
+      ),
+    );
+  }
+
+  /// The detail's Edit: the allowance gate, then the shared form. Returns the
+  /// refreshed row so the detail shows what was saved; null keeps it as it is.
+  Future<ReferenceRow?> _editRow(ReferenceRow row) async {
+    final own = row.own;
+    if (own == null) return null;
+    if (!ensureReferenceWritable(context, ref, own.id)) return null;
+    final saved = await _openSheet(reference: own);
+    if (!saved || !mounted) return null;
+    final items =
+        ref.read(referenceViewModelProvider).value?.items ??
+        const <CaseReference>[];
+    for (final reference in items) {
+      if (reference.id == own.id) return ReferenceRow.own(reference);
+    }
+    return null;
   }
 
   @override
@@ -364,7 +388,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
               references: _search.rows ?? rows,
               totalCount: rows.length,
               writableReferenceIds: allowance?.writableReferenceIds,
-              onEdit: _editIfWritable,
+              onOpen: _openDetail,
               onDelete: _confirmDelete,
               onTogglePin: _togglePin,
               onRefresh: _onRefresh,
@@ -392,7 +416,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
                     totalCount: rows.length,
                     emptyMessage: l.caseReferenceScreen_noLawReferences,
                     writableReferenceIds: allowance?.writableReferenceIds,
-                    onEdit: _editIfWritable,
+                    onOpen: _openDetail,
                     onDelete: _confirmDelete,
                     onTogglePin: _togglePin,
                     onRefresh: _onRefresh,

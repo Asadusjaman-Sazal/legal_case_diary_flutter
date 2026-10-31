@@ -398,7 +398,7 @@ class ReferenceList extends StatelessWidget {
     required this.totalCount,
     this.emptyMessage,
     this.writableReferenceIds,
-    required this.onEdit,
+    required this.onOpen,
     required this.onDelete,
     this.onTogglePin,
     required this.onRefresh,
@@ -416,7 +416,8 @@ class ReferenceList extends StatelessWidget {
   /// References the allowance keeps editable, or null when every one is.
   final Set<String>? writableReferenceIds;
 
-  final ValueChanged<ReferenceRow> onEdit;
+  /// A card was tapped: open its read-only detail.
+  final ValueChanged<ReferenceRow> onOpen;
   final ValueChanged<ReferenceRow> onDelete;
 
   /// Null on a page with no pins (the Admin Panel's).
@@ -468,7 +469,7 @@ class ReferenceList extends StatelessWidget {
               row.own != null &&
               writableReferenceIds != null &&
               !writableReferenceIds!.contains(row.id),
-          onEdit: () => onEdit(row),
+          onOpen: () => onOpen(row),
           onDelete: () => onDelete(row),
           onTogglePin: onTogglePin == null ? null : () => onTogglePin!(row),
         ),
@@ -492,7 +493,7 @@ class ReferenceCard extends StatefulWidget {
   const ReferenceCard({
     required this.row,
     required this.isReadOnly,
-    required this.onEdit,
+    required this.onOpen,
     required this.onDelete,
     this.onTogglePin,
     super.key,
@@ -502,7 +503,9 @@ class ReferenceCard extends StatefulWidget {
   final ReferenceRow row;
 
   final bool isReadOnly;
-  final VoidCallback onEdit;
+
+  /// Opens the card's read-only detail.
+  final VoidCallback onOpen;
   final VoidCallback onDelete;
 
   /// Null where the page has no per-device pin (the Admin Panel's).
@@ -547,7 +550,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          onTap: widget.onEdit,
+          onTap: widget.onOpen,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.cardPadding),
             child: Column(
@@ -570,7 +573,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                     ),
                     if (row.isOfficial) ...[
                       const SizedBox(width: AppSpacing.xs),
-                      _OfficialChip(label: l.caseReferenceScreen_official),
+                      OfficialChip(label: l.caseReferenceScreen_official),
                     ],
                     if (widget.isReadOnly) ...[
                       const SizedBox(width: AppSpacing.xs),
@@ -703,7 +706,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                     key: const ValueKey('reference-card-tags'),
                     spacing: AppSpacing.xs,
                     runSpacing: AppSpacing.xs,
-                    children: [for (final tag in tags) _TagChip(label: tag)],
+                    children: [for (final tag in tags) TagChip(label: tag)],
                   ),
                 ],
               ],
@@ -720,8 +723,10 @@ class _ReferenceCardState extends State<ReferenceCard> {
 /// Outlined rather than filled, so it reads as a label on the row rather than
 /// another citation field. It is deliberately small: it shares the citation's
 /// own line, beside the menu, rather than pushing line 2 down (user request).
-class _OfficialChip extends StatelessWidget {
-  const _OfficialChip({required this.label});
+/// Shared by the card and the read-only detail.
+class OfficialChip extends StatelessWidget {
+  /// Creates the mark with [label] (the localized **Official** text).
+  const OfficialChip({required this.label, super.key});
 
   final String label;
 
@@ -743,9 +748,11 @@ class _OfficialChip extends StatelessWidget {
 /// A small chip for one tag on a citation.
 ///
 /// Filled in the neutral container tone, so a tag reads as a finding aid and
-/// stays distinct from the outlined **Official** mark beside it.
-class _TagChip extends StatelessWidget {
-  const _TagChip({required this.label});
+/// stays distinct from the outlined **Official** mark beside it. Shared by the
+/// card and the read-only detail.
+class TagChip extends StatelessWidget {
+  /// Creates the chip for [label].
+  const TagChip({required this.label, super.key});
 
   final String label;
 

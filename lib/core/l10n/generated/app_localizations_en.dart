@@ -721,6 +721,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add comments or private notes here...';
 
   @override
+  String get caseReferenceDetail_details => 'Reference Details';
+
+  @override
   String get sync_idle => 'Sync';
 
   @override

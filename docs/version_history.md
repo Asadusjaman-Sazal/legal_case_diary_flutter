@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.764 - The shared reference card gives its Case Note and Tags lines 50 percent more space above them than the lines before.
+Version: 0.0.765 - Tapping a citation opens a read-only Case Reference detail in the Case Detail style, with Edit in the top right opening the shared form.
 --------------------------------------
 
 ## Version History Log:
@@ -778,3 +778,4 @@ Version: 0.0.761 - Case Reference reopens on the law it was reading after visiti
 Version: 0.0.762 - The reference card's first line now fits the citation, compact Official mark and 3-dot; the menu shares the card's edge and the Case Note shows text alone.
 Version: 0.0.763 - Every shown line on the shared reference card now keeps the same 4 px gap above it as the first and second line, even when earlier lines are empty.
 Version: 0.0.764 - The shared reference card gives its Case Note and Tags lines 50 percent more space above them than the lines before.
+Version: 0.0.765 - Tapping a citation opens a read-only Case Reference detail in the Case Detail style, with Edit in the top right opening the shared form.

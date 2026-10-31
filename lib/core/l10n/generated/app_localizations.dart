@@ -1376,6 +1376,12 @@ abstract class AppLocalizations {
   /// **'Add comments or private notes here...'**
   String get caseReferenceScreen_commentsPlaceholder;
 
+  /// No description provided for @caseReferenceDetail_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference Details'**
+  String get caseReferenceDetail_details;
+
   /// No description provided for @sync_idle.
   ///
   /// In en, this message translates to:

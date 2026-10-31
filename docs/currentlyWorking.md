@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — A read-only Case Reference detail — COMPLETE (0.0.765)
+
+- **What was asked.** A Case Reference detail screen in the Case Detail's theme, read mode, with an Edit button at the top right that opens the existing Edit Case Reference form.
+- **The detail.** New shared `reference_detail_screen.dart`: 16 px sides, 24 px rhythm, white 8 px-corner section cards with the card border, icon-and-title headings and labelled value boxes. Header: Citation at `headlineMd`, Act/Law with a gavel, Official mark. A Parties card when present, then a **Reference Details** card with Section/Article, Case Note, Case Summary & Decision, Personal Notes and Tags (chips); empty values read `—`. Back at the top left and Edit at the top right in the Case Detail's black 40 px button style.
+- **Wiring.** The shared card's `onEdit` is now `onOpen`; tapping opens the detail. The user's host supplies a gated Edit (the lapse allowance still applies) that returns the refreshed own row; the admin host's Edit returns the reloaded server row. An Official cached citation on the user's screen has no Edit; every admin row does. After a save the detail shows the new values.
+- **Proof.** New `reference_detail_test.dart` (all fields, style/surface checks, no-Edit/em-dash variant, edit hand-over and cancel, back) and updated official/own flows in `library_search_test.dart` plus the admin card→detail→edit flow; `flutter analyze` clean; the three suites pass (31). Full suite: **2,259 passed**, with only the known pre-existing backup export-list failure. The mockup gains a hidden detail page (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — More air above the case note and tags — COMPLETE (0.0.764)
 
 - **What was asked.** Increase the space between lines 4–5 and 5–6 by 50 % of the current space.

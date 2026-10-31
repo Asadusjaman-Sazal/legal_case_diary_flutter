@@ -476,10 +476,21 @@ void main() {
     );
     expect(menuShape.side.color, AppColors.cardBorder);
 
-    // Tapping the card opens no editor: the entry is the admins' to change.
+    // Tapping the card opens the read-only detail; this device cannot edit the
+    // admin's row, so it carries no Edit action.
     await tester.tap(find.textContaining('29 DLR'));
     await settle(tester);
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('reference-detail-edit')), findsNothing);
     expect(find.byKey(const ValueKey('reference-title')), findsNothing);
+
+    // Back to the law page, where the card's menu and pin live.
+    await tester.tap(find.byKey(const ValueKey('reference-detail-back')));
+    await tester.pump(const Duration(milliseconds: 400));
+    await settle(tester);
 
     // Its menu offers Pin and not Delete.
     await tester.tap(find.byKey(const ValueKey('reference-menu')));
@@ -762,6 +773,97 @@ void main() {
     expect(
       gap(find.text('Rahman v. Salam'), find.text('Survey record missing.')),
       closeTo(6, 0.01),
+    );
+
+    await unmount(tester);
+  });
+
+  testWidgets('a card opens its read-only detail and Edit saves in place', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await seedReference(
+      'ref-1',
+      '45 DLR (AD) 1',
+      'Bail guidelines.',
+      statute: 'The Penal Code, 1860',
+      parties: 'State v. Karim',
+      section: 'Section 54',
+      caseNote: 'Witness turned hostile.',
+      tags: 'bail, evidence',
+    );
+    await pumpLibrary(tester, const CaseReferenceScreen());
+
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await settle(tester);
+    await tester.tap(find.textContaining('45 DLR'));
+    // Wait out the push transition, so the card underneath is offstage and its
+    // own texts are not counted beside the detail's.
+    await tester.pump(const Duration(milliseconds: 400));
+    await settle(tester);
+
+    // Read mode: every field is shown, and the top-right Edit is there. The
+    // card underneath stays in the tree, so find inside the detail's cards.
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+    final detailsCard = find.byKey(const ValueKey('reference-detail-details'));
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('reference-detail-parties')),
+        matching: find.text('State v. Karim'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: detailsCard, matching: find.text('Bail guidelines.')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: detailsCard,
+        matching: find.text('Witness turned hostile.'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: detailsCard, matching: find.text('bail')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('reference-detail-edit')), findsOneWidget);
+    expect(find.byKey(const ValueKey('reference-title')), findsNothing);
+
+    // Edit opens the shared form; saving returns to the detail with the new
+    // citation.
+    await tester.tap(find.byKey(const ValueKey('reference-detail-edit')));
+    await settle(tester);
+    expect(find.text('Edit Case Reference'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('reference-form-citation')),
+      '45 DLR (AD) 2',
+    );
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
+    for (
+      var i = 0;
+      i < 40 &&
+          find.byKey(const ValueKey('reference-title')).evaluate().isNotEmpty;
+      i++
+    ) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await settle(tester);
+
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('reference-detail-citation')))
+          .data,
+      '45 DLR (AD) 2',
     );
 
     await unmount(tester);

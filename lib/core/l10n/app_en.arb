@@ -367,6 +367,8 @@
   "caseReferenceScreen_sectionPlaceholder": "e.g. Section 54",
   "caseReferenceScreen_titlePlaceholder": "Title & description",
   "caseReferenceScreen_commentsPlaceholder": "Add comments or private notes here...",
+  "@@_section_caseReferenceDetail": "CASE REFERENCE DETAIL  |  lib/features/case_reference/presentation/reference_detail_screen.dart",
+  "caseReferenceDetail_details": "Reference Details",
   "@@_section_sync": "SYNC STATUS  |  lib/shared/widgets - sync status chip",
   "sync_idle": "Sync",
   "sync_syncing": "Syncing…",

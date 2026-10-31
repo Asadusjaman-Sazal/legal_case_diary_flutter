@@ -416,6 +416,84 @@
   </div>
 </div>
 
+<!-- The read-only Case Reference detail, opened by tapping a card. It follows
+     the Case Detail screen's shell: app background, 16 px sides, a back button
+     and Edit at the top (Edit is absent for an Official cached citation on the
+     user's screen, which this device cannot write), the citation at 24 px, the
+     Act/Law line with a gavel, the Official mark, a Parties card and a
+     Reference Details card whose labelled boxes show an em dash when empty.
+     Hidden here because the list is showing. -->
+<div class="hidden fixed inset-0 z-[100] bg-background">
+  <div class="h-full flex flex-col px-md">
+    <div class="flex items-center justify-between pt-lg">
+      <button aria-label="Back" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      </button>
+      <button aria-label="Edit" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+        <span class="material-symbols-outlined text-[18px]">edit</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto pt-lg pb-xxxl">
+      <p class="font-headline-md text-headline-md text-primary">29 DLR (AD), P-69-73</p>
+      <div class="mt-xs flex items-center">
+        <span class="material-symbols-outlined text-[18px] text-on-surface-variant">gavel</span>
+        <span class="ml-xs font-body-lg text-body-lg text-on-surface-variant">The Penal Code, 1860</span>
+      </div>
+      <div class="mt-md">
+        <span class="px-[6px] py-[2px] rounded-md bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
+      </div>
+
+      <div class="mt-lg bg-surface-container-lowest border border-card-border rounded-lg p-lg">
+        <div class="flex items-center">
+          <span class="material-symbols-outlined text-[20px]">person</span>
+          <span class="ml-sm font-title-md text-title-md">Parties to the Case</span>
+        </div>
+        <div class="mt-md bg-surface-container-low rounded p-md">
+          <p class="font-body-lg text-body-lg font-bold">State vs. Md. Karim</p>
+        </div>
+      </div>
+
+      <div class="mt-lg bg-surface-container-lowest border border-card-border rounded-lg p-lg">
+        <div class="flex items-center">
+          <span class="material-symbols-outlined text-[20px]">info</span>
+          <span class="ml-sm font-title-md text-title-md">Reference Details</span>
+        </div>
+        <div class="mt-md">
+          <p class="font-label-lg text-label-lg text-on-surface-variant">Section/Article</p>
+          <div class="mt-xs bg-surface-container-low rounded p-md">
+            <p class="font-body-md text-body-md">Section 54</p>
+          </div>
+        </div>
+        <div class="mt-md">
+          <p class="font-label-lg text-label-lg text-on-surface-variant">Case Note</p>
+          <div class="mt-xs bg-surface-container-low rounded p-md">
+            <p class="font-body-md text-body-md">Witness turned hostile; the trial court relied on the eyewitness account.</p>
+          </div>
+        </div>
+        <div class="mt-md">
+          <p class="font-label-lg text-label-lg text-on-surface-variant">Case Summary &amp; Decision</p>
+          <div class="mt-xs bg-surface-container-low rounded p-md">
+            <p class="font-body-md text-body-md">Principles regarding preventive detention and immediate production of an arrested person before the Magistrate.</p>
+          </div>
+        </div>
+        <div class="mt-md">
+          <p class="font-label-lg text-label-lg text-on-surface-variant">Personal Notes</p>
+          <div class="mt-xs bg-surface-container-low rounded p-md">
+            <p class="font-body-md text-body-md">Call the client before the hearing.</p>
+          </div>
+        </div>
+        <div class="mt-md">
+          <p class="font-label-lg text-label-lg text-on-surface-variant">Tags</p>
+          <div class="mt-xs bg-surface-container-low rounded p-md flex flex-wrap gap-xs">
+            <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">bail</span>
+            <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">evidence</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- The shared delete-confirmation window, opened from the card's menu. -->
 <div class="hidden fixed inset-0 z-[100] bg-overlay-54 p-md items-center justify-center" id="confirm-delete-modal">
   <div class="bg-surface-container-lowest rounded-lg w-full max-w-[384px] p-xl">

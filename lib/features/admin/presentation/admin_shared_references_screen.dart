@@ -27,6 +27,7 @@ import '../../../database/app_database.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../case_reference/presentation/law_picker.dart';
+import '../../case_reference/presentation/reference_detail_screen.dart';
 import '../../case_reference/presentation/reference_form_screen.dart';
 import '../../case_reference/presentation/reference_library.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
@@ -110,7 +111,10 @@ class _AdminSharedReferencesScreenState
   bool get _offline => ref.read(isOnlineProvider).value == false;
 
   /// Opens the shared Add/Edit form, titled for the official library.
-  Future<void> _openForm({
+  ///
+  /// Returns true when the form saved and the server rows were re-read, which
+  /// the detail uses to refresh.
+  Future<bool> _openForm({
     AdminSharedReference? reference,
     String? initialStatute,
   }) async {
@@ -144,6 +148,53 @@ class _AdminSharedReferencesScreenState
       ),
     );
     if (saved == true && mounted) await _reload();
+    return saved == true;
+  }
+
+  /// Opens a card's read-only detail. Every official row is editable here.
+  void _openDetail(ReferenceRow row) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ReferenceDetailScreen(
+          row: row,
+          onEdit: (current) => _editAndReturn(current.id),
+        ),
+      ),
+    );
+  }
+
+  /// The detail's Edit: opens the form for the live server row and returns the
+  /// reloaded row so the detail shows what was saved; null keeps it as it is.
+  Future<ReferenceRow?> _editAndReturn(String id) async {
+    final rows =
+        ref.read(adminSharedReferencesProvider).value ??
+        const <AdminSharedReference>[];
+    AdminSharedReference? existing;
+    for (final row in rows) {
+      if (row.id == id) existing = row;
+    }
+    if (existing == null) return null;
+    final saved = await _openForm(reference: existing);
+    if (!saved || !mounted) return null;
+    final fresh =
+        ref.read(adminSharedReferencesProvider).value ??
+        const <AdminSharedReference>[];
+    for (final row in fresh) {
+      if (row.id == id) {
+        return ReferenceRow.admin(
+          id: row.id,
+          referenceAndPageNo: row.referenceAndPageNo,
+          parties: row.parties,
+          statute: row.statute,
+          sectionOrArticle: row.sectionOrArticle,
+          titleAndDescription: row.titleAndDescription,
+          commentsNotes: row.commentsNotes,
+          caseNote: row.caseNote,
+          tags: row.tags,
+        );
+      }
+    }
+    return null;
   }
 
   /// Publishes the shared form's values to the server library.
@@ -364,7 +415,7 @@ class _AdminSharedReferencesScreenState
                 references: matches,
                 totalCount: all.length,
                 emptyMessage: l.adminSharedRefs_empty,
-                onEdit: (row) => _openForm(reference: byId[row.id]),
+                onOpen: _openDetail,
                 onDelete: (row) => _confirmDelete(byId[row.id]!),
                 // No pin here: a pin is one device's own arrangement, and this
                 // page publishes to every device.
@@ -396,7 +447,7 @@ class _AdminSharedReferencesScreenState
                       references: lawRows,
                       totalCount: lawRows.length,
                       emptyMessage: l.adminSharedRefs_noLawReferences,
-                      onEdit: (row) => _openForm(reference: byId[row.id]),
+                      onOpen: _openDetail,
                       onDelete: (row) => _confirmDelete(byId[row.id]!),
                       onTogglePin: null,
                       onRefresh: _reload,

@@ -722,6 +722,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'এখানে মন্তব্য বা ব্যক্তিগত নোট যোগ করুন...';
 
   @override
+  String get caseReferenceDetail_details => 'রেফারেন্সের বিবরণ';
+
+  @override
   String get sync_idle => 'সিঙ্ক';
 
   @override

@@ -325,6 +325,8 @@
   "caseReferenceScreen_sectionPlaceholder": "যেমন: ধারা ৫৪",
   "caseReferenceScreen_titlePlaceholder": "শিরোনাম ও বর্ণনা",
   "caseReferenceScreen_commentsPlaceholder": "এখানে মন্তব্য বা ব্যক্তিগত নোট যোগ করুন...",
+  "@@_section_caseReferenceDetail": "CASE REFERENCE DETAIL  |  lib/features/case_reference/presentation/reference_detail_screen.dart",
+  "caseReferenceDetail_details": "রেফারেন্সের বিবরণ",
   "@@_section_sync": "SYNC STATUS  |  lib/shared/widgets - sync status chip",
   "sync_idle": "সিঙ্ক",
   "sync_syncing": "সিঙ্ক হচ্ছে…",

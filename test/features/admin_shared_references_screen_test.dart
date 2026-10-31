@@ -349,8 +349,15 @@ void main() {
     await tester.tap(find.text('The Penal Code, 1860'));
     await tester.pumpAndSettle();
 
-    // Edit: the card opens the form with the citation already filled in.
+    // A card opens the read-only detail; its top-right Edit opens the form with
+    // the citation already filled in.
     await tester.tap(find.textContaining('29 DLR'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('reference-detail-edit')));
     await tester.pumpAndSettle();
     expect(find.text('Edit Official Reference'), findsOneWidget);
     await tester.enterText(
@@ -359,7 +366,24 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('reference-form-save')));
     await tester.pumpAndSettle();
+
+    // The save returns to the detail, which now shows the new citation. The
+    // card underneath is still in the tree, so read the detail's own headline.
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<Text>(find.byKey(const ValueKey('reference-detail-citation')))
+          .data,
+      '29 DLR (AD) 70',
+    );
     expect(repo.saved.single.referenceAndPageNo, '29 DLR (AD) 70');
+
+    // Back to the law page for the card's menu.
+    await tester.tap(find.byKey(const ValueKey('reference-detail-back')));
+    await tester.pumpAndSettle();
 
     // Delete: the menu's Delete asks first, then removes the row.
     await tester.tap(find.byKey(const ValueKey('reference-menu')));

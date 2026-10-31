@@ -1535,9 +1535,7 @@ void main() {
       await unmountApp(tester);
     });
 
-    testWidgets('a decided request offers neither action nor a gesture', (
-      tester,
-    ) async {
+    testWidgets('a decided request offers a screen-only Clear', (tester) async {
       final overrides = await openScope();
       db = harness.db;
       await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
@@ -1557,15 +1555,95 @@ void main() {
         overrides: overrides,
       );
       await tester.pumpAndSettle();
+      final l = await AppLocalizations.delegate.load(const Locale('en'));
 
-      // Nothing to tap into: the row is audit history, so it is not even a
-      // gesture target (the row's key belongs to the tappable form).
-      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
-      expect(find.byIcon(Icons.chevron_right), findsNothing);
+      // A decided row is the requester's own history: a tap shows Clear, not
+      // Withdraw (user request).
+      expect(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r1')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delete-request-clear-r1')),
+        findsOneWidget,
+      );
       expect(
         find.byKey(const ValueKey('delete-request-withdraw-r1')),
         findsNothing,
       );
+
+      await tester.tap(find.byKey(const ValueKey('delete-request-clear-r1')));
+      await tester.pumpAndSettle();
+
+      // Hidden from this screen only; the request itself is untouched.
+      expect(find.text('Land Dispute Note'), findsNothing);
+      expect(find.text(l.deleteRequests_noneMine), findsOneWidget);
+      expect((await DeleteRequestsDao(db).getById('r1'))!.status, 'approved');
+
+      await unmountApp(tester);
+    });
+
+    testWidgets('an associate bulk clears their own finished requests', (
+      tester,
+    ) async {
+      final overrides = await openScope();
+      db = harness.db;
+      await seedProfile(firmId: 'firm-1', role: AccountRole.associate);
+      await seedMembership(canDelete: false);
+      await seedRequest(id: 'r1', requestedBy: 'user-1', title: 'Pending Note');
+      await seedRequest(
+        id: 'r2',
+        requestedBy: 'user-1',
+        title: 'Old Approved Note',
+        status: 'approved',
+        updatedAt: 3000,
+        reviewedBy: 'user-3',
+      );
+      await seedRequest(
+        id: 'r3',
+        requestedBy: 'user-1',
+        title: 'Old Rejected Note',
+        status: 'rejected',
+        updatedAt: 4000,
+        reviewedBy: 'user-3',
+      );
+
+      await pumpAuthScreen(
+        tester,
+        const DeleteRequestsScreen(),
+        overrides: overrides,
+      );
+      await tester.pumpAndSettle();
+
+      // A long press on a finished row starts the bulk clear; the other finished
+      // row is ticked by tapping it. The pending request is never part of it.
+      await tester.longPress(
+        find.byKey(const ValueKey('delete-request-row-r2')),
+      );
+      await tester.pumpAndSettle();
+      final clearSelected = find.byKey(
+        const ValueKey('delete-request-clear-selected'),
+      );
+      final cancel = find.byKey(const ValueKey('delete-request-clear-cancel'));
+      expect(clearSelected, findsOneWidget);
+      expect(cancel, findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('delete-request-row-r3')));
+      await tester.pumpAndSettle();
+      expect(find.text('Pending Note'), findsOneWidget);
+
+      await tester.tap(clearSelected);
+      await tester.pumpAndSettle();
+
+      // Both finished cards leave the screen; the pending card stays, and the
+      // request rows themselves are untouched.
+      expect(find.text('Old Approved Note'), findsNothing);
+      expect(find.text('Old Rejected Note'), findsNothing);
+      expect(find.text('Pending Note'), findsOneWidget);
+      expect(clearSelected, findsNothing);
+      expect((await DeleteRequestsDao(db).getById('r2'))!.status, 'approved');
+      expect((await DeleteRequestsDao(db).getById('r3'))!.status, 'rejected');
 
       await unmountApp(tester);
     });
@@ -1596,8 +1674,12 @@ void main() {
       // record is gone, so the request is closed and says why.
       expect(find.text(l.deleteRequests_statusAlreadyDeleted), findsOneWidget);
       expect(find.text(l.deleteRequests_statusPending), findsNothing);
-      // A closed request has nothing to act on.
-      expect(find.byKey(const ValueKey('delete-request-row-r1')), findsNothing);
+      // The request is closed; its row is now the requester's history to clear
+      // from this screen (user request).
+      expect(
+        find.byKey(const ValueKey('delete-request-row-r1')),
+        findsOneWidget,
+      );
 
       await unmountApp(tester);
     });

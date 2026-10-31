@@ -18,7 +18,10 @@
 /// The requester's own pending row expands on tap to a single red **Withdraw
 /// Request** button on the right (user request); the old actions sheet — Edit
 /// Request and Withdraw Request — is gone with the chevron, which promised a
-/// screen the tap never opened.
+/// screen the tap never opened. A **finished** own request is the requester's
+/// history: a tap shows Clear and a long press starts the same screen-only bulk
+/// clear the owner's Previous list has (user request), while a pending request is
+/// never hidden — Withdraw is its only handle.
 library;
 
 import 'package:flutter/material.dart';
@@ -60,12 +63,13 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   /// The row a quick decision is being written for, so it cannot be tapped twice.
   String? _busyId;
 
-  /// Previous rows hidden from this screen only — nothing is written back to
-  /// the request or the record (user request).
+  /// Previous rows hidden from this screen only — the owner's Previous list and
+  /// an associate's own decided requests. Nothing is written back to the request
+  /// or the record (user request).
   final Set<String> _clearedPrevious = <String>{};
 
-  /// The previous rows ticked for a bulk clear, and whether a long press put
-  /// that section into selection mode.
+  /// The finished rows ticked for a bulk clear, and whether a long press put
+  /// that list into selection mode.
   final Set<String> _selectedPrevious = <String>{};
   bool _selectingPrevious = false;
 
@@ -291,13 +295,23 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
   /// The requester's list: their own requests and what the reviewer decided.
   ///
   /// A **pending** request is still the requester's own to withdraw, so its card
-  /// expands on tap to one red button; a decided one is audit history and stays
-  /// a plain row that only shows the outcome.
+  /// expands on tap to one red button. A **finished** request is the requester's
+  /// own history: a tap shows Clear, and a long press starts the same screen-only
+  /// bulk clear the owner's Previous list has (user request). A request still
+  /// awaiting a decision always stays visible — Clear never hides the only handle
+  /// its requester has on it.
   Widget _mineBody(AppLocalizations l) {
     final mine = ref.watch(myDeleteRequestsProvider);
     final locale = Localizations.localeOf(context).toString();
+    final visible = mine
+        .where(
+          (request) =>
+              deleteRequestNeedsReview(request) ||
+              !_clearedPrevious.contains(request.id),
+        )
+        .toList(growable: false);
 
-    return ListView(
+    final list = ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.edgeMargin,
         AppSpacing.md,
@@ -307,37 +321,63 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
       children: [
         SettingsSectionLabel(l.deleteRequests_mine),
         const SizedBox(height: AppSpacing.sm),
-        if (mine.isEmpty)
+        if (visible.isEmpty)
           _InfoRow(text: l.deleteRequests_noneMine)
         else
-          for (final request in mine) ...[
-            _RequestRow(
-              request: request,
-              l: l,
-              locale: locale,
-              // The requester's own list names the state of every row, because
-              // both kinds sit in it; the reviewer's queue does not need to.
-              showStatusChip: true,
-              // The card expands rather than opening a screen, so no chevron
-              // promises one (user request, 0.0.689).
-              showChevron: false,
-              // The record moved under their request, as this device can tell.
-              changed:
-                  ref
-                      .watch(deleteRequestTargetChangedProvider(request.id))
-                      .value ??
-                  false,
-              expanded: _expandedId == request.id,
-              actions: request.status == 'pending'
-                  ? _withdrawAction(request, l)
-                  : null,
-              onTap: request.status == 'pending'
-                  ? () => _toggleExpanded(request.id)
-                  : null,
-            ),
+          for (final request in visible) ...[
+            _mineRow(request, l, locale),
             const SizedBox(height: AppSpacing.sm),
           ],
       ],
+    );
+    // The bulk actions are pinned under the list, as the owner's are.
+    if (!_selectingPrevious) return list;
+    return Column(
+      children: [
+        Expanded(child: list),
+        _previousSelectionBar(l),
+      ],
+    );
+  }
+
+  /// One request on the requester's list.
+  Widget _mineRow(DeleteRequest request, AppLocalizations l, String locale) {
+    final finished = !deleteRequestNeedsReview(request);
+    final expanded = !_selectingPrevious && _expandedId == request.id;
+    return _RequestRow(
+      request: request,
+      l: l,
+      locale: locale,
+      // The requester's own list names the state of every row, because both
+      // kinds sit in it; the reviewer's queue does not need to.
+      showStatusChip: true,
+      // The card expands rather than opening a screen, so no chevron promises
+      // one (user request, 0.0.689).
+      showChevron: false,
+      // The record moved under their request, as this device can tell.
+      changed:
+          ref.watch(deleteRequestTargetChangedProvider(request.id)).value ??
+          false,
+      // Only finished rows join the bulk clear.
+      selected: finished && _selectedPrevious.contains(request.id),
+      expanded: expanded,
+      actions: expanded
+          ? finished
+                ? _clearPreviousAction(request, l)
+                : (request.status == 'pending'
+                      ? _withdrawAction(request, l)
+                      : null)
+          : null,
+      onTap: _selectingPrevious
+          ? (finished ? () => _togglePreviousSelected(request.id) : null)
+          : finished
+          ? () => _toggleExpanded(request.id)
+          : (request.status == 'pending'
+                ? () => _toggleExpanded(request.id)
+                : null),
+      onLongPress: finished && !_selectingPrevious
+          ? () => _startPreviousSelection(request.id)
+          : null,
     );
   }
 

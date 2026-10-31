@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — Associates can clear their own finished requests — COMPLETE (0.0.768)
+
+- **What was asked.** Just like firm owners, an associate should be able to clear (hide) and bulk clear delete requests of their own.
+- **The screen.** On the requester's own list, a **finished** request (approved, rejected, already deleted) now behaves like the owner's Previous cards: a single tap expands one full-width red **Clear** that hides it from this screen only, and a long press starts the same **Cancel / Clear Selected** bulk bar. The finished cards tick (check mark and border), the pending ones never join the selection, and un-ticking the last card ends selection mode. A pending or stale request is never hidden — Withdraw remains its only handle. Nothing is written to the request or the record; reopening the screen restores the cards.
+- **Proof.** `delete_request_review_test.dart` (38, up from 37): the decided-row Clear hides it while the row keeps its status, the associate's bulk clear hides two finished rows while the pending one stays and both request rows are untouched, and the already-deleted case now expects the clearable row. `flutter analyze` clean. Full suite: **2,263 passed**, with only the known pre-existing backup export-list failure.
+- **Build note.** The user's active `flutter run` session holds the Windows test DLL, so the suite ran with `FLUTTER_BUILD_DIR=build_test`; no app session was disturbed.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — The detail's action row is evenly spread — COMPLETE (0.0.767)
 
 - **What was asked.** Make the buttons a little wider and evenly gapped on one line; three equally spaced across the line, two centred as a pair.

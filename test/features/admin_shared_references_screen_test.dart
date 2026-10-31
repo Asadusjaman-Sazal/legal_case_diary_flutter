@@ -99,12 +99,16 @@ AdminSharedReference _citation(
   String statute = 'The Penal Code, 1860',
   String section = 'Section 54',
   String title = 'Preventive detention.',
+  String? caseNote,
+  String? tags,
 }) => AdminSharedReference(
   id: id,
   referenceAndPageNo: citation,
   statute: statute,
   sectionOrArticle: section,
   titleAndDescription: title,
+  caseNote: caseNote,
+  tags: tags,
 );
 
 /// The two seeded laws these tests need, in seed order.
@@ -209,6 +213,58 @@ void main() {
     // now in its law list.
     expect(find.textContaining('45 DLR'), findsNothing);
     expect(find.text('Saved'), findsNothing);
+  });
+
+  testWidgets('the official form reuses a tag and saves the case note', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository(
+      rows: [
+        _citation(
+          'o1',
+          caseNote: 'Detention reviewed.',
+          tags: 'evidence, trial',
+        ),
+      ],
+    );
+    await pump(tester, repo);
+
+    await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('reference-form-citation')),
+      '68 DLR (AD) 290',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('reference-form-case-note')),
+      'Client in custody.',
+    );
+
+    // The Tags box lists the official library's tags, alphabetically.
+    await tester.drag(
+      find.byKey(const ValueKey('reference-form-scroll')),
+      const Offset(0, -400),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('reference-tags-menu')));
+    await tester.pumpAndSettle();
+    final evidence = tester.getTopLeft(
+      find.byKey(const ValueKey('reference-tag-option-evidence')),
+    );
+    final trial = tester.getTopLeft(
+      find.byKey(const ValueKey('reference-tag-option-trial')),
+    );
+    expect(evidence.dy, lessThan(trial.dy));
+    await tester.tap(
+      find.byKey(const ValueKey('reference-tag-option-evidence')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
+    await tester.pumpAndSettle();
+
+    expect(repo.saved.single.caseNote, 'Client in custody.');
+    expect(repo.saved.single.tags, 'evidence');
   });
 
   testWidgets('an offline save refuses and sends nothing', (tester) async {
@@ -323,6 +379,8 @@ void main() {
             statute: 'The Code of Criminal Procedure, 1898',
             section: 'Article 31',
             title: 'Writ petition on unlawful detention.',
+            caseNote: 'Client in custody.',
+            tags: 'bail-rehearing',
           ),
         ],
       ),
@@ -344,6 +402,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('29 DLR'), findsNothing);
     expect(find.textContaining('32 DLR'), findsOneWidget);
+
+    // The case note and a tag are searched too, whichever law holds them.
+    await tester.enterText(find.byType(TextField), 'custody');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+    expect(find.textContaining('29 DLR'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'rehearing');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+    expect(find.textContaining('29 DLR'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'nothing matches');
     await tester.pumpAndSettle();

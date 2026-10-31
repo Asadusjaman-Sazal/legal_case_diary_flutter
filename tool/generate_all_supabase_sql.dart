@@ -1163,6 +1163,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'grants the three verbs to `authenticated`, leaves the admin policies as '
         'the boundary, and revokes everything from `anon`.',
   ),
+  LedgerSection(
+    file: '20261031140000_case_reference_note_tags.sql',
+    version: '0.0.756',
+    label:
+        'Case Note and Tags on both reference libraries (user request): '
+        '`public.case_references` and `public.shared_case_references` each gain '
+        'two nullable text columns, so an existing citation reads exactly as it '
+        'was written and carries neither until it is edited. No function is '
+        're-created: `push_changes` validates a payload against the table\'s own '
+        '`pg_attribute` list and applies it through `jsonb_populate_record`, so '
+        'the new fields are accepted the moment the columns exist; the shared '
+        'table\'s write grant is table-level, so the new columns inherit it; and '
+        'the delta pull selects every column. The phone reads the fields through '
+        'the generated row model and the card and form draw them.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1200,6 +1215,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.756': 'Case Reference — Case Note And Tags',
   '0.0.748': 'Case Reference — The Server-Wide Citation Library',
   '0.0.745': 'Law List — The Statute List On The Server',
   '0.0.715': 'Data API — New Tables Closed To Anonymous Callers',

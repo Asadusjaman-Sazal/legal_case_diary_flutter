@@ -31,6 +31,12 @@ class CaseReferences extends Table {
   /// Additional comments or notes.
   TextColumn get commentsNotes => text().nullable()();
 
+  /// A note on the case itself, beside the case summary.
+  TextColumn get caseNote => text().nullable()();
+
+  /// Comma-separated tags used to group and find citations.
+  TextColumn get tags => text().nullable()();
+
   /// Pinned references appear first.
   BoolColumn get isPinned => boolean().withDefault(const Constant(false))();
 

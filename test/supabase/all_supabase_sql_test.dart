@@ -57,9 +57,11 @@ void main() {
       );
       expect(
         onDisk.length,
-        85,
+        86,
         reason:
-            'The server-wide citation library (2026-10-31) added two files: '
+            'The Case Note and Tags change (2026-10-31) added one file: the two '
+            'new columns on both reference libraries. The server-wide citation '
+            'library (2026-10-31) added two files: '
             '`public.shared_case_references`, read by every signed-in account '
             'and written only by an admin, and the grant correction that made '
             'its own admin policy reachable. The law list (2026-10-30) added '

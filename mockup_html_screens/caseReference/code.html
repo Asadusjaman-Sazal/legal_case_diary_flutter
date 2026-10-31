@@ -230,8 +230,14 @@
           <span class="material-symbols-outlined">more_vert</span>
         </button>
       </div>
+      <!-- Tags the citation carries, each its own chip in the neutral tone. -->
+      <div class="mt-xs flex flex-wrap gap-xs">
+        <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">bail</span>
+        <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">evidence</span>
+      </div>
       <p class="mt-sm font-title-md text-title-md font-semibold text-primary">Section 54 CRPC</p>
       <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Principles regarding preventive detention and immediate production of an arrested person before the Magistrate.</p>
+      <p class="mt-sm font-body-md text-body-md text-on-surface">Witness turned hostile; the trial court relied on the eyewitness account.</p>
       <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
         <p class="font-label-md text-label-md italic text-on-surface-variant">Add comments or private notes here...</p>
       </div>
@@ -299,7 +305,7 @@
 
 <!-- The Add / Edit Case Reference form: a pushed full-screen route shared with
      the Admin Panel's official library (0.0.755) — one body, two titles. It
-     wears the app's black header, the five fields with their labels above the
+     wears the app's black header, the seven fields with their labels above the
      boxes, and the Save action pinned to the bottom. The title reads "Edit
      Case Reference" when a card opened it, and the official window reads "Add
      Official Reference" / "Edit Official Reference". Each box is the same
@@ -316,18 +322,18 @@
     </div>
     <div class="flex-1 overflow-y-auto p-md">
       <div class="pb-md">
-        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Reference &amp; Page No</p>
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Citation</p>
         <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter">
           <span class="font-case-number text-case-number text-outline">e.g. 25 DLR (AD) 142</span>
         </div>
       </div>
-      <!-- Statute is a dropdown over the law-name list (grouped by the seven
+      <!-- Act/Law is a dropdown over the law-name list (grouped by the seven
            law categories), not a free-text box. The box wears the same outlined
            field as its neighbours; the caret on the right is the only extra
            mark. Its last row is "Add a Law Name…", which opens the shared add
            window. -->
       <div class="pb-md">
-        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Statute</p>
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Act/Law</p>
         <button class="w-full rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter flex items-center text-left active:opacity-70">
           <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Penal Code, 1860</span>
           <span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
@@ -340,15 +346,31 @@
         </div>
       </div>
       <div class="pb-md">
-        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Title &amp; Description</p>
-        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[96px]">
-          <span class="font-body-md text-body-md text-outline">Title &amp; description</span>
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Case Note</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[72px]">
+          <span class="font-body-md text-body-md text-outline">A note on the case itself</span>
         </div>
       </div>
       <div class="pb-md">
-        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Comments/Notes</p>
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Case Summary &amp; Decision</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[96px]">
+          <span class="font-body-md text-body-md text-outline">Summary of the case and the decision</span>
+        </div>
+      </div>
+      <div class="pb-md">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Personal Notes</p>
         <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[72px]">
-          <span class="font-body-md text-body-md text-outline">Add comments or private notes here...</span>
+          <span class="font-body-md text-body-md text-outline">Add personal notes here...</span>
+        </div>
+      </div>
+      <!-- Tags are typed comma-separated; the caret lists every tag the
+           library already uses, alphabetically, so a tag is reused rather than
+           retyped and a search for it finds every citation carrying it. -->
+      <div class="pb-md">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Tags</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter flex items-center">
+          <span class="flex-1 font-body-lg text-body-lg text-outline">bail, evidence</span>
+          <span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
         </div>
       </div>
     </div>

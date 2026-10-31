@@ -633,19 +633,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseReferenceScreen_title => 'Case Reference';
 
   @override
-  String get caseReferenceScreen_referenceAndPageNo => 'Reference & Page No';
+  String get caseReferenceScreen_referenceAndPageNo => 'Citation';
 
   @override
-  String get caseReferenceScreen_statute => 'Statute';
+  String get caseReferenceScreen_statute => 'Act/Law';
 
   @override
   String get caseReferenceScreen_sectionOrArticle => 'Section/Article';
 
   @override
-  String get caseReferenceScreen_titleAndDescription => 'Title & Description';
+  String get caseReferenceScreen_caseNote => 'Case Note';
 
   @override
-  String get caseReferenceScreen_commentsNotes => 'Comments/Notes';
+  String get caseReferenceScreen_titleAndDescription =>
+      'Case Summary & Decision';
+
+  @override
+  String get caseReferenceScreen_commentsNotes => 'Personal Notes';
+
+  @override
+  String get caseReferenceScreen_tags => 'Tags';
 
   @override
   String get caseReferenceScreen_empty =>

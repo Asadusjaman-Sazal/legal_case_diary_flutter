@@ -37,6 +37,8 @@ class ReferenceRow {
       sectionOrArticle = reference.sectionOrArticle,
       titleAndDescription = reference.titleAndDescription,
       commentsNotes = reference.commentsNotes,
+      caseNote = reference.caseNote,
+      tags = reference.tags,
       isPinned = reference.isPinned,
       own = reference,
       official = null,
@@ -50,6 +52,8 @@ class ReferenceRow {
       sectionOrArticle = entry.row.sectionOrArticle,
       titleAndDescription = entry.row.titleAndDescription,
       commentsNotes = entry.row.commentsNotes,
+      caseNote = entry.row.caseNote,
+      tags = entry.row.tags,
       isPinned = entry.isPinned,
       own = null,
       official = entry,
@@ -65,6 +69,8 @@ class ReferenceRow {
     this.sectionOrArticle,
     this.titleAndDescription,
     this.commentsNotes,
+    this.caseNote,
+    this.tags,
     this.isPinned = false,
   }) : own = null,
        official = null,
@@ -76,6 +82,8 @@ class ReferenceRow {
   final String? sectionOrArticle;
   final String? titleAndDescription;
   final String? commentsNotes;
+  final String? caseNote;
+  final String? tags;
   final bool isPinned;
 
   /// The user's own row, or null when this is not theirs.
@@ -127,6 +135,44 @@ class LawSectionData {
 
 /// The statute text a reference is filed under; blank reads as "no statute".
 String referenceStatuteKey(String? statute) => (statute ?? '').trim();
+
+/// The tags a citation carries, split on the ASCII comma.
+///
+/// Each tag is trimmed and blank ones disappear; duplicates that differ only in
+/// case keep the first spelling, so a card never shows the same tag twice. A
+/// Bengali comma stays inside its tag: only `,` separates.
+List<String> referenceTags(String? raw) {
+  if (raw == null) return const <String>[];
+  final seen = <String>{};
+  final tags = <String>[];
+  for (final part in raw.split(',')) {
+    final tag = part.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (tag.isEmpty || !seen.add(tag.toLowerCase())) continue;
+    tags.add(tag);
+  }
+  return List<String>.unmodifiable(tags);
+}
+
+/// The stored form of [raw]: `tag1, tag2`, or null when it holds no tag.
+String? canonicalReferenceTags(String? raw) {
+  final tags = referenceTags(raw);
+  return tags.isEmpty ? null : tags.join(', ');
+}
+
+/// Every tag already used in the library, alphabetical, each spelled once.
+///
+/// Feeds the form's Tags dropdown, so a tag is reused instead of retyped.
+List<String> tagVocabulary(Iterable<String?> tagTexts) {
+  final seen = <String>{};
+  final tags = <String>[];
+  for (final text in tagTexts) {
+    for (final tag in referenceTags(text)) {
+      if (seen.add(tag.toLowerCase())) tags.add(tag);
+    }
+  }
+  tags.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  return List<String>.unmodifiable(tags);
+}
 
 /// The library's first level: every law that holds references, under its
 /// category, in the law list's order.
@@ -581,6 +627,18 @@ class _ReferenceCardState extends State<ReferenceCard> {
                       ),
                   ],
                 ),
+                // Tags the citation carries, each its own small chip.
+                if (referenceTags(row.tags).isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      for (final tag in referenceTags(row.tags))
+                        _TagChip(label: tag),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.sm),
                 // L2: section / article.
                 if (row.sectionOrArticle != null &&
@@ -602,6 +660,12 @@ class _ReferenceCardState extends State<ReferenceCard> {
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
+                ],
+                // The case note sits beside the summary, before the personal
+                // notes, so the two kinds of note read in order.
+                if (row.caseNote != null && row.caseNote!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(row.caseNote!, style: AppTypography.bodyMd),
                 ],
                 // L4: comments / notes.
                 if (row.commentsNotes != null &&
@@ -655,6 +719,33 @@ class _OfficialChip extends StatelessWidget {
       color: AppColors.surfaceContainerLowest,
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: AppColors.outline),
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
+    ),
+  );
+}
+
+/// A small chip for one tag on a citation.
+///
+/// Filled in the neutral container tone rather than the citation chips' accent,
+/// so a tag reads as a finding aid rather than another citation field, and it
+/// stays distinct from the outlined **Official** mark beside it.
+class _TagChip extends StatelessWidget {
+  const _TagChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.sm,
+      vertical: AppSpacing.xs,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceContainer,
+      borderRadius: BorderRadius.circular(8),
     ),
     child: Text(
       label,

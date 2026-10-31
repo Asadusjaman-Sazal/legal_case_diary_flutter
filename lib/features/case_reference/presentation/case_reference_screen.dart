@@ -141,6 +141,17 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }) async {
     final l = AppLocalizations.of(context);
     final isNew = reference == null;
+    // Every tag this screen already shows, so the form can offer them again.
+    final own =
+        ref.read(referenceViewModelProvider).value?.items ??
+        const <CaseReference>[];
+    final official =
+        ref.read(officialReferencesProvider).value ??
+        const <OfficialReference>[];
+    final tagOptions = tagVocabulary(<String?>[
+      for (final row in own) row.tags,
+      for (final entry in official) entry.row.tags,
+    ]);
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => ReferenceFormScreen(
@@ -150,8 +161,11 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
           referenceAndPageNo: reference?.referenceAndPageNo ?? '',
           statute: reference?.statute ?? initialStatute,
           sectionOrArticle: reference?.sectionOrArticle ?? '',
+          caseNote: reference?.caseNote ?? '',
           titleAndDescription: reference?.titleAndDescription ?? '',
           commentsNotes: reference?.commentsNotes ?? '',
+          tags: reference?.tags ?? '',
+          tagOptions: tagOptions,
           // Editing a reference someone asked to delete asks first; declining
           // closes the window without changing anything.
           confirmOpen: isNew
@@ -211,8 +225,10 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       referenceAndPageNo: Value(values.referenceAndPageNo),
       statute: Value(values.statute),
       sectionOrArticle: Value(values.sectionOrArticle),
+      caseNote: Value(values.caseNote),
       titleAndDescription: Value(values.titleAndDescription),
       commentsNotes: Value(values.commentsNotes),
+      tags: Value(values.tags),
       // The form has no pin control; an edit keeps the card's own pin.
       isPinned: Value(existing?.isPinned ?? false),
     );

@@ -1211,13 +1211,13 @@ abstract class AppLocalizations {
   /// No description provided for @caseReferenceScreen_referenceAndPageNo.
   ///
   /// In en, this message translates to:
-  /// **'Reference & Page No'**
+  /// **'Citation'**
   String get caseReferenceScreen_referenceAndPageNo;
 
   /// No description provided for @caseReferenceScreen_statute.
   ///
   /// In en, this message translates to:
-  /// **'Statute'**
+  /// **'Act/Law'**
   String get caseReferenceScreen_statute;
 
   /// No description provided for @caseReferenceScreen_sectionOrArticle.
@@ -1226,17 +1226,29 @@ abstract class AppLocalizations {
   /// **'Section/Article'**
   String get caseReferenceScreen_sectionOrArticle;
 
+  /// No description provided for @caseReferenceScreen_caseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Case Note'**
+  String get caseReferenceScreen_caseNote;
+
   /// No description provided for @caseReferenceScreen_titleAndDescription.
   ///
   /// In en, this message translates to:
-  /// **'Title & Description'**
+  /// **'Case Summary & Decision'**
   String get caseReferenceScreen_titleAndDescription;
 
   /// No description provided for @caseReferenceScreen_commentsNotes.
   ///
   /// In en, this message translates to:
-  /// **'Comments/Notes'**
+  /// **'Personal Notes'**
   String get caseReferenceScreen_commentsNotes;
+
+  /// No description provided for @caseReferenceScreen_tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get caseReferenceScreen_tags;
 
   /// No description provided for @caseReferenceScreen_empty.
   ///

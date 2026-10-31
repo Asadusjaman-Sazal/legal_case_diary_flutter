@@ -126,6 +126,7 @@ checks that roll back) and the read-only counts
 | 0.0.745 | 2026-10-30 | `20261030121000_laws_reference_data.sql` | The 57 built-in law names, generated from `lib/core/constants/pre_seeded_data.dart` by `tool/generate_supabase_seed.dart`: the list and order of `docs/seed_data_test/LawsOfBangladesh.md`, under its seven category IDs, with the same stable IDs the phone's `seed_v3` migration writes. The upsert refreshes a built-in name and leaves a row the user or their chamber renamed untouched, exactly as the six reference tables' seed does. |
 | 0.0.748 | 2026-10-31 | `20261031100000_shared_case_references.sql` | The server-wide citation library. `public.shared_case_references` holds the five reference fields an admin publishes, with `is_deleted` and the trigger-stamped `server_updated_at` the delta pull pages on — and no owner columns at all, because the phone never pushes to it (table class: server-managed on the server, pull-only cache on the phone). Every signed-in account may SELECT, including a tombstone so a removed citation can disappear from a phone; INSERT, UPDATE and DELETE are each gated by `is_app_admin()`. The revoke of the client write verbs was undone by the next file. The table carries the server-timestamp and realtime broadcast triggers and one delta index; the firm guards are deliberately absent because they read a `firm_id` this table does not have, and the admin policy is the whole write boundary. |
 | 0.0.748 | 2026-10-31 | `20261031101000_shared_case_references_write_grant.sql` | Restores the write privileges the previous file revoked. That file revoked INSERT, UPDATE and DELETE from `authenticated` while its RLS policies already restricted every write to `is_app_admin()`; the privilege check runs first, so the policies could never be reached and an administrator could not publish a citation either. This statement grants the three verbs to `authenticated`, leaves the admin policies as the boundary, and revokes everything from `anon`. |
+| 0.0.756 | 2026-10-31 | `20261031140000_case_reference_note_tags.sql` | Case Note and Tags on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain two nullable text columns, so an existing citation reads exactly as it was written and carries neither until it is edited. No function is re-created: `push_changes` validates a payload against the table's own `pg_attribute` list and applies it through `jsonb_populate_record`, so the new fields are accepted the moment the columns exist; the shared table's write grant is table-level, so the new columns inherit it; and the delta pull selects every column. The phone reads the fields through the generated row model and the card and form draw them. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -21888,6 +21889,38 @@ create index if not exists shared_case_references_delta_idx
 grant select, insert, update, delete on public.shared_case_references
   to authenticated;
 revoke all on public.shared_case_references from anon;
+```
+
+## App Version 0.0.756 — Case Reference — Case Note And Tags
+
+### 0.0.756 · `20261031140000_case_reference_note_tags.sql`
+
+> **Created 2026-10-31.** Case Note and Tags on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain two nullable text columns, so an existing citation reads exactly as it was written and carries neither until it is edited. No function is re-created: `push_changes` validates a payload against the table's own `pg_attribute` list and applies it through `jsonb_populate_record`, so the new fields are accepted the moment the columns exist; the shared table's write grant is table-level, so the new columns inherit it; and the delta pull selects every column. The phone reads the fields through the generated row model and the card and form draw them.
+
+```sql
+-- Case Note and Tags on both reference libraries.
+--
+-- The Case Reference screen and the Admin Panel's Server-wide Case Reference
+-- screen gained two fields (user request): a Case Note beside the case summary,
+-- and comma-separated Tags that a citation can be searched by. Both are stored
+-- as nullable text on both libraries, so every existing citation keeps reading
+-- exactly as it was written and simply carries neither until it is edited.
+--
+-- No function is re-created. `push_changes` validates a payload's keys against
+-- the table's own `pg_attribute` list and applies the row through
+-- `jsonb_populate_record`, so the new columns are accepted as soon as they
+-- exist; the shared table's write grant is table-level, so the new columns
+-- inherit it; and the delta pull selects every column.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — AGENTS.md rule 12.
+
+alter table public.case_references
+  add column case_note text,
+  add column tags text;
+
+alter table public.shared_case_references
+  add column case_note text,
+  add column tags text;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

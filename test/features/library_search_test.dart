@@ -26,6 +26,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode
 import 'package:legal_case_diary/features/case_reference/data/local/case_references_dao.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
 import 'package:legal_case_diary/features/case_reference/presentation/case_reference_screen.dart';
+import 'package:legal_case_diary/features/case_reference/presentation/reference_library.dart';
 import 'package:legal_case_diary/features/cases/presentation/cases_screen_modal.dart';
 import 'package:legal_case_diary/features/notes/data/local/notes_dao.dart';
 import 'package:legal_case_diary/features/notes/data/notes_repository.dart';
@@ -59,6 +60,20 @@ void main() {
   });
 
   tearDown(() async => db.close());
+
+  test('tags are split, canonicalized and listed alphabetically', () {
+    expect(referenceTags(' bail,  Evidence ,, bail '), ['bail', 'Evidence']);
+    expect(
+      canonicalReferenceTags(' bail,  Evidence ,, bail '),
+      'bail, Evidence',
+    );
+    expect(canonicalReferenceTags(' , '), isNull);
+    expect(tagVocabulary(<String?>['trial, bail', 'Bail, evidence', null]), [
+      'bail',
+      'evidence',
+      'trial',
+    ]);
+  });
 
   /// Pumps a bounded number of frames.
   ///
@@ -140,6 +155,8 @@ void main() {
     String citation,
     String description, {
     String? statute,
+    String? caseNote,
+    String? tags,
   }) => references.insertReference(
     CaseReferencesCompanion(
       id: Value(id),
@@ -147,6 +164,8 @@ void main() {
       referenceAndPageNo: Value(citation),
       statute: Value(statute),
       titleAndDescription: Value(description),
+      caseNote: Value(caseNote),
+      tags: Value(tags),
       createdAt: const Value(1),
       updatedAt: const Value(1),
     ),
@@ -524,6 +543,136 @@ void main() {
 
     await unmount(tester);
   });
+
+  testWidgets(
+    'a citation keeps its case note and tags, and both are searchable',
+    (tester) async {
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        statute: 'The Penal Code, 1860',
+        caseNote: 'Witness turned hostile.',
+        tags: 'bail, evidence',
+      );
+      await seedReference(
+        'ref-2',
+        '12 BLC 99',
+        'Partition.',
+        statute: 'The Penal Code, 1860',
+        caseNote: 'Survey record missing.',
+        tags: 'bail',
+      );
+      await pumpLibrary(tester, const CaseReferenceScreen());
+
+      // Each tag is its own chip, and the case note reads as its own paragraph.
+      await tester.tap(find.text('The Penal Code, 1860'));
+      await settle(tester);
+      expect(find.text('evidence'), findsOneWidget);
+      expect(find.text('Witness turned hostile.'), findsOneWidget);
+      expect(find.text('bail'), findsNWidgets(2));
+
+      // The case note and a tag both find their citation.
+      await openSearch(tester);
+      await tester.enterText(find.byType(TextField), 'hostile');
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'evidence');
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsNothing);
+
+      // A shared tag finds every citation carrying it.
+      await tester.enterText(find.byType(TextField), 'bail');
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsOneWidget);
+
+      await unmount(tester);
+    },
+  );
+
+  testWidgets(
+    'the shared form reuses an existing tag and saves the case note',
+    (tester) async {
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        tags: 'evidence, trial',
+      );
+      await pumpLibrary(tester, const CaseReferenceScreen());
+      await tester.tap(find.byType(FloatingActionButton));
+      await settle(tester);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('reference-form-citation')),
+        '68 DLR (AD) 290',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('reference-form-case-note')),
+        'Client in custody.',
+      );
+
+      // The Tags box lists the library's existing tags alphabetically.
+      await tester.drag(
+        find.byKey(const ValueKey('reference-form-scroll')),
+        const Offset(0, -400),
+      );
+      await settle(tester);
+      await tester.tap(find.byKey(const ValueKey('reference-tags-menu')));
+      for (
+        var i = 0;
+        i < 10 &&
+            find
+                .byKey(const ValueKey('reference-tag-option-evidence'))
+                .evaluate()
+                .isEmpty;
+        i++
+      ) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      final evidence = tester.getTopLeft(
+        find.byKey(const ValueKey('reference-tag-option-evidence')),
+      );
+      final trial = tester.getTopLeft(
+        find.byKey(const ValueKey('reference-tag-option-trial')),
+      );
+      expect(evidence.dy, lessThan(trial.dy));
+      await tester.tap(
+        find.byKey(const ValueKey('reference-tag-option-evidence')),
+      );
+      await settle(tester);
+      expect(
+        tester
+            .widget<TextField>(
+              find.byKey(const ValueKey('reference-form-tags')),
+            )
+            .controller!
+            .text,
+        'evidence',
+      );
+
+      await tester.tap(find.byKey(const ValueKey('reference-form-save')));
+      for (
+        var i = 0;
+        i < 40 &&
+            find.byKey(const ValueKey('reference-title')).evaluate().isNotEmpty;
+        i++
+      ) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      final saved = (await CaseReferencesDao(db).getAll()).firstWhere(
+        (row) => row.referenceAndPageNo == '68 DLR (AD) 290',
+      );
+      expect(saved.caseNote, 'Client in custody.');
+      expect(saved.tags, 'evidence');
+
+      await unmount(tester);
+    },
+  );
 
   testWidgets('Notes and Case Reference can be pulled down to sync', (
     tester,

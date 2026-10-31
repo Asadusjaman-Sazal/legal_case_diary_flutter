@@ -634,7 +634,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_title => 'মামলার রেফারেন্স';
 
   @override
-  String get caseReferenceScreen_referenceAndPageNo => 'রেফারেন্স ও পৃষ্ঠা নং';
+  String get caseReferenceScreen_referenceAndPageNo => 'মামলার রেফারেন্স';
 
   @override
   String get caseReferenceScreen_statute => 'আইন';
@@ -643,10 +643,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_sectionOrArticle => 'ধারা/অনুচ্ছেদ';
 
   @override
-  String get caseReferenceScreen_titleAndDescription => 'শিরোনাম ও বর্ণনা';
+  String get caseReferenceScreen_caseNote => 'মামলার টীকা';
 
   @override
-  String get caseReferenceScreen_commentsNotes => 'মন্তব্য/নোট';
+  String get caseReferenceScreen_titleAndDescription =>
+      'মামলার সারসংক্ষেপ ও সিদ্ধান্ত';
+
+  @override
+  String get caseReferenceScreen_commentsNotes => 'ব্যক্তিগত নোট';
+
+  @override
+  String get caseReferenceScreen_tags => 'ট্যাগ';
 
   @override
   String get caseReferenceScreen_empty =>

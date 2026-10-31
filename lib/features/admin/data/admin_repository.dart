@@ -235,6 +235,8 @@ class AdminSharedReference {
     this.sectionOrArticle,
     this.titleAndDescription,
     this.commentsNotes,
+    this.caseNote,
+    this.tags,
   });
 
   /// Reads one row as the Data API returned it.
@@ -246,6 +248,8 @@ class AdminSharedReference {
         sectionOrArticle: json['section_or_article'] as String?,
         titleAndDescription: json['title_and_description'] as String?,
         commentsNotes: json['comments_notes'] as String?,
+        caseNote: json['case_note'] as String?,
+        tags: json['tags'] as String?,
       );
 
   /// UUID primary key.
@@ -266,6 +270,12 @@ class AdminSharedReference {
   /// Comments or notes the admin attaches.
   final String? commentsNotes;
 
+  /// A note on the case itself, beside the summary.
+  final String? caseNote;
+
+  /// Comma-separated tags used to group and find citations.
+  final String? tags;
+
   /// The writable columns, in the table's own snake_case names.
   ///
   /// `is_deleted` is deliberately absent: a delete is the toolbar's own action,
@@ -277,6 +287,8 @@ class AdminSharedReference {
     'section_or_article': sectionOrArticle,
     'title_and_description': titleAndDescription,
     'comments_notes': commentsNotes,
+    'case_note': caseNote,
+    'tags': tags,
   };
 }
 

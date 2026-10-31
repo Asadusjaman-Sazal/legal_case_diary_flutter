@@ -116,6 +116,13 @@ class _AdminSharedReferencesScreenState
   }) async {
     final l = AppLocalizations.of(context);
     final isNew = reference == null;
+    // Every tag the official library already uses, for the form's dropdown.
+    final rows =
+        ref.read(adminSharedReferencesProvider).value ??
+        const <AdminSharedReference>[];
+    final tagOptions = tagVocabulary(<String?>[
+      for (final row in rows) row.tags,
+    ]);
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => ReferenceFormScreen(
@@ -127,6 +134,9 @@ class _AdminSharedReferencesScreenState
           sectionOrArticle: reference?.sectionOrArticle ?? '',
           titleAndDescription: reference?.titleAndDescription ?? '',
           commentsNotes: reference?.commentsNotes ?? '',
+          caseNote: reference?.caseNote ?? '',
+          tags: reference?.tags ?? '',
+          tagOptions: tagOptions,
           onSave: (values, formContext) =>
               _saveReference(reference, values, formContext),
         ),
@@ -164,6 +174,8 @@ class _AdminSharedReferencesScreenState
       sectionOrArticle: values.sectionOrArticle,
       titleAndDescription: values.titleAndDescription,
       commentsNotes: values.commentsNotes,
+      caseNote: values.caseNote,
+      tags: values.tags,
     );
     final failure = await ref
         .read(adminRepositoryProvider)
@@ -316,6 +328,8 @@ class _AdminSharedReferencesScreenState
                   sectionOrArticle: row.sectionOrArticle,
                   titleAndDescription: row.titleAndDescription,
                   commentsNotes: row.commentsNotes,
+                  caseNote: row.caseNote,
+                  tags: row.tags,
                 ),
             ];
             final byId = {for (final row in rows) row.id: row};
@@ -332,6 +346,8 @@ class _AdminSharedReferencesScreenState
                           row.sectionOrArticle,
                           row.titleAndDescription,
                           row.commentsNotes,
+                          row.caseNote,
+                          row.tags,
                         ]),
                       )
                       .toList(growable: false)

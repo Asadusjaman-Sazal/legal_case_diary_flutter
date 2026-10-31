@@ -219,6 +219,7 @@ class AppTranslations {
       AppStrings.caseDetailsScreenTitle: _loc.caseDetailsScreen_title,
     },
     AppStrings.caseReferenceScreenGroup: <String, String>{
+      AppStrings.caseReferenceScreenCasenote: _loc.caseReferenceScreen_caseNote,
       AppStrings.caseReferenceScreenCommentsnotes:
           _loc.caseReferenceScreen_commentsNotes,
       AppStrings.caseReferenceScreenReferenceandpageno:
@@ -226,6 +227,7 @@ class AppTranslations {
       AppStrings.caseReferenceScreenSectionorarticle:
           _loc.caseReferenceScreen_sectionOrArticle,
       AppStrings.caseReferenceScreenStatute: _loc.caseReferenceScreen_statute,
+      AppStrings.caseReferenceScreenTags: _loc.caseReferenceScreen_tags,
       AppStrings.caseReferenceScreenTitle: _loc.caseReferenceScreen_title,
       AppStrings.caseReferenceScreenTitleanddescription:
           _loc.caseReferenceScreen_titleAndDescription,

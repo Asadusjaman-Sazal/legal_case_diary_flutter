@@ -109,6 +109,8 @@ abstract class AppStrings {
 
   // caseReferenceScreen
   static const String caseReferenceScreenGroup = "caseReferenceScreen";
+  static const String caseReferenceScreenCasenote =
+      "caseReferenceScreen_caseNote";
   static const String caseReferenceScreenCommentsnotes =
       "caseReferenceScreen_commentsNotes";
   static const String caseReferenceScreenReferenceandpageno =
@@ -117,6 +119,7 @@ abstract class AppStrings {
       "caseReferenceScreen_sectionOrArticle";
   static const String caseReferenceScreenStatute =
       "caseReferenceScreen_statute";
+  static const String caseReferenceScreenTags = "caseReferenceScreen_tags";
   static const String caseReferenceScreenTitle = "caseReferenceScreen_title";
   static const String caseReferenceScreenTitleanddescription =
       "caseReferenceScreen_titleAndDescription";

@@ -64,7 +64,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -86,7 +86,8 @@ class AppDatabase extends _$AppDatabase {
   /// then v14→v15 by adding the requester's display name to `delete_requests`,
   /// then v15→v16 by adding the law-name list (`laws`), then v16→v17 by adding
   /// the law category that list groups its names under, then v17→v18 by adding
-  /// the server-wide references cache and its per-device pin table.
+  /// the server-wide references cache and its per-device pin table, then
+  /// v18→v19 by adding the case note and tags to both reference libraries.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -200,6 +201,15 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(sharedCaseReferences);
         await m.createTable(sharedCaseReferencePins);
       }
+      if (from < 19) {
+        // The Case Note and Tags on both reference libraries. Additive and
+        // nullable, so every existing citation keeps reading exactly as it was
+        // written; the next server pull fills the official cache's values.
+        await m.addColumn(caseReferences, caseReferences.caseNote);
+        await m.addColumn(caseReferences, caseReferences.tags);
+        await m.addColumn(sharedCaseReferences, sharedCaseReferences.caseNote);
+        await m.addColumn(sharedCaseReferences, sharedCaseReferences.tags);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON;');
@@ -252,8 +262,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Live (non-deleted) official case references.
   Selectable<SharedCaseReference> get activeSharedCaseReferences =>
-      select(sharedCaseReferences)
-        ..where((row) => row.isDeleted.equals(false));
+      select(sharedCaseReferences)..where((row) => row.isDeleted.equals(false));
 
   /// Active (non-deleted) delete requests.
   Selectable<DeleteRequest> get activeDeleteRequests =>

@@ -22,26 +22,31 @@ import '../../../database/app_database.dart';
 import '../../settings/presentation/edit_court_steps/next_order_index.dart';
 import 'law_name_dialog.dart';
 import 'law_picker.dart';
+import 'reference_library.dart';
 
-/// The five values the form hands to its window's own save.
+/// The seven values the form hands to its window's own save.
 ///
 /// Optional fields are null when their box is blank, which is how both tables
-/// already store an empty reference field.
+/// already store an empty reference field. Tags arrive canonicalized.
 class ReferenceFormValues {
   /// Creates the values from the form's boxes.
   const ReferenceFormValues({
     required this.referenceAndPageNo,
     this.statute,
     this.sectionOrArticle,
+    this.caseNote,
     this.titleAndDescription,
     this.commentsNotes,
+    this.tags,
   });
 
   final String referenceAndPageNo;
   final String? statute;
   final String? sectionOrArticle;
+  final String? caseNote;
   final String? titleAndDescription;
   final String? commentsNotes;
+  final String? tags;
 }
 
 /// Stores the form's values; true closes the window.
@@ -57,7 +62,7 @@ typedef ReferenceFormSave =
 typedef ReferenceFormConfirmOpen =
     Future<bool> Function(BuildContext formContext, WidgetRef ref);
 
-/// The shared Add/Edit form: title band, five labelled fields, Save.
+/// The shared Add/Edit form: title band, seven labelled fields, Save.
 class ReferenceFormScreen extends ConsumerStatefulWidget {
   /// Creates the form with the window's title, its starting values and the
   /// save that stores them.
@@ -67,8 +72,11 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
     this.referenceAndPageNo = '',
     this.statute,
     this.sectionOrArticle = '',
+    this.caseNote = '',
     this.titleAndDescription = '',
     this.commentsNotes = '',
+    this.tags = '',
+    this.tagOptions = const <String>[],
     this.confirmOpen,
     super.key,
   });
@@ -80,12 +88,18 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
   /// Stores the values and returns whether the window should close.
   final ReferenceFormSave onSave;
 
-  /// The starting values of the five boxes.
+  /// The starting values of the boxes.
   final String referenceAndPageNo;
   final String? statute;
   final String sectionOrArticle;
+  final String caseNote;
   final String titleAndDescription;
   final String commentsNotes;
+  final String tags;
+
+  /// Every tag the window's library already uses, alphabetical; the Tags box
+  /// lists them in a dropdown so a tag can be reused instead of retyped.
+  final List<String> tagOptions;
 
   /// Asked once after the first frame, when the window has one.
   final ReferenceFormConfirmOpen? confirmOpen;
@@ -98,8 +112,13 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
 class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   late final TextEditingController _refNo;
   late final TextEditingController _section;
+  late final TextEditingController _caseNote;
   late final TextEditingController _title;
   late final TextEditingController _comments;
+  late final TextEditingController _tags;
+
+  /// Opens the Tags box's list of already-used tags.
+  final MenuController _tagsMenu = MenuController();
 
   /// The cited law's name, chosen from the law list rather than typed.
   ///
@@ -117,8 +136,10 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
     super.initState();
     _refNo = TextEditingController(text: widget.referenceAndPageNo);
     _section = TextEditingController(text: widget.sectionOrArticle);
+    _caseNote = TextEditingController(text: widget.caseNote);
     _title = TextEditingController(text: widget.titleAndDescription);
     _comments = TextEditingController(text: widget.commentsNotes);
+    _tags = TextEditingController(text: widget.tags);
     _statute = _nullable(widget.statute);
     final confirm = widget.confirmOpen;
     if (confirm != null) {
@@ -135,8 +156,10 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   void dispose() {
     _refNo.dispose();
     _section.dispose();
+    _caseNote.dispose();
     _title.dispose();
     _comments.dispose();
+    _tags.dispose();
     super.dispose();
   }
 
@@ -187,8 +210,8 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
     if (mounted) setState(() => _statute = draft.name);
   }
 
-  /// Hands the five values to the window's save and closes only on success, so
-  /// a refusal (offline, over the allowance) leaves the window open with the
+  /// Hands the values to the window's save and closes only on success, so a
+  /// refusal (offline, over the allowance) leaves the window open with the
   /// user's typing intact.
   Future<void> _save() async {
     if (_saving) return;
@@ -197,8 +220,10 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
       referenceAndPageNo: _refNo.text.trim(),
       statute: _nullable(_statute),
       sectionOrArticle: _nullable(_section.text),
+      caseNote: _nullable(_caseNote.text),
       titleAndDescription: _nullable(_title.text),
       commentsNotes: _nullable(_comments.text),
+      tags: canonicalReferenceTags(_tags.text),
     );
     bool saved;
     try {
@@ -254,6 +279,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
           ),
           Expanded(
             child: ListView(
+              key: const ValueKey('reference-form-scroll'),
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
                 _field(
@@ -267,6 +293,12 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
                   controller: _section,
                 ),
                 _field(
+                  label: l.caseReferenceScreen_caseNote,
+                  controller: _caseNote,
+                  maxLines: 3,
+                  key: const ValueKey('reference-form-case-note'),
+                ),
+                _field(
                   label: l.caseReferenceScreen_titleAndDescription,
                   controller: _title,
                   maxLines: 4,
@@ -276,6 +308,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
                   controller: _comments,
                   maxLines: 3,
                 ),
+                _tagsField(l),
               ],
             ),
           ),
@@ -397,4 +430,101 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
       ],
     ),
   );
+
+  /// The Tags box: free comma-separated text, with a dropdown of every tag the
+  /// window's library already uses, alphabetical, so a tag is reused instead of
+  /// retyped (user request). Choosing one appends it; typing a new one works
+  /// exactly as before.
+  Widget _tagsField(AppLocalizations l) {
+    final options = <String>[...widget.tagOptions]
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final present = referenceTags(
+      _tags.text,
+    ).map((tag) => tag.toLowerCase()).toSet();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldLabel(l.caseReferenceScreen_tags),
+          MenuAnchor(
+            controller: _tagsMenu,
+            alignmentOffset: const Offset(0, 4),
+            menuChildren: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 280,
+                  maxHeight: 240,
+                ),
+                child: SingleChildScrollView(
+                  // The menu floats above the form; it must not join the form
+                  // list's primary controller, or the scrollbar sees two
+                  // positions on one controller.
+                  primary: false,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final tag in options)
+                        MenuItemButton(
+                          key: ValueKey('reference-tag-option-$tag'),
+                          leadingIcon: present.contains(tag.toLowerCase())
+                              ? const Icon(Icons.check, size: 18)
+                              : null,
+                          onPressed: () {
+                            _tagsMenu.close();
+                            _appendTag(tag);
+                          },
+                          child: Text(tag),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            builder: (context, controller, _) => TextField(
+              key: const ValueKey('reference-form-tags'),
+              controller: _tags,
+              style: AppTypography.bodyLg,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surfaceContainerLow,
+                suffixIcon: options.isEmpty
+                    ? null
+                    : IconButton(
+                        key: const ValueKey('reference-tags-menu'),
+                        tooltip: l.caseReferenceScreen_tags,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onPressed: () => controller.isOpen
+                            ? controller.close()
+                            : controller.open(),
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Appends [tag] to the box once, keeping the stored `tag1, tag2` shape.
+  void _appendTag(String tag) {
+    final current = referenceTags(_tags.text);
+    if (current.any((t) => t.toLowerCase() == tag.toLowerCase())) return;
+    final next = <String>[...current, tag].join(', ');
+    setState(() {
+      _tags.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    });
+  }
 }

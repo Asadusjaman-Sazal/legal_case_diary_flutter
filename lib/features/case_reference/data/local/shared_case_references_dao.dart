@@ -65,7 +65,7 @@ class SharedCaseReferencesDao {
     });
   }
 
-  /// The live official references matching [query] across the five text fields.
+  /// The live official references matching [query] across the seven text fields.
   ///
   /// The cache is small (an admin's library, not every case on the phone), so
   /// the same case-insensitive substring rule the local DAO's `LIKE` applies is
@@ -86,7 +86,9 @@ class SharedCaseReferencesDao {
               matches(row.statute) ||
               matches(row.sectionOrArticle) ||
               matches(row.titleAndDescription) ||
-              matches(row.commentsNotes),
+              matches(row.commentsNotes) ||
+              matches(row.caseNote) ||
+              matches(row.tags),
         )
         .toList(growable: false);
   }

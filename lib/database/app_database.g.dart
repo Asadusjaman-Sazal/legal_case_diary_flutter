@@ -9467,6 +9467,26 @@ class $CaseReferencesTable extends CaseReferences
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _caseNoteMeta = const VerificationMeta(
+    'caseNote',
+  );
+  @override
+  late final GeneratedColumn<String> caseNote = GeneratedColumn<String>(
+    'case_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isPinnedMeta = const VerificationMeta(
     'isPinned',
   );
@@ -9562,6 +9582,8 @@ class $CaseReferencesTable extends CaseReferences
     sectionOrArticle,
     titleAndDescription,
     commentsNotes,
+    caseNote,
+    tags,
     isPinned,
     createdAt,
     updatedAt,
@@ -9643,6 +9665,18 @@ class $CaseReferencesTable extends CaseReferences
           data['comments_notes']!,
           _commentsNotesMeta,
         ),
+      );
+    }
+    if (data.containsKey('case_note')) {
+      context.handle(
+        _caseNoteMeta,
+        caseNote.isAcceptableOrUnknown(data['case_note']!, _caseNoteMeta),
+      );
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
       );
     }
     if (data.containsKey('is_pinned')) {
@@ -9735,6 +9769,14 @@ class $CaseReferencesTable extends CaseReferences
         DriftSqlType.string,
         data['${effectivePrefix}comments_notes'],
       ),
+      caseNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_note'],
+      ),
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
       isPinned: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_pinned'],
@@ -9797,6 +9839,12 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
   /// Additional comments or notes.
   final String? commentsNotes;
 
+  /// A note on the case itself, beside the case summary.
+  final String? caseNote;
+
+  /// Comma-separated tags used to group and find citations.
+  final String? tags;
+
   /// Pinned references appear first.
   final bool isPinned;
 
@@ -9816,6 +9864,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     this.sectionOrArticle,
     this.titleAndDescription,
     this.commentsNotes,
+    this.caseNote,
+    this.tags,
     required this.isPinned,
     required this.createdAt,
     required this.updatedAt,
@@ -9844,6 +9894,12 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     }
     if (!nullToAbsent || commentsNotes != null) {
       map['comments_notes'] = Variable<String>(commentsNotes);
+    }
+    if (!nullToAbsent || caseNote != null) {
+      map['case_note'] = Variable<String>(caseNote);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
     }
     map['is_pinned'] = Variable<bool>(isPinned);
     map['created_at'] = Variable<int>(createdAt);
@@ -9881,6 +9937,10 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       commentsNotes: commentsNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(commentsNotes),
+      caseNote: caseNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caseNote),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       isPinned: Value(isPinned),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -9915,6 +9975,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
         json['titleAndDescription'],
       ),
       commentsNotes: serializer.fromJson<String?>(json['commentsNotes']),
+      caseNote: serializer.fromJson<String?>(json['caseNote']),
+      tags: serializer.fromJson<String?>(json['tags']),
       isPinned: serializer.fromJson<bool>(json['isPinned']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
@@ -9936,6 +9998,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       'sectionOrArticle': serializer.toJson<String?>(sectionOrArticle),
       'titleAndDescription': serializer.toJson<String?>(titleAndDescription),
       'commentsNotes': serializer.toJson<String?>(commentsNotes),
+      'caseNote': serializer.toJson<String?>(caseNote),
+      'tags': serializer.toJson<String?>(tags),
       'isPinned': serializer.toJson<bool>(isPinned),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
@@ -9955,6 +10019,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     Value<String?> sectionOrArticle = const Value.absent(),
     Value<String?> titleAndDescription = const Value.absent(),
     Value<String?> commentsNotes = const Value.absent(),
+    Value<String?> caseNote = const Value.absent(),
+    Value<String?> tags = const Value.absent(),
     bool? isPinned,
     int? createdAt,
     int? updatedAt,
@@ -9977,6 +10043,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     commentsNotes: commentsNotes.present
         ? commentsNotes.value
         : this.commentsNotes,
+    caseNote: caseNote.present ? caseNote.value : this.caseNote,
+    tags: tags.present ? tags.value : this.tags,
     isPinned: isPinned ?? this.isPinned,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -10005,6 +10073,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       commentsNotes: data.commentsNotes.present
           ? data.commentsNotes.value
           : this.commentsNotes,
+      caseNote: data.caseNote.present ? data.caseNote.value : this.caseNote,
+      tags: data.tags.present ? data.tags.value : this.tags,
       isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -10028,6 +10098,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
           ..write('commentsNotes: $commentsNotes, ')
+          ..write('caseNote: $caseNote, ')
+          ..write('tags: $tags, ')
           ..write('isPinned: $isPinned, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -10049,6 +10121,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     sectionOrArticle,
     titleAndDescription,
     commentsNotes,
+    caseNote,
+    tags,
     isPinned,
     createdAt,
     updatedAt,
@@ -10069,6 +10143,8 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
           other.sectionOrArticle == this.sectionOrArticle &&
           other.titleAndDescription == this.titleAndDescription &&
           other.commentsNotes == this.commentsNotes &&
+          other.caseNote == this.caseNote &&
+          other.tags == this.tags &&
           other.isPinned == this.isPinned &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -10087,6 +10163,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
   final Value<String?> sectionOrArticle;
   final Value<String?> titleAndDescription;
   final Value<String?> commentsNotes;
+  final Value<String?> caseNote;
+  final Value<String?> tags;
   final Value<bool> isPinned;
   final Value<int> createdAt;
   final Value<int> updatedAt;
@@ -10104,6 +10182,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
     this.commentsNotes = const Value.absent(),
+    this.caseNote = const Value.absent(),
+    this.tags = const Value.absent(),
     this.isPinned = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -10122,6 +10202,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
     this.commentsNotes = const Value.absent(),
+    this.caseNote = const Value.absent(),
+    this.tags = const Value.absent(),
     this.isPinned = const Value.absent(),
     required int createdAt,
     required int updatedAt,
@@ -10144,6 +10226,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     Expression<String>? sectionOrArticle,
     Expression<String>? titleAndDescription,
     Expression<String>? commentsNotes,
+    Expression<String>? caseNote,
+    Expression<String>? tags,
     Expression<bool>? isPinned,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
@@ -10164,6 +10248,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
       if (titleAndDescription != null)
         'title_and_description': titleAndDescription,
       if (commentsNotes != null) 'comments_notes': commentsNotes,
+      if (caseNote != null) 'case_note': caseNote,
+      if (tags != null) 'tags': tags,
       if (isPinned != null) 'is_pinned': isPinned,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -10184,6 +10270,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     Value<String?>? sectionOrArticle,
     Value<String?>? titleAndDescription,
     Value<String?>? commentsNotes,
+    Value<String?>? caseNote,
+    Value<String?>? tags,
     Value<bool>? isPinned,
     Value<int>? createdAt,
     Value<int>? updatedAt,
@@ -10202,6 +10290,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
       sectionOrArticle: sectionOrArticle ?? this.sectionOrArticle,
       titleAndDescription: titleAndDescription ?? this.titleAndDescription,
       commentsNotes: commentsNotes ?? this.commentsNotes,
+      caseNote: caseNote ?? this.caseNote,
+      tags: tags ?? this.tags,
       isPinned: isPinned ?? this.isPinned,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -10242,6 +10332,12 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     if (commentsNotes.present) {
       map['comments_notes'] = Variable<String>(commentsNotes.value);
     }
+    if (caseNote.present) {
+      map['case_note'] = Variable<String>(caseNote.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
     if (isPinned.present) {
       map['is_pinned'] = Variable<bool>(isPinned.value);
     }
@@ -10280,6 +10376,8 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
           ..write('commentsNotes: $commentsNotes, ')
+          ..write('caseNote: $caseNote, ')
+          ..write('tags: $tags, ')
           ..write('isPinned: $isPinned, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -17172,6 +17270,26 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _caseNoteMeta = const VerificationMeta(
+    'caseNote',
+  );
+  @override
+  late final GeneratedColumn<String> caseNote = GeneratedColumn<String>(
+    'case_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isDeletedMeta = const VerificationMeta(
     'isDeleted',
   );
@@ -17195,6 +17313,8 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
     sectionOrArticle,
     titleAndDescription,
     commentsNotes,
+    caseNote,
+    tags,
     isDeleted,
   ];
   @override
@@ -17258,6 +17378,18 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
         ),
       );
     }
+    if (data.containsKey('case_note')) {
+      context.handle(
+        _caseNoteMeta,
+        caseNote.isAcceptableOrUnknown(data['case_note']!, _caseNoteMeta),
+      );
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
     if (data.containsKey('is_deleted')) {
       context.handle(
         _isDeletedMeta,
@@ -17297,6 +17429,14 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
         DriftSqlType.string,
         data['${effectivePrefix}comments_notes'],
       ),
+      caseNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_note'],
+      ),
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
       isDeleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
@@ -17330,6 +17470,12 @@ class SharedCaseReference extends DataClass
   /// Comments or notes the admin attached.
   final String? commentsNotes;
 
+  /// A note on the case itself, beside the case summary.
+  final String? caseNote;
+
+  /// Comma-separated tags used to group and find citations.
+  final String? tags;
+
   /// Tombstone written by the server; a live query filters these out.
   final bool isDeleted;
   const SharedCaseReference({
@@ -17339,6 +17485,8 @@ class SharedCaseReference extends DataClass
     this.sectionOrArticle,
     this.titleAndDescription,
     this.commentsNotes,
+    this.caseNote,
+    this.tags,
     required this.isDeleted,
   });
   @override
@@ -17357,6 +17505,12 @@ class SharedCaseReference extends DataClass
     }
     if (!nullToAbsent || commentsNotes != null) {
       map['comments_notes'] = Variable<String>(commentsNotes);
+    }
+    if (!nullToAbsent || caseNote != null) {
+      map['case_note'] = Variable<String>(caseNote);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
     }
     map['is_deleted'] = Variable<bool>(isDeleted);
     return map;
@@ -17378,6 +17532,10 @@ class SharedCaseReference extends DataClass
       commentsNotes: commentsNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(commentsNotes),
+      caseNote: caseNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caseNote),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
       isDeleted: Value(isDeleted),
     );
   }
@@ -17398,6 +17556,8 @@ class SharedCaseReference extends DataClass
         json['titleAndDescription'],
       ),
       commentsNotes: serializer.fromJson<String?>(json['commentsNotes']),
+      caseNote: serializer.fromJson<String?>(json['caseNote']),
+      tags: serializer.fromJson<String?>(json['tags']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
     );
   }
@@ -17411,6 +17571,8 @@ class SharedCaseReference extends DataClass
       'sectionOrArticle': serializer.toJson<String?>(sectionOrArticle),
       'titleAndDescription': serializer.toJson<String?>(titleAndDescription),
       'commentsNotes': serializer.toJson<String?>(commentsNotes),
+      'caseNote': serializer.toJson<String?>(caseNote),
+      'tags': serializer.toJson<String?>(tags),
       'isDeleted': serializer.toJson<bool>(isDeleted),
     };
   }
@@ -17422,6 +17584,8 @@ class SharedCaseReference extends DataClass
     Value<String?> sectionOrArticle = const Value.absent(),
     Value<String?> titleAndDescription = const Value.absent(),
     Value<String?> commentsNotes = const Value.absent(),
+    Value<String?> caseNote = const Value.absent(),
+    Value<String?> tags = const Value.absent(),
     bool? isDeleted,
   }) => SharedCaseReference(
     id: id ?? this.id,
@@ -17436,6 +17600,8 @@ class SharedCaseReference extends DataClass
     commentsNotes: commentsNotes.present
         ? commentsNotes.value
         : this.commentsNotes,
+    caseNote: caseNote.present ? caseNote.value : this.caseNote,
+    tags: tags.present ? tags.value : this.tags,
     isDeleted: isDeleted ?? this.isDeleted,
   );
   SharedCaseReference copyWithCompanion(SharedCaseReferencesCompanion data) {
@@ -17454,6 +17620,8 @@ class SharedCaseReference extends DataClass
       commentsNotes: data.commentsNotes.present
           ? data.commentsNotes.value
           : this.commentsNotes,
+      caseNote: data.caseNote.present ? data.caseNote.value : this.caseNote,
+      tags: data.tags.present ? data.tags.value : this.tags,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
     );
   }
@@ -17467,6 +17635,8 @@ class SharedCaseReference extends DataClass
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
           ..write('commentsNotes: $commentsNotes, ')
+          ..write('caseNote: $caseNote, ')
+          ..write('tags: $tags, ')
           ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
@@ -17480,6 +17650,8 @@ class SharedCaseReference extends DataClass
     sectionOrArticle,
     titleAndDescription,
     commentsNotes,
+    caseNote,
+    tags,
     isDeleted,
   );
   @override
@@ -17492,6 +17664,8 @@ class SharedCaseReference extends DataClass
           other.sectionOrArticle == this.sectionOrArticle &&
           other.titleAndDescription == this.titleAndDescription &&
           other.commentsNotes == this.commentsNotes &&
+          other.caseNote == this.caseNote &&
+          other.tags == this.tags &&
           other.isDeleted == this.isDeleted);
 }
 
@@ -17503,6 +17677,8 @@ class SharedCaseReferencesCompanion
   final Value<String?> sectionOrArticle;
   final Value<String?> titleAndDescription;
   final Value<String?> commentsNotes;
+  final Value<String?> caseNote;
+  final Value<String?> tags;
   final Value<bool> isDeleted;
   final Value<int> rowid;
   const SharedCaseReferencesCompanion({
@@ -17512,6 +17688,8 @@ class SharedCaseReferencesCompanion
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
     this.commentsNotes = const Value.absent(),
+    this.caseNote = const Value.absent(),
+    this.tags = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -17522,6 +17700,8 @@ class SharedCaseReferencesCompanion
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
     this.commentsNotes = const Value.absent(),
+    this.caseNote = const Value.absent(),
+    this.tags = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -17533,6 +17713,8 @@ class SharedCaseReferencesCompanion
     Expression<String>? sectionOrArticle,
     Expression<String>? titleAndDescription,
     Expression<String>? commentsNotes,
+    Expression<String>? caseNote,
+    Expression<String>? tags,
     Expression<bool>? isDeleted,
     Expression<int>? rowid,
   }) {
@@ -17545,6 +17727,8 @@ class SharedCaseReferencesCompanion
       if (titleAndDescription != null)
         'title_and_description': titleAndDescription,
       if (commentsNotes != null) 'comments_notes': commentsNotes,
+      if (caseNote != null) 'case_note': caseNote,
+      if (tags != null) 'tags': tags,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (rowid != null) 'rowid': rowid,
     });
@@ -17557,6 +17741,8 @@ class SharedCaseReferencesCompanion
     Value<String?>? sectionOrArticle,
     Value<String?>? titleAndDescription,
     Value<String?>? commentsNotes,
+    Value<String?>? caseNote,
+    Value<String?>? tags,
     Value<bool>? isDeleted,
     Value<int>? rowid,
   }) {
@@ -17567,6 +17753,8 @@ class SharedCaseReferencesCompanion
       sectionOrArticle: sectionOrArticle ?? this.sectionOrArticle,
       titleAndDescription: titleAndDescription ?? this.titleAndDescription,
       commentsNotes: commentsNotes ?? this.commentsNotes,
+      caseNote: caseNote ?? this.caseNote,
+      tags: tags ?? this.tags,
       isDeleted: isDeleted ?? this.isDeleted,
       rowid: rowid ?? this.rowid,
     );
@@ -17595,6 +17783,12 @@ class SharedCaseReferencesCompanion
     if (commentsNotes.present) {
       map['comments_notes'] = Variable<String>(commentsNotes.value);
     }
+    if (caseNote.present) {
+      map['case_note'] = Variable<String>(caseNote.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
@@ -17613,6 +17807,8 @@ class SharedCaseReferencesCompanion
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
           ..write('commentsNotes: $commentsNotes, ')
+          ..write('caseNote: $caseNote, ')
+          ..write('tags: $tags, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -24088,6 +24284,8 @@ typedef $$CaseReferencesTableCreateCompanionBuilder =
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
       Value<String?> commentsNotes,
+      Value<String?> caseNote,
+      Value<String?> tags,
       Value<bool> isPinned,
       required int createdAt,
       required int updatedAt,
@@ -24107,6 +24305,8 @@ typedef $$CaseReferencesTableUpdateCompanionBuilder =
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
       Value<String?> commentsNotes,
+      Value<String?> caseNote,
+      Value<String?> tags,
       Value<bool> isPinned,
       Value<int> createdAt,
       Value<int> updatedAt,
@@ -24163,6 +24363,16 @@ class $$CaseReferencesTableFilterComposer
 
   ColumnFilters<String> get commentsNotes => $composableBuilder(
     column: $table.commentsNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseNote => $composableBuilder(
+    column: $table.caseNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24251,6 +24461,16 @@ class $$CaseReferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get caseNote => $composableBuilder(
+    column: $table.caseNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isPinned => $composableBuilder(
     column: $table.isPinned,
     builder: (column) => ColumnOrderings(column),
@@ -24328,6 +24548,12 @@ class $$CaseReferencesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get caseNote =>
+      $composableBuilder(column: $table.caseNote, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
   GeneratedColumn<bool> get isPinned =>
       $composableBuilder(column: $table.isPinned, builder: (column) => column);
 
@@ -24393,6 +24619,8 @@ class $$CaseReferencesTableTableManager
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
                 Value<String?> commentsNotes = const Value.absent(),
+                Value<String?> caseNote = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
@@ -24410,6 +24638,8 @@ class $$CaseReferencesTableTableManager
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
                 commentsNotes: commentsNotes,
+                caseNote: caseNote,
+                tags: tags,
                 isPinned: isPinned,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -24429,6 +24659,8 @@ class $$CaseReferencesTableTableManager
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
                 Value<String?> commentsNotes = const Value.absent(),
+                Value<String?> caseNote = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 required int createdAt,
                 required int updatedAt,
@@ -24446,6 +24678,8 @@ class $$CaseReferencesTableTableManager
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
                 commentsNotes: commentsNotes,
+                caseNote: caseNote,
+                tags: tags,
                 isPinned: isPinned,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -27643,6 +27877,8 @@ typedef $$SharedCaseReferencesTableCreateCompanionBuilder =
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
       Value<String?> commentsNotes,
+      Value<String?> caseNote,
+      Value<String?> tags,
       Value<bool> isDeleted,
       Value<int> rowid,
     });
@@ -27654,6 +27890,8 @@ typedef $$SharedCaseReferencesTableUpdateCompanionBuilder =
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
       Value<String?> commentsNotes,
+      Value<String?> caseNote,
+      Value<String?> tags,
       Value<bool> isDeleted,
       Value<int> rowid,
     });
@@ -27694,6 +27932,16 @@ class $$SharedCaseReferencesTableFilterComposer
 
   ColumnFilters<String> get commentsNotes => $composableBuilder(
     column: $table.commentsNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseNote => $composableBuilder(
+    column: $table.caseNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27742,6 +27990,16 @@ class $$SharedCaseReferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get caseNote => $composableBuilder(
+    column: $table.caseNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
     builder: (column) => ColumnOrderings(column),
@@ -27782,6 +28040,12 @@ class $$SharedCaseReferencesTableAnnotationComposer
     column: $table.commentsNotes,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get caseNote =>
+      $composableBuilder(column: $table.caseNote, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
 
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
@@ -27836,6 +28100,8 @@ class $$SharedCaseReferencesTableTableManager
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
                 Value<String?> commentsNotes = const Value.absent(),
+                Value<String?> caseNote = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SharedCaseReferencesCompanion(
@@ -27845,6 +28111,8 @@ class $$SharedCaseReferencesTableTableManager
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
                 commentsNotes: commentsNotes,
+                caseNote: caseNote,
+                tags: tags,
                 isDeleted: isDeleted,
                 rowid: rowid,
               ),
@@ -27856,6 +28124,8 @@ class $$SharedCaseReferencesTableTableManager
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
                 Value<String?> commentsNotes = const Value.absent(),
+                Value<String?> caseNote = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SharedCaseReferencesCompanion.insert(
@@ -27865,6 +28135,8 @@ class $$SharedCaseReferencesTableTableManager
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
                 commentsNotes: commentsNotes,
+                caseNote: caseNote,
+                tags: tags,
                 isDeleted: isDeleted,
                 rowid: rowid,
               ),

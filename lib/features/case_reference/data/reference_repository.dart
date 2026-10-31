@@ -16,7 +16,10 @@ abstract class ReferenceRepository {
   Future<String> insertReference(CaseReferencesCompanion companion);
 
   /// Updates a reference.
-  Future<void> updateReference(CaseReferencesCompanion companion, {CaseReference? baseReference});
+  Future<void> updateReference(
+    CaseReferencesCompanion companion, {
+    CaseReference? baseReference,
+  });
 
   /// Soft-deletes a reference.
   Future<void> deleteReference(CaseReference reference);
@@ -41,7 +44,9 @@ abstract class ReferenceRepository {
 }
 
 /// Local Drift-backed implementation of [ReferenceRepository].
-class LocalReferenceRepository with BaseLocalRepository implements ReferenceRepository {
+class LocalReferenceRepository
+    with BaseLocalRepository
+    implements ReferenceRepository {
   final CaseReferencesDao _dao;
 
   @override
@@ -81,7 +86,10 @@ class LocalReferenceRepository with BaseLocalRepository implements ReferenceRepo
   }
 
   @override
-  Future<void> updateReference(CaseReferencesCompanion companion, {CaseReference? baseReference}) async {
+  Future<void> updateReference(
+    CaseReferencesCompanion companion, {
+    CaseReference? baseReference,
+  }) async {
     final id = companion.id.value;
     final existing = baseReference ?? await _dao.getById(id);
     if (existing == null) {
@@ -180,21 +188,30 @@ class LocalReferenceRepository with BaseLocalRepository implements ReferenceRepo
   Future<CaseReference?> getById(String id) => _dao.getById(id);
 
   @override
-  Future<List<CaseReference>> listAll({int? limit, int? offset}) => _dao.getAll(limit: limit, offset: offset);
+  Future<List<CaseReference>> listAll({int? limit, int? offset}) =>
+      _dao.getAll(limit: limit, offset: offset);
 
   @override
-  Stream<List<CaseReference>> watchAll({int? limit, int? offset}) => _dao.watchAll(limit: limit, offset: offset);
+  Stream<List<CaseReference>> watchAll({int? limit, int? offset}) =>
+      _dao.watchAll(limit: limit, offset: offset);
 
   @override
-  Future<List<CaseReference>> search(String query, {int? limit, int? offset}) => _dao.search(query, limit: limit, offset: offset);
+  Future<List<CaseReference>> search(String query, {int? limit, int? offset}) =>
+      _dao.search(query, limit: limit, offset: offset);
 
   List<String> _changedFields(CaseReferencesCompanion companion) {
     final fields = <String>[];
-    if (companion.referenceAndPageNo.present) fields.add('reference_and_page_no');
+    if (companion.referenceAndPageNo.present) {
+      fields.add('reference_and_page_no');
+    }
     if (companion.statute.present) fields.add('statute');
     if (companion.sectionOrArticle.present) fields.add('section_or_article');
-    if (companion.titleAndDescription.present) fields.add('title_and_description');
+    if (companion.titleAndDescription.present) {
+      fields.add('title_and_description');
+    }
     if (companion.commentsNotes.present) fields.add('comments_notes');
+    if (companion.caseNote.present) fields.add('case_note');
+    if (companion.tags.present) fields.add('tags');
     if (companion.isPinned.present) fields.add('is_pinned');
     return fields;
   }

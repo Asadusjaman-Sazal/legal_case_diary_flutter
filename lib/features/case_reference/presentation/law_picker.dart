@@ -13,6 +13,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -20,7 +21,19 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/pre_seeded_data.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
+
+/// The live law list, watched by the picker's two hosts.
+///
+/// The Case Reference screen needs it to place each law under its category, so a
+/// row another phone added arrives here without the screen knowing where it came
+/// from. A stream rather than a one-off read, because the list is pushed and
+/// pulled like every other reference table.
+final lawListProvider = StreamProvider<List<Law>>((ref) async* {
+  final repo = await ref.watch(lawsRepositoryProvider.future);
+  yield* repo.watchAll();
+});
 
 /// One category's laws, ready to render under its heading.
 class LawGroup {

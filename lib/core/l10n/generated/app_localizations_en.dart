@@ -652,6 +652,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'No references yet. Tap + to add one.';
 
   @override
+  String get caseReferenceScreen_noStatute => 'No statute';
+
+  @override
+  String get caseReferenceScreen_noLawReferences =>
+      'No references for this law yet';
+
+  @override
   String get caseReferenceScreen_addTitle => 'Add Case Reference';
 
   @override

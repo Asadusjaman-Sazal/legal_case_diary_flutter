@@ -122,6 +122,14 @@ class CasesScreenModal extends ConsumerWidget {
   final VoidCallback? onPrint;
   final VoidCallback? onShare;
 
+  /// Runs on the system back gesture before the exit window is offered.
+  ///
+  /// A host with an in-screen level of its own — the Case Reference library's
+  /// law list and a law's references — closes that level instead, so back does
+  /// not offer to leave the app from a page within a page. Null keeps the
+  /// exit window this shell has always shown.
+  final Future<void> Function()? onBack;
+
   /// Builds the printable document from the host screen's current rows.
   final PrintDocument Function()? documentBuilder;
 
@@ -150,6 +158,7 @@ class CasesScreenModal extends ConsumerWidget {
     this.onHelp,
     this.onPrint,
     this.onShare,
+    this.onBack,
     this.documentBuilder,
     this.lapseKind = LapseRowKind.cases,
     super.key,
@@ -238,6 +247,11 @@ class CasesScreenModal extends ConsumerWidget {
             final scaffold = Scaffold.maybeOf(screenContext);
             if (scaffold != null && scaffold.isDrawerOpen) {
               scaffold.closeDrawer();
+              return;
+            }
+            final back = onBack;
+            if (back != null) {
+              await back();
               return;
             }
             if (screenContext.mounted) {

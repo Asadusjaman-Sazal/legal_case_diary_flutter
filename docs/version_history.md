@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.746 - Phase 3 of the law list: the Statute box is a grouped law-name dropdown with an Add a Law Name window, and Settings gains Edit Law Names.
+Version: 0.0.747 - Phase 4 of Case Reference rebuilt: the library lists laws first, each opening its own references, with search at each level.
 --------------------------------------
 
 ## Version History Log:
@@ -760,3 +760,4 @@ Version: 0.0.743 - Case Reference field rules are now the palette's outline grey
 Version: 0.0.744 - Law names: the statute list is now synced, firm-shared data seeded with the 57 Acts of LawsOfBangladesh.md under its seven categories; no screen changes yet.
 Version: 0.0.745 - Law names: public.laws is live with its RLS, guards, broadcast, sync allow-list and 57 generated seed rows, so a chamber shares one statute list.
 Version: 0.0.746 - Phase 3 of the law list: the Statute box is a grouped law-name dropdown with an Add a Law Name window, and Settings gains Edit Law Names.
+Version: 0.0.747 - Phase 4 of Case Reference rebuilt: the library lists laws first, each opening its own references, with search at each level.

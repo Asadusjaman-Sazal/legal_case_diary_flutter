@@ -17,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/constants/pre_seeded_data.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/theme/app_dialog_metrics.dart';
@@ -50,6 +52,18 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  /// The law whose references are open, or null while the law list shows.
+  ///
+  /// The key is the statute text the references carry (an empty string for a
+  /// reference with no statute), not a law id: `statute` has always been text,
+  /// so two references naming the same Act belong under one row even when no
+  /// law row owns that name — which is how a citation written before this list
+  /// existed still appears here as its own law.
+  String? _openLaw;
+
+  /// The statute text a reference is filed under; blank reads as "no statute".
+  static String statuteKey(String? statute) => (statute ?? '').trim();
+
   /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
   /// runs as a Drift `LIKE` query across the reference's five text fields rather
   /// than filtering the rows this screen happened to have loaded.
@@ -74,23 +88,70 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 
   /// Runs one query through `CaseReferencesDao.search` (all five text fields).
+  ///
+  /// On a law's page the answer is then narrowed to that law, so the SQL query
+  /// stays the one scoped query every library uses and only its scope narrows.
   Future<List<CaseReference>> _searchReferences(String query) async {
     final repository = await ref.read(referenceRepositoryProvider.future);
-    return repository.search(query);
+    final rows = await repository.search(query);
+    final law = _openLaw;
+    if (law == null) return rows;
+    return rows
+        .where((reference) => statuteKey(reference.statute) == law)
+        .toList(growable: false);
   }
 
-  /// Types into the bar: the query goes to SQL, then the library rebuilds.
+  /// Types into the bar.
+  ///
+  /// The two levels search different things: the law list narrows by **law
+  /// name** (a law whose name matches but whose citations do not must still be
+  /// offered), while a law's page runs the library's SQL query across its five
+  /// fields and then keeps this law's rows.
   Future<void> _onSearchChanged(String query) async {
+    if (_openLaw == null) {
+      if (mounted) setState(() {});
+      return;
+    }
     await _search.run(query);
     if (mounted) setState(() {});
   }
 
+  /// Opens one law's references; the search bar closes with the level change,
+  /// because the two levels search different things.
+  Future<void> _openLawReferences(String law) async {
+    setState(() {
+      _openLaw = law;
+      _isSearching = false;
+      _searchController.clear();
+    });
+    await _search.run('');
+  }
+
+  /// Returns to the law list, from the page's back arrow or the system gesture.
+  Future<void> _closeLaw() async {
+    setState(() {
+      _openLaw = null;
+      _isSearching = false;
+      _searchController.clear();
+    });
+    await _search.run('');
+  }
+
   /// Opens the add/edit screen. [reference] is null when creating new.
   /// If the screen pops with a deleted [CaseReference], shows the undo snackbar.
-  Future<void> _openSheet({CaseReference? reference}) async {
+  ///
+  /// [initialStatute] preselects the law when the sheet is opened from that
+  /// law's own page, so a citation added there lands in the list being read.
+  Future<void> _openSheet({
+    CaseReference? reference,
+    String? initialStatute,
+  }) async {
     final result = await Navigator.of(context).push<CaseReference?>(
       MaterialPageRoute(
-        builder: (_) => _ReferenceEditSheet(reference: reference),
+        builder: (_) => _ReferenceEditSheet(
+          reference: reference,
+          initialStatute: initialStatute,
+        ),
       ),
     );
     if (result is CaseReference && mounted) _showUndoSnackBar(result);
@@ -158,11 +219,63 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final referencesAsync = ref.watch(referenceViewModelProvider);
-
     final references = referencesAsync.value?.items ?? const <CaseReference>[];
-    // The query's own rows while one is in force, otherwise the library.
-    final visible = _search.rows ?? references;
     final allowance = ref.watch(writeAllowanceProvider).value;
+    final law = _openLaw;
+
+    // A short library must still be pullable, and the pull must not drag the
+    // cards under the finger while the indicator spins.
+    final behavior = ScrollConfiguration(
+      behavior: pullScrollBehavior(context),
+      child: law == null
+          ? _LawList(
+              sections: _filterSections(
+                _lawSections(
+                  ref.watch(lawListProvider).value ?? const <Law>[],
+                  references,
+                ),
+                _isSearching ? _searchController.text : '',
+              ),
+              // Which empty state, and whether the library has anything at all.
+              isSearching: _isSearching,
+              hasReferences: references.isNotEmpty,
+              onOpen: _openLawReferences,
+              onRefresh: _onRefresh,
+            )
+          : Column(
+              children: [
+                _LawHeader(
+                  label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
+                  count: references
+                      .where(
+                        (reference) => statuteKey(reference.statute) == law,
+                      )
+                      .length,
+                  onBack: _closeLaw,
+                ),
+                Expanded(
+                  child: _ReferenceList(
+                    isSearching: _isSearching,
+                    references:
+                        _search.rows ??
+                        references
+                            .where(
+                              (reference) =>
+                                  statuteKey(reference.statute) == law,
+                            )
+                            .toList(growable: false),
+                    totalCount: references.length,
+                    emptyMessage: l.caseReferenceScreen_noLawReferences,
+                    writableReferenceIds: allowance?.writableReferenceIds,
+                    onEdit: _editIfWritable,
+                    onDelete: _confirmDelete,
+                    onTogglePin: _togglePin,
+                    onRefresh: _onRefresh,
+                  ),
+                ),
+              ],
+            ),
+    );
 
     return CasesScreenModal(
       title: l.caseReferenceScreen_title,
@@ -175,22 +288,11 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       isSearching: _isSearching,
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
-      onAddCase: () => _openSheet(),
-      // A short library must still be pullable, and the pull must not drag the
-      // cards under the finger while the indicator spins.
-      body: ScrollConfiguration(
-        behavior: pullScrollBehavior(context),
-        child: _ReferenceList(
-          isSearching: _isSearching,
-          references: visible,
-          totalCount: references.length,
-          writableReferenceIds: allowance?.writableReferenceIds,
-          onEdit: _editIfWritable,
-          onDelete: _confirmDelete,
-          onTogglePin: _togglePin,
-          onRefresh: _onRefresh,
-        ),
-      ),
+      // The hardware back on a law's page returns to the law list rather than
+      // offering to close the app; on the law list it keeps the exit window.
+      onBack: law == null ? null : _closeLaw,
+      onAddCase: () => _openSheet(initialStatute: law),
+      body: behavior,
     );
   }
 
@@ -205,12 +307,262 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 }
 
+/// One law row on the library's first level: the statute text and its count.
+class _LawRow {
+  const _LawRow({required this.key, required this.label, required this.count});
+
+  /// The statute text references carry; empty for a reference with no statute.
+  final String key;
+
+  /// The name to show; empty is rendered as **No statute**.
+  final String label;
+
+  /// How many references this law holds.
+  final int count;
+}
+
+/// One category heading and the laws under it that hold references.
+class _LawSection {
+  const _LawSection({required this.categoryId, required this.rows});
+
+  /// A seeded category id, or empty for the trailing **Other** section.
+  final String categoryId;
+
+  final List<_LawRow> rows;
+}
+
+/// The library's first level: every law that holds references, under its
+/// category, in the law list's order.
+///
+/// A law appears only when a reference names it, which is the user's rule — the
+/// headings are the law categories, not a browse-every-law catalogue. A statute
+/// text no law row owns is still listed, under **Other**, and a reference with
+/// no statute at all sits there as **No statute**, so nothing in the library is
+/// unreachable.
+List<_LawSection> _lawSections(List<Law> laws, List<CaseReference> references) {
+  final counts = <String, int>{};
+  for (final reference in references) {
+    final key = _CaseReferenceScreenState.statuteKey(reference.statute);
+    counts.update(key, (count) => count + 1, ifAbsent: () => 1);
+  }
+  if (counts.isEmpty) return const <_LawSection>[];
+
+  final sections = <_LawSection>[];
+  final claimed = <String>{};
+  for (final category in seedLawCategories) {
+    final rows = <_LawRow>[];
+    // `laws` arrives in display order (order_index, then name), so walking it
+    // gives each heading its own order without sorting again.
+    for (final law in laws) {
+      if (law.category != category.id || claimed.contains(law.name)) continue;
+      final count = counts[law.name];
+      if (count == null) continue;
+      claimed.add(law.name);
+      rows.add(_LawRow(key: law.name, label: law.name, count: count));
+    }
+    if (rows.isNotEmpty) {
+      sections.add(_LawSection(categoryId: category.id, rows: rows));
+    }
+  }
+
+  // Everything the list could not place: an old free-text statute, a name a
+  // newer release wrote, and the blank key.
+  final others =
+      counts.keys
+          .where((key) => key.isNotEmpty && !claimed.contains(key))
+          .toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  final otherRows = <_LawRow>[
+    for (final key in others)
+      _LawRow(key: key, label: key, count: counts[key]!),
+    if (counts.containsKey('')) _LawRow(key: '', label: '', count: counts['']!),
+  ];
+  if (otherRows.isNotEmpty) {
+    sections.add(_LawSection(categoryId: '', rows: otherRows));
+  }
+  return sections;
+}
+
+/// First-level search: it narrows **law names**, so a law whose citations do not
+/// contain the query is still offered when its own name does.
+List<_LawSection> _filterSections(List<_LawSection> sections, String query) {
+  final needle = query.trim().toLowerCase();
+  if (needle.isEmpty) return sections;
+  final filtered = <_LawSection>[];
+  for (final section in sections) {
+    final rows = section.rows
+        .where((row) => row.label.toLowerCase().contains(needle))
+        .toList(growable: false);
+    if (rows.isNotEmpty) {
+      filtered.add(_LawSection(categoryId: section.categoryId, rows: rows));
+    }
+  }
+  return filtered;
+}
+
+/// The law list body: category headings and law rows, pullable to sync.
+class _LawList extends StatelessWidget {
+  const _LawList({
+    required this.sections,
+    required this.isSearching,
+    required this.hasReferences,
+    required this.onOpen,
+    required this.onRefresh,
+  });
+
+  final List<_LawSection> sections;
+  final bool isSearching;
+  final bool hasReferences;
+  final ValueChanged<String> onOpen;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
+    if (sections.isEmpty) {
+      // The same centred, semibold message the reference list shows, in a
+      // scrollable that always overscrolls so an empty library can be pulled
+      // to sync.
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.6,
+              child: Center(
+                child: Text(
+                  isSearching && hasReferences
+                      ? l.sharedDialogs_noResults
+                      : l.caseReferenceScreen_empty,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final children = <Widget>[];
+    for (var i = 0; i < sections.length; i++) {
+      final section = sections[i];
+      if (i > 0) children.add(const SizedBox(height: AppSpacing.md));
+      children.add(
+        Padding(
+          key: ValueKey('law-section-${section.categoryId}'),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppSpacing.xs,
+          ),
+          child: Text(
+            context.l10n.lawCategoryName(section.categoryId),
+            style: AppTypography.labelLg.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+      for (final row in section.rows) {
+        children.add(
+          Card(
+            key: ValueKey('law-row-${row.key}'),
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+            color: AppColors.surfaceContainerLowest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: AppColors.outlineVariant),
+            ),
+            child: ListTile(
+              title: Text(
+                row.label.isEmpty ? l.caseReferenceScreen_noStatute : row.label,
+                style: AppTypography.bodyLg,
+              ),
+              onTap: () => onOpen(row.key),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${row.count}',
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.tertiary,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  const Icon(Icons.chevron_right, color: AppColors.tertiary),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    children.add(const SizedBox(height: AppSpacing.lg));
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.only(top: AppSpacing.sm),
+        children: children,
+      ),
+    );
+  }
+}
+
+/// A law's page header: back to the law list, the law's name, and its count.
+class _LawHeader extends StatelessWidget {
+  const _LawHeader({
+    required this.label,
+    required this.count,
+    required this.onBack,
+  });
+
+  final String label;
+  final int count;
+  final Future<void> Function() onBack;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: AppColors.surfaceContainerLowest,
+    child: Row(
+      children: [
+        IconButton(
+          key: const ValueKey('law-back'),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          icon: const Icon(Icons.arrow_back),
+          onPressed: onBack,
+        ),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.titleMd.copyWith(
+              color: AppColors.onBackground,
+            ),
+          ),
+        ),
+        Text(
+          '$count',
+          style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+        ),
+        const SizedBox(width: AppSpacing.md),
+      ],
+    ),
+  );
+}
+
 /// Scrollable reference list; the search bar lives in the modal above it.
 class _ReferenceList extends StatelessWidget {
   const _ReferenceList({
     required this.isSearching,
     required this.references,
     required this.totalCount,
+    this.emptyMessage,
     this.writableReferenceIds,
     required this.onEdit,
     required this.onDelete,
@@ -221,6 +573,10 @@ class _ReferenceList extends StatelessWidget {
   final bool isSearching;
   final List<CaseReference> references;
   final int totalCount;
+
+  /// What an empty page says when no query is in force; a law's own page says
+  /// *No references for this law.* rather than the library's own message.
+  final String? emptyMessage;
 
   /// References the allowance keeps editable, or null when every one is.
   final Set<String>? writableReferenceIds;
@@ -253,7 +609,7 @@ class _ReferenceList extends StatelessWidget {
                 child: Text(
                   isSearching && totalCount > 0
                       ? l.sharedDialogs_noResults
-                      : l.caseReferenceScreen_empty,
+                      : (emptyMessage ?? l.caseReferenceScreen_empty),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -498,9 +854,13 @@ class _Chip extends StatelessWidget {
 
 /// Slide-up sheet for adding or editing a case reference.
 class _ReferenceEditSheet extends ConsumerStatefulWidget {
-  const _ReferenceEditSheet({this.reference});
+  const _ReferenceEditSheet({this.reference, this.initialStatute});
 
   final CaseReference? reference;
+
+  /// The law a new reference starts under, when the sheet is opened from that
+  /// law's own list; null from the library, where the user chooses one.
+  final String? initialStatute;
 
   @override
   ConsumerState<_ReferenceEditSheet> createState() =>
@@ -527,7 +887,9 @@ class _ReferenceEditSheetState extends ConsumerState<_ReferenceEditSheet> {
     super.initState();
     final r = widget.reference;
     _refNoController = TextEditingController(text: r?.referenceAndPageNo ?? '');
-    _statute = r?.statute;
+    final initial = widget.initialStatute;
+    _statute =
+        r?.statute ?? (initial == null || initial.isEmpty ? null : initial);
     _sectionController = TextEditingController(text: r?.sectionOrArticle ?? '');
     _titleController = TextEditingController(
       text: r?.titleAndDescription ?? '',

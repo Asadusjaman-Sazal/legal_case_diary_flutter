@@ -344,6 +344,8 @@
   "caseReferenceScreen_titleAndDescription": "Title & Description",
   "caseReferenceScreen_commentsNotes": "Comments/Notes",
   "caseReferenceScreen_empty": "No references yet. Tap + to add one.",
+  "caseReferenceScreen_noStatute": "No statute",
+  "caseReferenceScreen_noLawReferences": "No references for this law yet",
   "caseReferenceScreen_addTitle": "Add Case Reference",
   "caseReferenceScreen_editTitle": "Edit Case Reference",
   "caseReferenceScreen_pin": "Pin",

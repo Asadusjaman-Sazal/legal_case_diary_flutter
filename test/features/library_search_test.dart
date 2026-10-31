@@ -21,6 +21,7 @@ import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/theme/app_theme.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/database/seed_migration_runner.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/case_reference/data/local/case_references_dao.dart';
 import 'package:legal_case_diary/features/case_reference/data/reference_repository.dart';
@@ -133,17 +134,22 @@ void main() {
         ),
       );
 
-  Future<void> seedReference(String id, String citation, String description) =>
-      references.insertReference(
-        CaseReferencesCompanion(
-          id: Value(id),
-          userId: Value(identity.getId()),
-          referenceAndPageNo: Value(citation),
-          titleAndDescription: Value(description),
-          createdAt: const Value(1),
-          updatedAt: const Value(1),
-        ),
-      );
+  Future<void> seedReference(
+    String id,
+    String citation,
+    String description, {
+    String? statute,
+  }) => references.insertReference(
+    CaseReferencesCompanion(
+      id: Value(id),
+      userId: Value(identity.getId()),
+      referenceAndPageNo: Value(citation),
+      statute: Value(statute),
+      titleAndDescription: Value(description),
+      createdAt: const Value(1),
+      updatedAt: const Value(1),
+    ),
+  );
 
   testWidgets('both libraries open the bar above the list, empty or not', (
     tester,
@@ -269,15 +275,96 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('the Case Reference query filters the library', (tester) async {
-    await seedReference('ref-1', '45 DLR (AD) 1', 'Bail guidelines.');
-    await seedReference('ref-2', '12 BLC 99', 'Partition of ancestral land.');
-    await pumpLibrary(tester, const CaseReferenceScreen());
+  testWidgets(
+    'Case Reference reads as a law list, then that law\'s references',
+    (tester) async {
+      // Seeded so the law names land under their own category heading.
+      await SeedMigrationRunner(db).runMigrations();
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        statute: 'The Penal Code, 1860',
+      );
+      await seedReference(
+        'ref-2',
+        '46 DLR (AD) 2',
+        'Bail conditions.',
+        statute: 'The Penal Code, 1860',
+      );
+      await seedReference('ref-3', '12 BLC 99', 'Partition.', statute: null);
+      await pumpLibrary(tester, const CaseReferenceScreen());
 
+      // Level 1: law names only — under the law's category, with its count. The
+      // citations themselves belong to the law's own page.
+      expect(find.text('Criminal Law'), findsOneWidget);
+      expect(find.text('The Penal Code, 1860'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+          matching: find.text('2'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('No statute'), findsOneWidget);
+      expect(find.textContaining('45 DLR'), findsNothing);
+
+      // Tapping the law opens its references, and only its own.
+      await tester.tap(find.text('The Penal Code, 1860'));
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('46 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsNothing);
+
+      // The arrow returns to the law list.
+      await tester.tap(find.byKey(const ValueKey('law-back')));
+      await settle(tester);
+      expect(find.text('The Penal Code, 1860'), findsOneWidget);
+      expect(find.textContaining('45 DLR'), findsNothing);
+
+      await unmount(tester);
+    },
+  );
+
+  testWidgets('each level searches what it is showing', (tester) async {
+    await seedReference(
+      'ref-1',
+      '45 DLR (AD) 1',
+      'Bail guidelines.',
+      statute: 'The Penal Code, 1860',
+    );
+    await seedReference(
+      'ref-2',
+      '12 BLC 99',
+      'Partition of ancestral land.',
+      statute: 'The Code of Civil Procedure, 1908',
+    );
+    await pumpLibrary(tester, const CaseReferenceScreen());
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // Level 1 narrows law names, so a citation's own words find nothing here…
     await openSearch(tester);
     await tester.enterText(find.byType(TextField), 'dlr');
     await settle(tester);
+    expect(find.text(l.sharedDialogs_noResults), findsOneWidget);
+    expect(find.text('The Penal Code, 1860'), findsNothing);
 
+    // …but the law's own name does, even though the citation matches the other
+    // query, because the query is against the level being read.
+    await tester.enterText(find.byType(TextField), 'penal');
+    await settle(tester);
+    expect(find.text('The Penal Code, 1860'), findsOneWidget);
+    expect(find.text('The Code of Civil Procedure, 1908'), findsNothing);
+
+    // On a law's page the query runs across the library's five fields again and
+    // keeps this law's rows.
+    await tester.tap(find.byIcon(Icons.close));
+    await settle(tester);
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await settle(tester);
+    await openSearch(tester);
+    await tester.enterText(find.byType(TextField), 'dlr');
+    await settle(tester);
     expect(find.textContaining('45 DLR'), findsOneWidget);
     expect(find.textContaining('12 BLC'), findsNothing);
 

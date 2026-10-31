@@ -152,11 +152,61 @@
     <button class="ml-sm font-label-lg text-label-lg text-primary active:opacity-70">Renew</button>
   </div>
 
-  <!-- One card per reference: the citation and statute as grey chips with the
-       3-dot menu on the right, then the section / article, the description, and
-       the comments in the black-bordered note box. Pinned items lead the list;
-       tapping the card opens the same form in edit mode. -->
-  <div class="flex-1 p-md flex flex-col gap-md">
+  <!-- Level 1: the law list. One row per law name that a reference actually
+       cites, under its law category, with that law's count and a chevron.
+       A law is only here because a citation carries it — this is not a browse-
+       every-Act catalogue. A statute text no law row owns keeps its own row
+       under Other, and a reference with no statute sits there as "No statute",
+       so nothing in the library is unreachable. Tapping a row opens level 2. -->
+  <div class="flex-1 overflow-y-auto">
+    <p class="px-md pt-sm pb-xs font-label-lg text-label-lg text-on-surface-variant">Criminal Law</p>
+    <div class="px-md">
+      <div class="mb-sm bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center px-md min-h-[56px]">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Penal Code, 1860</span>
+        <span class="font-body-sm text-body-sm text-tertiary">4</span>
+        <span class="ml-xs material-symbols-outlined text-tertiary">chevron_right</span>
+      </div>
+      <div class="mb-sm bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center px-md min-h-[56px]">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Code of Criminal Procedure, 1898</span>
+        <span class="font-body-sm text-body-sm text-tertiary">2</span>
+        <span class="ml-xs material-symbols-outlined text-tertiary">chevron_right</span>
+      </div>
+    </div>
+
+    <p class="px-md pt-sm pb-xs font-label-lg text-label-lg text-on-surface-variant">Civil Procedure &amp; Evidence</p>
+    <div class="px-md">
+      <div class="mb-sm bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center px-md min-h-[56px]">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Code of Civil Procedure, 1908</span>
+        <span class="font-body-sm text-body-sm text-tertiary">1</span>
+        <span class="ml-xs material-symbols-outlined text-tertiary">chevron_right</span>
+      </div>
+    </div>
+
+    <p class="px-md pt-sm pb-xs font-label-lg text-label-lg text-on-surface-variant">Other</p>
+    <div class="px-md">
+      <div class="mb-sm bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center px-md min-h-[56px]">
+        <span class="flex-1 font-body-lg text-body-lg text-on-surface">No statute</span>
+        <span class="font-body-sm text-body-sm text-tertiary">1</span>
+        <span class="ml-xs material-symbols-outlined text-tertiary">chevron_right</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level 2, opened by a law row: a back arrow, the law's name in the header
+       row, and that law's own count. Its references are the same cards as
+       before — citation and statute chips, the 3-dot menu, section / article,
+       description, and the comments note box — and the + adds a citation to
+       this law already selected. Hidden here because level 1 is showing. -->
+  <div class="hidden flex-1 flex-col">
+    <div class="bg-surface-container-lowest flex items-center">
+      <button aria-label="Back" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span class="flex-1 truncate font-title-md text-title-md text-on-background">The Penal Code, 1860</span>
+      <span class="font-body-sm text-body-sm text-tertiary">4</span>
+      <span class="w-md"></span>
+    </div>
+    <div class="flex-1 p-md flex flex-col gap-md">
 
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
       <div class="flex items-start">
@@ -193,6 +243,7 @@
       <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
         <p class="font-label-md text-label-md italic text-on-surface-variant">Key cite for writ petitions involving unlawful detention cases.</p>
       </div>
+    </div>
     </div>
   </div>
 

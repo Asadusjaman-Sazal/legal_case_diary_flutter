@@ -1244,6 +1244,18 @@ abstract class AppLocalizations {
   /// **'No references yet. Tap + to add one.'**
   String get caseReferenceScreen_empty;
 
+  /// No description provided for @caseReferenceScreen_noStatute.
+  ///
+  /// In en, this message translates to:
+  /// **'No statute'**
+  String get caseReferenceScreen_noStatute;
+
+  /// No description provided for @caseReferenceScreen_noLawReferences.
+  ///
+  /// In en, this message translates to:
+  /// **'No references for this law yet'**
+  String get caseReferenceScreen_noLawReferences;
+
   /// No description provided for @caseReferenceScreen_addTitle.
   ///
   /// In en, this message translates to:

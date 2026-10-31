@@ -653,6 +653,13 @@ class AppLocalizationsBn extends AppLocalizations {
       'এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।';
 
   @override
+  String get caseReferenceScreen_noStatute => 'কোনো আইন নেই';
+
+  @override
+  String get caseReferenceScreen_noLawReferences =>
+      'এই আইনের কোনো রেফারেন্স নেই';
+
+  @override
   String get caseReferenceScreen_addTitle => 'মামলার রেফারেন্স যোগ করুন';
 
   @override

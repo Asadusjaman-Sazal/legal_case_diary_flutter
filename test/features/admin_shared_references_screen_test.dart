@@ -276,7 +276,7 @@ void main() {
     expect(repo.deleted, ['o1']);
   });
 
-  testWidgets("a law's citations can be searched, not just the law list", (
+  testWidgets('the search reads the whole library, whichever law is open', (
     tester,
   ) async {
     await pump(
@@ -287,6 +287,7 @@ void main() {
           _citation(
             'o2',
             citation: '32 DLR (AD) 102',
+            statute: 'The Code of Criminal Procedure, 1898',
             section: 'Article 31',
             title: 'Writ petition on unlawful detention.',
           ),
@@ -294,13 +295,14 @@ void main() {
       ),
     );
 
+    // Open the first law: only its own citation is on the page.
     await tester.tap(find.text('The Penal Code, 1860'));
     await tester.pumpAndSettle();
     expect(find.textContaining('29 DLR'), findsOneWidget);
-    expect(find.textContaining('32 DLR'), findsOneWidget);
+    expect(find.textContaining('32 DLR'), findsNothing);
 
-    // The header's search button works on this level too, not only on the law
-    // list — it used to open nothing here.
+    // The header's search reads the whole library, so another law's citation is
+    // found from here (user request).
     await tester.tap(find.byKey(const ValueKey('admin-shared-search')));
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
@@ -318,7 +320,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.close).last);
     await tester.pumpAndSettle();
     expect(find.textContaining('29 DLR'), findsOneWidget);
-    expect(find.textContaining('32 DLR'), findsOneWidget);
+    expect(find.textContaining('32 DLR'), findsNothing);
   });
 
   testWidgets('Add a Law Name in the picker adds it and selects it', (

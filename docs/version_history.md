@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.750 - Admin Case Reference fixes: search now filters a law's citations, Add a Law Name works there, and the name window's category dropdown no longer overflows.
+Version: 0.0.753 - Official citations now appear in Case Reference search results; the official cache compared text against a SQL %pattern% and never matched.
 --------------------------------------
 
 ## Version History Log:
@@ -764,3 +764,6 @@ Version: 0.0.747 - Phase 4 of Case Reference rebuilt: the library lists laws fir
 Version: 0.0.748 - Phase 5 of Case Reference: official citations live on the server, reach every phone as a read-only cache and can be pinned on this device only.
 Version: 0.0.749 - Phase 6 of Case Reference: the Admin Panel publishes official citations from a Server-wide Case Reference page that saves to the server and refuses offline.
 Version: 0.0.750 - Admin Case Reference fixes: search now filters a law's citations, Add a Law Name works there, and the name window's category dropdown no longer overflows.
+Version: 0.0.751 - Case Reference law rows wear the Account & Profile sub-menu card without icons, and its search lists matching reference cards from every law, not only the open one.
+Version: 0.0.752 - The Admin Panel's Server-wide Case Reference search now lists matching cards from every law, on either level, as the user's Case Reference screen already does.
+Version: 0.0.753 - Official citations now appear in Case Reference search results; the official cache compared text against a SQL %pattern% and never matched.

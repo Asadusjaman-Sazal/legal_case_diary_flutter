@@ -18,6 +18,7 @@ import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/widgets/read_only_lock.dart';
+import '../../settings/presentation/settings_menu_card.dart';
 import '../data/local/shared_case_references_dao.dart';
 
 /// One card's worth of data, from any of the library's sources.
@@ -180,33 +181,11 @@ List<LawSectionData> lawSectionsFor(List<Law> laws, List<ReferenceRow> rows) {
   return sections;
 }
 
-/// First-level search: it narrows **law names**, so a law whose citations do not
-/// contain the query is still offered when its own name does.
-List<LawSectionData> filterLawSections(
-  List<LawSectionData> sections,
-  String query,
-) {
-  final needle = query.trim().toLowerCase();
-  if (needle.isEmpty) return sections;
-  final filtered = <LawSectionData>[];
-  for (final section in sections) {
-    final rows = section.rows
-        .where((row) => row.label.toLowerCase().contains(needle))
-        .toList(growable: false);
-    if (rows.isNotEmpty) {
-      filtered.add(LawSectionData(categoryId: section.categoryId, rows: rows));
-    }
-  }
-  return filtered;
-}
-
 /// The law list body: category headings and law rows, pullable to sync.
 class ReferenceLawList extends StatelessWidget {
   /// Creates the list.
   const ReferenceLawList({
     required this.sections,
-    required this.isSearching,
-    required this.hasReferences,
     required this.onOpen,
     required this.onRefresh,
     this.emptyMessage,
@@ -214,8 +193,6 @@ class ReferenceLawList extends StatelessWidget {
   });
 
   final List<LawSectionData> sections;
-  final bool isSearching;
-  final bool hasReferences;
   final ValueChanged<String> onOpen;
   final Future<void> Function() onRefresh;
 
@@ -239,9 +216,7 @@ class ReferenceLawList extends StatelessWidget {
               height: MediaQuery.sizeOf(context).height * 0.6,
               child: Center(
                 child: Text(
-                  isSearching && hasReferences
-                      ? l.sharedDialogs_noResults
-                      : (emptyMessage ?? l.caseReferenceScreen_empty),
+                  emptyMessage ?? l.caseReferenceScreen_empty,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -273,21 +248,21 @@ class ReferenceLawList extends StatelessWidget {
         ),
       );
       for (final row in section.rows) {
+        // The same sub-menu card Account & Profile uses, without its leading
+        // icon (user request): the law name, its count and the chevron.
         children.add(
-          Card(
-            key: ValueKey('law-row-${row.key}'),
-            elevation: 0,
-            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-            color: AppColors.surfaceContainerLowest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: AppColors.outlineVariant),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              0,
+              AppSpacing.md,
+              AppSpacing.sm,
             ),
-            child: ListTile(
-              title: Text(
-                row.label.isEmpty ? l.caseReferenceScreen_noStatute : row.label,
-                style: AppTypography.bodyLg,
-              ),
+            child: SettingsMenuCard(
+              key: ValueKey('law-row-${row.key}'),
+              title: row.label.isEmpty
+                  ? l.caseReferenceScreen_noStatute
+                  : row.label,
               onTap: () => onOpen(row.key),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

@@ -68,15 +68,17 @@ class SharedCaseReferencesDao {
   /// The live official references matching [query] across the five text fields.
   ///
   /// The cache is small (an admin's library, not every case on the phone), so
-  /// the same `LIKE` semantics the local DAO uses are applied in memory here
-  /// rather than in a second SQL statement with its own pin join.
+  /// the same case-insensitive substring rule the local DAO's `LIKE` applies is
+  /// run in memory here rather than in a second SQL statement with its own pin
+  /// join. The needle must stay a plain string: the SQL wildcards belong to the
+  /// query, never to a `contains` (a `%…%` pattern matches no text).
   Future<List<SharedCaseReference>> search(String query) async {
-    final pattern = '%${query.toLowerCase()}%';
+    final needle = query.trim().toLowerCase();
     final rows = await (db.select(
       db.sharedCaseReferences,
     )..where((row) => row.isDeleted.equals(false))).get();
     bool matches(String? value) =>
-        value != null && value.toLowerCase().contains(pattern);
+        value != null && value.toLowerCase().contains(needle);
     return rows
         .where(
           (row) =>

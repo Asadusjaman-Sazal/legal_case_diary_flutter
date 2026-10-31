@@ -1,5 +1,31 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — Official citations are searchable again — COMPLETE (0.0.753)
+
+- **The root cause.** The cards the search could not find were the **Official** citations (the pulled server library). `SharedCaseReferencesDao.search` built the SQL pattern `%query%` and then asked each field whether it *contains* that pattern as text. No citation contains the characters `%`, so the official cache matched nothing on every query. The results therefore showed only the user's own citations — which happened to be under the first law — and the Official card under another law ("68 DLR (AD) 290" under The Code of Criminal Procedure, 1898) never appeared.
+- **The fix.** The search now compares against the plain lower-cased query, with the wildcard rule written down so it cannot come back. The own-row search (SQL `LIKE`) and the Admin Panel's search were already correct.
+- **Proof.** New *an official citation is found by search, wherever it is filed* in `test/features/library_search_test.dart`: an official card under one law and an own card under another, found by the official citation from the law list and from inside its own law. The library suite passes (10).
+- **Device check.** The phone reporting the bug was running 0.0.752 (built 12:59); that build contains all screen changes but not this data-layer fix. A 0.0.753 debug build was installed over it after the fix so the screen can be tested directly.
+- **Next.** The user's next bug-fix or polish request; the two red tests from the shared-citation phase (backup export list, migration count) remain open.
+
+### 2026-10-31 — The Admin Panel page's search reads the whole library too — COMPLETE (0.0.752)
+
+- **The report.** A search still showed only the cards under the first law ("The Code of Civil Procedure, 1908") and no cards from other laws.
+- **Where it still narrowed.** The user's own Case Reference screen already searched every law at 0.0.751. The page still narrowing was **Admin Panel → Server-wide Case Reference**: a law's page kept only that law's rows, and the law-list level narrowed law names. That is changed now.
+- **What it does.** The page matches the query against the five card fields of every published citation and lists matching cards whichever law holds them, from the law list or from an open law. Clearing the query or closing the bar returns to the level being read, exactly as on the user's screen.
+- **Cleanup.** No screen narrows law names any more, so `filterLawSections` and `ReferenceLawList`'s `isSearching`/`hasReferences` are deleted rather than left unused.
+- **Proof.** The rewritten *the search reads the whole library, whichever law is open* in `test/features/admin_shared_references_screen_test.dart` opens the first law, finds the other law's citation by its title, shows the no-results state, and returns on close. `flutter analyze` clean; the admin-page and library suites pass (16).
+- **Then.** If the issue was seen on the **Case Reference tab** itself, the installed app is an older build: rebuild/restart to pick up 0.0.751's change. The code there has read every law since 0.0.751, and its test (`search finds a citation whatever law it is filed under`) covers exactly that.
+
+### 2026-10-31 — Case Reference: sub-menu law rows and a library-wide search — COMPLETE (0.0.751)
+
+- **What was asked.** Two changes to the Case Reference screen: the law-name rows should look like the Account & Profile sub-menu buttons without their icons, and the search should find any matching reference card whatever law holds it.
+- **The law rows.** Each row is now `SettingsMenuCard` — the exact card Account & Profile draws — with `icon: null`: white fill, 12 px corner, 16 px padding, the 44 px content row, and the law's count plus chevron as the trailing row. `SettingsMenuCard.icon` became optional, so every other Settings card is untouched. Because the law list is the shared body (`reference_library.dart`), the Admin Panel's replica takes the same row look.
+- **The search.** The header's query no longer narrows by level. It runs the library's five-field query across the user's own rows and the official cache and lists every matching **reference card**, whichever law holds it, from the law list or from an open law's page. Clearing the query or closing the bar returns to the level being read. The Admin Panel page keeps its own law-name narrowing and per-law search, because it was not part of this request.
+- **Proof.** `test/features/library_search_test.dart`: *search finds a citation whatever law it is filed under* replaces *each level searches what it is showing* (both levels, no-results, and the level returning on a clear), and *Case Reference reads as a law list…* pins the law card's null icon. `flutter analyze` clean; the library suite passes (9).
+- **Known red tests, untouched here (pre-existing from 0.0.748).** The full suite still fails in `test/features/backup_repository_test.dart` (*the export list covers every table in the database*: the two shared cache tables are not in `backupTableOrder`) and `test/supabase/migration_applier_test.dart` (*the real folder lists its migrations in version order*: the expectation says 83 files, the folder holds 85). Both belong to the shared-citation phase, not to this change.
+- **Next.** The user's next bug-fix or polish request; the two red tests above are open.
+
 ### 2026-10-31 — The two Admin Panel Case Reference defects are fixed (audit follow-up) — COMPLETE (0.0.750)
 
 - **What was asked.** Fix the two defects the Phase 1–6 audit found, without introducing new ones.

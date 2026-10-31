@@ -261,44 +261,11 @@ class _AdminSharedReferencesScreenState
             ];
             final byId = {for (final row in rows) row.id: row};
             final law = _openLaw;
-
-            if (law == null) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (_isSearching)
-                    AdminSearchField(
-                      controller: _search,
-                      onChanged: (value) => setState(() => _query = value),
-                      hint: l.adminPanel_searchHint,
-                      onClose: _toggleSearch,
-                    ),
-                  Expanded(
-                    child: ReferenceLawList(
-                      sections: filterLawSections(
-                        lawSectionsFor(laws, all),
-                        _query,
-                      ),
-                      isSearching: _isSearching && _query.trim().isNotEmpty,
-                      hasReferences: all.isNotEmpty,
-                      emptyMessage: l.adminSharedRefs_empty,
-                      onOpen: _showLaw,
-                      onRefresh: _reload,
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            final lawRows = all
-                .where((row) => referenceStatuteKey(row.statute) == law)
-                .toList(growable: false);
-            // A law's page searches its own citations across the same five
-            // fields the card shows, so the header's search button is not an
-            // inert icon once a law is open. A blank query keeps every row.
+            // A query reads the whole library, whichever level is showing, as
+            // on the user's own Case Reference screen (user request).
             final searching = _isSearching && _query.trim().isNotEmpty;
-            final visible = searching
-                ? lawRows
+            final matches = searching
+                ? all
                       .where(
                         (row) => adminTextMatches(_query, <String?>[
                           row.referenceAndPageNo,
@@ -309,15 +276,60 @@ class _AdminSharedReferencesScreenState
                         ]),
                       )
                       .toList(growable: false)
-                : lawRows;
+                : const <ReferenceRow>[];
+
+            final Widget body;
+            if (searching) {
+              body = ReferenceList(
+                isSearching: true,
+                references: matches,
+                totalCount: all.length,
+                emptyMessage: l.adminSharedRefs_empty,
+                onEdit: (row) => _openForm(reference: byId[row.id]),
+                onDelete: (row) => _confirmDelete(byId[row.id]!),
+                // No pin here: a pin is one device's own arrangement, and this
+                // page publishes to every device.
+                onTogglePin: null,
+                onRefresh: _reload,
+              );
+            } else if (law == null) {
+              body = ReferenceLawList(
+                sections: lawSectionsFor(laws, all),
+                emptyMessage: l.adminSharedRefs_empty,
+                onOpen: _showLaw,
+                onRefresh: _reload,
+              );
+            } else {
+              final lawRows = all
+                  .where((row) => referenceStatuteKey(row.statute) == law)
+                  .toList(growable: false);
+              body = Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ReferenceLawHeader(
+                    label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
+                    count: lawRows.length,
+                    onBack: () async => _closeLaw(),
+                  ),
+                  Expanded(
+                    child: ReferenceList(
+                      isSearching: false,
+                      references: lawRows,
+                      totalCount: lawRows.length,
+                      emptyMessage: l.adminSharedRefs_noLawReferences,
+                      onEdit: (row) => _openForm(reference: byId[row.id]),
+                      onDelete: (row) => _confirmDelete(byId[row.id]!),
+                      onTogglePin: null,
+                      onRefresh: _reload,
+                    ),
+                  ),
+                ],
+              );
+            }
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ReferenceLawHeader(
-                  label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
-                  count: lawRows.length,
-                  onBack: () async => _closeLaw(),
-                ),
                 if (_isSearching)
                   AdminSearchField(
                     controller: _search,
@@ -325,22 +337,7 @@ class _AdminSharedReferencesScreenState
                     hint: l.adminPanel_searchHint,
                     onClose: _toggleSearch,
                   ),
-                Expanded(
-                  child: ReferenceList(
-                    isSearching: searching,
-                    references: visible,
-                    // The law's own count, so a query that matches nothing says
-                    // "no results" rather than "no references for this law".
-                    totalCount: lawRows.length,
-                    emptyMessage: l.adminSharedRefs_noLawReferences,
-                    onEdit: (row) => _openForm(reference: byId[row.id]),
-                    onDelete: (row) => _confirmDelete(byId[row.id]!),
-                    // No pin here: a pin is one device's own arrangement, and
-                    // this page publishes to every device.
-                    onTogglePin: null,
-                    onRefresh: _reload,
-                  ),
-                ),
+                Expanded(child: body),
               ],
             );
           },

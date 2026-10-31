@@ -32,6 +32,7 @@ import 'package:legal_case_diary/features/notes/data/notes_repository.dart';
 import 'package:legal_case_diary/features/notes/presentation/notes_screen.dart';
 import 'package:legal_case_diary/features/settings/data/local/user_preferences_dao.dart';
 import 'package:legal_case_diary/features/settings/data/settings_repository.dart';
+import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/shared/providers/shared_preferences_provider.dart';
 import 'package:legal_case_diary/shared/widgets/add_edit_case_sheet.dart';
@@ -306,6 +307,15 @@ void main() {
         ),
         findsOneWidget,
       );
+      // The row wears the Account & Profile sub-menu card, minus its icon.
+      expect(
+        tester
+            .widget<SettingsMenuCard>(
+              find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+            )
+            .icon,
+        isNull,
+      );
       expect(find.text('No statute'), findsOneWidget);
       expect(find.textContaining('45 DLR'), findsNothing);
 
@@ -375,7 +385,9 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('each level searches what it is showing', (tester) async {
+  testWidgets('search finds a citation whatever law it is filed under', (
+    tester,
+  ) async {
     await seedReference(
       'ref-1',
       '45 DLR (AD) 1',
@@ -391,31 +403,87 @@ void main() {
     await pumpLibrary(tester, const CaseReferenceScreen());
     final l = await AppLocalizations.delegate.load(const Locale('en'));
 
-    // Level 1 narrows law names, so a citation's own words find nothing here…
+    // From the law list the query reads the citation cards, not the law names,
+    // so a citation's own words find it with no law open.
     await openSearch(tester);
     await tester.enterText(find.byType(TextField), 'dlr');
     await settle(tester);
-    expect(find.text(l.sharedDialogs_noResults), findsOneWidget);
-    expect(find.text('The Penal Code, 1860'), findsNothing);
+    expect(find.textContaining('45 DLR'), findsOneWidget);
+    expect(find.textContaining('12 BLC'), findsNothing);
+    expect(
+      find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+      findsNothing,
+    );
 
-    // …but the law's own name does, even though the citation matches the other
-    // query, because the query is against the level being read.
-    await tester.enterText(find.byType(TextField), 'penal');
+    // A query matching nothing says so, rather than hiding behind the laws.
+    await tester.enterText(find.byType(TextField), 'no such citation');
     await settle(tester);
-    expect(find.text('The Penal Code, 1860'), findsOneWidget);
-    expect(find.text('The Code of Civil Procedure, 1908'), findsNothing);
+    expect(find.text(l.sharedDialogs_noResults), findsOneWidget);
 
-    // On a law's page the query runs across the library's five fields again and
-    // keeps this law's rows.
+    // The same holds on a law's page: the query leaves that law and reads the
+    // whole library, so another law's citation is found.
     await tester.tap(find.byIcon(Icons.close));
     await settle(tester);
-    await tester.tap(find.text('The Penal Code, 1860'));
+    await tester.tap(find.text('The Code of Civil Procedure, 1908'));
     await settle(tester);
     await openSearch(tester);
     await tester.enterText(find.byType(TextField), 'dlr');
     await settle(tester);
     expect(find.textContaining('45 DLR'), findsOneWidget);
     expect(find.textContaining('12 BLC'), findsNothing);
+
+    // Clearing the query returns to the level being read.
+    await tester.enterText(find.byType(TextField), '');
+    await settle(tester);
+    expect(find.textContaining('12 BLC'), findsOneWidget);
+    expect(find.textContaining('45 DLR'), findsNothing);
+
+    await unmount(tester);
+  });
+
+  testWidgets('an official citation is found by search, wherever it is filed', (
+    tester,
+  ) async {
+    // The user's own card sits under one law; the official citation under
+    // another. The official cache's search used to compare against a `%…%`
+    // pattern, so no official row could ever match and results looked as if
+    // only the user's own (first) law existed.
+    await seedReference(
+      'ref-1',
+      '45 DLR (AD) 1',
+      'Bail guidelines.',
+      statute: 'The Penal Code, 1860',
+    );
+    await db
+        .into(db.sharedCaseReferences)
+        .insert(
+          SharedCaseReferencesCompanion.insert(
+            id: 'official-1',
+            referenceAndPageNo: '68 DLR (AD) 290',
+            statute: const Value('The Code of Criminal Procedure, 1898'),
+            sectionOrArticle: const Value('Section 161'),
+            titleAndDescription: const Value('Investigation by the police.'),
+          ),
+        );
+    await pumpLibrary(tester, const CaseReferenceScreen());
+
+    // From the law list, the official card is found across the whole library.
+    await openSearch(tester);
+    await tester.enterText(find.byType(TextField), '68 dlr');
+    await settle(tester);
+    expect(find.text('68 DLR (AD) 290'), findsOneWidget);
+    expect(find.text('45 DLR (AD) 1'), findsNothing);
+
+    // From inside the law that holds only the official citation — the
+    // reported flow — the same card is found.
+    await tester.tap(find.byIcon(Icons.close));
+    await settle(tester);
+    await tester.tap(find.text('The Code of Criminal Procedure, 1898'));
+    await settle(tester);
+    await openSearch(tester);
+    await tester.enterText(find.byType(TextField), '68 DLR');
+    await settle(tester);
+    expect(find.text('68 DLR (AD) 290'), findsOneWidget);
 
     await unmount(tester);
   });

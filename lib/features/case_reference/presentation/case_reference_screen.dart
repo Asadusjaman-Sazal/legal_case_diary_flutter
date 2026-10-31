@@ -65,7 +65,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// than filtering the rows this screen happened to have loaded.
   ///
   /// The runner holds the screen's display rows rather than `CaseReference`,
-  /// because a law's page lists the user's own citations and the official
+  /// because the library lists the user's own citations and the official
   /// library's together.
   late final ScopedSearch<ReferenceRow> _search = ScopedSearch(
     fetch: _searchReferences,
@@ -88,11 +88,13 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   }
 
   /// Runs one query through `CaseReferencesDao.search` (all five text fields)
-  /// and the official cache's own search, then keeps the open law's rows.
+  /// and the official cache's own search, across the **whole** library.
   ///
   /// The user's own rows keep the SQL query every library uses; the official
   /// cache is searched in memory by its own DAO, because it is a small
-  /// pull-only set with no sync columns to query by.
+  /// pull-only set with no sync columns to query by. The query is not narrowed
+  /// to the open law: a lawyer matching a citation should find it whichever
+  /// law holds it (user request).
   Future<List<ReferenceRow>> _searchReferences(String query) async {
     final ownRepository = await ref.read(referenceRepositoryProvider.future);
     final officialRepository = await ref.read(
@@ -100,34 +102,21 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     );
     final own = await ownRepository.search(query);
     final official = await officialRepository.search(query);
-    final law = _openLaw;
-    final rows = <ReferenceRow>[
+    return <ReferenceRow>[
       for (final reference in own) ReferenceRow.own(reference),
       for (final entry in official) ReferenceRow.official(entry),
     ];
-    if (law == null) return rows;
-    return rows
-        .where((row) => referenceStatuteKey(row.statute) == law)
-        .toList(growable: false);
   }
 
-  /// Types into the bar.
-  ///
-  /// The two levels search different things: the law list narrows by **law
-  /// name** (a law whose name matches but whose citations do not must still be
-  /// offered), while a law's page runs the library's SQL query across its five
-  /// fields and then keeps this law's rows.
+  /// Types into the bar; every query reads the whole library, whichever level
+  /// the screen happened to be showing.
   Future<void> _onSearchChanged(String query) async {
-    if (_openLaw == null) {
-      if (mounted) setState(() {});
-      return;
-    }
     await _search.run(query);
     if (mounted) setState(() {});
   }
 
   /// Opens one law's references; the search bar closes with the level change,
-  /// because the two levels search different things.
+  /// so the new level shows whole.
   Future<void> _openLawReferences(String law) async {
     setState(() {
       _openLaw = law;
@@ -267,23 +256,38 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     ];
     final allowance = ref.watch(writeAllowanceProvider).value;
     final law = _openLaw;
+    // A query reads the whole library, whichever level was being shown; closing
+    // the bar or clearing the query brings the level back.
+    final searching = _isSearching && _searchController.text.trim().isNotEmpty;
+    final lawRows = law == null
+        ? const <ReferenceRow>[]
+        : rows
+              .where((row) => referenceStatuteKey(row.statute) == law)
+              .toList(growable: false);
 
     // A short library must still be pullable, and the pull must not drag the
     // cards under the finger while the indicator spins.
     final behavior = ScrollConfiguration(
       behavior: pullScrollBehavior(context),
-      child: law == null
+      child: searching
+          ? ReferenceList(
+              isSearching: true,
+              // Before the first answer arrives the whole library shows, as on
+              // the Notes library, rather than a premature "No results".
+              references: _search.rows ?? rows,
+              totalCount: rows.length,
+              writableReferenceIds: allowance?.writableReferenceIds,
+              onEdit: _editIfWritable,
+              onDelete: _confirmDelete,
+              onTogglePin: _togglePin,
+              onRefresh: _onRefresh,
+            )
+          : law == null
           ? ReferenceLawList(
-              sections: filterLawSections(
-                lawSectionsFor(
-                  ref.watch(lawListProvider).value ?? const <Law>[],
-                  rows,
-                ),
-                _isSearching ? _searchController.text : '',
+              sections: lawSectionsFor(
+                ref.watch(lawListProvider).value ?? const <Law>[],
+                rows,
               ),
-              // Which empty state, and whether the library has anything at all.
-              isSearching: _isSearching,
-              hasReferences: rows.isNotEmpty,
               onOpen: _openLawReferences,
               onRefresh: _onRefresh,
             )
@@ -291,21 +295,13 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
               children: [
                 ReferenceLawHeader(
                   label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
-                  count: rows
-                      .where((row) => referenceStatuteKey(row.statute) == law)
-                      .length,
+                  count: lawRows.length,
                   onBack: _closeLaw,
                 ),
                 Expanded(
                   child: ReferenceList(
-                    isSearching: _isSearching,
-                    references:
-                        _search.rows ??
-                        rows
-                            .where(
-                              (row) => referenceStatuteKey(row.statute) == law,
-                            )
-                            .toList(growable: false),
+                    isSearching: false,
+                    references: lawRows,
                     totalCount: rows.length,
                     emptyMessage: l.caseReferenceScreen_noLawReferences,
                     writableReferenceIds: allowance?.writableReferenceIds,

@@ -27,13 +27,25 @@ class ReferenceDetailScreen extends StatefulWidget {
   /// [onEdit] opens the host's edit form with the detail's current row and
   /// returns the fresh row on a save; a null return (a cancel or a refusal)
   /// leaves the screen as it is. A null callback hides the Edit button.
-  const ReferenceDetailScreen({required this.row, this.onEdit, super.key});
+  ///
+  /// [onDelete] runs the host's delete flow with this screen's context and
+  /// returns true once the row is gone, which closes the detail; a null
+  /// callback hides Delete.
+  const ReferenceDetailScreen({
+    required this.row,
+    this.onEdit,
+    this.onDelete,
+    super.key,
+  });
 
   /// The row to show.
   final ReferenceRow row;
 
   /// The host's edit path, or null for a read-only citation.
   final Future<ReferenceRow?> Function(ReferenceRow currentRow)? onEdit;
+
+  /// The host's delete path, or null when the row cannot be deleted here.
+  final Future<bool> Function(BuildContext context)? onDelete;
 
   @override
   State<ReferenceDetailScreen> createState() => _ReferenceDetailScreenState();
@@ -42,6 +54,7 @@ class ReferenceDetailScreen extends StatefulWidget {
 class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
   late ReferenceRow _row = widget.row;
   bool _editing = false;
+  bool _deleting = false;
 
   Future<void> _edit() async {
     final edit = widget.onEdit;
@@ -52,6 +65,17 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
       if (updated != null && mounted) setState(() => _row = updated);
     } finally {
       if (mounted) setState(() => _editing = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    final delete = widget.onDelete;
+    if (delete == null || _deleting) return;
+    setState(() => _deleting = true);
+    try {
+      if (await delete(context) && mounted) Navigator.of(context).maybePop();
+    } finally {
+      if (mounted) setState(() => _deleting = false);
     }
   }
 
@@ -73,12 +97,21 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
               bottom: AppSpacing.xxxl,
             ),
             children: [
-              _topRow(l),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                _row.referenceAndPageNo,
-                key: const ValueKey('reference-detail-citation'),
-                style: AppTypography.headlineMd,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      _row.referenceAndPageNo,
+                      key: const ValueKey('reference-detail-citation'),
+                      style: AppTypography.headlineMd,
+                    ),
+                  ),
+                  if (_row.isOfficial) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    OfficialChip(label: l.caseReferenceScreen_official),
+                  ],
+                ],
               ),
               const SizedBox(height: AppSpacing.xs),
               Row(
@@ -102,15 +135,12 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                   ),
                 ],
               ),
-              if (_row.isOfficial) ...[
-                const SizedBox(height: AppSpacing.md),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OfficialChip(label: l.caseReferenceScreen_official),
-                ),
-              ],
+              // Delete / Edit / Close sit directly under the Act/Law, as the
+              // Case Detail's actions do.
+              const SizedBox(height: AppSpacing.md),
+              _actionsRow(l),
+              const SizedBox(height: AppSpacing.lg),
               if (parties.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.lg),
                 _sectionCard(
                   key: const ValueKey('reference-detail-parties'),
                   icon: Icons.person_outline,
@@ -124,8 +154,8 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.lg),
               ],
-              const SizedBox(height: AppSpacing.lg),
               _sectionCard(
                 key: const ValueKey('reference-detail-details'),
                 icon: Icons.info_outline,
@@ -161,32 +191,50 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
     );
   }
 
-  /// The top action row: back at the left, Edit at the right.
-  Widget _topRow(AppLocalizations l) => Row(
-    children: [
-      _topAction(
-        key: const ValueKey('reference-detail-back'),
-        icon: Icons.arrow_back,
-        label: MaterialLocalizations.of(context).backButtonTooltip,
-        onPressed: () => Navigator.of(context).maybePop(),
-      ),
-      const Spacer(),
+  /// Delete / Edit / Close, packed from the left so hiding one (an Official
+  /// citation has no Delete or Edit on this screen) pulls the others into its
+  /// place rather than leaving a gap (user request).
+  Widget _actionsRow(AppLocalizations l) {
+    final actions = <Widget>[
+      if (widget.onDelete != null)
+        _actionButton(
+          key: const ValueKey('reference-detail-delete'),
+          icon: Icons.delete_outline,
+          label: l.sharedActions_delete,
+          background: AppColors.error,
+          onPressed: _deleting ? null : _delete,
+        ),
       if (widget.onEdit != null)
-        _topAction(
+        _actionButton(
           key: const ValueKey('reference-detail-edit'),
           icon: Icons.edit_outlined,
           label: l.sharedActions_edit,
           onPressed: _editing ? null : _edit,
         ),
-    ],
-  );
+      _actionButton(
+        key: const ValueKey('reference-detail-close'),
+        icon: Icons.close,
+        label: l.sharedActions_close,
+        onPressed: () => Navigator.of(context).maybePop(),
+      ),
+    ];
+    return Row(
+      children: [
+        for (var i = 0; i < actions.length; i++) ...[
+          if (i > 0) const SizedBox(width: AppSpacing.sm * 0.48),
+          actions[i],
+        ],
+      ],
+    );
+  }
 
-  /// One 40 px black icon button, the Case Detail's header-action style.
-  Widget _topAction({
+  /// One 40 px icon button, the Case Detail's header-action style.
+  Widget _actionButton({
     required Key key,
     required IconData icon,
     required String label,
     required VoidCallback? onPressed,
+    Color background = AppColors.secondary,
   }) => Tooltip(
     message: label,
     child: SizedBox(
@@ -195,9 +243,9 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
       child: FilledButton(
         key: key,
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.secondary,
+          backgroundColor: background,
           foregroundColor: AppColors.onPrimary,
-          disabledBackgroundColor: AppColors.secondary.withValues(alpha: 0.5),
+          disabledBackgroundColor: background.withValues(alpha: 0.5),
           minimumSize: const Size(40, 40),
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(

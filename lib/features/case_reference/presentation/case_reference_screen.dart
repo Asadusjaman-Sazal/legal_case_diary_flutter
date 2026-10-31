@@ -246,15 +246,23 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     return true;
   }
 
-  Future<void> _confirmDelete(ReferenceRow row) async {
+  /// Confirms and deletes an own row; true only when it was deleted, so the
+  /// detail closes on a real deletion and stays on a raised request or cancel.
+  ///
+  /// [ledgerContext] is the detail's own context when the delete starts there,
+  /// so its dialogs and messages sit above the detail.
+  Future<bool> _confirmDelete(
+    ReferenceRow row, {
+    BuildContext? ledgerContext,
+  }) async {
     // An official citation is the admins' to change; the phone has no grant on
     // that table, so there is nothing here to confirm.
     final reference = row.own;
-    if (reference == null) return;
+    if (reference == null) return false;
     // A member without delete permission raises a request instead of deleting
     // (plan §1, Associate Deletion Policy).
     final outcome = await deleteThroughFirmRules(
-      context,
+      ledgerContext ?? context,
       ref,
       entityType: 'reference',
       entityId: reference.id,
@@ -264,8 +272,9 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
           .read(referenceViewModelProvider.notifier)
           .deleteReference(reference),
     );
-    if (!mounted || outcome != DeleteOutcome.deleted) return;
+    if (!mounted || outcome != DeleteOutcome.deleted) return false;
     _showUndoSnackBar(reference);
+    return true;
   }
 
   /// Shows a Google Keep–style undo snackbar after a reference is deleted.
@@ -321,14 +330,18 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// Opens a card's read-only detail.
   ///
   /// An official citation has no editor on this device at all — it belongs to
-  /// the admin-curated library — so it carries no Edit action; an own row's
-  /// Edit runs the same allowance gate as before.
+  /// the admin-curated library — so it carries no Edit or Delete action; an own
+  /// row's Edit runs the same allowance gate as before.
   void _openDetail(ReferenceRow row) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ReferenceDetailScreen(
           row: row,
           onEdit: row.own == null ? null : (current) => _editRow(current),
+          onDelete: row.own == null
+              ? null
+              : (detailContext) =>
+                    _confirmDelete(row, ledgerContext: detailContext),
         ),
       ),
     );

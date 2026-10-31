@@ -485,10 +485,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('reference-detail-edit')), findsNothing);
+    expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
     expect(find.byKey(const ValueKey('reference-title')), findsNothing);
 
     // Back to the law page, where the card's menu and pin live.
-    await tester.tap(find.byKey(const ValueKey('reference-detail-back')));
+    await tester.tap(find.byKey(const ValueKey('reference-detail-close')));
     await tester.pump(const Duration(milliseconds: 400));
     await settle(tester);
 
@@ -833,6 +834,10 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('reference-detail-edit')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('reference-detail-delete')),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('reference-title')), findsNothing);
 
     // Edit opens the shared form; saving returns to the detail with the new

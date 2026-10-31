@@ -417,30 +417,36 @@
 </div>
 
 <!-- The read-only Case Reference detail, opened by tapping a card. It follows
-     the Case Detail screen's shell: app background, 16 px sides, a back button
-     and Edit at the top (Edit is absent for an Official cached citation on the
-     user's screen, which this device cannot write), the citation at 24 px, the
-     Act/Law line with a gavel, the Official mark, a Parties card and a
-     Reference Details card whose labelled boxes show an em dash when empty.
+     the Case Detail screen's shell: app background, 16 px sides, the citation
+     at 24 px with the Official mark at its right, the Act/Law line with a
+     gavel, then the Delete / Edit / Close action row directly under it, a
+     Parties card and a Reference Details card whose labelled boxes show an em
+     dash when empty. There is no back button: Close is the way out. An Official
+     cached citation on the user's screen hides Delete and Edit (this device
+     cannot write the library) and the remaining button slides to the left.
      Hidden here because the list is showing. -->
 <div class="hidden fixed inset-0 z-[100] bg-background">
   <div class="h-full flex flex-col px-md">
-    <div class="flex items-center justify-between pt-lg">
-      <button aria-label="Back" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-      </button>
-      <button aria-label="Edit" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-        <span class="material-symbols-outlined text-[18px]">edit</span>
-      </button>
-    </div>
     <div class="flex-1 overflow-y-auto pt-lg pb-xxxl">
-      <p class="font-headline-md text-headline-md text-primary">29 DLR (AD), P-69-73</p>
+      <div class="flex items-start">
+        <p class="flex-1 font-headline-md text-headline-md text-primary">29 DLR (AD), P-69-73</p>
+        <span class="ml-sm px-[6px] py-[2px] rounded-md bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
+      </div>
       <div class="mt-xs flex items-center">
         <span class="material-symbols-outlined text-[18px] text-on-surface-variant">gavel</span>
         <span class="ml-xs font-body-lg text-body-lg text-on-surface-variant">The Penal Code, 1860</span>
       </div>
-      <div class="mt-md">
-        <span class="px-[6px] py-[2px] rounded-md bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
+      <!-- Packed from the left: hiding a button pulls the others over. -->
+      <div class="mt-md flex items-center gap-[3.84px]">
+        <button aria-label="Delete" class="w-10 h-10 rounded-lg bg-error text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>
+        <button aria-label="Edit" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">edit</span>
+        </button>
+        <button aria-label="Close" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
       </div>
 
       <div class="mt-lg bg-surface-container-lowest border border-card-border rounded-lg p-lg">

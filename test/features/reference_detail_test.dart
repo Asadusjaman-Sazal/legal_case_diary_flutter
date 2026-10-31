@@ -38,6 +38,7 @@ void main() {
     WidgetTester tester,
     ReferenceRow row, {
     Future<ReferenceRow?> Function(ReferenceRow currentRow)? onEdit,
+    Future<bool> Function(BuildContext context)? onDelete,
   }) async {
     await tester.binding.setSurfaceSize(const Size(800, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -47,14 +48,23 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: ReferenceDetailScreen(row: row, onEdit: onEdit),
+        home: ReferenceDetailScreen(
+          row: row,
+          onEdit: onEdit,
+          onDelete: onDelete,
+        ),
       ),
     );
     await tester.pumpAndSettle();
   }
 
   testWidgets('shows every field in the case-detail layout', (tester) async {
-    await pumpDetail(tester, fullRow(), onEdit: (_) async => null);
+    await pumpDetail(
+      tester,
+      fullRow(),
+      onEdit: (_) async => null,
+      onDelete: (_) async => false,
+    );
 
     final citation = tester.widget<Text>(
       find.byKey(const ValueKey('reference-detail-citation')),
@@ -101,13 +111,28 @@ void main() {
     expect(find.text('bail'), findsOneWidget);
     expect(find.text('evidence'), findsOneWidget);
 
-    // The top row: back always, Edit because the host supplied it.
-    expect(find.byKey(const ValueKey('reference-detail-back')), findsOneWidget);
-    expect(find.byKey(const ValueKey('reference-detail-edit')), findsOneWidget);
-    expect(
-      tester.getSize(find.byKey(const ValueKey('reference-detail-back'))),
-      const Size(40, 40),
+    // Delete / Edit / Close sit under the Act/Law, packed from the left, with
+    // no back button.
+    final law = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-law')),
     );
+    final delete = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-delete')),
+    );
+    final edit = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-edit')),
+    );
+    final close = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+    expect(delete.top, greaterThan(law.bottom));
+    expect((delete.top - edit.top).abs(), lessThan(0.5));
+    expect((delete.top - close.top).abs(), lessThan(0.5));
+    expect(delete.left, lessThan(edit.left));
+    expect(edit.left, lessThan(close.left));
+    expect(delete.left, AppSpacing.md);
+    expect(delete.size, const Size(40, 40));
+    expect(find.byKey(const ValueKey('reference-detail-back')), findsNothing);
   });
 
   testWidgets('hides Edit and shows an em dash for absent fields', (
@@ -120,6 +145,12 @@ void main() {
     );
 
     expect(find.byKey(const ValueKey('reference-detail-edit')), findsNothing);
+    expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
+    // Close is the only remaining action, and it takes the row's left edge.
+    final close = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+    expect(close.left, AppSpacing.md);
     expect(
       find.byKey(const ValueKey('reference-detail-parties')),
       findsNothing,
@@ -166,7 +197,7 @@ void main() {
     expect(find.text('29 DLR (AD) 69'), findsOneWidget);
   });
 
-  testWidgets('back returns to the screen that opened the detail', (
+  testWidgets('Close returns to the screen that opened the detail', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(800, 1600));
@@ -203,8 +234,64 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.byKey(const ValueKey('reference-detail-back')));
+    await tester.tap(find.byKey(const ValueKey('reference-detail-close')));
     await tester.pumpAndSettle();
+    expect(find.text('Open'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('a cancelled Delete keeps the detail open', (tester) async {
+    await pumpDetail(tester, fullRow(), onDelete: (_) async => false);
+
+    await tester.tap(find.byKey(const ValueKey('reference-detail-delete')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Delete closes the detail once the host deleted the row', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.lightTheme(const Locale('en')),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                key: const ValueKey('open-detail'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => ReferenceDetailScreen(
+                      row: fullRow(),
+                      onDelete: (_) async => true,
+                    ),
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('open-detail')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('reference-detail-delete')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Open'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('reference-detail-citation')),

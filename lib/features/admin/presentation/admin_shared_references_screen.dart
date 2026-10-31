@@ -151,50 +151,55 @@ class _AdminSharedReferencesScreenState
     return saved == true;
   }
 
-  /// Opens a card's read-only detail. Every official row is editable here.
+  /// Opens a card's read-only detail. Every official row is editable and
+  /// deletable here.
   void _openDetail(ReferenceRow row) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ReferenceDetailScreen(
           row: row,
           onEdit: (current) => _editAndReturn(current.id),
+          onDelete: (detailContext) async {
+            final reference = _adminReference(row.id);
+            if (reference == null) return false;
+            return _confirmDelete(reference, ledgerContext: detailContext);
+          },
         ),
       ),
     );
   }
 
-  /// The detail's Edit: opens the form for the live server row and returns the
-  /// reloaded row so the detail shows what was saved; null keeps it as it is.
-  Future<ReferenceRow?> _editAndReturn(String id) async {
+  /// The live server row with [id], or null when a reload removed it.
+  AdminSharedReference? _adminReference(String id) {
     final rows =
         ref.read(adminSharedReferencesProvider).value ??
         const <AdminSharedReference>[];
-    AdminSharedReference? existing;
     for (final row in rows) {
-      if (row.id == id) existing = row;
+      if (row.id == id) return row;
     }
+    return null;
+  }
+
+  /// The detail's Edit: opens the form for the live server row and returns the
+  /// reloaded row so the detail shows what was saved; null keeps it as it is.
+  Future<ReferenceRow?> _editAndReturn(String id) async {
+    final existing = _adminReference(id);
     if (existing == null) return null;
     final saved = await _openForm(reference: existing);
     if (!saved || !mounted) return null;
-    final fresh =
-        ref.read(adminSharedReferencesProvider).value ??
-        const <AdminSharedReference>[];
-    for (final row in fresh) {
-      if (row.id == id) {
-        return ReferenceRow.admin(
-          id: row.id,
-          referenceAndPageNo: row.referenceAndPageNo,
-          parties: row.parties,
-          statute: row.statute,
-          sectionOrArticle: row.sectionOrArticle,
-          titleAndDescription: row.titleAndDescription,
-          commentsNotes: row.commentsNotes,
-          caseNote: row.caseNote,
-          tags: row.tags,
-        );
-      }
-    }
-    return null;
+    final fresh = _adminReference(id);
+    if (fresh == null) return null;
+    return ReferenceRow.admin(
+      id: fresh.id,
+      referenceAndPageNo: fresh.referenceAndPageNo,
+      parties: fresh.parties,
+      statute: fresh.statute,
+      sectionOrArticle: fresh.sectionOrArticle,
+      titleAndDescription: fresh.titleAndDescription,
+      commentsNotes: fresh.commentsNotes,
+      caseNote: fresh.caseNote,
+      tags: fresh.tags,
+    );
   }
 
   /// Publishes the shared form's values to the server library.
@@ -250,36 +255,46 @@ class _AdminSharedReferencesScreenState
     return true;
   }
 
-  Future<void> _confirmDelete(AdminSharedReference reference) async {
-    final l = AppLocalizations.of(context);
+  /// Confirms and deletes a server row; true only when it was deleted, so the
+  /// detail closes on a real deletion and stays on a cancel or a refusal.
+  ///
+  /// [ledgerContext] is the detail's own context when the delete starts there,
+  /// so its dialogs and messages sit above the detail.
+  Future<bool> _confirmDelete(
+    AdminSharedReference reference, {
+    BuildContext? ledgerContext,
+  }) async {
+    final hostContext = ledgerContext ?? context;
+    final l = AppLocalizations.of(hostContext);
     if (_offline) {
-      _showMessage(l.adminSharedRefs_offline);
-      return;
+      _showMessage(l.adminSharedRefs_offline, messengerContext: hostContext);
+      return false;
     }
     final confirmed = await showAppConfirmDialog(
-      context,
+      hostContext,
       title: l.adminSharedRefs_deleteTitle,
       message: l.adminSharedRefs_deleteBody,
       confirmLabel: l.adminSharedRefs_deleteConfirm,
       confirmKey: const ValueKey('admin-shared-delete-confirm'),
     );
-    if (!confirmed || !mounted) return;
+    if (!confirmed || !mounted || !hostContext.mounted) return false;
 
     final failure = await ref
         .read(adminRepositoryProvider)
         .deleteSharedReference(reference.id);
-    if (!mounted) return;
+    if (!mounted || !hostContext.mounted) return false;
     if (failure != null) {
-      _showMessage(_failureMessage(l, failure));
-      return;
+      _showMessage(_failureMessage(l, failure), messengerContext: hostContext);
+      return false;
     }
-    _showMessage(l.adminSharedRefs_deleted);
+    _showMessage(l.adminSharedRefs_deleted, messengerContext: hostContext);
     await _reload();
+    return true;
   }
 
-  void _showMessage(String message) {
+  void _showMessage(String message, {BuildContext? messengerContext}) {
     ScaffoldMessenger.of(
-      context,
+      messengerContext ?? context,
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 

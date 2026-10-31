@@ -382,7 +382,7 @@ void main() {
     expect(repo.saved.single.referenceAndPageNo, '29 DLR (AD) 70');
 
     // Back to the law page for the card's menu.
-    await tester.tap(find.byKey(const ValueKey('reference-detail-back')));
+    await tester.tap(find.byKey(const ValueKey('reference-detail-close')));
     await tester.pumpAndSettle();
 
     // Delete: the menu's Delete asks first, then removes the row.

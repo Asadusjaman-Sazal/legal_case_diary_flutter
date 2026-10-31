@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — The reference detail's Delete / Edit / Close row — COMPLETE (0.0.766)
+
+- **What was asked.** Remove the back button; show Delete, Edit and Close after the Act/Law like the Case Detail, with the remaining buttons pushing left when Delete is hidden.
+- **The screen.** The top back/Edit row is gone. Directly under the Act/Law are three 40 px icon buttons — Delete (red), Edit and Close (black) — packed from the left with the Case Detail's small gaps. The Official mark moved up beside the citation. An Official cached citation on the user's screen has no Delete or Edit, so Close alone sits at the left edge.
+- **Delete.** It runs the host's own confirmation/delete flow with the detail's context (dialogs and messages above the detail). The detail closes only when the row was really deleted; a cancel or a raised delete request leaves it open. The user's undo snackbar and the admin's reload still run.
+- **Proof.** *Delete closes the detail once the host deleted the row*, *a cancelled Delete keeps the detail open*, and the layout test's action-row geometry/ordering; the updated official/own/admin flows; `flutter analyze` clean; the three suites pass (33). Full suite: **2,261 passed**, with only the known pre-existing backup export-list failure. The mockup's detail page was updated (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — A read-only Case Reference detail — COMPLETE (0.0.765)
 
 - **What was asked.** A Case Reference detail screen in the Case Detail's theme, read mode, with an Edit button at the top right that opens the existing Edit Case Reference form.

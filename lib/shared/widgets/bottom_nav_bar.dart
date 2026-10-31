@@ -162,6 +162,19 @@ String _labelCaseReference(AppLocalizations l) => l.nav_caseReference;
 String _labelNotes(AppLocalizations l) => l.nav_notes;
 String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 
+/// The horizontal offset the user last left the bar at.
+///
+/// Every screen owns its own `CasesScreenModal` and therefore its own
+/// [BottomNavBar], so a tab tap mounts a brand-new bar. Without this the new
+/// scrollable starts at 0, hiding the button just tapped at the far end; the
+/// offset is written as the user scrolls and read when the next screen's bar
+/// mounts, so the bar stays where they left it (user report).
+double _lastScrollOffset = 0;
+
+/// Forgets the saved position; tests share one isolate.
+@visibleForTesting
+void resetBottomNavScrollOffset() => _lastScrollOffset = 0;
+
 /// Bottom navigation bar driven by [tabKeys] from [UserSettings.bottomNavTabs].
 ///
 /// [currentRoute] — the active GoRouter location used to highlight the active tab.
@@ -179,7 +192,7 @@ String _labelAdminPanel(AppLocalizations l) => l.nav_adminPanel;
 /// other screen grows by that pixel. The user's own step still reaches it — the
 /// pixel is subtracted from whatever scale is in effect, not from zero, so at
 /// `Default` the bar is exactly as it has always rendered.
-class BottomNavBar extends StatelessWidget {
+class BottomNavBar extends StatefulWidget {
   final String currentRoute;
   final List<String> tabKeys;
   final void Function(String route) onTabSelected;
@@ -194,19 +207,50 @@ class BottomNavBar extends StatelessWidget {
   });
 
   @override
+  State<BottomNavBar> createState() => _BottomNavBarState();
+}
+
+class _BottomNavBarState extends State<BottomNavBar> {
+  /// Starts at the session's saved offset, so a tab tap shows the bar where the
+  /// user left it rather than at its first tab.
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: _lastScrollOffset,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_rememberScrollPosition);
+  }
+
+  void _rememberScrollPosition() {
+    if (_scroll.hasClients) _lastScrollOffset = _scroll.offset;
+  }
+
+  @override
+  void dispose() {
+    _rememberScrollPosition();
+    _scroll
+      ..removeListener(_rememberScrollPosition)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final keyMap = {for (final t in bottomNavTabDefs) t.key: t};
-    final tabs = tabKeys
+    final tabs = widget.tabKeys
         .map((k) => keyMap[k])
         .whereType<BottomNavTabDef>()
-        .where((t) => !t.adminOnly || isAdmin)
+        .where((t) => !t.adminOnly || widget.isAdmin)
         .toList();
 
     // Five or six tabs would squeeze the labels to nothing on a phone, so a
     // larger selection scrolls instead of shrinking.
     final Widget content = tabs.length > 4
         ? SingleChildScrollView(
+            controller: _scroll,
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
@@ -260,9 +304,9 @@ class BottomNavBar extends StatelessWidget {
     AppLocalizations l,
     BottomNavTabDef tab,
   ) {
-    final active = currentRoute == tab.route;
+    final active = widget.currentRoute == tab.route;
     return InkWell(
-      onTap: () => onTabSelected(tab.route),
+      onTap: () => widget.onTabSelected(tab.route),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

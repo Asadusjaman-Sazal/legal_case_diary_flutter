@@ -519,58 +519,54 @@ class _ReferenceCardState extends State<ReferenceCard> {
   Widget build(BuildContext context) {
     final row = widget.row;
     final l = AppLocalizations.of(context);
-    final borderColor = _hovered
-        ? AppColors.secondary
-        : AppColors.outlineVariant;
+    final borderColor = _hovered ? AppColors.secondary : AppColors.cardBorder;
     final pin = widget.onTogglePin;
+    final tags = referenceTags(row.tags);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Card(
+        // The case card's own shape and surface (user request): its 4 px
+        // corner, the same border and the same white fill, and the list's own
+        // spacing rather than a Card margin.
+        margin: EdgeInsets.zero,
         elevation: _hovered ? 2 : 0,
         color: AppColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           side: BorderSide(color: borderColor),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           onTap: widget.onEdit,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.cardPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // L1: reference & page no + statute chips, 3-dot menu on the
-                // right.
+                // Line 1: the citation, the Official mark and the menu.
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.xs,
-                        children: [
-                          _Chip(label: row.referenceAndPageNo),
-                          if (row.statute != null && row.statute!.isNotEmpty)
-                            _Chip(label: row.statute!),
-                          // Which library this row came from. A server-wide
-                          // citation reads like any other card — it is a full
-                          // member of the library, merely one this device may
-                          // not always change.
-                          if (row.isOfficial)
-                            _OfficialChip(
-                              label: l.caseReferenceScreen_official,
-                            ),
-                        ],
+                      child: Text(
+                        row.referenceAndPageNo,
+                        style: AppTypography.caseNumber.copyWith(
+                          color: AppColors.secondary,
+                        ),
                       ),
                     ),
-                    if (widget.isReadOnly) ...[
-                      const ReadOnlyLock(),
-                      const SizedBox(width: AppSpacing.xs),
+                    if (row.isOfficial) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      _OfficialChip(label: l.caseReferenceScreen_official),
                     ],
-                    if (pin != null || row.canDelete)
+                    if (widget.isReadOnly) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      const ReadOnlyLock(),
+                    ],
+                    if (pin != null || row.canDelete) ...[
+                      const SizedBox(width: AppSpacing.xs),
                       PopupMenuButton<String>(
                         key: const ValueKey('reference-menu'),
                         icon: const Icon(Icons.more_vert),
@@ -629,79 +625,59 @@ class _ReferenceCardState extends State<ReferenceCard> {
                             ),
                         ],
                       ),
+                    ],
                   ],
                 ),
-                // Tags the citation carries, each its own small chip.
-                if (referenceTags(row.tags).isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Wrap(
-                    spacing: AppSpacing.xs,
-                    runSpacing: AppSpacing.xs,
-                    children: [
-                      for (final tag in referenceTags(row.tags))
-                        _TagChip(label: tag),
-                    ],
-                  ),
-                ],
-                // The parties the case was between, under the citation chips.
+                // Line 2: the parties, bold.
                 if (row.parties != null && row.parties!.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     row.parties!,
+                    style: AppTypography.titleMd.copyWith(
+                      fontSize: 15,
+                      height: 24 / 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+                // Line 3: the Act/Law.
+                if (row.statute != null && row.statute!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    row.statute!,
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.sm),
-                // L2: section / article.
+                // Line 4: the section / article.
                 if (row.sectionOrArticle != null &&
-                    row.sectionOrArticle!.isNotEmpty)
+                    row.sectionOrArticle!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     row.sectionOrArticle!,
-                    style: AppTypography.titleMd.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                // L3: title & description.
-                if (row.titleAndDescription != null &&
-                    row.titleAndDescription!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    row.titleAndDescription!,
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ],
-                // The case note sits beside the summary, before the personal
-                // notes, so the two kinds of note read in order.
+                // Line 5: the case note, under its own label.
                 if (row.caseNote != null && row.caseNote!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(row.caseNote!, style: AppTypography.bodyMd),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    '${l.caseReferenceScreen_caseNote}: ${row.caseNote}',
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
                 ],
-                // L4: comments / notes.
-                if (row.commentsNotes != null &&
-                    row.commentsNotes!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border(
-                        left: BorderSide(color: AppColors.secondary, width: 4),
-                      ),
-                    ),
-                    child: Text(
-                      row.commentsNotes!,
-                      style: AppTypography.labelMd.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                // Line 6: each tag as its own chip.
+                if (tags.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [for (final tag in tags) _TagChip(label: tag)],
                   ),
                 ],
               ],
@@ -715,9 +691,8 @@ class _ReferenceCardState extends State<ReferenceCard> {
 
 /// The **Official** mark on a citation from the server-wide library.
 ///
-/// Deliberately the same shape and size as [_Chip] but outlined rather than
-/// filled, so it reads as a label on the row rather than a second citation
-/// field — and stays legible next to two filled chips.
+/// Outlined rather than filled, so it reads as a label on the row rather than
+/// another citation field, and it stays legible beside a tag chip.
 class _OfficialChip extends StatelessWidget {
   const _OfficialChip({required this.label});
 
@@ -743,8 +718,7 @@ class _OfficialChip extends StatelessWidget {
 
 /// A small chip for one tag on a citation.
 ///
-/// Filled in the neutral container tone rather than the citation chips' accent,
-/// so a tag reads as a finding aid rather than another citation field, and it
+/// Filled in the neutral container tone, so a tag reads as a finding aid and
 /// stays distinct from the outlined **Official** mark beside it.
 class _TagChip extends StatelessWidget {
   const _TagChip({required this.label});
@@ -764,29 +738,6 @@ class _TagChip extends StatelessWidget {
     child: Text(
       label,
       style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
-    ),
-  );
-}
-
-/// Small rounded chip used for the reference & page no and statute labels.
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    ),
-    decoration: BoxDecoration(
-      color: AppColors.secondaryFixed,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      label,
-      style: AppTypography.labelMd.copyWith(color: AppColors.primary),
     ),
   );
 }

@@ -574,7 +574,7 @@ void main() {
       await settle(tester);
       expect(find.text('State v. Karim'), findsOneWidget);
       expect(find.text('evidence'), findsOneWidget);
-      expect(find.text('Witness turned hostile.'), findsOneWidget);
+      expect(find.text('Case Note: Witness turned hostile.'), findsOneWidget);
       expect(find.text('bail'), findsNWidgets(2));
 
       // The parties, the case note and a tag each find their citation.

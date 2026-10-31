@@ -212,52 +212,41 @@
     </div>
     <div class="flex-1 p-md flex flex-col gap-md">
 
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+    <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
       <div class="flex items-start">
-        <div class="flex-1 flex flex-wrap gap-sm">
-          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">29 DLR (AD), P-69-73</span>
-          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">CRPC</span>
-          <!-- A citation from the admin-curated library: outlined rather than
-               filled, so it labels the row instead of reading as a third
-               citation field. Its menu offers Pin and no Delete, and tapping
-               the card opens no editor — only the pin is this device's. -->
-          <span class="px-sm py-xs rounded-lg bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
-        </div>
+        <span class="flex-1 font-case-number text-case-number text-secondary">29 DLR (AD), P-69-73</span>
+        <!-- The only two chips on the card: the Official mark and each tag. -->
+        <span class="ml-sm px-sm py-xs rounded-lg bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
         <!-- Beyond the allowance: readable, not editable — and not pinnable
              either, because pinning writes the reference's own updated_at. -->
-        <span class="material-symbols-outlined text-[14px] text-on-surface-variant self-center">lock</span>
+        <span class="ml-sm material-symbols-outlined text-[14px] text-on-surface-variant self-center">lock</span>
         <button aria-label="More Options" class="w-10 h-10 flex items-center justify-center text-outline active:opacity-70">
           <span class="material-symbols-outlined">more_vert</span>
         </button>
       </div>
-      <!-- Tags the citation carries, each its own chip in the neutral tone. -->
+      <p class="mt-xs font-title-md text-title-md font-bold text-on-surface">State vs. Md. Karim</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">The Code of Criminal Procedure, 1898</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Section 54</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Case Note: Witness turned hostile; the trial court relied on the eyewitness account.</p>
       <div class="mt-xs flex flex-wrap gap-xs">
         <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">bail</span>
         <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">evidence</span>
       </div>
-      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">State vs. Md. Karim</p>
-      <p class="mt-sm font-title-md text-title-md font-semibold text-primary">Section 54 CRPC</p>
-      <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Principles regarding preventive detention and immediate production of an arrested person before the Magistrate.</p>
-      <p class="mt-sm font-body-md text-body-md text-on-surface">Witness turned hostile; the trial court relied on the eyewitness account.</p>
-      <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
-        <p class="font-label-md text-label-md italic text-on-surface-variant">Add comments or private notes here...</p>
-      </div>
     </div>
 
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-card-padding">
+    <div class="bg-surface-container-lowest border border-card-border rounded p-card-padding">
       <div class="flex items-start">
-        <div class="flex-1 flex flex-wrap gap-sm">
-          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">32 DLR (AD), P-102</span>
-          <span class="px-sm py-xs rounded-lg bg-secondary-fixed font-label-md text-label-md text-primary">Constitution</span>
-        </div>
+        <span class="flex-1 font-case-number text-case-number text-secondary">32 DLR (AD), P-102</span>
         <button aria-label="More Options" class="w-10 h-10 flex items-center justify-center text-outline active:opacity-70">
           <span class="material-symbols-outlined">more_vert</span>
         </button>
       </div>
-      <p class="mt-sm font-title-md text-title-md font-semibold text-primary">Article 31</p>
-      <p class="mt-sm font-body-md text-body-md text-on-surface-variant">Fundamental rights of every citizen to be protected under the law as per Article 31 of the Constitution.</p>
-      <div class="mt-sm w-full p-sm rounded-lg bg-surface-variant border-l-4 border-secondary">
-        <p class="font-label-md text-label-md italic text-on-surface-variant">Key cite for writ petitions involving unlawful detention cases.</p>
+      <p class="mt-xs font-title-md text-title-md font-bold text-on-surface">Rahman vs. Salam</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">The Constitution of the People’s Republic of Bangladesh</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Article 31</p>
+      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Case Note: Fundamental rights of every citizen to be protected under the law.</p>
+      <div class="mt-xs flex flex-wrap gap-xs">
+        <span class="px-sm py-xs rounded-lg bg-surface-container font-label-md text-label-md text-on-surface-variant">writ</span>
       </div>
     </div>
     </div>

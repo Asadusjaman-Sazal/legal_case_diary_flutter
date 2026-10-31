@@ -13,37 +13,35 @@ import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/shared/widgets/bottom_nav_bar.dart';
 
 void main() {
-  Widget app({
-    required double viewPaddingBottom,
-    double paddingBottom = 0,
-  }) => MaterialApp(
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    locale: const Locale('en'),
-    home: Builder(
-      builder: (context) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          viewPadding: EdgeInsets.only(bottom: viewPaddingBottom),
-          padding: EdgeInsets.only(bottom: paddingBottom),
-        ),
-        child: Scaffold(
-          body: const SizedBox.shrink(),
-          bottomNavigationBar: BottomNavBar(
-            currentRoute: AppRoutes.notes,
-            tabKeys: const <String>['overdue', 'active'],
-            onTabSelected: (_) {},
+  setUp(resetBottomNavScrollOffset);
+
+  Widget app({required double viewPaddingBottom, double paddingBottom = 0}) =>
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              viewPadding: EdgeInsets.only(bottom: viewPaddingBottom),
+              padding: EdgeInsets.only(bottom: paddingBottom),
+            ),
+            child: Scaffold(
+              body: const SizedBox.shrink(),
+              bottomNavigationBar: BottomNavBar(
+                currentRoute: AppRoutes.notes,
+                tabKeys: const <String>['overdue', 'active'],
+                onTabSelected: (_) {},
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 
   testWidgets('adds the system navigation inset below its own row', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      app(viewPaddingBottom: 48, paddingBottom: 48),
-    );
+    await tester.pumpWidget(app(viewPaddingBottom: 48, paddingBottom: 48));
 
     // The bar's surface grows by the panel's height; its row keeps its 64 px.
     expect(tester.getSize(find.byType(BottomNavBar)).height, 64 + 48);
@@ -69,6 +67,57 @@ void main() {
     await tester.pumpWidget(app(viewPaddingBottom: 48));
 
     expect(tester.getSize(find.byType(BottomNavBar)).height, 64 + 48);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('keeps its scroll position when the next screen mounts a bar', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(320, 640));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    Widget phoneApp() => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: Scaffold(
+        body: const SizedBox.shrink(),
+        bottomNavigationBar: BottomNavBar(
+          currentRoute: AppRoutes.notes,
+          tabKeys: const <String>[
+            'all_cases',
+            'active',
+            'daily_cause_list',
+            'overdue',
+            'upcoming',
+            'disposed',
+          ],
+          onTabSelected: (_) {},
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(phoneApp());
+    final bar = find.byType(SingleChildScrollView);
+    // More tabs than the phone shows: the bar scrolls horizontally.
+    await tester.drag(bar, const Offset(-160, 0));
+    await tester.pump();
+    final left = tester.widget<SingleChildScrollView>(bar).controller!.offset;
+    expect(left, greaterThan(0));
+
+    // A tab tap mounts the next screen's own bar — a new widget and state.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(phoneApp());
+    await tester.pump();
+
+    expect(
+      tester
+          .widget<SingleChildScrollView>(find.byType(SingleChildScrollView))
+          .controller!
+          .offset,
+      left,
+    );
 
     await tester.pumpWidget(const SizedBox.shrink());
   });

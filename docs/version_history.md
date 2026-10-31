@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.758 - Parties to the Case joins both Case Reference libraries right after Citation, shown on cards and searchable with the other fields.
+Version: 0.0.760 - The bottom bar now keeps the horizontal position the user scrolled it to when a tab tap mounts the next screen's bar.
 --------------------------------------
 
 ## Version History Log:
@@ -772,3 +772,5 @@ Version: 0.0.755 - The Add Case Reference window's own form is gone; both it and
 Version: 0.0.756 - Case Reference fields now read Citation, Act/Law, Case Summary & Decision and Personal Notes, with new Case Note and Tags on both libraries and an alphabetical tag dropdown.
 Version: 0.0.757 - In the Act/Law picker, category headings now take the law names' 16 px bold size while the law names take the headings' 14 px size.
 Version: 0.0.758 - Parties to the Case joins both Case Reference libraries right after Citation, shown on cards and searchable with the other fields.
+Version: 0.0.759 - Both Case Reference screens share one card again: the case card's corner and fill, with Citation, bold Parties, Act/Law, Section, Case Note and tag chips.
+Version: 0.0.760 - The bottom bar now keeps the horizontal position the user scrolled it to when a tab tap mounts the next screen's bar.

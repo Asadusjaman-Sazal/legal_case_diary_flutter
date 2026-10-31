@@ -1,5 +1,21 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — The bottom bar keeps its horizontal position — COMPLETE (0.0.760)
+
+- **The report.** With more bottom-nav tabs than the phone shows, scrolling to the far end and tapping the last button made the bar jump back to the first tab, hiding the button just tapped.
+- **The cause.** Each screen owns its own `CasesScreenModal` and therefore its own `BottomNavBar`, so a tab tap mounted a brand-new horizontal scrollable at offset 0.
+- **The fix.** `BottomNavBar` is now stateful. Its `ScrollController` starts at the session's last offset, written on every scroll tick and read when the next screen's bar mounts, so the bar stays where the user left it. The controller clamps the offset if a changed tab set no longer reaches it. No visual or routing behaviour changed.
+- **Proof.** New *keeps its scroll position when the next screen mounts a bar* in `bottom_nav_bar_test.dart` (six tabs on a 320 px surface: drag, unmount, remount, same offset); the nav, View Settings and font-size suites pass (41); `flutter analyze` clean. Full suite: **2,251 passed**, with only the known pre-existing backup export-list failure.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-10-31 — The shared reference card gets a six-line design — COMPLETE (0.0.759)
+
+- **What was asked.** Both screens must use the same card (they already did — one `ReferenceCard` through `ReferenceList`), and the card must be: Citation left with the Official chip and 3-dot right; Parties bold; Act/Law; Section; Case Note; Tags as chips. Its corner and background must match the case card; only Tags and Official are chips.
+- **The card.** In `reference_library.dart`, the one card now wears the case card's 4 px corner, white fill and `cardBorder`, with no Card margin. The old citation/statute chips, the summary paragraph and the personal-notes box are gone from the card; the citation is the case-number styled heading, parties bold beneath it, then Act/Law, Section, `Case Note: …` and the tag chips. The read-only lock stays beside the menu.
+- **Still available.** Case Summary and Personal Notes remain in the form, the data, search and the delete-request snapshot; only their card display was removed because the requested design lists six lines.
+- **Proof.** The two suites (23) pass, including the official mark, tag chips, parties and the labelled case note; `flutter analyze` clean. Full suite: **2,250 passed**, with only the known pre-existing backup export-list failure. The `caseReference` mockup and `Texts.txt` draw the new card (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — Parties to the Case joins both reference libraries — COMPLETE (0.0.758)
 
 - **What was asked.** Add the field forgotten in 0.0.756 — **Parties to the Case / মামলার পক্ষসমূহ** — and show it in the form after Citation.

@@ -167,12 +167,7 @@ UI Design of Screen and Form:
 - Form: The Add Case Reference form must have the Citation, Parties to the Case, Act/Law, Section/Article, Case Note, Case Summary & Decision, Personal Notes and Tags fields. Parties to the Case sits right after Citation. Tags are comma-separated and the field offers every tag already used in the library in an alphabetical dropdown, so a tag is reused across citations.
 - Must use legal_case_diary_flutter\mockup_html_screens\caseReference\code.html file to design the UI of the screen and form.
 Sorting: Case reference cards are arranged by sorting the created_at field, listing the newest entry at the top (ordered chronologically by created_at decending, so the latest notes sits at the top).
-Case Reference Card UI Layout: Card UI Layout must match exactly like the mockup html file's case card (legal_case_diary_flutter\mockup_html_screens\caseReference\code.html)
-Line 1: Citation and Act/Law with a 3-dot button to the right. Under them, each tag as its own chip, then the parties to the case. Upon clicking the 3-dot button, show 2 options: Pin, Delete. If Pin is selected, pin the reference at top. If Delete is selected, show a confirmation window before deleting the reference.
-Line 2: Section/Article
-Line 3: Case Summary & Decision
-Line 4: Case Note
-Line 5: Personal Notes
+Case Reference Card UI Layout: Card UI Layout must match exactly like the case card: the same 4 px corner, white fill and card border. The lines are: 1st line Citation on the left, the Official chip and 3-dot button on the right; 2nd line Parties to the Case (bold); 3rd line Act/Law; 4th line Section/Article; 5th line Case Note: <note>; 6th line Tags, each as a chip. Only Tags and Official are chips; every other line is text. Upon clicking the 3-dot button, show 2 options: Pin, Delete. If Pin is selected, pin the reference at top. If Delete is selected, show a confirmation window before deleting the reference.
 Note: Keep the hovering/selection effects intact from the mockup html file. 
 
 

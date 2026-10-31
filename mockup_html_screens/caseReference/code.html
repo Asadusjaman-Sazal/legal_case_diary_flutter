@@ -436,17 +436,24 @@
         <span class="material-symbols-outlined text-[18px] text-on-surface-variant">gavel</span>
         <span class="ml-xs font-body-lg text-body-lg text-on-surface-variant">The Penal Code, 1860</span>
       </div>
-      <!-- Packed from the left: hiding a button pulls the others over. -->
-      <div class="mt-md flex items-center gap-[3.84px]">
-        <button aria-label="Delete" class="w-10 h-10 rounded-lg bg-error text-on-primary flex items-center justify-center active:opacity-80">
-          <span class="material-symbols-outlined text-[18px]">delete</span>
-        </button>
-        <button aria-label="Edit" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-          <span class="material-symbols-outlined text-[18px]">edit</span>
-        </button>
-        <button aria-label="Close" class="w-10 h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-          <span class="material-symbols-outlined text-[18px]">close</span>
-        </button>
+      <!-- One line in equal slots, each button 70% of its slot; hiding one
+           re-flows the row, and a pair (or a lone Close) is centred. -->
+      <div class="mt-md flex items-center gap-sm">
+        <div class="flex-1 flex justify-center">
+          <button aria-label="Delete" class="w-[70%] h-10 rounded-lg bg-error text-on-primary flex items-center justify-center active:opacity-80">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+        <div class="flex-1 flex justify-center">
+          <button aria-label="Edit" class="w-[70%] h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+            <span class="material-symbols-outlined text-[18px]">edit</span>
+          </button>
+        </div>
+        <div class="flex-1 flex justify-center">
+          <button aria-label="Close" class="w-[70%] h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
       </div>
 
       <div class="mt-lg bg-surface-container-lowest border border-card-border rounded-lg p-lg">

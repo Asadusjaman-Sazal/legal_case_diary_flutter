@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.766 - The Case Reference detail now shows Delete, Edit and Close under the Act/Law, packed left when a button is hidden; its back button is gone.
+Version: 0.0.767 - The Case Reference detail's action buttons are wider and evenly spread on one line: three across the width, two centred as a pair.
 --------------------------------------
 
 ## Version History Log:
@@ -780,3 +780,4 @@ Version: 0.0.763 - Every shown line on the shared reference card now keeps the s
 Version: 0.0.764 - The shared reference card gives its Case Note and Tags lines 50 percent more space above them than the lines before.
 Version: 0.0.765 - Tapping a citation opens a read-only Case Reference detail in the Case Detail style, with Edit in the top right opening the shared form.
 Version: 0.0.766 - The Case Reference detail now shows Delete, Edit and Close under the Act/Law, packed left when a button is hidden; its back button is gone.
+Version: 0.0.767 - The Case Reference detail's action buttons are wider and evenly spread on one line: three across the width, two centred as a pair.

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — The detail's action row is evenly spread — COMPLETE (0.0.767)
+
+- **What was asked.** Make the buttons a little wider and evenly gapped on one line; three equally spaced across the line, two centred as a pair.
+- **The row.** Each button is 70 % of an equal third of the line (the Case Detail's own rule), so it is wider than the old 40 px square. Three actions share the line in equal slots with 8 px gaps; two (or one) are centred as a group with the same gap and width. Hiding a button re-flows the row.
+- **Proof.** The layout test now checks equal centre distances, width > 40 and height 40; new *two actions are centred as a pair* checks the pair's centre line, the 8 px gap and the same width; `flutter analyze` clean. Full suite: **2,262 passed**, with only the known pre-existing backup export-list failure. The mockup's three-button row was redrawn (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — The reference detail's Delete / Edit / Close row — COMPLETE (0.0.766)
 
 - **What was asked.** Remove the back button; show Delete, Edit and Close after the Act/Law like the Case Detail, with the remaining buttons pushing left when Delete is hidden.

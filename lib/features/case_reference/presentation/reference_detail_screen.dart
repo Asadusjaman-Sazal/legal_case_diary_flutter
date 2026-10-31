@@ -191,54 +191,96 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
     );
   }
 
-  /// Delete / Edit / Close, packed from the left so hiding one (an Official
-  /// citation has no Delete or Edit on this screen) pulls the others into its
-  /// place rather than leaving a gap (user request).
+  /// Delete / Edit / Close, evenly spaced on one line: three share the line in
+  /// equal slots (the Case Detail's 70 % width), while two are centred as a
+  /// pair (user request). Hiding a button re-flows the row.
   Widget _actionsRow(AppLocalizations l) {
-    final actions = <Widget>[
-      if (widget.onDelete != null)
-        _actionButton(
-          key: const ValueKey('reference-detail-delete'),
-          icon: Icons.delete_outline,
-          label: l.sharedActions_delete,
-          background: AppColors.error,
-          onPressed: _deleting ? null : _delete,
-        ),
-      if (widget.onEdit != null)
-        _actionButton(
-          key: const ValueKey('reference-detail-edit'),
-          icon: Icons.edit_outlined,
-          label: l.sharedActions_edit,
-          onPressed: _editing ? null : _edit,
-        ),
-      _actionButton(
-        key: const ValueKey('reference-detail-close'),
-        icon: Icons.close,
-        label: l.sharedActions_close,
-        onPressed: () => Navigator.of(context).maybePop(),
-      ),
-    ];
-    return Row(
-      children: [
-        for (var i = 0; i < actions.length; i++) ...[
-          if (i > 0) const SizedBox(width: AppSpacing.sm * 0.48),
-          actions[i],
-        ],
-      ],
+    final specs =
+        <
+          ({
+            Key key,
+            IconData icon,
+            String label,
+            Color background,
+            VoidCallback? onPressed,
+          })
+        >[
+          if (widget.onDelete != null)
+            (
+              key: const ValueKey('reference-detail-delete'),
+              icon: Icons.delete_outline,
+              label: l.sharedActions_delete,
+              background: AppColors.error,
+              onPressed: _deleting ? null : _delete,
+            ),
+          if (widget.onEdit != null)
+            (
+              key: const ValueKey('reference-detail-edit'),
+              icon: Icons.edit_outlined,
+              label: l.sharedActions_edit,
+              background: AppColors.secondary,
+              onPressed: _editing ? null : _edit,
+            ),
+          (
+            key: const ValueKey('reference-detail-close'),
+            icon: Icons.close,
+            label: l.sharedActions_close,
+            background: AppColors.secondary,
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+        ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = AppSpacing.sm;
+        // The width one button gets when three share the line, so a pair or a
+        // lone button is the same size as the three-button row.
+        final width = (constraints.maxWidth - gap * 2) / 3 * 0.7;
+        final buttons = <Widget>[
+          for (final spec in specs)
+            _actionButton(
+              key: spec.key,
+              icon: spec.icon,
+              label: spec.label,
+              background: spec.background,
+              width: width,
+              onPressed: spec.onPressed,
+            ),
+        ];
+        if (buttons.length == 3) {
+          return Row(
+            children: [
+              for (var i = 0; i < buttons.length; i++) ...[
+                if (i > 0) const SizedBox(width: gap),
+                Expanded(child: Center(child: buttons[i])),
+              ],
+            ],
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < buttons.length; i++) ...[
+              if (i > 0) const SizedBox(width: gap),
+              buttons[i],
+            ],
+          ],
+        );
+      },
     );
   }
 
-  /// One 40 px icon button, the Case Detail's header-action style.
+  /// One 40 px tall icon button, the Case Detail's header-action style.
   Widget _actionButton({
     required Key key,
     required IconData icon,
     required String label,
+    required double width,
     required VoidCallback? onPressed,
     Color background = AppColors.secondary,
   }) => Tooltip(
     message: label,
     child: SizedBox(
-      width: 40,
+      width: width,
       height: 40,
       child: FilledButton(
         key: key,
@@ -246,7 +288,7 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
           backgroundColor: background,
           foregroundColor: AppColors.onPrimary,
           disabledBackgroundColor: background.withValues(alpha: 0.5),
-          minimumSize: const Size(40, 40),
+          minimumSize: const Size(0, 40),
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),

@@ -111,8 +111,8 @@ void main() {
     expect(find.text('bail'), findsOneWidget);
     expect(find.text('evidence'), findsOneWidget);
 
-    // Delete / Edit / Close sit under the Act/Law, packed from the left, with
-    // no back button.
+    // Delete / Edit / Close sit under the Act/Law on one line, in equal slots
+    // and a little wider than the old 40 px squares; there is no back button.
     final law = tester.getRect(
       find.byKey(const ValueKey('reference-detail-law')),
     );
@@ -130,8 +130,13 @@ void main() {
     expect((delete.top - close.top).abs(), lessThan(0.5));
     expect(delete.left, lessThan(edit.left));
     expect(edit.left, lessThan(close.left));
-    expect(delete.left, AppSpacing.md);
-    expect(delete.size, const Size(40, 40));
+    // Equal distance between the button centres across the line.
+    expect(
+      (edit.center.dx - delete.center.dx).abs(),
+      closeTo((close.center.dx - edit.center.dx).abs(), 0.5),
+    );
+    expect(delete.height, 40);
+    expect(delete.width, greaterThan(40));
     expect(find.byKey(const ValueKey('reference-detail-back')), findsNothing);
   });
 
@@ -146,17 +151,43 @@ void main() {
 
     expect(find.byKey(const ValueKey('reference-detail-edit')), findsNothing);
     expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
-    // Close is the only remaining action, and it takes the row's left edge.
+    // Close is the only remaining action, centred on the page.
     final close = tester.getRect(
       find.byKey(const ValueKey('reference-detail-close')),
     );
-    expect(close.left, AppSpacing.md);
+    expect(
+      (close.center.dx - tester.getCenter(find.byType(Scaffold)).dx).abs(),
+      lessThan(0.5),
+    );
     expect(
       find.byKey(const ValueKey('reference-detail-parties')),
       findsNothing,
     );
     // The Act/Law line and the five empty fields all read as an em dash.
     expect(find.text('—'), findsNWidgets(6));
+  });
+
+  testWidgets('two actions are centred as a pair', (tester) async {
+    await pumpDetail(tester, fullRow(), onEdit: (_) async => null);
+
+    expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
+    final edit = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-edit')),
+    );
+    final close = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+    expect((edit.top - close.top).abs(), lessThan(0.5));
+    // The pair's own centre sits on the page's centre line, with the same
+    // 8 px gap and the same wider button as the three-button row.
+    expect(
+      ((edit.left + close.right) / 2 -
+              tester.getCenter(find.byType(Scaffold)).dx)
+          .abs(),
+      lessThan(0.5),
+    );
+    expect(close.left - edit.right, closeTo(AppSpacing.sm, 0.01));
+    expect(edit.width, greaterThan(40));
   });
 
   testWidgets('Edit hands over the current row and shows the saved one', (

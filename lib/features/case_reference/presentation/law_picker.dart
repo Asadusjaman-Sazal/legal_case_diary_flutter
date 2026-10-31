@@ -270,7 +270,12 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
             // seeded list mixes English and বাংলা). An unknown or blank id
             // resolves to Other rather than to a machine key.
             context.l10n.lawCategoryName(group.categoryId),
+            // The heading takes the law names' old size and weight (user
+            // request): 16 px bold, while the names below drop to the
+            // heading's old 14 px.
             style: AppTypography.labelLg.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
               color: AppColors.onSurfaceVariant,
             ),
           ),
@@ -281,7 +286,12 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
         rows.add(
           ListTile(
             key: ValueKey('law-option-${law.id}'),
-            title: Text(law.name),
+            title: Text(
+              law.name,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
+            ),
             selected: selected,
             selectedColor: AppColors.secondary,
             trailing: selected

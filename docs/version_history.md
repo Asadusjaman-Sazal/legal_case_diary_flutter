@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.756 - Case Reference fields now read Citation, Act/Law, Case Summary & Decision and Personal Notes, with new Case Note and Tags on both libraries and an alphabetical tag dropdown.
+Version: 0.0.757 - In the Act/Law picker, category headings now take the law names' 16 px bold size while the law names take the headings' 14 px size.
 --------------------------------------
 
 ## Version History Log:
@@ -770,3 +770,4 @@ Version: 0.0.753 - Official citations now appear in Case Reference search result
 Version: 0.0.754 - The Add/Edit Official Case Reference form now shows each field label on its own line above the box, not floating on the border.
 Version: 0.0.755 - The Add Case Reference window's own form is gone; both it and the Add Official Reference window now use one shared form, each keeping its title and save.
 Version: 0.0.756 - Case Reference fields now read Citation, Act/Law, Case Summary & Decision and Personal Notes, with new Case Note and Tags on both libraries and an alphabetical tag dropdown.
+Version: 0.0.757 - In the Act/Law picker, category headings now take the law names' 16 px bold size while the law names take the headings' 14 px size.

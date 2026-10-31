@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — The Act/Law picker swaps its two text sizes — COMPLETE (0.0.757)
+
+- **What was asked.** In the Act/Law dropdown of the shared Case Reference form, the category should use the law names' size and become bold, and the law names should use the category's size.
+- **The change.** `law_picker.dart` only: each category heading is now 16 px and bold (its IBM Plex Sans family and colour kept), and each law name is 14 px (its body font and colour kept). The **Add a Law Name…** row and everything else are unchanged. The picker is shared, so the official form gets the same look.
+- **Checks.** `flutter analyze` clean; the two suites that open the picker pass. The `caseReference` mockup's picker was updated (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — Legal-language labels, Case Note and Tags on both libraries — COMPLETE (0.0.756)
 
 - **What was asked.** Rename the Case Reference fields to Citation, Act/Law, Case Summary & Decision and Personal Notes, and add Case Note and Tags, on both the user's screen and the Server-wide page. Section/Article stays unchanged; Tags also offer every previously used tag in an alphabetical dropdown (user feedback).

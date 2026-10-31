@@ -7,13 +7,17 @@
 /// non-admin never sees the page.
 library;
 
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/features/admin/data/admin_repository.dart';
 import 'package:legal_case_diary/features/admin/presentation/admin_shared_references_screen.dart';
 import 'package:legal_case_diary/features/case_reference/presentation/law_picker.dart';
@@ -93,12 +97,14 @@ AdminSharedReference _citation(
   String id, {
   String citation = '29 DLR (AD) 69',
   String statute = 'The Penal Code, 1860',
+  String section = 'Section 54',
+  String title = 'Preventive detention.',
 }) => AdminSharedReference(
   id: id,
   referenceAndPageNo: citation,
   statute: statute,
-  sectionOrArticle: 'Section 54',
-  titleAndDescription: 'Preventive detention.',
+  sectionOrArticle: section,
+  titleAndDescription: title,
 );
 
 /// The two seeded laws these tests need, in seed order.
@@ -131,6 +137,10 @@ void main() {
     _FakeAdminRepository repo, {
     bool online = true,
     Locale locale = const Locale('en'),
+    // A local diary, only for the test that adds a law name: the picker's
+    // add route writes a real `laws` row, so it needs the database.
+    AppDatabase? db,
+    LocalIdentityService? identity,
   }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -142,6 +152,9 @@ void main() {
           adminRepositoryProvider.overrideWithValue(repo),
           lawListProvider.overrideWith((ref) => Stream.value(_laws)),
           isOnlineProvider.overrideWith((ref) => Stream.value(online)),
+          if (db != null) databaseProvider.overrideWith((_) async => db),
+          if (identity != null)
+            localIdentityServiceProvider.overrideWithValue(identity),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -261,5 +274,98 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.deleted, ['o1']);
+  });
+
+  testWidgets("a law's citations can be searched, not just the law list", (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        rows: [
+          _citation('o1'),
+          _citation(
+            'o2',
+            citation: '32 DLR (AD) 102',
+            section: 'Article 31',
+            title: 'Writ petition on unlawful detention.',
+          ),
+        ],
+      ),
+    );
+
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('29 DLR'), findsOneWidget);
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+
+    // The header's search button works on this level too, not only on the law
+    // list — it used to open nothing here.
+    await tester.tap(find.byKey(const ValueKey('admin-shared-search')));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'writ');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('29 DLR'), findsNothing);
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'nothing matches');
+    await tester.pumpAndSettle();
+    expect(find.text('No results found.'), findsOneWidget);
+
+    // Closing the search clears it and brings this law's citations back.
+    await tester.tap(find.byIcon(Icons.close).last);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('29 DLR'), findsOneWidget);
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+  });
+
+  testWidgets('Add a Law Name in the picker adds it and selects it', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    final prefs = await SharedPreferences.getInstance();
+    final identity = LocalIdentityService(prefs);
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = _FakeAdminRepository();
+
+    await pump(tester, repo, db: db, identity: identity);
+    await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('admin-shared-statute')));
+    await tester.pumpAndSettle();
+
+    // The shared picker's last row used to close the window and do nothing.
+    await tester.tap(find.byKey(const ValueKey('law-picker-add')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('law-name-field')),
+      'The Test Act, 2026',
+    );
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    final laws = await db.select(db.laws).get();
+    expect(laws.single.name, 'The Test Act, 2026');
+    expect(laws.single.isCustom, isTrue);
+    // The new name is chosen in the form, so the citation can be saved under it.
+    expect(find.text('The Test Act, 2026'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('admin-shared-citation')),
+      '1 Test LR 1',
+    );
+    await tester.tap(find.byKey(const ValueKey('admin-shared-save')));
+    await tester.pumpAndSettle();
+
+    expect(repo.saved.single.statute, 'The Test Act, 2026');
+
+    // The form's ScaffoldMessenger schedules the save snackbar's dismissal;
+    // tearing the tree down and letting that timer fire keeps the test binding
+    // from reporting a pending timer at the end.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 5));
   });
 }

@@ -12,6 +12,7 @@
 /// plain words rather than pretending to work.
 library;
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,8 +27,10 @@ import '../../../core/router/app_router.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../sync/connectivity_monitor.dart';
+import '../../case_reference/presentation/law_name_dialog.dart';
 import '../../case_reference/presentation/law_picker.dart';
 import '../../case_reference/presentation/reference_library.dart';
+import '../../settings/presentation/edit_court_steps/next_order_index.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/admin_repository.dart';
 import 'admin_shared.dart';
@@ -287,21 +290,48 @@ class _AdminSharedReferencesScreenState
               );
             }
 
-            final visible = all
+            final lawRows = all
                 .where((row) => referenceStatuteKey(row.statute) == law)
                 .toList(growable: false);
+            // A law's page searches its own citations across the same five
+            // fields the card shows, so the header's search button is not an
+            // inert icon once a law is open. A blank query keeps every row.
+            final searching = _isSearching && _query.trim().isNotEmpty;
+            final visible = searching
+                ? lawRows
+                      .where(
+                        (row) => adminTextMatches(_query, <String?>[
+                          row.referenceAndPageNo,
+                          row.statute,
+                          row.sectionOrArticle,
+                          row.titleAndDescription,
+                          row.commentsNotes,
+                        ]),
+                      )
+                      .toList(growable: false)
+                : lawRows;
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ReferenceLawHeader(
                   label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
-                  count: visible.length,
+                  count: lawRows.length,
                   onBack: () async => _closeLaw(),
                 ),
+                if (_isSearching)
+                  AdminSearchField(
+                    controller: _search,
+                    onChanged: (value) => setState(() => _query = value),
+                    hint: l.adminPanel_searchHint,
+                    onClose: _toggleSearch,
+                  ),
                 Expanded(
                   child: ReferenceList(
-                    isSearching: _isSearching && _query.trim().isNotEmpty,
+                    isSearching: searching,
                     references: visible,
-                    totalCount: all.length,
+                    // The law's own count, so a query that matches nothing says
+                    // "no results" rather than "no references for this law".
+                    totalCount: lawRows.length,
                     emptyMessage: l.adminSharedRefs_noLawReferences,
                     onEdit: (row) => _openForm(reference: byId[row.id]),
                     onDelete: (row) => _confirmDelete(byId[row.id]!),
@@ -367,8 +397,13 @@ class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
     super.dispose();
   }
 
-  /// Opens the same grouped law picker the user's form uses, so an admin picks
-  /// a name from the shared list rather than typing a new one.
+  /// Opens the same grouped law picker the user's form uses.
+  ///
+  /// Its **Add a Law Name…** row works here exactly as it does on the user's
+  /// own form: the shared add window collects a name and a category, the row is
+  /// saved through `LawsRepository` (a custom row appended to its category) and
+  /// the new name is selected. A visible row that did nothing would leave the
+  /// admin unsure whether the tap registered.
   Future<void> _pickStatute() async {
     final repo = await ref.read(lawsRepositoryProvider.future);
     final laws = await repo.listAll();
@@ -379,7 +414,35 @@ class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
     }
     final pick = await showLawPicker(context, laws: laws, selected: selected);
     if (pick == null || !mounted) return;
-    if (pick.addNew) return; // adding a law name is the user screen's flow
+
+    if (pick.addNew) {
+      // The new name lands in the cited law's own category when there is one,
+      // so adding a neighbouring Act does not require re-choosing it.
+      final draft = await showLawNameDialog(
+        context,
+        initialCategoryId: selected == null || selected.category.isEmpty
+            ? null
+            : selected.category,
+      );
+      if (draft == null || !mounted) return;
+
+      await repo.insert(
+        LawsCompanion(
+          name: Value(draft.name),
+          category: Value(draft.categoryId),
+          orderIndex: Value(
+            nextOrderIndex(
+              laws
+                  .where((law) => law.category == draft.categoryId)
+                  .map((law) => law.orderIndex),
+            ),
+          ),
+        ),
+      );
+      if (mounted) setState(() => _statute = draft.name);
+      return;
+    }
+
     final law = pick.law;
     if (law != null) setState(() => _statute = law.name);
   }

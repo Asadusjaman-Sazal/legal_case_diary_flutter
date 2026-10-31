@@ -153,6 +153,12 @@ class _LawNameFormState extends State<_LawNameForm> {
           DropdownButtonFormField<String>(
             key: const ValueKey('law-category-field'),
             initialValue: _categoryId,
+            // The category labels are the longest text in this window and one
+            // of them is Bengali, whose glyphs are wide: without this the
+            // button's own Row is wider than the window and overflows (caught
+            // by the Admin Panel's add-a-law-name test). Expanding lets the
+            // label ellipsize inside the field instead.
+            isExpanded: true,
             borderRadius: BorderRadius.circular(AppSpacing.cardRadius * 2),
             decoration: InputDecoration(
               labelText: l.lawNamesScreen_categoryLabel,

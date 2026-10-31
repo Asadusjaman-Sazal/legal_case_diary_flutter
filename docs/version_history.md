@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.768 - Associates can now clear and bulk clear their own finished delete requests from the Delete Requests screen, exactly like the owner's previous list.
+Version: 0.0.769 - The Law Names screen now hides the Edit button on built-in law names; only user-added names keep Edit and Delete.
 --------------------------------------
 
 ## Version History Log:
@@ -782,3 +782,4 @@ Version: 0.0.765 - Tapping a citation opens a read-only Case Reference detail in
 Version: 0.0.766 - The Case Reference detail now shows Delete, Edit and Close under the Act/Law, packed left when a button is hidden; its back button is gone.
 Version: 0.0.767 - The Case Reference detail's action buttons are wider and evenly spread on one line: three across the width, two centred as a pair.
 Version: 0.0.768 - Associates can now clear and bulk clear their own finished delete requests from the Delete Requests screen, exactly like the owner's previous list.
+Version: 0.0.769 - The Law Names screen now hides the Edit button on built-in law names; only user-added names keep Edit and Delete.

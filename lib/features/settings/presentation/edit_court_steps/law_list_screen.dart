@@ -6,8 +6,8 @@
 /// [AppTranslations.lawCategoryName], so বাংলা readers see seven বাংলা headings
 /// while each law keeps the name it was seeded with.
 ///
-/// A built-in name may be renamed and reordered but never deleted; only a name
-/// the user or their firm added carries a Delete action, which is the same rule
+/// A built-in name may be reordered but never renamed or deleted; only a name
+/// the user or their firm added carries Edit and Delete, which is the same rule
 /// the courts, steps and case types follow. Adding a name here and adding one
 /// from the Add Case Reference window write the same row.
 library;
@@ -172,8 +172,8 @@ class _CategoryList extends StatelessWidget {
   };
 }
 
-/// One category's names: drag to reorder, edit to rename or re-categorise,
-/// delete only a user-added row.
+/// One category's names: drag to reorder; edit and delete only a user-added
+/// row.
 class _LawList extends StatelessWidget {
   const _LawList({
     required this.repo,
@@ -226,27 +226,29 @@ class _LawList extends StatelessWidget {
               color: AppColors.tertiary,
             ),
             title: Text(law.name, style: AppTypography.bodyLg),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined),
-                  onPressed: () => _edit(context, law),
-                  tooltip: l.sharedActions_edit,
-                ),
-                // A built-in law is part of the app's shared vocabulary; only a
-                // name the user added can be removed.
-                if (law.isCustom)
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.error,
-                    ),
-                    onPressed: () => _delete(context, law),
-                    tooltip: l.sharedActions_delete,
-                  ),
-              ],
-            ),
+            // A built-in law is part of the app's shared vocabulary: it keeps
+            // its name and cannot be removed from here (user request). Only a
+            // name the user added can be edited or deleted.
+            trailing: law.isCustom
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: () => _edit(context, law),
+                        tooltip: l.sharedActions_edit,
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.error,
+                        ),
+                        onPressed: () => _delete(context, law),
+                        tooltip: l.sharedActions_delete,
+                      ),
+                    ],
+                  )
+                : null,
           ),
         );
       },

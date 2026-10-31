@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — Built-in law names lose their Edit button — COMPLETE (0.0.769)
+
+- **What was asked.** In Settings → Edit Court/Steps → Law Names, hide the Edit button on the default law names.
+- **The screen.** `law_list_screen.dart` now draws the trailing Edit/Delete pair only for a user-added law (`isCustom`). A built-in law's row keeps its drag handle and name and shows no action buttons; the user-added rows keep Edit and Delete as before. A built-in name that had been renamed before this change keeps its current text; the laws data and sync rules are untouched.
+- **Proof.** `flutter analyze` clean; the law-grouping suite passes (3). Full suite: **2,263 passed**, with only the known pre-existing backup export-list failure. No mockup exists for this screen, so none was owed (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — Associates can clear their own finished requests — COMPLETE (0.0.768)
 
 - **What was asked.** Just like firm owners, an associate should be able to clear (hide) and bulk clear delete requests of their own.

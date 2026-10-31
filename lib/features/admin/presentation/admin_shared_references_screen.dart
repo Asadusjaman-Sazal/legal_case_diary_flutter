@@ -12,7 +12,6 @@
 /// plain words rather than pretending to work.
 library;
 
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,10 +26,9 @@ import '../../../core/router/app_router.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../sync/connectivity_monitor.dart';
-import '../../case_reference/presentation/law_name_dialog.dart';
 import '../../case_reference/presentation/law_picker.dart';
+import '../../case_reference/presentation/reference_form_screen.dart';
 import '../../case_reference/presentation/reference_library.dart';
-import '../../settings/presentation/edit_court_steps/next_order_index.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/admin_repository.dart';
 import 'admin_shared.dart';
@@ -111,19 +109,80 @@ class _AdminSharedReferencesScreenState
   /// True when the device cannot reach the server, which a save requires.
   bool get _offline => ref.read(isOnlineProvider).value == false;
 
+  /// Opens the shared Add/Edit form, titled for the official library.
   Future<void> _openForm({
     AdminSharedReference? reference,
     String? initialStatute,
   }) async {
+    final l = AppLocalizations.of(context);
+    final isNew = reference == null;
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => _AdminReferenceForm(
-          reference: reference,
-          initialStatute: initialStatute,
+        builder: (_) => ReferenceFormScreen(
+          title: isNew
+              ? l.adminSharedRefs_addTitle
+              : l.adminSharedRefs_editTitle,
+          referenceAndPageNo: reference?.referenceAndPageNo ?? '',
+          statute: reference?.statute ?? initialStatute,
+          sectionOrArticle: reference?.sectionOrArticle ?? '',
+          titleAndDescription: reference?.titleAndDescription ?? '',
+          commentsNotes: reference?.commentsNotes ?? '',
+          onSave: (values, formContext) =>
+              _saveReference(reference, values, formContext),
         ),
       ),
     );
     if (saved == true && mounted) await _reload();
+  }
+
+  /// Publishes the shared form's values to the server library.
+  ///
+  /// This window's own rules live here: the citation is required and a save
+  /// needs the server. False leaves the form open with the typing intact.
+  Future<bool> _saveReference(
+    AdminSharedReference? existing,
+    ReferenceFormValues values,
+    BuildContext formContext,
+  ) async {
+    final l = AppLocalizations.of(formContext);
+    if (values.referenceAndPageNo.isEmpty) {
+      ScaffoldMessenger.of(
+        formContext,
+      ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_required)));
+      return false;
+    }
+    if (ref.read(isOnlineProvider).value == false) {
+      ScaffoldMessenger.of(
+        formContext,
+      ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_offline)));
+      return false;
+    }
+    final reference = AdminSharedReference(
+      id: existing?.id ?? const Uuid().v4(),
+      referenceAndPageNo: values.referenceAndPageNo,
+      statute: values.statute,
+      sectionOrArticle: values.sectionOrArticle,
+      titleAndDescription: values.titleAndDescription,
+      commentsNotes: values.commentsNotes,
+    );
+    final failure = await ref
+        .read(adminRepositoryProvider)
+        .saveSharedReference(reference);
+    if (!formContext.mounted) return false;
+    if (failure != null) {
+      final message = switch (failure) {
+        AdminActionFailure.notAnAdmin => l.adminPanel_failedNotAdmin,
+        _ => l.adminPanel_failedUnexpected,
+      };
+      ScaffoldMessenger.of(
+        formContext,
+      ).showSnackBar(SnackBar(content: Text(message)));
+      return false;
+    }
+    ScaffoldMessenger.of(
+      formContext,
+    ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_saved)));
+    return true;
   }
 
   Future<void> _confirmDelete(AdminSharedReference reference) async {
@@ -345,343 +404,6 @@ class _AdminSharedReferencesScreenState
       ),
     );
   }
-}
-
-/// The add/edit form: the five fields the user's own form has, saved to the
-/// server when Save is pressed.
-class _AdminReferenceForm extends ConsumerStatefulWidget {
-  const _AdminReferenceForm({this.reference, this.initialStatute});
-
-  /// The row being edited, or null when publishing a new citation.
-  final AdminSharedReference? reference;
-
-  /// The law a new citation starts under, when the form was opened from that
-  /// law's own list.
-  final String? initialStatute;
-
-  @override
-  ConsumerState<_AdminReferenceForm> createState() =>
-      _AdminReferenceFormState();
-}
-
-class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
-  late final TextEditingController _refNo;
-  late final TextEditingController _section;
-  late final TextEditingController _title;
-  late final TextEditingController _comments;
-  String? _statute;
-
-  /// True while the upsert is in flight, so Save cannot be pressed twice.
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final r = widget.reference;
-    _refNo = TextEditingController(text: r?.referenceAndPageNo ?? '');
-    _section = TextEditingController(text: r?.sectionOrArticle ?? '');
-    _title = TextEditingController(text: r?.titleAndDescription ?? '');
-    _comments = TextEditingController(text: r?.commentsNotes ?? '');
-    _statute = r?.statute ?? widget.initialStatute;
-  }
-
-  @override
-  void dispose() {
-    _refNo.dispose();
-    _section.dispose();
-    _title.dispose();
-    _comments.dispose();
-    super.dispose();
-  }
-
-  /// Opens the same grouped law picker the user's form uses.
-  ///
-  /// Its **Add a Law Name…** row works here exactly as it does on the user's
-  /// own form: the shared add window collects a name and a category, the row is
-  /// saved through `LawsRepository` (a custom row appended to its category) and
-  /// the new name is selected. A visible row that did nothing would leave the
-  /// admin unsure whether the tap registered.
-  Future<void> _pickStatute() async {
-    final repo = await ref.read(lawsRepositoryProvider.future);
-    final laws = await repo.listAll();
-    if (!mounted) return;
-    Law? selected;
-    for (final entry in laws) {
-      if (entry.name == _statute) selected = entry;
-    }
-    final pick = await showLawPicker(context, laws: laws, selected: selected);
-    if (pick == null || !mounted) return;
-
-    if (pick.addNew) {
-      // The new name lands in the cited law's own category when there is one,
-      // so adding a neighbouring Act does not require re-choosing it.
-      final draft = await showLawNameDialog(
-        context,
-        initialCategoryId: selected == null || selected.category.isEmpty
-            ? null
-            : selected.category,
-      );
-      if (draft == null || !mounted) return;
-
-      await repo.insert(
-        LawsCompanion(
-          name: Value(draft.name),
-          category: Value(draft.categoryId),
-          orderIndex: Value(
-            nextOrderIndex(
-              laws
-                  .where((law) => law.category == draft.categoryId)
-                  .map((law) => law.orderIndex),
-            ),
-          ),
-        ),
-      );
-      if (mounted) setState(() => _statute = draft.name);
-      return;
-    }
-
-    final law = pick.law;
-    if (law != null) setState(() => _statute = law.name);
-  }
-
-  Future<void> _save() async {
-    final l = AppLocalizations.of(context);
-    final citation = _refNo.text.trim();
-    if (citation.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_required)));
-      return;
-    }
-    if (ref.read(isOnlineProvider).value == false) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_offline)));
-      return;
-    }
-
-    setState(() => _saving = true);
-    final reference = AdminSharedReference(
-      id: widget.reference?.id ?? const Uuid().v4(),
-      referenceAndPageNo: citation,
-      statute: _statute?.trim().isEmpty ?? true ? null : _statute!.trim(),
-      sectionOrArticle: _section.text.trim().isEmpty
-          ? null
-          : _section.text.trim(),
-      titleAndDescription: _title.text.trim().isEmpty
-          ? null
-          : _title.text.trim(),
-      commentsNotes: _comments.text.trim().isEmpty
-          ? null
-          : _comments.text.trim(),
-    );
-    final failure = await ref
-        .read(adminRepositoryProvider)
-        .saveSharedReference(reference);
-    if (!mounted) return;
-    setState(() => _saving = false);
-    if (failure != null) {
-      final message = switch (failure) {
-        AdminActionFailure.notAnAdmin => l.adminPanel_failedNotAdmin,
-        _ => l.adminPanel_failedUnexpected,
-      };
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-      return;
-    }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l.adminSharedRefs_saved)));
-    Navigator.of(context).pop(true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isNew = widget.reference == null;
-    final hasStatute = _statute != null && _statute!.trim().isNotEmpty;
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          // The same black band the user's own form wears.
-          Container(
-            color: AppColors.secondary,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.md,
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: Text(
-                    isNew
-                        ? l.adminSharedRefs_addTitle
-                        : l.adminSharedRefs_editTitle,
-                    textAlign: TextAlign.center,
-                    style: AppTypography.titleLg.copyWith(
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  color: AppColors.onPrimary,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              children: [
-                _field(
-                  label: l.caseReferenceScreen_referenceAndPageNo,
-                  controller: _refNo,
-                  key: const ValueKey('admin-shared-citation'),
-                ),
-                _statuteField(l, hasStatute),
-                _field(
-                  label: l.caseReferenceScreen_sectionOrArticle,
-                  controller: _section,
-                ),
-                _field(
-                  label: l.caseReferenceScreen_titleAndDescription,
-                  controller: _title,
-                  maxLines: 4,
-                ),
-                _field(
-                  label: l.caseReferenceScreen_commentsNotes,
-                  controller: _comments,
-                  maxLines: 3,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                key: const ValueKey('admin-shared-save'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
-                  minimumSize: const Size.fromHeight(56),
-                ),
-                onPressed: _saving ? null : _save,
-                child: _saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.onPrimary,
-                        ),
-                      )
-                    : Text(l.sharedActions_save),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// One labelled text field, in the app's own field colours.
-  ///
-  /// The label sits **above** the box, as on the user's own form (user
-  /// request), rather than floating on the box's border.
-  Widget _field({
-    required String label,
-    required TextEditingController controller,
-    int maxLines = 1,
-    Key? key,
-  }) => Padding(
-    key: key,
-    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel(label),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          style: AppTypography.bodyLg,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.surfaceContainerLow,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-              borderSide: const BorderSide(color: AppColors.outlineVariant),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-              borderSide: const BorderSide(color: AppColors.outlineVariant),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-
-  /// The label every field on this form wears above its box.
-  Widget _fieldLabel(String label) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.sm,
-      AppSpacing.xs,
-      AppSpacing.sm,
-      AppSpacing.xs,
-    ),
-    child: Text(
-      label,
-      style: AppTypography.labelLg.copyWith(color: AppColors.onSurfaceVariant),
-    ),
-  );
-
-  /// The statute field: a tappable box over the shared law list, exactly as the
-  /// user's own form draws it.
-  Widget _statuteField(AppLocalizations l, bool hasStatute) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel(l.caseReferenceScreen_statute),
-        InkWell(
-          key: const ValueKey('admin-shared-statute'),
-          onTap: _pickStatute,
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.surfaceContainerLow,
-              suffixIcon: const Icon(Icons.arrow_drop_down),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-                borderSide: const BorderSide(color: AppColors.outlineVariant),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-                borderSide: const BorderSide(color: AppColors.outlineVariant),
-              ),
-            ),
-            child: Text(
-              hasStatute ? _statute!.trim() : l.caseReferenceScreen_chooseLaw,
-              style: AppTypography.bodyLg.copyWith(
-                color: hasStatute
-                    ? AppColors.onBackground
-                    : AppColors.outline.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 /// The page's failed-load panel, with its retry.

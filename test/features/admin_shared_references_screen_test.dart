@@ -197,10 +197,10 @@ void main() {
 
     expect(find.text('Add Official Reference'), findsOneWidget);
     await tester.enterText(
-      find.byKey(const ValueKey('admin-shared-citation')),
+      find.byKey(const ValueKey('reference-form-citation')),
       '45 DLR (AD) 1',
     );
-    await tester.tap(find.byKey(const ValueKey('admin-shared-save')));
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
     await tester.pumpAndSettle();
 
     expect(repo.saved, hasLength(1));
@@ -218,10 +218,10 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('admin-shared-citation')),
+      find.byKey(const ValueKey('reference-form-citation')),
       '45 DLR (AD) 1',
     );
-    await tester.tap(find.byKey(const ValueKey('admin-shared-save')));
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
     await tester.pumpAndSettle();
 
     expect(repo.saved, isEmpty);
@@ -249,7 +249,7 @@ void main() {
     );
     final citationBox = tester.getRect(
       find.descendant(
-        of: find.byKey(const ValueKey('admin-shared-citation')),
+        of: find.byKey(const ValueKey('reference-form-citation')),
         matching: find.byType(TextField),
       ),
     );
@@ -260,7 +260,7 @@ void main() {
     );
     final statuteBox = tester.getRect(
       find.descendant(
-        of: find.byKey(const ValueKey('admin-shared-statute')),
+        of: find.byKey(const ValueKey('reference-form-statute')),
         matching: find.byType(InputDecorator),
       ),
     );
@@ -291,10 +291,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Edit Official Reference'), findsOneWidget);
     await tester.enterText(
-      find.byKey(const ValueKey('admin-shared-citation')),
+      find.byKey(const ValueKey('reference-form-citation')),
       '29 DLR (AD) 70',
     );
-    await tester.tap(find.byKey(const ValueKey('admin-shared-save')));
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
     await tester.pumpAndSettle();
     expect(repo.saved.single.referenceAndPageNo, '29 DLR (AD) 70');
 
@@ -369,7 +369,7 @@ void main() {
     await pump(tester, repo, db: db, identity: identity);
     await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('admin-shared-statute')));
+    await tester.tap(find.byKey(const ValueKey('reference-form-statute')));
     await tester.pumpAndSettle();
 
     // The shared picker's last row used to close the window and do nothing.
@@ -389,10 +389,10 @@ void main() {
     expect(find.text('The Test Act, 2026'), findsOneWidget);
 
     await tester.enterText(
-      find.byKey(const ValueKey('admin-shared-citation')),
+      find.byKey(const ValueKey('reference-form-citation')),
       '1 Test LR 1',
     );
-    await tester.tap(find.byKey(const ValueKey('admin-shared-save')));
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
     await tester.pumpAndSettle();
 
     expect(repo.saved.single.statute, 'The Test Act, 2026');

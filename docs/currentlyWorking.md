@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — One shared Add/Edit form for both libraries — COMPLETE (0.0.755)
+
+- **What was asked.** Delete the Add Case Reference window's own code, make the official window's form shared by both windows, and keep each window's title.
+- **What changed.** The user's `_ReferenceEditSheet` (with its private field boxes, dropdown and painters) is deleted. A new `reference_form_screen.dart` holds the one form, built from the official form's body: five fields with labels above outlined boxes, the law picker with **Add a Law Name…**, the black band and a pinned Save. Each window supplies only its title and its save. The user's save keeps the lapse-allowance rules, writes through the view model and preserves the card's pin; the admin's save publishes to the server and refuses offline or with no citation. A refused save returns false, so the form stays open.
+- **Kept behaviour.** The *Recorded for Deletion* warning still asks before editing a reference someone requested to delete (an optional pre-open question); a new citation from a law's page still starts with that law; the user's window still reads **Add Case Reference** / **Edit Case Reference**, the official window **Add Official Reference** / **Edit Official Reference**.
+- **Proof.** New *the shared Add Case Reference form saves a citation* (`library_search_test.dart`: opens the form, checks its title, saves, sees the row and its law row) and the official-form suite (8, with the shared field keys). `flutter analyze` clean. The `caseReference` mockup now draws the shared form (rule 9).
+- **Next.** The user's next request; the two red tests from the shared-citation phase (backup export list, migration count) remain open.
+
 ### 2026-10-31 — Official form labels sit above the boxes — COMPLETE (0.0.754)
 
 - **What was asked.** In the Add/Edit Official Case Reference form only, show the text-box labels above the boxes.

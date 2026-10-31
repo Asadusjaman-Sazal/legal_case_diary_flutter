@@ -297,15 +297,14 @@
   </div>
 </div>
 
-<!-- The Add / Edit Case Reference form: a pushed full-screen route with the
-     app's black header, the five labelled bottom-border fields, and the Save
-     action pinned to the bottom. The title reads "Edit Case Reference" when a
-     card opened it. Every field box wears the shared pop-over window's 8 px
-     corner on all four sides (rounded-lg), and the three single-line boxes are
-     25 % taller than they were — py-gutter (12 px) instead of py-sm, 40 px of
-     box instead of 32. The bottom rule is border-outline (#76777d), one token
-     darker than the outline-variant it used to be, because that grey was only
-     ~1.5:1 against the box's surface-container-low fill and could not be seen. -->
+<!-- The Add / Edit Case Reference form: a pushed full-screen route shared with
+     the Admin Panel's official library (0.0.755) — one body, two titles. It
+     wears the app's black header, the five fields with their labels above the
+     boxes, and the Save action pinned to the bottom. The title reads "Edit
+     Case Reference" when a card opened it, and the official window reads "Add
+     Official Reference" / "Edit Official Reference". Each box is the same
+     outlined field: rounded-lg corner, surface-container-low fill, one
+     outline-variant border on all four sides. -->
 <div class="hidden fixed inset-0 z-[100] bg-surface-container-lowest">
   <div class="h-full flex flex-col">
     <div class="bg-secondary px-sm py-md flex items-center">
@@ -317,44 +316,44 @@
     </div>
     <div class="flex-1 overflow-y-auto p-md">
       <div class="pb-md">
-        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Reference &amp; Page No</p>
-        <div class="rounded-lg bg-surface-container-low border-b border-outline px-md py-gutter">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Reference &amp; Page No</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter">
           <span class="font-case-number text-case-number text-outline">e.g. 25 DLR (AD) 142</span>
         </div>
       </div>
       <!-- Statute is a dropdown over the law-name list (grouped by the seven
-           law categories), not a free-text box. The box keeps the same
-           rounded-lg corner, surface-container-low fill and outline bottom
-           rule as its neighbours; the caret on the right is the only new mark.
-           Its last row is "Add a Law Name…", which opens the shared add window. -->
+           law categories), not a free-text box. The box wears the same outlined
+           field as its neighbours; the caret on the right is the only extra
+           mark. Its last row is "Add a Law Name…", which opens the shared add
+           window. -->
       <div class="pb-md">
-        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Statute</p>
-        <button class="w-full rounded-lg bg-surface-container-low border-b border-outline px-md py-gutter flex items-center text-left active:opacity-70">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Statute</p>
+        <button class="w-full rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter flex items-center text-left active:opacity-70">
           <span class="flex-1 font-body-lg text-body-lg text-on-surface">The Penal Code, 1860</span>
           <span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
         </button>
       </div>
       <div class="pb-md">
-        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Section/Article</p>
-        <div class="rounded-lg bg-surface-container-low border-b border-outline px-md py-gutter">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Section/Article</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-gutter">
           <span class="font-label-lg text-label-lg text-outline">e.g. Section 54</span>
         </div>
       </div>
       <div class="pb-md">
-        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Title &amp; Description</p>
-        <div class="rounded-lg bg-surface-container-low border-b border-outline px-md py-sm h-[96px]">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Title &amp; Description</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[96px]">
           <span class="font-body-md text-body-md text-outline">Title &amp; description</span>
         </div>
       </div>
       <div class="pb-md">
-        <p class="px-sm pt-xs font-label-lg text-label-lg text-on-surface-variant">Comments/Notes</p>
-        <div class="rounded-lg bg-surface-container-low border-b border-outline px-md py-sm h-[72px]">
+        <p class="px-sm pt-xs pb-xs font-label-lg text-label-lg text-on-surface-variant">Comments/Notes</p>
+        <div class="rounded-lg bg-surface-container-low border border-outline-variant px-md py-sm h-[72px]">
           <span class="font-body-md text-body-md text-outline">Add comments or private notes here...</span>
         </div>
       </div>
     </div>
     <div class="p-md">
-      <button class="w-full min-h-[56px] rounded bg-secondary text-on-primary flex items-center justify-center font-title-md text-title-md active:opacity-80">Save Reference</button>
+      <button class="w-full min-h-[56px] rounded bg-primary text-on-primary flex items-center justify-center font-title-md text-title-md active:opacity-80">Save Reference</button>
     </div>
   </div>
 </div>

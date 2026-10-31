@@ -488,6 +488,43 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the shared Add Case Reference form saves a citation', (
+    tester,
+  ) async {
+    // The user's window and the Admin Panel's official window now draw one
+    // shared form (0.0.755). This pins the user's side of it: its own title,
+    // and a save that lands in the user's own library.
+    await pumpLibrary(tester, const CaseReferenceScreen());
+    await tester.tap(find.byType(FloatingActionButton));
+    await settle(tester);
+    expect(find.text('Add Case Reference'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('reference-form-citation')),
+      '68 DLR (AD) 290',
+    );
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
+    // The save crosses the allowance check, the database and then the route's
+    // pop animation, so pump until the window is gone rather than for a fixed
+    // number of frames.
+    for (
+      var i = 0;
+      i < 40 &&
+          find.byKey(const ValueKey('reference-title')).evaluate().isNotEmpty;
+      i++
+    ) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    expect(find.byKey(const ValueKey('reference-title')), findsNothing);
+    final rows = await CaseReferencesDao(db).getAll();
+    expect(rows.single.referenceAndPageNo, '68 DLR (AD) 290');
+    // With no law chosen it is reachable under No statute, as before.
+    expect(find.text('No statute'), findsOneWidget);
+
+    await unmount(tester);
+  });
+
   testWidgets('Notes and Case Reference can be pulled down to sync', (
     tester,
   ) async {

@@ -46,15 +46,6 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
-  /// The law whose references are open, or null while the law list shows.
-  ///
-  /// The key is the statute text the references carry (an empty string for a
-  /// reference with no statute), not a law id: `statute` has always been text,
-  /// so two references naming the same Act belong under one row even when no
-  /// law row owns that name — which is how a citation written before this list
-  /// existed still appears here as its own law.
-  String? _openLaw;
-
   /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
   /// runs as a Drift `LIKE` query across the reference's five text fields rather
   /// than filtering the rows this screen happened to have loaded.
@@ -113,8 +104,10 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   /// Opens one law's references; the search bar closes with the level change,
   /// so the new level shows whole.
   Future<void> _openLawReferences(String law) async {
+    // Kept in the provider, not this widget, so leaving the screen for another
+    // bottom-nav tab and coming back reopens the same law (user report).
+    ref.read(caseReferenceOpenLawProvider.notifier).open(law);
     setState(() {
-      _openLaw = law;
       _isSearching = false;
       _searchController.clear();
     });
@@ -123,8 +116,8 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
 
   /// Returns to the law list, from the page's back arrow or the system gesture.
   Future<void> _closeLaw() async {
+    ref.read(caseReferenceOpenLawProvider.notifier).close();
     setState(() {
-      _openLaw = null;
       _isSearching = false;
       _searchController.clear();
     });
@@ -349,7 +342,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       for (final entry in official) ReferenceRow.official(entry),
     ];
     final allowance = ref.watch(writeAllowanceProvider).value;
-    final law = _openLaw;
+    final law = ref.watch(caseReferenceOpenLawProvider);
     // A query reads the whole library, whichever level was being shown; closing
     // the bar or clearing the query brings the level back.
     final searching = _isSearching && _searchController.text.trim().isNotEmpty;

@@ -11,6 +11,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,6 +87,23 @@ void main() {
     }
   }
 
+  /// The app's providers for these two libraries, shared by every pump below.
+  ///
+  /// A free account, stated rather than assumed: these two libraries carry the
+  /// same header as the case lists, and sync is off for free.
+  List<Override> libraryOverrides() => [
+    sharedPreferencesProvider.overrideWithValue(prefs),
+    databaseProvider.overrideWith((_) async => db),
+    localIdentityServiceProvider.overrideWith((_) => identity),
+    settingsRepositoryProvider.overrideWith((_) async => settings),
+    notesRepositoryProvider.overrideWith((_) async => notes),
+    referenceRepositoryProvider.overrideWith((_) async => references),
+    caseWritePermissionsProvider.overrideWith(
+      (_) async => const CaseWritePermissions(canAdd: true, canEdit: true),
+    ),
+    premiumAccessProvider.overrideWith((ref) async => false),
+  ];
+
   /// Pumps one library with the app's providers, router and localizations.
   Future<void> pumpLibrary(WidgetTester tester, Widget screen) async {
     final router = GoRouter(
@@ -94,21 +112,7 @@ void main() {
     addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-          databaseProvider.overrideWith((_) async => db),
-          localIdentityServiceProvider.overrideWith((_) => identity),
-          settingsRepositoryProvider.overrideWith((_) async => settings),
-          notesRepositoryProvider.overrideWith((_) async => notes),
-          referenceRepositoryProvider.overrideWith((_) async => references),
-          caseWritePermissionsProvider.overrideWith(
-            (_) async =>
-                const CaseWritePermissions(canAdd: true, canEdit: true),
-          ),
-          // A free account, stated rather than assumed: these two libraries
-          // carry the same header as the case lists, and sync is off for free.
-          premiumAccessProvider.overrideWith((ref) async => false),
-        ],
+        overrides: libraryOverrides(),
         child: MaterialApp.router(
           // The app's own theme, so `titleMedium` resolves to the semibold face
           // the empty state is expected to borrow from the case lists.
@@ -356,6 +360,69 @@ void main() {
       await unmount(tester);
     },
   );
+
+  testWidgets('the open law survives leaving the screen and coming back', (
+    tester,
+  ) async {
+    await SeedMigrationRunner(db).runMigrations();
+    await seedReference(
+      'ref-1',
+      '45 DLR (AD) 1',
+      'Bail guidelines.',
+      statute: 'The Penal Code, 1860',
+    );
+
+    // One ProviderScope for both visits, as the app has: only the screen is
+    // swapped, the way a bottom-nav tab replaces the page.
+    final showingReferences = ValueNotifier<bool>(true);
+    addTearDown(showingReferences.dispose);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => ValueListenableBuilder<bool>(
+            valueListenable: showingReferences,
+            builder: (context, showReferences, _) => showReferences
+                ? const CaseReferenceScreen()
+                : const Scaffold(body: SizedBox.shrink()),
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: libraryOverrides(),
+        child: MaterialApp.router(
+          theme: AppTheme.lightTheme(const Locale('en')),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await settle(tester);
+
+    // Inside the law.
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('law-back')), findsOneWidget);
+    expect(find.textContaining('45 DLR'), findsOneWidget);
+
+    // Leave for another bottom-nav screen, then come back.
+    showingReferences.value = false;
+    await settle(tester);
+    showingReferences.value = true;
+    await settle(tester);
+
+    // Still inside the same law, not the law list.
+    expect(find.byKey(const ValueKey('law-back')), findsOneWidget);
+    expect(find.textContaining('45 DLR'), findsOneWidget);
+    expect(find.text('Criminal Law'), findsNothing);
+
+    await unmount(tester);
+  });
 
   testWidgets('an official citation is marked, read-only and pinnable', (
     tester,

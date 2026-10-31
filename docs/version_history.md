@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.760 - The bottom bar now keeps the horizontal position the user scrolled it to when a tab tap mounts the next screen's bar.
+Version: 0.0.761 - Case Reference reopens on the law it was reading after visiting another screen; the open law now lives in the feature's provider.
 --------------------------------------
 
 ## Version History Log:
@@ -774,3 +774,4 @@ Version: 0.0.757 - In the Act/Law picker, category headings now take the law nam
 Version: 0.0.758 - Parties to the Case joins both Case Reference libraries right after Citation, shown on cards and searchable with the other fields.
 Version: 0.0.759 - Both Case Reference screens share one card again: the case card's corner and fill, with Citation, bold Parties, Act/Law, Section, Case Note and tag chips.
 Version: 0.0.760 - The bottom bar now keeps the horizontal position the user scrolled it to when a tab tap mounts the next screen's bar.
+Version: 0.0.761 - Case Reference reopens on the law it was reading after visiting another screen; the open law now lives in the feature's provider.

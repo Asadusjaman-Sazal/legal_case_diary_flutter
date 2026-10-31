@@ -73,6 +73,31 @@ class ReferenceViewModel
 /// Global provider alias for the case references ViewModel.
 final referenceViewModelProvider = ReferenceViewModel.provider;
 
+/// The law whose references the Case Reference screen is reading, or null
+/// while the law list shows.
+///
+/// It lives outside the screen because a bottom-nav switch replaces the
+/// screen's page: without it, coming back would always reopen the law list
+/// (user report). The key is the statute text the references carry, not a law
+/// id — the same key the screen groups by, so a citation saved before the law
+/// list existed still finds its way back.
+class CaseReferenceOpenLawNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  /// Opens [law]'s references.
+  void open(String law) => state = law;
+
+  /// Returns to the law list.
+  void close() => state = null;
+}
+
+/// The open law, shared across the Case Reference screen's own lifetimes.
+final caseReferenceOpenLawProvider =
+    NotifierProvider<CaseReferenceOpenLawNotifier, String?>(
+      CaseReferenceOpenLawNotifier.new,
+    );
+
 /// The server-wide citation library as this device caches it, with its pins.
 ///
 /// Kept out of [ReferenceViewModel] on purpose: these rows are a pull-only cache

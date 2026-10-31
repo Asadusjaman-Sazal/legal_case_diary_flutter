@@ -593,6 +593,9 @@ class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
   }
 
   /// One labelled text field, in the app's own field colours.
+  ///
+  /// The label sits **above** the box, as on the user's own form (user
+  /// request), rather than floating on the box's border.
   Widget _field({
     required String label,
     required TextEditingController controller,
@@ -601,26 +604,42 @@ class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
   }) => Padding(
     key: key,
     padding: const EdgeInsets.only(bottom: AppSpacing.md),
-    child: TextField(
-      controller: controller,
-      maxLines: maxLines,
-      style: AppTypography.bodyLg,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: AppTypography.labelLg.copyWith(
-          color: AppColors.onSurfaceVariant,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(label),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: AppTypography.bodyLg,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.surfaceContainerLow,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+              borderSide: const BorderSide(color: AppColors.outlineVariant),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+              borderSide: const BorderSide(color: AppColors.outlineVariant),
+            ),
+          ),
         ),
-        filled: true,
-        fillColor: AppColors.surfaceContainerLow,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-          borderSide: const BorderSide(color: AppColors.outlineVariant),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-          borderSide: const BorderSide(color: AppColors.outlineVariant),
-        ),
-      ),
+      ],
+    ),
+  );
+
+  /// The label every field on this form wears above its box.
+  Widget _fieldLabel(String label) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.sm,
+      AppSpacing.xs,
+      AppSpacing.sm,
+      AppSpacing.xs,
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelLg.copyWith(color: AppColors.onSurfaceVariant),
     ),
   );
 
@@ -628,37 +647,39 @@ class _AdminReferenceFormState extends ConsumerState<_AdminReferenceForm> {
   /// user's own form draws it.
   Widget _statuteField(AppLocalizations l, bool hasStatute) => Padding(
     padding: const EdgeInsets.only(bottom: AppSpacing.md),
-    child: InkWell(
-      key: const ValueKey('admin-shared-statute'),
-      onTap: _pickStatute,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: l.caseReferenceScreen_statute,
-          labelStyle: AppTypography.labelLg.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
-          filled: true,
-          fillColor: AppColors.surfaceContainerLow,
-          suffixIcon: const Icon(Icons.arrow_drop_down),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-            borderSide: const BorderSide(color: AppColors.outlineVariant),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-            borderSide: const BorderSide(color: AppColors.outlineVariant),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldLabel(l.caseReferenceScreen_statute),
+        InkWell(
+          key: const ValueKey('admin-shared-statute'),
+          onTap: _pickStatute,
+          borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.surfaceContainerLow,
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+            ),
+            child: Text(
+              hasStatute ? _statute!.trim() : l.caseReferenceScreen_chooseLaw,
+              style: AppTypography.bodyLg.copyWith(
+                color: hasStatute
+                    ? AppColors.onBackground
+                    : AppColors.outline.withValues(alpha: 0.6),
+              ),
+            ),
           ),
         ),
-        child: Text(
-          hasStatute ? _statute!.trim() : l.caseReferenceScreen_chooseLaw,
-          style: AppTypography.bodyLg.copyWith(
-            color: hasStatute
-                ? AppColors.onBackground
-                : AppColors.outline.withValues(alpha: 0.6),
-          ),
-        ),
-      ),
+      ],
     ),
   );
 }

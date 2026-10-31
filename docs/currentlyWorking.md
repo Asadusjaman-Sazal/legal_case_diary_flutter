@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — Official form labels sit above the boxes — COMPLETE (0.0.754)
+
+- **What was asked.** In the Add/Edit Official Case Reference form only, show the text-box labels above the boxes.
+- **The change.** The five fields — citation, statute, section/article, title, comments — had their labels as floating `labelText` on the box border. Each now draws its label on its own line above the box (the user's own form's placement), and the floating label is removed, so the label appears once. The boxes themselves are unchanged.
+- **Proof.** New *the official form puts its labels above the boxes* in `test/features/admin_shared_references_screen_test.dart` measures the citation and statute labels above their boxes. Admin-page suite and `flutter analyze` green.
+- **Next.** The user's next bug-fix or polish request; the two red tests from the shared-citation phase (backup export list, migration count) remain open.
+
 ### 2026-10-31 — Official citations are searchable again — COMPLETE (0.0.753)
 
 - **The root cause.** The cards the search could not find were the **Official** citations (the pulled server library). `SharedCaseReferencesDao.search` built the SQL pattern `%query%` and then asked each field whether it *contains* that pattern as text. No citation contains the characters `%`, so the official cache matched nothing on every query. The results therefore showed only the user's own citations — which happened to be under the first law — and the Official card under another law ("68 DLR (AD) 290" under The Code of Criminal Procedure, 1898) never appeared.

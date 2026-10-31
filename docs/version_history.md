@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.753 - Official citations now appear in Case Reference search results; the official cache compared text against a SQL %pattern% and never matched.
+Version: 0.0.754 - The Add/Edit Official Case Reference form now shows each field label on its own line above the box, not floating on the border.
 --------------------------------------
 
 ## Version History Log:
@@ -767,3 +767,4 @@ Version: 0.0.750 - Admin Case Reference fixes: search now filters a law's citati
 Version: 0.0.751 - Case Reference law rows wear the Account & Profile sub-menu card without icons, and its search lists matching reference cards from every law, not only the open one.
 Version: 0.0.752 - The Admin Panel's Server-wide Case Reference search now lists matching cards from every law, on either level, as the user's Case Reference screen already does.
 Version: 0.0.753 - Official citations now appear in Case Reference search results; the official cache compared text against a SQL %pattern% and never matched.
+Version: 0.0.754 - The Add/Edit Official Case Reference form now shows each field label on its own line above the box, not floating on the border.

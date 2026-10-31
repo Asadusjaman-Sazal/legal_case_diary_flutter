@@ -234,6 +234,39 @@ void main() {
     );
   });
 
+  testWidgets('the official form puts its labels above the boxes', (
+    tester,
+  ) async {
+    await pump(tester, _FakeAdminRepository());
+    await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
+    await tester.pumpAndSettle();
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+
+    // The label's own bottom edge sits above the box's top edge (user request),
+    // not floating on the border.
+    final citationLabel = tester.getRect(
+      find.text(l.caseReferenceScreen_referenceAndPageNo),
+    );
+    final citationBox = tester.getRect(
+      find.descendant(
+        of: find.byKey(const ValueKey('admin-shared-citation')),
+        matching: find.byType(TextField),
+      ),
+    );
+    expect(citationLabel.bottom, lessThanOrEqualTo(citationBox.top));
+
+    final statuteLabel = tester.getRect(
+      find.text(l.caseReferenceScreen_statute),
+    );
+    final statuteBox = tester.getRect(
+      find.descendant(
+        of: find.byKey(const ValueKey('admin-shared-statute')),
+        matching: find.byType(InputDecorator),
+      ),
+    );
+    expect(statuteLabel.bottom, lessThanOrEqualTo(statuteBox.top));
+  });
+
   testWidgets('a non-admin is shown no library at all', (tester) async {
     await pump(
       tester,

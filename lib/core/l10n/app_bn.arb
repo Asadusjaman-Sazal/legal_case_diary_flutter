@@ -304,6 +304,7 @@
   "caseReferenceScreen_empty": "এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।",
   "caseReferenceScreen_noStatute": "কোনো আইন নেই",
   "caseReferenceScreen_noLawReferences": "এই আইনের কোনো রেফারেন্স নেই",
+  "caseReferenceScreen_official": "অফিসিয়াল",
   "caseReferenceScreen_addTitle": "মামলার রেফারেন্স যোগ করুন",
   "caseReferenceScreen_editTitle": "মামলার রেফারেন্স সম্পাদনা করুন",
   "caseReferenceScreen_pin": "পিন করুন",

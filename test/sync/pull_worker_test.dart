@@ -206,12 +206,48 @@ void main() {
   test('walks every synced table in dependency order', () async {
     final outcome = await worker().pullAll();
 
-    expect(outcome.tables, 13);
+    // Thirteen domain tables plus the pull-only cache (the official citation
+    // library), which has a cursor but no queue entity of its own.
+    expect(outcome.tables, 14);
     expect(
       server.requests.map((request) => request.table).toSet(),
-      syncPullTablesInDependencyOrder.toSet(),
+      <String>{
+        ...syncPullTablesInDependencyOrder,
+        ...pullOnlyCacheTables,
+      },
     );
     expect(server.requests.first.table, 'court_categories');
+    // The cache is walked after the domain tables, so a pull that also brought
+    // new law names cannot order the library before those names exist.
+    expect(server.requests.last.table, 'shared_case_references');
+  });
+
+  test('the official citation cache is pulled into its local table', () async {
+    // A pull-only cache: it arrives with the same page/cursor rule as a domain
+    // table, but there is no queue entity for it and no push binding, so it can
+    // only ever travel server → phone.
+    server.rows['shared_case_references'] = <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 'official-1',
+        'reference_and_page_no': '29 DLR (AD) 69',
+        'statute': 'The Penal Code, 1860',
+        'section_or_article': 'Section 54',
+        'title_and_description': 'Preventive detention.',
+        'comments_notes': null,
+        'is_deleted': false,
+        'server_updated_at': '2026-10-31T09:00:00.000000+00:00',
+      },
+    ];
+
+    await worker().pullAll();
+
+    final cached = await db.select(db.sharedCaseReferences).getSingle();
+    expect(cached.id, 'official-1');
+    expect(cached.referenceAndPageNo, '29 DLR (AD) 69');
+    expect(cached.statute, 'The Penal Code, 1860');
+    expect(cached.isDeleted, isFalse);
+    // Nothing was queued by the pull, so nothing can be pushed back.
+    expect(await queue.getUnresolved(), isEmpty);
   });
 
   test(

@@ -659,6 +659,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'No references for this law yet';
 
   @override
+  String get caseReferenceScreen_official => 'Official';
+
+  @override
   String get caseReferenceScreen_addTitle => 'Add Case Reference';
 
   @override

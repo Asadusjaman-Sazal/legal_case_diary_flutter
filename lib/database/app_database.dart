@@ -19,6 +19,8 @@ import 'tables/laws_table.dart';
 import 'tables/notes_table.dart';
 import 'tables/profiles_table.dart';
 import 'tables/seed_migrations_table.dart';
+import 'tables/shared_case_reference_pins_table.dart';
+import 'tables/shared_case_references_table.dart';
 import 'tables/sync_metadata_table.dart';
 import 'tables/user_preferences_table.dart';
 import 'tables/on_behalfs_table.dart';
@@ -52,6 +54,8 @@ part 'app_database.g.dart';
     SeedMigrations,
     UserPreferences,
     CaseNotificationPreferences,
+    SharedCaseReferences,
+    SharedCaseReferencePins,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -60,7 +64,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -81,7 +85,8 @@ class AppDatabase extends _$AppDatabase {
   /// then v13→v14 by adding the profile picture's same two fields to `profiles`,
   /// then v14→v15 by adding the requester's display name to `delete_requests`,
   /// then v15→v16 by adding the law-name list (`laws`), then v16→v17 by adding
-  /// the law category that list groups its names under.
+  /// the law category that list groups its names under, then v17→v18 by adding
+  /// the server-wide references cache and its per-device pin table.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -188,6 +193,13 @@ class AppDatabase extends _$AppDatabase {
         // `seed_v3` fills the category on the next open.
         await m.addColumn(laws, laws.category);
       }
+      if (from < 18) {
+        // The server-wide citation library and this device's pins on it. Both
+        // are new tables, so the upgrade only creates them and no existing row
+        // is touched; the next delta pull fills the cache.
+        await m.createTable(sharedCaseReferences);
+        await m.createTable(sharedCaseReferencePins);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON;');
@@ -237,6 +249,11 @@ class AppDatabase extends _$AppDatabase {
   /// Active (non-deleted) case references.
   Selectable<CaseReference> get activeCaseReferences =>
       select(caseReferences)..where((row) => row.isDeleted.equals(false));
+
+  /// Live (non-deleted) official case references.
+  Selectable<SharedCaseReference> get activeSharedCaseReferences =>
+      select(sharedCaseReferences)
+        ..where((row) => row.isDeleted.equals(false));
 
   /// Active (non-deleted) delete requests.
   Selectable<DeleteRequest> get activeDeleteRequests =>

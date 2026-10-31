@@ -1256,6 +1256,12 @@ abstract class AppLocalizations {
   /// **'No references for this law yet'**
   String get caseReferenceScreen_noLawReferences;
 
+  /// No description provided for @caseReferenceScreen_official.
+  ///
+  /// In en, this message translates to:
+  /// **'Official'**
+  String get caseReferenceScreen_official;
+
   /// No description provided for @caseReferenceScreen_addTitle.
   ///
   /// In en, this message translates to:

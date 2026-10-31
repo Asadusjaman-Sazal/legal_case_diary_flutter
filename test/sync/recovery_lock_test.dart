@@ -327,7 +327,7 @@ void main() {
         // The queue and the domain rows are gone; the pull walked every table.
         expect(await db.select(db.syncQueue).get(), isEmpty);
         expect(await db.select(db.notes).get(), isEmpty);
-        expect(server.tables, hasLength(13));
+        expect(server.tables, hasLength(14));
         // The lock is off and the checkpoint is gone.
         expect(await RecoveryLock(db).isRequired(), isFalse);
         expect(await RecoveryLock(db).checkpoint(), isNull);

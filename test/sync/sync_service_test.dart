@@ -268,8 +268,10 @@ void main() {
 
     await service.syncNow(pull: true);
 
-    expect(transport.pulledTables, hasLength(13));
+    // Thirteen domain tables plus the pull-only cache of official citations.
+    expect(transport.pulledTables, hasLength(14));
     expect(transport.pulledTables.first, 'court_categories');
+    expect(transport.pulledTables.last, 'shared_case_references');
     expect((await SyncQueueDao(db).getAll()).single.state, 'resolved');
     final metadata = SyncMetadataDao(db);
     expect(await metadata.getIntValue(lastSuccessfulSyncAtKey), isNotNull);
@@ -459,8 +461,8 @@ void main() {
     await Future<void>.delayed(
       syncCoalescingWindow + const Duration(milliseconds: 50),
     );
-    expect(transport.pulledTables, hasLength(13),
-        reason: 'a resume after a re-join pulls every table');
+    expect(transport.pulledTables, hasLength(14),
+        reason: 'a resume after a re-join pulls every table, cache included');
   });
 
   test('a device clock more than two minutes off records the offset and warns',

@@ -326,6 +326,55 @@ void main() {
     },
   );
 
+  testWidgets('an official citation is marked, read-only and pinnable', (
+    tester,
+  ) async {
+    // The admin-curated library is a pull-only cache: it appears in the same
+    // levels as the user's own citations, but this device may only pin it.
+    await db
+        .into(db.sharedCaseReferences)
+        .insert(
+          SharedCaseReferencesCompanion.insert(
+            id: 'official-1',
+            referenceAndPageNo: '29 DLR (AD) 69',
+            statute: const Value('The Penal Code, 1860'),
+            sectionOrArticle: const Value('Section 54'),
+            titleAndDescription: const Value('Bail guidelines.'),
+          ),
+        );
+    await pumpLibrary(tester, const CaseReferenceScreen());
+
+    // It builds its own law row, so the library's first level lists it like
+    // any other law that holds references.
+    expect(find.text('The Penal Code, 1860'), findsOneWidget);
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await settle(tester);
+
+    expect(find.text('Official'), findsOneWidget);
+    expect(find.textContaining('29 DLR'), findsOneWidget);
+
+    // Tapping the card opens no editor: the entry is the admins' to change.
+    await tester.tap(find.textContaining('29 DLR'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('reference-title')), findsNothing);
+
+    // Its menu offers Pin and not Delete.
+    await tester.tap(find.byKey(const ValueKey('reference-menu')));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('reference-pin')), findsOneWidget);
+    expect(find.byKey(const ValueKey('reference-delete')), findsNothing);
+
+    // Pinning writes this device's own pin row and queues nothing: an official
+    // row is never pushed anywhere.
+    await tester.tap(find.byKey(const ValueKey('reference-pin')));
+    await settle(tester);
+    final pins = await db.select(db.sharedCaseReferencePins).get();
+    expect(pins.single.referenceId, 'official-1');
+    expect(await SyncQueueDao(db).getUnresolved(), isEmpty);
+
+    await unmount(tester);
+  });
+
   testWidgets('each level searches what it is showing', (tester) async {
     await seedReference(
       'ref-1',

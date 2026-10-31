@@ -289,7 +289,7 @@ void main() {
     expect((await queue.getAll()).every((row) => row.state == 'resolved'), isTrue);
 
     // The pull is a full pull: every table starts at the minimum sentinel.
-    expect(server.pages, hasLength(13));
+    expect(server.pages, hasLength(14));
     expect(server.pages.every((page) => page.sinceTime == null), isTrue);
     expect(
       (await metadata.getCursor('courts'))?.id,

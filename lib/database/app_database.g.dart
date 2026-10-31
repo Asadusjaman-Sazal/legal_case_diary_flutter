@@ -17102,6 +17102,758 @@ class CaseNotificationPreferencesCompanion
   }
 }
 
+class $SharedCaseReferencesTable extends SharedCaseReferences
+    with TableInfo<$SharedCaseReferencesTable, SharedCaseReference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SharedCaseReferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _referenceAndPageNoMeta =
+      const VerificationMeta('referenceAndPageNo');
+  @override
+  late final GeneratedColumn<String> referenceAndPageNo =
+      GeneratedColumn<String>(
+        'reference_and_page_no',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _statuteMeta = const VerificationMeta(
+    'statute',
+  );
+  @override
+  late final GeneratedColumn<String> statute = GeneratedColumn<String>(
+    'statute',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sectionOrArticleMeta = const VerificationMeta(
+    'sectionOrArticle',
+  );
+  @override
+  late final GeneratedColumn<String> sectionOrArticle = GeneratedColumn<String>(
+    'section_or_article',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _titleAndDescriptionMeta =
+      const VerificationMeta('titleAndDescription');
+  @override
+  late final GeneratedColumn<String> titleAndDescription =
+      GeneratedColumn<String>(
+        'title_and_description',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _commentsNotesMeta = const VerificationMeta(
+    'commentsNotes',
+  );
+  @override
+  late final GeneratedColumn<String> commentsNotes = GeneratedColumn<String>(
+    'comments_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    referenceAndPageNo,
+    statute,
+    sectionOrArticle,
+    titleAndDescription,
+    commentsNotes,
+    isDeleted,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shared_case_references';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SharedCaseReference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('reference_and_page_no')) {
+      context.handle(
+        _referenceAndPageNoMeta,
+        referenceAndPageNo.isAcceptableOrUnknown(
+          data['reference_and_page_no']!,
+          _referenceAndPageNoMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_referenceAndPageNoMeta);
+    }
+    if (data.containsKey('statute')) {
+      context.handle(
+        _statuteMeta,
+        statute.isAcceptableOrUnknown(data['statute']!, _statuteMeta),
+      );
+    }
+    if (data.containsKey('section_or_article')) {
+      context.handle(
+        _sectionOrArticleMeta,
+        sectionOrArticle.isAcceptableOrUnknown(
+          data['section_or_article']!,
+          _sectionOrArticleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('title_and_description')) {
+      context.handle(
+        _titleAndDescriptionMeta,
+        titleAndDescription.isAcceptableOrUnknown(
+          data['title_and_description']!,
+          _titleAndDescriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('comments_notes')) {
+      context.handle(
+        _commentsNotesMeta,
+        commentsNotes.isAcceptableOrUnknown(
+          data['comments_notes']!,
+          _commentsNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SharedCaseReference map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SharedCaseReference(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      referenceAndPageNo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_and_page_no'],
+      )!,
+      statute: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}statute'],
+      ),
+      sectionOrArticle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}section_or_article'],
+      ),
+      titleAndDescription: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title_and_description'],
+      ),
+      commentsNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}comments_notes'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+    );
+  }
+
+  @override
+  $SharedCaseReferencesTable createAlias(String alias) {
+    return $SharedCaseReferencesTable(attachedDatabase, alias);
+  }
+}
+
+class SharedCaseReference extends DataClass
+    implements Insertable<SharedCaseReference> {
+  /// UUID primary key, assigned by the admin's device.
+  final String id;
+
+  /// Reference and page number, e.g. `29 DLR (AD) 69`.
+  final String referenceAndPageNo;
+
+  /// The cited Act/statute name, as free text like the user's own references.
+  final String? statute;
+
+  /// Section or article number.
+  final String? sectionOrArticle;
+
+  /// Title and description of the principle.
+  final String? titleAndDescription;
+
+  /// Comments or notes the admin attached.
+  final String? commentsNotes;
+
+  /// Tombstone written by the server; a live query filters these out.
+  final bool isDeleted;
+  const SharedCaseReference({
+    required this.id,
+    required this.referenceAndPageNo,
+    this.statute,
+    this.sectionOrArticle,
+    this.titleAndDescription,
+    this.commentsNotes,
+    required this.isDeleted,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['reference_and_page_no'] = Variable<String>(referenceAndPageNo);
+    if (!nullToAbsent || statute != null) {
+      map['statute'] = Variable<String>(statute);
+    }
+    if (!nullToAbsent || sectionOrArticle != null) {
+      map['section_or_article'] = Variable<String>(sectionOrArticle);
+    }
+    if (!nullToAbsent || titleAndDescription != null) {
+      map['title_and_description'] = Variable<String>(titleAndDescription);
+    }
+    if (!nullToAbsent || commentsNotes != null) {
+      map['comments_notes'] = Variable<String>(commentsNotes);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    return map;
+  }
+
+  SharedCaseReferencesCompanion toCompanion(bool nullToAbsent) {
+    return SharedCaseReferencesCompanion(
+      id: Value(id),
+      referenceAndPageNo: Value(referenceAndPageNo),
+      statute: statute == null && nullToAbsent
+          ? const Value.absent()
+          : Value(statute),
+      sectionOrArticle: sectionOrArticle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sectionOrArticle),
+      titleAndDescription: titleAndDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(titleAndDescription),
+      commentsNotes: commentsNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commentsNotes),
+      isDeleted: Value(isDeleted),
+    );
+  }
+
+  factory SharedCaseReference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SharedCaseReference(
+      id: serializer.fromJson<String>(json['id']),
+      referenceAndPageNo: serializer.fromJson<String>(
+        json['referenceAndPageNo'],
+      ),
+      statute: serializer.fromJson<String?>(json['statute']),
+      sectionOrArticle: serializer.fromJson<String?>(json['sectionOrArticle']),
+      titleAndDescription: serializer.fromJson<String?>(
+        json['titleAndDescription'],
+      ),
+      commentsNotes: serializer.fromJson<String?>(json['commentsNotes']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'referenceAndPageNo': serializer.toJson<String>(referenceAndPageNo),
+      'statute': serializer.toJson<String?>(statute),
+      'sectionOrArticle': serializer.toJson<String?>(sectionOrArticle),
+      'titleAndDescription': serializer.toJson<String?>(titleAndDescription),
+      'commentsNotes': serializer.toJson<String?>(commentsNotes),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+    };
+  }
+
+  SharedCaseReference copyWith({
+    String? id,
+    String? referenceAndPageNo,
+    Value<String?> statute = const Value.absent(),
+    Value<String?> sectionOrArticle = const Value.absent(),
+    Value<String?> titleAndDescription = const Value.absent(),
+    Value<String?> commentsNotes = const Value.absent(),
+    bool? isDeleted,
+  }) => SharedCaseReference(
+    id: id ?? this.id,
+    referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+    statute: statute.present ? statute.value : this.statute,
+    sectionOrArticle: sectionOrArticle.present
+        ? sectionOrArticle.value
+        : this.sectionOrArticle,
+    titleAndDescription: titleAndDescription.present
+        ? titleAndDescription.value
+        : this.titleAndDescription,
+    commentsNotes: commentsNotes.present
+        ? commentsNotes.value
+        : this.commentsNotes,
+    isDeleted: isDeleted ?? this.isDeleted,
+  );
+  SharedCaseReference copyWithCompanion(SharedCaseReferencesCompanion data) {
+    return SharedCaseReference(
+      id: data.id.present ? data.id.value : this.id,
+      referenceAndPageNo: data.referenceAndPageNo.present
+          ? data.referenceAndPageNo.value
+          : this.referenceAndPageNo,
+      statute: data.statute.present ? data.statute.value : this.statute,
+      sectionOrArticle: data.sectionOrArticle.present
+          ? data.sectionOrArticle.value
+          : this.sectionOrArticle,
+      titleAndDescription: data.titleAndDescription.present
+          ? data.titleAndDescription.value
+          : this.titleAndDescription,
+      commentsNotes: data.commentsNotes.present
+          ? data.commentsNotes.value
+          : this.commentsNotes,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SharedCaseReference(')
+          ..write('id: $id, ')
+          ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('statute: $statute, ')
+          ..write('sectionOrArticle: $sectionOrArticle, ')
+          ..write('titleAndDescription: $titleAndDescription, ')
+          ..write('commentsNotes: $commentsNotes, ')
+          ..write('isDeleted: $isDeleted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    referenceAndPageNo,
+    statute,
+    sectionOrArticle,
+    titleAndDescription,
+    commentsNotes,
+    isDeleted,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SharedCaseReference &&
+          other.id == this.id &&
+          other.referenceAndPageNo == this.referenceAndPageNo &&
+          other.statute == this.statute &&
+          other.sectionOrArticle == this.sectionOrArticle &&
+          other.titleAndDescription == this.titleAndDescription &&
+          other.commentsNotes == this.commentsNotes &&
+          other.isDeleted == this.isDeleted);
+}
+
+class SharedCaseReferencesCompanion
+    extends UpdateCompanion<SharedCaseReference> {
+  final Value<String> id;
+  final Value<String> referenceAndPageNo;
+  final Value<String?> statute;
+  final Value<String?> sectionOrArticle;
+  final Value<String?> titleAndDescription;
+  final Value<String?> commentsNotes;
+  final Value<bool> isDeleted;
+  final Value<int> rowid;
+  const SharedCaseReferencesCompanion({
+    this.id = const Value.absent(),
+    this.referenceAndPageNo = const Value.absent(),
+    this.statute = const Value.absent(),
+    this.sectionOrArticle = const Value.absent(),
+    this.titleAndDescription = const Value.absent(),
+    this.commentsNotes = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SharedCaseReferencesCompanion.insert({
+    required String id,
+    required String referenceAndPageNo,
+    this.statute = const Value.absent(),
+    this.sectionOrArticle = const Value.absent(),
+    this.titleAndDescription = const Value.absent(),
+    this.commentsNotes = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       referenceAndPageNo = Value(referenceAndPageNo);
+  static Insertable<SharedCaseReference> custom({
+    Expression<String>? id,
+    Expression<String>? referenceAndPageNo,
+    Expression<String>? statute,
+    Expression<String>? sectionOrArticle,
+    Expression<String>? titleAndDescription,
+    Expression<String>? commentsNotes,
+    Expression<bool>? isDeleted,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (referenceAndPageNo != null)
+        'reference_and_page_no': referenceAndPageNo,
+      if (statute != null) 'statute': statute,
+      if (sectionOrArticle != null) 'section_or_article': sectionOrArticle,
+      if (titleAndDescription != null)
+        'title_and_description': titleAndDescription,
+      if (commentsNotes != null) 'comments_notes': commentsNotes,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SharedCaseReferencesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? referenceAndPageNo,
+    Value<String?>? statute,
+    Value<String?>? sectionOrArticle,
+    Value<String?>? titleAndDescription,
+    Value<String?>? commentsNotes,
+    Value<bool>? isDeleted,
+    Value<int>? rowid,
+  }) {
+    return SharedCaseReferencesCompanion(
+      id: id ?? this.id,
+      referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+      statute: statute ?? this.statute,
+      sectionOrArticle: sectionOrArticle ?? this.sectionOrArticle,
+      titleAndDescription: titleAndDescription ?? this.titleAndDescription,
+      commentsNotes: commentsNotes ?? this.commentsNotes,
+      isDeleted: isDeleted ?? this.isDeleted,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (referenceAndPageNo.present) {
+      map['reference_and_page_no'] = Variable<String>(referenceAndPageNo.value);
+    }
+    if (statute.present) {
+      map['statute'] = Variable<String>(statute.value);
+    }
+    if (sectionOrArticle.present) {
+      map['section_or_article'] = Variable<String>(sectionOrArticle.value);
+    }
+    if (titleAndDescription.present) {
+      map['title_and_description'] = Variable<String>(
+        titleAndDescription.value,
+      );
+    }
+    if (commentsNotes.present) {
+      map['comments_notes'] = Variable<String>(commentsNotes.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SharedCaseReferencesCompanion(')
+          ..write('id: $id, ')
+          ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('statute: $statute, ')
+          ..write('sectionOrArticle: $sectionOrArticle, ')
+          ..write('titleAndDescription: $titleAndDescription, ')
+          ..write('commentsNotes: $commentsNotes, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SharedCaseReferencePinsTable extends SharedCaseReferencePins
+    with TableInfo<$SharedCaseReferencePinsTable, SharedCaseReferencePin> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SharedCaseReferencePinsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _referenceIdMeta = const VerificationMeta(
+    'referenceId',
+  );
+  @override
+  late final GeneratedColumn<String> referenceId = GeneratedColumn<String>(
+    'reference_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pinnedAtMeta = const VerificationMeta(
+    'pinnedAt',
+  );
+  @override
+  late final GeneratedColumn<int> pinnedAt = GeneratedColumn<int>(
+    'pinned_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [referenceId, pinnedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shared_case_reference_pins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SharedCaseReferencePin> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('reference_id')) {
+      context.handle(
+        _referenceIdMeta,
+        referenceId.isAcceptableOrUnknown(
+          data['reference_id']!,
+          _referenceIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_referenceIdMeta);
+    }
+    if (data.containsKey('pinned_at')) {
+      context.handle(
+        _pinnedAtMeta,
+        pinnedAt.isAcceptableOrUnknown(data['pinned_at']!, _pinnedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pinnedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {referenceId};
+  @override
+  SharedCaseReferencePin map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SharedCaseReferencePin(
+      referenceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_id'],
+      )!,
+      pinnedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pinned_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SharedCaseReferencePinsTable createAlias(String alias) {
+    return $SharedCaseReferencePinsTable(attachedDatabase, alias);
+  }
+}
+
+class SharedCaseReferencePin extends DataClass
+    implements Insertable<SharedCaseReferencePin> {
+  /// The official reference's id; one pin per reference per device.
+  final String referenceId;
+
+  /// When the pin was made (epoch ms), so the list can order pins the same way
+  /// the user's own pinned references sort.
+  final int pinnedAt;
+  const SharedCaseReferencePin({
+    required this.referenceId,
+    required this.pinnedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['reference_id'] = Variable<String>(referenceId);
+    map['pinned_at'] = Variable<int>(pinnedAt);
+    return map;
+  }
+
+  SharedCaseReferencePinsCompanion toCompanion(bool nullToAbsent) {
+    return SharedCaseReferencePinsCompanion(
+      referenceId: Value(referenceId),
+      pinnedAt: Value(pinnedAt),
+    );
+  }
+
+  factory SharedCaseReferencePin.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SharedCaseReferencePin(
+      referenceId: serializer.fromJson<String>(json['referenceId']),
+      pinnedAt: serializer.fromJson<int>(json['pinnedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'referenceId': serializer.toJson<String>(referenceId),
+      'pinnedAt': serializer.toJson<int>(pinnedAt),
+    };
+  }
+
+  SharedCaseReferencePin copyWith({String? referenceId, int? pinnedAt}) =>
+      SharedCaseReferencePin(
+        referenceId: referenceId ?? this.referenceId,
+        pinnedAt: pinnedAt ?? this.pinnedAt,
+      );
+  SharedCaseReferencePin copyWithCompanion(
+    SharedCaseReferencePinsCompanion data,
+  ) {
+    return SharedCaseReferencePin(
+      referenceId: data.referenceId.present
+          ? data.referenceId.value
+          : this.referenceId,
+      pinnedAt: data.pinnedAt.present ? data.pinnedAt.value : this.pinnedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SharedCaseReferencePin(')
+          ..write('referenceId: $referenceId, ')
+          ..write('pinnedAt: $pinnedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(referenceId, pinnedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SharedCaseReferencePin &&
+          other.referenceId == this.referenceId &&
+          other.pinnedAt == this.pinnedAt);
+}
+
+class SharedCaseReferencePinsCompanion
+    extends UpdateCompanion<SharedCaseReferencePin> {
+  final Value<String> referenceId;
+  final Value<int> pinnedAt;
+  final Value<int> rowid;
+  const SharedCaseReferencePinsCompanion({
+    this.referenceId = const Value.absent(),
+    this.pinnedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SharedCaseReferencePinsCompanion.insert({
+    required String referenceId,
+    required int pinnedAt,
+    this.rowid = const Value.absent(),
+  }) : referenceId = Value(referenceId),
+       pinnedAt = Value(pinnedAt);
+  static Insertable<SharedCaseReferencePin> custom({
+    Expression<String>? referenceId,
+    Expression<int>? pinnedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (referenceId != null) 'reference_id': referenceId,
+      if (pinnedAt != null) 'pinned_at': pinnedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SharedCaseReferencePinsCompanion copyWith({
+    Value<String>? referenceId,
+    Value<int>? pinnedAt,
+    Value<int>? rowid,
+  }) {
+    return SharedCaseReferencePinsCompanion(
+      referenceId: referenceId ?? this.referenceId,
+      pinnedAt: pinnedAt ?? this.pinnedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (referenceId.present) {
+      map['reference_id'] = Variable<String>(referenceId.value);
+    }
+    if (pinnedAt.present) {
+      map['pinned_at'] = Variable<int>(pinnedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SharedCaseReferencePinsCompanion(')
+          ..write('referenceId: $referenceId, ')
+          ..write('pinnedAt: $pinnedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -17131,6 +17883,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CaseNotificationPreferencesTable caseNotificationPreferences =
       $CaseNotificationPreferencesTable(this);
+  late final $SharedCaseReferencesTable sharedCaseReferences =
+      $SharedCaseReferencesTable(this);
+  late final $SharedCaseReferencePinsTable sharedCaseReferencePins =
+      $SharedCaseReferencePinsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -17157,6 +17913,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     seedMigrations,
     userPreferences,
     caseNotificationPreferences,
+    sharedCaseReferences,
+    sharedCaseReferencePins,
   ];
 }
 
@@ -26877,6 +27635,432 @@ typedef $$CaseNotificationPreferencesTableProcessedTableManager =
       CaseNotificationPreference,
       PrefetchHooks Function()
     >;
+typedef $$SharedCaseReferencesTableCreateCompanionBuilder =
+    SharedCaseReferencesCompanion Function({
+      required String id,
+      required String referenceAndPageNo,
+      Value<String?> statute,
+      Value<String?> sectionOrArticle,
+      Value<String?> titleAndDescription,
+      Value<String?> commentsNotes,
+      Value<bool> isDeleted,
+      Value<int> rowid,
+    });
+typedef $$SharedCaseReferencesTableUpdateCompanionBuilder =
+    SharedCaseReferencesCompanion Function({
+      Value<String> id,
+      Value<String> referenceAndPageNo,
+      Value<String?> statute,
+      Value<String?> sectionOrArticle,
+      Value<String?> titleAndDescription,
+      Value<String?> commentsNotes,
+      Value<bool> isDeleted,
+      Value<int> rowid,
+    });
+
+class $$SharedCaseReferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencesTable> {
+  $$SharedCaseReferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get referenceAndPageNo => $composableBuilder(
+    column: $table.referenceAndPageNo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get statute => $composableBuilder(
+    column: $table.statute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sectionOrArticle => $composableBuilder(
+    column: $table.sectionOrArticle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get titleAndDescription => $composableBuilder(
+    column: $table.titleAndDescription,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get commentsNotes => $composableBuilder(
+    column: $table.commentsNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SharedCaseReferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencesTable> {
+  $$SharedCaseReferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get referenceAndPageNo => $composableBuilder(
+    column: $table.referenceAndPageNo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get statute => $composableBuilder(
+    column: $table.statute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sectionOrArticle => $composableBuilder(
+    column: $table.sectionOrArticle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get titleAndDescription => $composableBuilder(
+    column: $table.titleAndDescription,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get commentsNotes => $composableBuilder(
+    column: $table.commentsNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SharedCaseReferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencesTable> {
+  $$SharedCaseReferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get referenceAndPageNo => $composableBuilder(
+    column: $table.referenceAndPageNo,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get statute =>
+      $composableBuilder(column: $table.statute, builder: (column) => column);
+
+  GeneratedColumn<String> get sectionOrArticle => $composableBuilder(
+    column: $table.sectionOrArticle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get titleAndDescription => $composableBuilder(
+    column: $table.titleAndDescription,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get commentsNotes => $composableBuilder(
+    column: $table.commentsNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+}
+
+class $$SharedCaseReferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SharedCaseReferencesTable,
+          SharedCaseReference,
+          $$SharedCaseReferencesTableFilterComposer,
+          $$SharedCaseReferencesTableOrderingComposer,
+          $$SharedCaseReferencesTableAnnotationComposer,
+          $$SharedCaseReferencesTableCreateCompanionBuilder,
+          $$SharedCaseReferencesTableUpdateCompanionBuilder,
+          (
+            SharedCaseReference,
+            BaseReferences<
+              _$AppDatabase,
+              $SharedCaseReferencesTable,
+              SharedCaseReference
+            >,
+          ),
+          SharedCaseReference,
+          PrefetchHooks Function()
+        > {
+  $$SharedCaseReferencesTableTableManager(
+    _$AppDatabase db,
+    $SharedCaseReferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SharedCaseReferencesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SharedCaseReferencesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SharedCaseReferencesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> referenceAndPageNo = const Value.absent(),
+                Value<String?> statute = const Value.absent(),
+                Value<String?> sectionOrArticle = const Value.absent(),
+                Value<String?> titleAndDescription = const Value.absent(),
+                Value<String?> commentsNotes = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SharedCaseReferencesCompanion(
+                id: id,
+                referenceAndPageNo: referenceAndPageNo,
+                statute: statute,
+                sectionOrArticle: sectionOrArticle,
+                titleAndDescription: titleAndDescription,
+                commentsNotes: commentsNotes,
+                isDeleted: isDeleted,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String referenceAndPageNo,
+                Value<String?> statute = const Value.absent(),
+                Value<String?> sectionOrArticle = const Value.absent(),
+                Value<String?> titleAndDescription = const Value.absent(),
+                Value<String?> commentsNotes = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SharedCaseReferencesCompanion.insert(
+                id: id,
+                referenceAndPageNo: referenceAndPageNo,
+                statute: statute,
+                sectionOrArticle: sectionOrArticle,
+                titleAndDescription: titleAndDescription,
+                commentsNotes: commentsNotes,
+                isDeleted: isDeleted,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SharedCaseReferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SharedCaseReferencesTable,
+      SharedCaseReference,
+      $$SharedCaseReferencesTableFilterComposer,
+      $$SharedCaseReferencesTableOrderingComposer,
+      $$SharedCaseReferencesTableAnnotationComposer,
+      $$SharedCaseReferencesTableCreateCompanionBuilder,
+      $$SharedCaseReferencesTableUpdateCompanionBuilder,
+      (
+        SharedCaseReference,
+        BaseReferences<
+          _$AppDatabase,
+          $SharedCaseReferencesTable,
+          SharedCaseReference
+        >,
+      ),
+      SharedCaseReference,
+      PrefetchHooks Function()
+    >;
+typedef $$SharedCaseReferencePinsTableCreateCompanionBuilder =
+    SharedCaseReferencePinsCompanion Function({
+      required String referenceId,
+      required int pinnedAt,
+      Value<int> rowid,
+    });
+typedef $$SharedCaseReferencePinsTableUpdateCompanionBuilder =
+    SharedCaseReferencePinsCompanion Function({
+      Value<String> referenceId,
+      Value<int> pinnedAt,
+      Value<int> rowid,
+    });
+
+class $$SharedCaseReferencePinsTableFilterComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencePinsTable> {
+  $$SharedCaseReferencePinsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pinnedAt => $composableBuilder(
+    column: $table.pinnedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SharedCaseReferencePinsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencePinsTable> {
+  $$SharedCaseReferencePinsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pinnedAt => $composableBuilder(
+    column: $table.pinnedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SharedCaseReferencePinsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SharedCaseReferencePinsTable> {
+  $$SharedCaseReferencePinsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pinnedAt =>
+      $composableBuilder(column: $table.pinnedAt, builder: (column) => column);
+}
+
+class $$SharedCaseReferencePinsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SharedCaseReferencePinsTable,
+          SharedCaseReferencePin,
+          $$SharedCaseReferencePinsTableFilterComposer,
+          $$SharedCaseReferencePinsTableOrderingComposer,
+          $$SharedCaseReferencePinsTableAnnotationComposer,
+          $$SharedCaseReferencePinsTableCreateCompanionBuilder,
+          $$SharedCaseReferencePinsTableUpdateCompanionBuilder,
+          (
+            SharedCaseReferencePin,
+            BaseReferences<
+              _$AppDatabase,
+              $SharedCaseReferencePinsTable,
+              SharedCaseReferencePin
+            >,
+          ),
+          SharedCaseReferencePin,
+          PrefetchHooks Function()
+        > {
+  $$SharedCaseReferencePinsTableTableManager(
+    _$AppDatabase db,
+    $SharedCaseReferencePinsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SharedCaseReferencePinsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SharedCaseReferencePinsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SharedCaseReferencePinsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> referenceId = const Value.absent(),
+                Value<int> pinnedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SharedCaseReferencePinsCompanion(
+                referenceId: referenceId,
+                pinnedAt: pinnedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String referenceId,
+                required int pinnedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SharedCaseReferencePinsCompanion.insert(
+                referenceId: referenceId,
+                pinnedAt: pinnedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SharedCaseReferencePinsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SharedCaseReferencePinsTable,
+      SharedCaseReferencePin,
+      $$SharedCaseReferencePinsTableFilterComposer,
+      $$SharedCaseReferencePinsTableOrderingComposer,
+      $$SharedCaseReferencePinsTableAnnotationComposer,
+      $$SharedCaseReferencePinsTableCreateCompanionBuilder,
+      $$SharedCaseReferencePinsTableUpdateCompanionBuilder,
+      (
+        SharedCaseReferencePin,
+        BaseReferences<
+          _$AppDatabase,
+          $SharedCaseReferencePinsTable,
+          SharedCaseReferencePin
+        >,
+      ),
+      SharedCaseReferencePin,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -26925,5 +28109,12 @@ class $AppDatabaseManager {
       $$CaseNotificationPreferencesTableTableManager(
         _db,
         _db.caseNotificationPreferences,
+      );
+  $$SharedCaseReferencesTableTableManager get sharedCaseReferences =>
+      $$SharedCaseReferencesTableTableManager(_db, _db.sharedCaseReferences);
+  $$SharedCaseReferencePinsTableTableManager get sharedCaseReferencePins =>
+      $$SharedCaseReferencePinsTableTableManager(
+        _db,
+        _db.sharedCaseReferencePins,
       );
 }

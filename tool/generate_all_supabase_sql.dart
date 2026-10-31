@@ -1134,6 +1134,35 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'chamber renamed untouched, exactly as the six reference tables\' seed '
         'does.',
   ),
+  LedgerSection(
+    file: '20261031100000_shared_case_references.sql',
+    version: '0.0.748',
+    label:
+        'The server-wide citation library. `public.shared_case_references` holds '
+        'the five reference fields an admin publishes, with `is_deleted` and the '
+        'trigger-stamped `server_updated_at` the delta pull pages on \u2014 and no '
+        'owner columns at all, because the phone never pushes to it (table class: '
+        'server-managed on the server, pull-only cache on the phone). Every '
+        'signed-in account may SELECT, including a tombstone so a removed '
+        'citation can disappear from a phone; INSERT, UPDATE and DELETE are '
+        'each gated by `is_app_admin()`. The revoke of the client write verbs was '
+        'undone by the next file. The table carries the server-timestamp and '
+        'realtime broadcast triggers and one delta index; the firm guards are '
+        'deliberately absent because they read a `firm_id` this table does not '
+        'have, and the admin policy is the whole write boundary.',
+  ),
+  LedgerSection(
+    file: '20261031101000_shared_case_references_write_grant.sql',
+    version: '0.0.748',
+    label:
+        'Restores the write privileges the previous file revoked. That file '
+        'revoked INSERT, UPDATE and DELETE from `authenticated` while its RLS '
+        'policies already restricted every write to `is_app_admin()`; the '
+        'privilege check runs first, so the policies could never be reached and '
+        'an administrator could not publish a citation either. This statement '
+        'grants the three verbs to `authenticated`, leaves the admin policies as '
+        'the boundary, and revokes everything from `anon`.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1171,6 +1200,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.748': 'Case Reference — The Server-Wide Citation Library',
   '0.0.745': 'Law List — The Statute List On The Server',
   '0.0.715': 'Data API — New Tables Closed To Anonymous Callers',
   '0.0.714': 'Data API — New Tables Keep Their Access',

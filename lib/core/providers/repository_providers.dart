@@ -11,7 +11,9 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/admin/data/admin_repository.dart';
 import '../../features/auth/data/supabase_auth_repository.dart';
 import '../../features/case_reference/data/local/case_references_dao.dart';
+import '../../features/case_reference/data/local/shared_case_references_dao.dart';
 import '../../features/case_reference/data/reference_repository.dart';
+import '../../features/case_reference/data/shared_reference_repository.dart';
 import '../../features/cases/data/case_history_repository.dart';
 import '../../features/cases/data/case_repository.dart';
 import '../../features/cases/data/local/case_history_dao.dart';
@@ -114,6 +116,17 @@ final referenceRepositoryProvider = FutureProvider<ReferenceRepository>((
   final sync = await ref.watch(syncWriteHelperProvider.future);
   return LocalReferenceRepository(CaseReferencesDao(db), sync);
 });
+
+/// Provider for the official (server-wide) case reference library.
+///
+/// A different table class from [referenceRepositoryProvider]: those rows are a
+/// pull-only cache, so this provider offers reads and the per-device pin and
+/// nothing that could queue a write.
+final sharedReferenceRepositoryProvider =
+    FutureProvider<SharedReferenceRepository>((ref) async {
+      final db = await ref.watch(databaseProvider.future);
+      return LocalSharedReferenceRepository(SharedCaseReferencesDao(db));
+    });
 
 /// Provider for [SettingsRepository].
 final settingsRepositoryProvider = FutureProvider<SettingsRepository>((
@@ -262,14 +275,14 @@ final deviceTokenRepositoryProvider = Provider<DeviceTokenRepository>((ref) {
 /// A backend-only boundary like [adminRepositoryProvider]: with no client there
 /// is no account to remove, and the inert repository says so instead of
 /// pretending a local half exists.
-final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>(
-  (ref) {
-    final client = ref.watch(activeSupabaseClientProvider);
-    return client == null
-        ? const UnavailableAccountDeletionRepository()
-        : SupabaseAccountDeletionRepository(client);
-  },
-);
+final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>((
+  ref,
+) {
+  final client = ref.watch(activeSupabaseClientProvider);
+  return client == null
+      ? const UnavailableAccountDeletionRepository()
+      : SupabaseAccountDeletionRepository(client);
+});
 
 /// Provider for the updater's GitHub release client.
 ///
@@ -282,10 +295,11 @@ final updateRepositoryProvider = Provider<UpdateRepository>(
 );
 
 /// This account's own payment submissions, newest first (own rows under RLS).
-final myPaymentSubmissionsProvider =
-    FutureProvider<List<PaymentSubmission>>((ref) async {
-      return ref.watch(paymentRepositoryProvider).fetchMySubmissions();
-    });
+final myPaymentSubmissionsProvider = FutureProvider<List<PaymentSubmission>>((
+  ref,
+) async {
+  return ref.watch(paymentRepositoryProvider).fetchMySubmissions();
+});
 
 /// This account's own plan cancellations, newest first (own rows under RLS).
 ///

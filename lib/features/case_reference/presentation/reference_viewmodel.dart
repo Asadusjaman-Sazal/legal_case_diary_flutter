@@ -11,15 +11,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/presentation/base_list_viewmodel.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
+import '../data/local/shared_case_references_dao.dart';
 import '../data/reference_repository.dart';
 
 /// AsyncNotifier for the case references feature.
-class ReferenceViewModel extends BaseListViewModel<CaseReference, ReferenceRepository> {
+class ReferenceViewModel
+    extends BaseListViewModel<CaseReference, ReferenceRepository> {
   /// Riverpod provider for [ReferenceViewModel].
   static final provider =
       AsyncNotifierProvider<ReferenceViewModel, ListState<CaseReference>>(
-    () => ReferenceViewModel(),
-  );
+        () => ReferenceViewModel(),
+      );
 
   @override
   FutureProvider<ReferenceRepository> get repositoryProvider =>
@@ -47,7 +49,8 @@ class ReferenceViewModel extends BaseListViewModel<CaseReference, ReferenceRepos
     CaseReference? baseReference,
   }) async {
     await withRepo(
-      (repo) async => await repo.updateReference(companion, baseReference: baseReference),
+      (repo) async =>
+          await repo.updateReference(companion, baseReference: baseReference),
     );
   }
 
@@ -69,3 +72,15 @@ class ReferenceViewModel extends BaseListViewModel<CaseReference, ReferenceRepos
 
 /// Global provider alias for the case references ViewModel.
 final referenceViewModelProvider = ReferenceViewModel.provider;
+
+/// The server-wide citation library as this device caches it, with its pins.
+///
+/// Kept out of [ReferenceViewModel] on purpose: these rows are a pull-only cache
+/// the phone cannot write, so they have no place in a notifier whose job is to
+/// queue mutations. The screen watches both and merges them for display.
+final officialReferencesProvider = StreamProvider<List<OfficialReference>>((
+  ref,
+) async* {
+  final repo = await ref.watch(sharedReferenceRepositoryProvider.future);
+  yield* repo.watchAll();
+});

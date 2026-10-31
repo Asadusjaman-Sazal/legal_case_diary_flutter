@@ -57,9 +57,13 @@ void main() {
       );
       expect(
         onDisk.length,
-        83,
+        85,
         reason:
-            'The law list (2026-10-30) added two files: `public.laws` with the '
+            'The server-wide citation library (2026-10-31) added two files: '
+            '`public.shared_case_references`, read by every signed-in account '
+            'and written only by an admin, and the grant correction that made '
+            'its own admin policy reachable. The law list (2026-10-30) added '
+            'two files: `public.laws` with the '
             'shared sync, guard, permission, broadcast and delta-index '
             'contract, and the generated 57-row seed that names the same stable '
             'IDs as the phone. '

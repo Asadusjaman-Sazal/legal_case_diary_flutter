@@ -22,6 +22,14 @@ import 'sync_queue_dao.dart';
 import 'sync_table_bindings.dart';
 import 'sync_transport.dart';
 
+/// Pull-only cache tables: read from the server and never pushed.
+///
+/// They are outside [syncTableByEntityType] on purpose. A cache has no queue
+/// entity, no push binding and no local mutation to reconcile, so it must not be
+/// reachable from the push path at all; it only needs a cursor and an upsert.
+/// `shared_case_references` is the admin-curated citation library (Phase 5).
+const List<String> pullOnlyCacheTables = <String>['shared_case_references'];
+
 /// What one delta pull did, for logging and tests.
 class PullOutcome {
   /// Creates an outcome.
@@ -81,8 +89,13 @@ class PullWorker {
       rows += result.rows;
       conflicts += result.conflicts;
     }
+    for (final table in pullOnlyCacheTables) {
+      if (fromSentinel) await metadata.clearCursor(table);
+      rows += await _pullCacheTable(table);
+    }
     return PullOutcome(
-      tables: syncPullTablesInDependencyOrder.length,
+      tables:
+          syncPullTablesInDependencyOrder.length + pullOnlyCacheTables.length,
       rows: rows,
       conflicts: conflicts,
     );
@@ -132,7 +145,8 @@ class PullWorker {
       if (page.isEmpty) break;
 
       final next = _cursorOf(page.last);
-      final target = next != null &&
+      final target =
+          next != null &&
               (cursor == null ||
                   next.time != cursor.time ||
                   next.id != cursor.id)
@@ -159,6 +173,61 @@ class PullWorker {
     }
 
     return (rows: rows, conflicts: conflicts);
+  }
+
+  /// Pages one pull-only cache table into its local table.
+  ///
+  /// A cache row has no local work to protect, so it is upserted by id with no
+  /// conflict check; the page and its cursor commit together for the same reason
+  /// a domain table's do.
+  Future<int> _pullCacheTable(String table) async {
+    var rows = 0;
+    var cursor = await metadata.getCursor(table);
+
+    while (true) {
+      final page = await transport.fetchPage(
+        table,
+        sinceTime: cursor?.time,
+        sinceId: cursor?.id,
+        limit: pageSize,
+      );
+      if (page.isEmpty) break;
+
+      final next = _cursorOf(page.last);
+      final target =
+          next != null &&
+              (cursor == null ||
+                  next.time != cursor.time ||
+                  next.id != cursor.id)
+          ? next
+          : null;
+
+      await db.transaction(() async {
+        for (final row in page) {
+          rows++;
+          await _applyCacheRow(table, row);
+        }
+        if (target != null) await metadata.setCursor(table, target);
+      });
+
+      if (target == null) break;
+      cursor = target;
+      if (page.length < pageSize) break;
+    }
+
+    return rows;
+  }
+
+  /// Upserts one cache row into the local table it belongs to.
+  Future<void> _applyCacheRow(String table, Map<String, dynamic> row) async {
+    switch (table) {
+      case 'shared_case_references':
+        await db
+            .into(db.sharedCaseReferences)
+            .insertOnConflictUpdate(
+              SharedCaseReference.fromJson(snakeToCamelMap(row)),
+            );
+    }
   }
 
   /// Applies one pulled row; returns true when it was recorded as a conflict.
@@ -227,5 +296,4 @@ class PullWorker {
     }
     return null;
   }
-
 }

@@ -124,6 +124,8 @@ checks that roll back) and the read-only counts
 | 0.0.715 | 2026-10-30 | `20261030110000_default_table_privileges_no_anon.sql` | Future public tables are closed to unauthenticated callers. Supabase's own default still grants `anon` every table privilege (`arwdDxtm`) on a new table in `public`; the app never calls the Data API without a session, so that grant is a leftover. The statement revokes the whole set from `anon` for tables created by the migration role from now on — the four DML verbs are not enough, because truncate, references, trigger and maintain are part of the same legacy grant. Existing tables keep their grants (a default privilege cannot touch an existing object), and `authenticated` and `service_role` keep the four DML verbs from the previous migration. |
 | 0.0.745 | 2026-10-30 | `20261030120000_laws_table.sql` | The statute list becomes a shared row set. `public.laws` is the seventh push/pull domain reference table: the phone's law names, their seven categories and their order, plus the two server-owned columns every domain table carries (`server_updated_at` and the firm-mode `scope_owner_id`). It takes the reference-table RLS matrix — built-in rows readable by every install, a custom row only by its own firm-less diary, its chamber or its dissolve scope owner — the table-level revoke plus column grant that keeps `scope_owner_id` server-only, the sync, delete, resurrection, permission and broadcast triggers, and the three delta indexes. Eight functions are re-created with `laws` in the list each one holds: `sync_entity_table` and `sync_dependency_rank` for the push path, `sync_can_write` for the verdict on a law write, `ensure_firm` so a chamber takes the owner's custom names at creation, `holds_own_diary` so a custom law counts as the author's own diary, `dissolve_firm` so they pass back to the owner, `purge_tombstones` so a law tombstone finally ages out, and `delete_my_account` so an account's custom names go with its other rows. |
 | 0.0.745 | 2026-10-30 | `20261030121000_laws_reference_data.sql` | The 57 built-in law names, generated from `lib/core/constants/pre_seeded_data.dart` by `tool/generate_supabase_seed.dart`: the list and order of `docs/seed_data_test/LawsOfBangladesh.md`, under its seven category IDs, with the same stable IDs the phone's `seed_v3` migration writes. The upsert refreshes a built-in name and leaves a row the user or their chamber renamed untouched, exactly as the six reference tables' seed does. |
+| 0.0.748 | 2026-10-31 | `20261031100000_shared_case_references.sql` | The server-wide citation library. `public.shared_case_references` holds the five reference fields an admin publishes, with `is_deleted` and the trigger-stamped `server_updated_at` the delta pull pages on — and no owner columns at all, because the phone never pushes to it (table class: server-managed on the server, pull-only cache on the phone). Every signed-in account may SELECT, including a tombstone so a removed citation can disappear from a phone; INSERT, UPDATE and DELETE are each gated by `is_app_admin()`. The revoke of the client write verbs was undone by the next file. The table carries the server-timestamp and realtime broadcast triggers and one delta index; the firm guards are deliberately absent because they read a `firm_id` this table does not have, and the admin policy is the whole write boundary. |
+| 0.0.748 | 2026-10-31 | `20261031101000_shared_case_references_write_grant.sql` | Restores the write privileges the previous file revoked. That file revoked INSERT, UPDATE and DELETE from `authenticated` while its RLS policies already restricted every write to `is_app_admin()`; the privilege check runs first, so the policies could never be reached and an administrator could not publish a citation either. This statement grants the three verbs to `authenticated`, leaves the admin policies as the boundary, and revokes everything from `anon`. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -21730,6 +21732,162 @@ on conflict (id) do update set
   order_index = excluded.order_index,
   updated_at = excluded.updated_at
 where laws.is_user_modified = false;
+```
+
+## App Version 0.0.748 — Case Reference — The Server-Wide Citation Library
+
+### 0.0.748 · `20261031100000_shared_case_references.sql`
+
+> **Created 2026-10-31.** The server-wide citation library. `public.shared_case_references` holds the five reference fields an admin publishes, with `is_deleted` and the trigger-stamped `server_updated_at` the delta pull pages on — and no owner columns at all, because the phone never pushes to it (table class: server-managed on the server, pull-only cache on the phone). Every signed-in account may SELECT, including a tombstone so a removed citation can disappear from a phone; INSERT, UPDATE and DELETE are each gated by `is_app_admin()`. The revoke of the client write verbs was undone by the next file. The table carries the server-timestamp and realtime broadcast triggers and one delta index; the firm guards are deliberately absent because they read a `firm_id` this table does not have, and the admin policy is the whole write boundary.
+
+```sql
+-- Server-wide case references — Phase 5 of the law-list plan.
+--
+-- A bar library the app's administrators curate: precedents and citations every
+-- signed-in account reads, stored once on the server rather than typed into each
+-- phone. The user's own references (`case_references`) are untouched: this is a
+-- separate table with no owner columns, so the 50-case wall, the lapse
+-- allowance and every firm rule keep applying to the user's own rows only.
+--
+-- Table class (AGENTS.md rule 4): **server-managed** on the server, **pull-only
+-- cache** on the phone. It is never pushed: the phone has no write path to it,
+-- which is why it carries no `user_id`, `firm_id`, `version`, `updated_at` or
+-- `synced_at` — there is no client mutation to reconcile, and the delta pull's
+-- cursor (not a client clock) is what orders it.
+--
+-- What this file does, in order:
+--
+--   1. Creates `public.shared_case_references` with the five reference fields
+--      the phone's own references carry, plus `is_deleted` and the
+--      trigger-stamped `server_updated_at` the delta pull pages on.
+--   2. RLS: every signed-in account reads every row (including a tombstone, so a
+--      removed citation can disappear from a phone); only `is_app_admin()` may
+--      insert, update or delete. There is no owner, so there is no self-or-firm
+--      matrix here — the admin check IS the boundary.
+--   3. Grants: the default table privileges would give `authenticated` insert,
+--      update and delete on a public table (migration 20261030100000). They are
+--      revoked, leaving SELECT — the only privilege a client needs — so a
+--      non-admin's write is refused by the table privilege before RLS is even
+--      consulted.
+--   4. Triggers: the server timestamp and the realtime broadcast. No delete
+--      transition, resurrection or member-permission guard: each of those reads
+--      `firm_id` or a creator, and this table has neither; the RLS admin check
+--      is the whole write boundary.
+--   5. Indexes: the delta cursor. One composite index is enough because the
+--      table has no scope column to slice by.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — AGENTS.md rule 12.
+
+-- ---------------------------------------------------------------------------
+-- 1. The table
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.shared_case_references (
+  id text primary key,
+  reference_and_page_no text not null,
+  statute text,
+  section_or_article text,
+  title_and_description text,
+  comments_notes text,
+  is_deleted boolean not null default false,
+  server_updated_at timestamptz not null default now()
+);
+
+comment on table public.shared_case_references is
+  'Server-wide case references curated by the app''s administrators. Read by every signed-in account, written only by an admin; the phone keeps them as a pull-only cache and never pushes to this table.';
+comment on column public.shared_case_references.server_updated_at is
+  'Trigger-stamped on every write. The delta pull pages on (server_updated_at, id); clients never send it.';
+
+-- ---------------------------------------------------------------------------
+-- 2. Row-level security — read for everyone signed in, write for an admin
+-- ---------------------------------------------------------------------------
+
+alter table public.shared_case_references enable row level security;
+
+drop policy if exists shared_case_references_select_all
+  on public.shared_case_references;
+create policy shared_case_references_select_all
+  on public.shared_case_references
+  for select to authenticated
+  using (true);
+
+drop policy if exists shared_case_references_insert_admin
+  on public.shared_case_references;
+create policy shared_case_references_insert_admin
+  on public.shared_case_references
+  for insert to authenticated
+  with check (public.is_app_admin());
+
+drop policy if exists shared_case_references_update_admin
+  on public.shared_case_references;
+create policy shared_case_references_update_admin
+  on public.shared_case_references
+  for update to authenticated
+  using (public.is_app_admin())
+  with check (public.is_app_admin());
+
+drop policy if exists shared_case_references_delete_admin
+  on public.shared_case_references;
+create policy shared_case_references_delete_admin
+  on public.shared_case_references
+  for delete to authenticated
+  using (public.is_app_admin());
+
+-- ---------------------------------------------------------------------------
+-- 3. Grants — read only for a client
+-- ---------------------------------------------------------------------------
+
+revoke insert, update, delete on public.shared_case_references
+  from authenticated, anon;
+grant select on public.shared_case_references to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 4. Triggers
+-- ---------------------------------------------------------------------------
+
+drop trigger if exists trg_shared_case_references_server_updated_at
+  on public.shared_case_references;
+create trigger trg_shared_case_references_server_updated_at
+  before insert or update on public.shared_case_references
+  for each row execute function public.set_server_updated_at();
+
+drop trigger if exists trg_shared_case_references_broadcast
+  on public.shared_case_references;
+create trigger trg_shared_case_references_broadcast
+  after insert or update on public.shared_case_references
+  for each row execute function public.broadcast_row_change();
+
+-- ---------------------------------------------------------------------------
+-- 5. Index — the delta pull reads this
+-- ---------------------------------------------------------------------------
+
+create index if not exists shared_case_references_delta_idx
+  on public.shared_case_references (server_updated_at, id);
+```
+
+### 0.0.748 · `20261031101000_shared_case_references_write_grant.sql`
+
+> **Created 2026-10-31.** Restores the write privileges the previous file revoked. That file revoked INSERT, UPDATE and DELETE from `authenticated` while its RLS policies already restricted every write to `is_app_admin()`; the privilege check runs first, so the policies could never be reached and an administrator could not publish a citation either. This statement grants the three verbs to `authenticated`, leaves the admin policies as the boundary, and revokes everything from `anon`.
+
+```sql
+-- The admin's write grant on the shared citation library.
+--
+-- `20261031100000_shared_case_references.sql` revoked INSERT/UPDATE/DELETE from
+-- `authenticated` while its RLS policies already restrict every write to
+-- `is_app_admin()`. Those two decisions cancel each other out: the policies can
+-- never be reached, because the privilege check runs first, so an administrator
+-- could not publish a citation either. This migration restores the three write
+-- privileges to `authenticated` and leaves the admin policies as the boundary
+-- they were meant to be.
+--
+-- `anon` keeps nothing: the app has no unauthenticated table access, and this
+-- table is behind sign-in like every other screen.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — AGENTS.md rule 12.
+
+grant select, insert, update, delete on public.shared_case_references
+  to authenticated;
+revoke all on public.shared_case_references from anon;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

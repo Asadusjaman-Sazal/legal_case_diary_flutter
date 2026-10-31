@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(86),
+        hasLength(87),
         reason:
+            'The Parties change (2026-10-31) added one file: the new column on '
+            'both reference libraries. '
             'The Case Note and Tags change (2026-10-31) added one file: the two '
             'new columns on both reference libraries. '
             'The server-wide citation library (2026-10-31) added two files. '
@@ -171,7 +173,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(86),
+        hasLength(87),
         reason: 'versions must be unique',
       );
       expect(
@@ -180,7 +182,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261031140000');
+      expect(versions.last, '20261031160000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

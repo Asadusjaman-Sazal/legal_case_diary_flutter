@@ -46,7 +46,7 @@ class CaseReferencesDao {
     return query.watch();
   }
 
-  /// Searches non-deleted references across all seven text fields (case-insensitive).
+  /// Searches non-deleted references across all eight text fields (case-insensitive).
   Future<List<CaseReference>> search(
     String query, {
     int? limit,
@@ -58,6 +58,7 @@ class CaseReferencesDao {
         (row) =>
             row.isDeleted.equals(false) &
             (row.referenceAndPageNo.lower().like(pattern) |
+                row.parties.lower().like(pattern) |
                 row.statute.lower().like(pattern) |
                 row.sectionOrArticle.lower().like(pattern) |
                 row.titleAndDescription.lower().like(pattern) |

@@ -204,6 +204,7 @@ class LocalReferenceRepository
     if (companion.referenceAndPageNo.present) {
       fields.add('reference_and_page_no');
     }
+    if (companion.parties.present) fields.add('parties');
     if (companion.statute.present) fields.add('statute');
     if (companion.sectionOrArticle.present) fields.add('section_or_article');
     if (companion.titleAndDescription.present) {

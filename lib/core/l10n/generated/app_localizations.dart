@@ -1214,6 +1214,12 @@ abstract class AppLocalizations {
   /// **'Citation'**
   String get caseReferenceScreen_referenceAndPageNo;
 
+  /// No description provided for @caseReferenceScreen_parties.
+  ///
+  /// In en, this message translates to:
+  /// **'Parties to the Case'**
+  String get caseReferenceScreen_parties;
+
   /// No description provided for @caseReferenceScreen_statute.
   ///
   /// In en, this message translates to:

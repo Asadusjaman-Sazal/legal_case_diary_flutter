@@ -159,6 +159,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
               ? l.caseReferenceScreen_addTitle
               : l.caseReferenceScreen_editTitle,
           referenceAndPageNo: reference?.referenceAndPageNo ?? '',
+          parties: reference?.parties ?? '',
           statute: reference?.statute ?? initialStatute,
           sectionOrArticle: reference?.sectionOrArticle ?? '',
           caseNote: reference?.caseNote ?? '',
@@ -223,6 +224,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
 
     final companion = CaseReferencesCompanion(
       referenceAndPageNo: Value(values.referenceAndPageNo),
+      parties: Value(values.parties),
       statute: Value(values.statute),
       sectionOrArticle: Value(values.sectionOrArticle),
       caseNote: Value(values.caseNote),

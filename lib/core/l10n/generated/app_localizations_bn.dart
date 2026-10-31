@@ -637,6 +637,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_referenceAndPageNo => 'মামলার রেফারেন্স';
 
   @override
+  String get caseReferenceScreen_parties => 'মামলার পক্ষসমূহ';
+
+  @override
   String get caseReferenceScreen_statute => 'আইন';
 
   @override

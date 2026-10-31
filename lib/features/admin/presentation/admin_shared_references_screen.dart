@@ -130,6 +130,7 @@ class _AdminSharedReferencesScreenState
               ? l.adminSharedRefs_addTitle
               : l.adminSharedRefs_editTitle,
           referenceAndPageNo: reference?.referenceAndPageNo ?? '',
+          parties: reference?.parties ?? '',
           statute: reference?.statute ?? initialStatute,
           sectionOrArticle: reference?.sectionOrArticle ?? '',
           titleAndDescription: reference?.titleAndDescription ?? '',
@@ -170,6 +171,7 @@ class _AdminSharedReferencesScreenState
     final reference = AdminSharedReference(
       id: existing?.id ?? const Uuid().v4(),
       referenceAndPageNo: values.referenceAndPageNo,
+      parties: values.parties,
       statute: values.statute,
       sectionOrArticle: values.sectionOrArticle,
       titleAndDescription: values.titleAndDescription,
@@ -324,6 +326,7 @@ class _AdminSharedReferencesScreenState
                 ReferenceRow.admin(
                   id: row.id,
                   referenceAndPageNo: row.referenceAndPageNo,
+                  parties: row.parties,
                   statute: row.statute,
                   sectionOrArticle: row.sectionOrArticle,
                   titleAndDescription: row.titleAndDescription,
@@ -342,6 +345,7 @@ class _AdminSharedReferencesScreenState
                       .where(
                         (row) => adminTextMatches(_query, <String?>[
                           row.referenceAndPageNo,
+                          row.parties,
                           row.statute,
                           row.sectionOrArticle,
                           row.titleAndDescription,

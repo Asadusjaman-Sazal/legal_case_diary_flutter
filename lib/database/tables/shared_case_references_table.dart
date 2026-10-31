@@ -22,6 +22,9 @@ class SharedCaseReferences extends Table {
   /// Reference and page number, e.g. `29 DLR (AD) 69`.
   TextColumn get referenceAndPageNo => text()();
 
+  /// The parties to the case, e.g. `State vs. Md. Karim`.
+  TextColumn get parties => text().nullable()();
+
   /// The cited Act/statute name, as free text like the user's own references.
   TextColumn get statute => text().nullable()();
 

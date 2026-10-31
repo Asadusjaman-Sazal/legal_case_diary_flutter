@@ -57,9 +57,11 @@ void main() {
       );
       expect(
         onDisk.length,
-        86,
+        87,
         reason:
-            'The Case Note and Tags change (2026-10-31) added one file: the two '
+            'The Parties change (2026-10-31) added one file: the new column on '
+            'both reference libraries. The Case Note and Tags change '
+            '(2026-10-31) added one file: the two '
             'new columns on both reference libraries. The server-wide citation '
             'library (2026-10-31) added two files: '
             '`public.shared_case_references`, read by every signed-in account '

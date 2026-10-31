@@ -224,6 +224,7 @@ class AppTranslations {
           _loc.caseReferenceScreen_commentsNotes,
       AppStrings.caseReferenceScreenReferenceandpageno:
           _loc.caseReferenceScreen_referenceAndPageNo,
+      AppStrings.caseReferenceScreenParties: _loc.caseReferenceScreen_parties,
       AppStrings.caseReferenceScreenSectionorarticle:
           _loc.caseReferenceScreen_sectionOrArticle,
       AppStrings.caseReferenceScreenStatute: _loc.caseReferenceScreen_statute,

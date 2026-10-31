@@ -64,7 +64,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -87,7 +87,8 @@ class AppDatabase extends _$AppDatabase {
   /// then v15→v16 by adding the law-name list (`laws`), then v16→v17 by adding
   /// the law category that list groups its names under, then v17→v18 by adding
   /// the server-wide references cache and its per-device pin table, then
-  /// v18→v19 by adding the case note and tags to both reference libraries.
+  /// v18→v19 by adding the case note and tags to both reference libraries, then
+  /// v19→v20 by adding the parties to the case to both.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -209,6 +210,12 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(caseReferences, caseReferences.tags);
         await m.addColumn(sharedCaseReferences, sharedCaseReferences.caseNote);
         await m.addColumn(sharedCaseReferences, sharedCaseReferences.tags);
+      }
+      if (from < 20) {
+        // The parties to the case on both reference libraries. Additive and
+        // nullable, so an older citation carries none until it is edited.
+        await m.addColumn(caseReferences, caseReferences.parties);
+        await m.addColumn(sharedCaseReferences, sharedCaseReferences.parties);
       }
     },
     beforeOpen: (details) async {

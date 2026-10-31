@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-10-31 — Parties to the Case joins both reference libraries — COMPLETE (0.0.758)
+
+- **What was asked.** Add the field forgotten in 0.0.756 — **Parties to the Case / মামলার পক্ষসমূহ** — and show it in the form after Citation.
+- **The field.** The shared form now has eight fields, with Parties second, right after Citation. It is a nullable `parties` text column on both `case_references` and `shared_case_references`: phone schema v20 and server migration `20261031160000`, applied to `lsthasywrdrhuuxnykau` after a rolled-back rehearsal and re-probed (columns present, history 87).
+- **On the screens.** The card shows the parties as a line under the citation/statute/tags chips; search covers all eight fields in both DAOs and the admin's in-memory search, so a party name finds every citation naming it. Both window saves carry it, and the official payload model/JSON include it.
+- **Proof.** The case-note/tags test now seeds and finds a party; both form tests enter parties and assert the saved value; admin search covers a party name. `flutter analyze` clean; the feature suite passes (23) and the data/sync/schema/localisation suites (366). Full suite: **2,250 passed**, with only the known pre-existing backup export-list failure.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-10-31 — The Act/Law picker swaps its two text sizes — COMPLETE (0.0.757)
 
 - **What was asked.** In the Act/Law dropdown of the shared Case Reference form, the category should use the law names' size and become bold, and the law names should use the category's size.

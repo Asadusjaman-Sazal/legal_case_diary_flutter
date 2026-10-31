@@ -636,6 +636,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseReferenceScreen_referenceAndPageNo => 'Citation';
 
   @override
+  String get caseReferenceScreen_parties => 'Parties to the Case';
+
+  @override
   String get caseReferenceScreen_statute => 'Act/Law';
 
   @override

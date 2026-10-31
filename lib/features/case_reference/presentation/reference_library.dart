@@ -33,6 +33,7 @@ class ReferenceRow {
   ReferenceRow.own(CaseReference reference)
     : id = reference.id,
       referenceAndPageNo = reference.referenceAndPageNo,
+      parties = reference.parties,
       statute = reference.statute,
       sectionOrArticle = reference.sectionOrArticle,
       titleAndDescription = reference.titleAndDescription,
@@ -48,6 +49,7 @@ class ReferenceRow {
   ReferenceRow.official(OfficialReference entry)
     : id = entry.row.id,
       referenceAndPageNo = entry.row.referenceAndPageNo,
+      parties = entry.row.parties,
       statute = entry.row.statute,
       sectionOrArticle = entry.row.sectionOrArticle,
       titleAndDescription = entry.row.titleAndDescription,
@@ -65,6 +67,7 @@ class ReferenceRow {
   ReferenceRow.admin({
     required this.id,
     required this.referenceAndPageNo,
+    this.parties,
     this.statute,
     this.sectionOrArticle,
     this.titleAndDescription,
@@ -78,6 +81,7 @@ class ReferenceRow {
 
   final String id;
   final String referenceAndPageNo;
+  final String? parties;
   final String? statute;
   final String? sectionOrArticle;
   final String? titleAndDescription;
@@ -637,6 +641,16 @@ class _ReferenceCardState extends State<ReferenceCard> {
                       for (final tag in referenceTags(row.tags))
                         _TagChip(label: tag),
                     ],
+                  ),
+                ],
+                // The parties the case was between, under the citation chips.
+                if (row.parties != null && row.parties!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    row.parties!,
+                    style: AppTypography.bodyMd.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ],
                 const SizedBox(height: AppSpacing.sm),

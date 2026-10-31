@@ -231,6 +231,7 @@ class AdminSharedReference {
   const AdminSharedReference({
     required this.id,
     required this.referenceAndPageNo,
+    this.parties,
     this.statute,
     this.sectionOrArticle,
     this.titleAndDescription,
@@ -244,6 +245,7 @@ class AdminSharedReference {
       AdminSharedReference(
         id: json['id'] as String? ?? '',
         referenceAndPageNo: json['reference_and_page_no'] as String? ?? '',
+        parties: json['parties'] as String?,
         statute: json['statute'] as String?,
         sectionOrArticle: json['section_or_article'] as String?,
         titleAndDescription: json['title_and_description'] as String?,
@@ -257,6 +259,9 @@ class AdminSharedReference {
 
   /// Reference and page number, e.g. `29 DLR (AD) 69`.
   final String referenceAndPageNo;
+
+  /// The parties to the case, e.g. `State vs. Md. Karim`.
+  final String? parties;
 
   /// The cited Act/statute name, as free text like the user's own references.
   final String? statute;
@@ -283,6 +288,7 @@ class AdminSharedReference {
   Map<String, dynamic> toJson() => <String, dynamic>{
     'id': id,
     'reference_and_page_no': referenceAndPageNo,
+    'parties': parties,
     'statute': statute,
     'section_or_article': sectionOrArticle,
     'title_and_description': titleAndDescription,

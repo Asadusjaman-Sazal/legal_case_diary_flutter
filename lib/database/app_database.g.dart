@@ -9423,6 +9423,17 @@ class $CaseReferencesTable extends CaseReferences
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _partiesMeta = const VerificationMeta(
+    'parties',
+  );
+  @override
+  late final GeneratedColumn<String> parties = GeneratedColumn<String>(
+    'parties',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _statuteMeta = const VerificationMeta(
     'statute',
   );
@@ -9578,6 +9589,7 @@ class $CaseReferencesTable extends CaseReferences
     userId,
     firmId,
     referenceAndPageNo,
+    parties,
     statute,
     sectionOrArticle,
     titleAndDescription,
@@ -9633,6 +9645,12 @@ class $CaseReferencesTable extends CaseReferences
       );
     } else if (isInserting) {
       context.missing(_referenceAndPageNoMeta);
+    }
+    if (data.containsKey('parties')) {
+      context.handle(
+        _partiesMeta,
+        parties.isAcceptableOrUnknown(data['parties']!, _partiesMeta),
+      );
     }
     if (data.containsKey('statute')) {
       context.handle(
@@ -9753,6 +9771,10 @@ class $CaseReferencesTable extends CaseReferences
         DriftSqlType.string,
         data['${effectivePrefix}reference_and_page_no'],
       )!,
+      parties: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parties'],
+      ),
       statute: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}statute'],
@@ -9827,6 +9849,9 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
   /// Reference and page number.
   final String referenceAndPageNo;
 
+  /// The parties to the case, e.g. `State vs. Md. Karim`.
+  final String? parties;
+
   /// Statute or act name.
   final String? statute;
 
@@ -9860,6 +9885,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     required this.userId,
     this.firmId,
     required this.referenceAndPageNo,
+    this.parties,
     this.statute,
     this.sectionOrArticle,
     this.titleAndDescription,
@@ -9883,6 +9909,9 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       map['firm_id'] = Variable<String>(firmId);
     }
     map['reference_and_page_no'] = Variable<String>(referenceAndPageNo);
+    if (!nullToAbsent || parties != null) {
+      map['parties'] = Variable<String>(parties);
+    }
     if (!nullToAbsent || statute != null) {
       map['statute'] = Variable<String>(statute);
     }
@@ -9925,6 +9954,9 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
           ? const Value.absent()
           : Value(firmId),
       referenceAndPageNo: Value(referenceAndPageNo),
+      parties: parties == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parties),
       statute: statute == null && nullToAbsent
           ? const Value.absent()
           : Value(statute),
@@ -9969,6 +10001,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       referenceAndPageNo: serializer.fromJson<String>(
         json['referenceAndPageNo'],
       ),
+      parties: serializer.fromJson<String?>(json['parties']),
       statute: serializer.fromJson<String?>(json['statute']),
       sectionOrArticle: serializer.fromJson<String?>(json['sectionOrArticle']),
       titleAndDescription: serializer.fromJson<String?>(
@@ -9994,6 +10027,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       'userId': serializer.toJson<String>(userId),
       'firmId': serializer.toJson<String?>(firmId),
       'referenceAndPageNo': serializer.toJson<String>(referenceAndPageNo),
+      'parties': serializer.toJson<String?>(parties),
       'statute': serializer.toJson<String?>(statute),
       'sectionOrArticle': serializer.toJson<String?>(sectionOrArticle),
       'titleAndDescription': serializer.toJson<String?>(titleAndDescription),
@@ -10015,6 +10049,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     String? userId,
     Value<String?> firmId = const Value.absent(),
     String? referenceAndPageNo,
+    Value<String?> parties = const Value.absent(),
     Value<String?> statute = const Value.absent(),
     Value<String?> sectionOrArticle = const Value.absent(),
     Value<String?> titleAndDescription = const Value.absent(),
@@ -10033,6 +10068,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     userId: userId ?? this.userId,
     firmId: firmId.present ? firmId.value : this.firmId,
     referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+    parties: parties.present ? parties.value : this.parties,
     statute: statute.present ? statute.value : this.statute,
     sectionOrArticle: sectionOrArticle.present
         ? sectionOrArticle.value
@@ -10063,6 +10099,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
       referenceAndPageNo: data.referenceAndPageNo.present
           ? data.referenceAndPageNo.value
           : this.referenceAndPageNo,
+      parties: data.parties.present ? data.parties.value : this.parties,
       statute: data.statute.present ? data.statute.value : this.statute,
       sectionOrArticle: data.sectionOrArticle.present
           ? data.sectionOrArticle.value
@@ -10094,6 +10131,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
           ..write('userId: $userId, ')
           ..write('firmId: $firmId, ')
           ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('parties: $parties, ')
           ..write('statute: $statute, ')
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
@@ -10117,6 +10155,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
     userId,
     firmId,
     referenceAndPageNo,
+    parties,
     statute,
     sectionOrArticle,
     titleAndDescription,
@@ -10139,6 +10178,7 @@ class CaseReference extends DataClass implements Insertable<CaseReference> {
           other.userId == this.userId &&
           other.firmId == this.firmId &&
           other.referenceAndPageNo == this.referenceAndPageNo &&
+          other.parties == this.parties &&
           other.statute == this.statute &&
           other.sectionOrArticle == this.sectionOrArticle &&
           other.titleAndDescription == this.titleAndDescription &&
@@ -10159,6 +10199,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
   final Value<String> userId;
   final Value<String?> firmId;
   final Value<String> referenceAndPageNo;
+  final Value<String?> parties;
   final Value<String?> statute;
   final Value<String?> sectionOrArticle;
   final Value<String?> titleAndDescription;
@@ -10178,6 +10219,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     this.userId = const Value.absent(),
     this.firmId = const Value.absent(),
     this.referenceAndPageNo = const Value.absent(),
+    this.parties = const Value.absent(),
     this.statute = const Value.absent(),
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
@@ -10198,6 +10240,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     required String userId,
     this.firmId = const Value.absent(),
     required String referenceAndPageNo,
+    this.parties = const Value.absent(),
     this.statute = const Value.absent(),
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
@@ -10222,6 +10265,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     Expression<String>? userId,
     Expression<String>? firmId,
     Expression<String>? referenceAndPageNo,
+    Expression<String>? parties,
     Expression<String>? statute,
     Expression<String>? sectionOrArticle,
     Expression<String>? titleAndDescription,
@@ -10243,6 +10287,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
       if (firmId != null) 'firm_id': firmId,
       if (referenceAndPageNo != null)
         'reference_and_page_no': referenceAndPageNo,
+      if (parties != null) 'parties': parties,
       if (statute != null) 'statute': statute,
       if (sectionOrArticle != null) 'section_or_article': sectionOrArticle,
       if (titleAndDescription != null)
@@ -10266,6 +10311,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     Value<String>? userId,
     Value<String?>? firmId,
     Value<String>? referenceAndPageNo,
+    Value<String?>? parties,
     Value<String?>? statute,
     Value<String?>? sectionOrArticle,
     Value<String?>? titleAndDescription,
@@ -10286,6 +10332,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
       userId: userId ?? this.userId,
       firmId: firmId ?? this.firmId,
       referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+      parties: parties ?? this.parties,
       statute: statute ?? this.statute,
       sectionOrArticle: sectionOrArticle ?? this.sectionOrArticle,
       titleAndDescription: titleAndDescription ?? this.titleAndDescription,
@@ -10317,6 +10364,9 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
     }
     if (referenceAndPageNo.present) {
       map['reference_and_page_no'] = Variable<String>(referenceAndPageNo.value);
+    }
+    if (parties.present) {
+      map['parties'] = Variable<String>(parties.value);
     }
     if (statute.present) {
       map['statute'] = Variable<String>(statute.value);
@@ -10372,6 +10422,7 @@ class CaseReferencesCompanion extends UpdateCompanion<CaseReference> {
           ..write('userId: $userId, ')
           ..write('firmId: $firmId, ')
           ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('parties: $parties, ')
           ..write('statute: $statute, ')
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
@@ -17226,6 +17277,17 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _partiesMeta = const VerificationMeta(
+    'parties',
+  );
+  @override
+  late final GeneratedColumn<String> parties = GeneratedColumn<String>(
+    'parties',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _statuteMeta = const VerificationMeta(
     'statute',
   );
@@ -17309,6 +17371,7 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
   List<GeneratedColumn> get $columns => [
     id,
     referenceAndPageNo,
+    parties,
     statute,
     sectionOrArticle,
     titleAndDescription,
@@ -17344,6 +17407,12 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
       );
     } else if (isInserting) {
       context.missing(_referenceAndPageNoMeta);
+    }
+    if (data.containsKey('parties')) {
+      context.handle(
+        _partiesMeta,
+        parties.isAcceptableOrUnknown(data['parties']!, _partiesMeta),
+      );
     }
     if (data.containsKey('statute')) {
       context.handle(
@@ -17413,6 +17482,10 @@ class $SharedCaseReferencesTable extends SharedCaseReferences
         DriftSqlType.string,
         data['${effectivePrefix}reference_and_page_no'],
       )!,
+      parties: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parties'],
+      ),
       statute: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}statute'],
@@ -17458,6 +17531,9 @@ class SharedCaseReference extends DataClass
   /// Reference and page number, e.g. `29 DLR (AD) 69`.
   final String referenceAndPageNo;
 
+  /// The parties to the case, e.g. `State vs. Md. Karim`.
+  final String? parties;
+
   /// The cited Act/statute name, as free text like the user's own references.
   final String? statute;
 
@@ -17481,6 +17557,7 @@ class SharedCaseReference extends DataClass
   const SharedCaseReference({
     required this.id,
     required this.referenceAndPageNo,
+    this.parties,
     this.statute,
     this.sectionOrArticle,
     this.titleAndDescription,
@@ -17494,6 +17571,9 @@ class SharedCaseReference extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['reference_and_page_no'] = Variable<String>(referenceAndPageNo);
+    if (!nullToAbsent || parties != null) {
+      map['parties'] = Variable<String>(parties);
+    }
     if (!nullToAbsent || statute != null) {
       map['statute'] = Variable<String>(statute);
     }
@@ -17520,6 +17600,9 @@ class SharedCaseReference extends DataClass
     return SharedCaseReferencesCompanion(
       id: Value(id),
       referenceAndPageNo: Value(referenceAndPageNo),
+      parties: parties == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parties),
       statute: statute == null && nullToAbsent
           ? const Value.absent()
           : Value(statute),
@@ -17550,6 +17633,7 @@ class SharedCaseReference extends DataClass
       referenceAndPageNo: serializer.fromJson<String>(
         json['referenceAndPageNo'],
       ),
+      parties: serializer.fromJson<String?>(json['parties']),
       statute: serializer.fromJson<String?>(json['statute']),
       sectionOrArticle: serializer.fromJson<String?>(json['sectionOrArticle']),
       titleAndDescription: serializer.fromJson<String?>(
@@ -17567,6 +17651,7 @@ class SharedCaseReference extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'referenceAndPageNo': serializer.toJson<String>(referenceAndPageNo),
+      'parties': serializer.toJson<String?>(parties),
       'statute': serializer.toJson<String?>(statute),
       'sectionOrArticle': serializer.toJson<String?>(sectionOrArticle),
       'titleAndDescription': serializer.toJson<String?>(titleAndDescription),
@@ -17580,6 +17665,7 @@ class SharedCaseReference extends DataClass
   SharedCaseReference copyWith({
     String? id,
     String? referenceAndPageNo,
+    Value<String?> parties = const Value.absent(),
     Value<String?> statute = const Value.absent(),
     Value<String?> sectionOrArticle = const Value.absent(),
     Value<String?> titleAndDescription = const Value.absent(),
@@ -17590,6 +17676,7 @@ class SharedCaseReference extends DataClass
   }) => SharedCaseReference(
     id: id ?? this.id,
     referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+    parties: parties.present ? parties.value : this.parties,
     statute: statute.present ? statute.value : this.statute,
     sectionOrArticle: sectionOrArticle.present
         ? sectionOrArticle.value
@@ -17610,6 +17697,7 @@ class SharedCaseReference extends DataClass
       referenceAndPageNo: data.referenceAndPageNo.present
           ? data.referenceAndPageNo.value
           : this.referenceAndPageNo,
+      parties: data.parties.present ? data.parties.value : this.parties,
       statute: data.statute.present ? data.statute.value : this.statute,
       sectionOrArticle: data.sectionOrArticle.present
           ? data.sectionOrArticle.value
@@ -17631,6 +17719,7 @@ class SharedCaseReference extends DataClass
     return (StringBuffer('SharedCaseReference(')
           ..write('id: $id, ')
           ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('parties: $parties, ')
           ..write('statute: $statute, ')
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
@@ -17646,6 +17735,7 @@ class SharedCaseReference extends DataClass
   int get hashCode => Object.hash(
     id,
     referenceAndPageNo,
+    parties,
     statute,
     sectionOrArticle,
     titleAndDescription,
@@ -17660,6 +17750,7 @@ class SharedCaseReference extends DataClass
       (other is SharedCaseReference &&
           other.id == this.id &&
           other.referenceAndPageNo == this.referenceAndPageNo &&
+          other.parties == this.parties &&
           other.statute == this.statute &&
           other.sectionOrArticle == this.sectionOrArticle &&
           other.titleAndDescription == this.titleAndDescription &&
@@ -17673,6 +17764,7 @@ class SharedCaseReferencesCompanion
     extends UpdateCompanion<SharedCaseReference> {
   final Value<String> id;
   final Value<String> referenceAndPageNo;
+  final Value<String?> parties;
   final Value<String?> statute;
   final Value<String?> sectionOrArticle;
   final Value<String?> titleAndDescription;
@@ -17684,6 +17776,7 @@ class SharedCaseReferencesCompanion
   const SharedCaseReferencesCompanion({
     this.id = const Value.absent(),
     this.referenceAndPageNo = const Value.absent(),
+    this.parties = const Value.absent(),
     this.statute = const Value.absent(),
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
@@ -17696,6 +17789,7 @@ class SharedCaseReferencesCompanion
   SharedCaseReferencesCompanion.insert({
     required String id,
     required String referenceAndPageNo,
+    this.parties = const Value.absent(),
     this.statute = const Value.absent(),
     this.sectionOrArticle = const Value.absent(),
     this.titleAndDescription = const Value.absent(),
@@ -17709,6 +17803,7 @@ class SharedCaseReferencesCompanion
   static Insertable<SharedCaseReference> custom({
     Expression<String>? id,
     Expression<String>? referenceAndPageNo,
+    Expression<String>? parties,
     Expression<String>? statute,
     Expression<String>? sectionOrArticle,
     Expression<String>? titleAndDescription,
@@ -17722,6 +17817,7 @@ class SharedCaseReferencesCompanion
       if (id != null) 'id': id,
       if (referenceAndPageNo != null)
         'reference_and_page_no': referenceAndPageNo,
+      if (parties != null) 'parties': parties,
       if (statute != null) 'statute': statute,
       if (sectionOrArticle != null) 'section_or_article': sectionOrArticle,
       if (titleAndDescription != null)
@@ -17737,6 +17833,7 @@ class SharedCaseReferencesCompanion
   SharedCaseReferencesCompanion copyWith({
     Value<String>? id,
     Value<String>? referenceAndPageNo,
+    Value<String?>? parties,
     Value<String?>? statute,
     Value<String?>? sectionOrArticle,
     Value<String?>? titleAndDescription,
@@ -17749,6 +17846,7 @@ class SharedCaseReferencesCompanion
     return SharedCaseReferencesCompanion(
       id: id ?? this.id,
       referenceAndPageNo: referenceAndPageNo ?? this.referenceAndPageNo,
+      parties: parties ?? this.parties,
       statute: statute ?? this.statute,
       sectionOrArticle: sectionOrArticle ?? this.sectionOrArticle,
       titleAndDescription: titleAndDescription ?? this.titleAndDescription,
@@ -17768,6 +17866,9 @@ class SharedCaseReferencesCompanion
     }
     if (referenceAndPageNo.present) {
       map['reference_and_page_no'] = Variable<String>(referenceAndPageNo.value);
+    }
+    if (parties.present) {
+      map['parties'] = Variable<String>(parties.value);
     }
     if (statute.present) {
       map['statute'] = Variable<String>(statute.value);
@@ -17803,6 +17904,7 @@ class SharedCaseReferencesCompanion
     return (StringBuffer('SharedCaseReferencesCompanion(')
           ..write('id: $id, ')
           ..write('referenceAndPageNo: $referenceAndPageNo, ')
+          ..write('parties: $parties, ')
           ..write('statute: $statute, ')
           ..write('sectionOrArticle: $sectionOrArticle, ')
           ..write('titleAndDescription: $titleAndDescription, ')
@@ -24280,6 +24382,7 @@ typedef $$CaseReferencesTableCreateCompanionBuilder =
       required String userId,
       Value<String?> firmId,
       required String referenceAndPageNo,
+      Value<String?> parties,
       Value<String?> statute,
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
@@ -24301,6 +24404,7 @@ typedef $$CaseReferencesTableUpdateCompanionBuilder =
       Value<String> userId,
       Value<String?> firmId,
       Value<String> referenceAndPageNo,
+      Value<String?> parties,
       Value<String?> statute,
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
@@ -24343,6 +24447,11 @@ class $$CaseReferencesTableFilterComposer
 
   ColumnFilters<String> get referenceAndPageNo => $composableBuilder(
     column: $table.referenceAndPageNo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get parties => $composableBuilder(
+    column: $table.parties,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24441,6 +24550,11 @@ class $$CaseReferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get parties => $composableBuilder(
+    column: $table.parties,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get statute => $composableBuilder(
     column: $table.statute,
     builder: (column) => ColumnOrderings(column),
@@ -24530,6 +24644,9 @@ class $$CaseReferencesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get parties =>
+      $composableBuilder(column: $table.parties, builder: (column) => column);
+
   GeneratedColumn<String> get statute =>
       $composableBuilder(column: $table.statute, builder: (column) => column);
 
@@ -24615,6 +24732,7 @@ class $$CaseReferencesTableTableManager
                 Value<String> userId = const Value.absent(),
                 Value<String?> firmId = const Value.absent(),
                 Value<String> referenceAndPageNo = const Value.absent(),
+                Value<String?> parties = const Value.absent(),
                 Value<String?> statute = const Value.absent(),
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
@@ -24634,6 +24752,7 @@ class $$CaseReferencesTableTableManager
                 userId: userId,
                 firmId: firmId,
                 referenceAndPageNo: referenceAndPageNo,
+                parties: parties,
                 statute: statute,
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
@@ -24655,6 +24774,7 @@ class $$CaseReferencesTableTableManager
                 required String userId,
                 Value<String?> firmId = const Value.absent(),
                 required String referenceAndPageNo,
+                Value<String?> parties = const Value.absent(),
                 Value<String?> statute = const Value.absent(),
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
@@ -24674,6 +24794,7 @@ class $$CaseReferencesTableTableManager
                 userId: userId,
                 firmId: firmId,
                 referenceAndPageNo: referenceAndPageNo,
+                parties: parties,
                 statute: statute,
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
@@ -27873,6 +27994,7 @@ typedef $$SharedCaseReferencesTableCreateCompanionBuilder =
     SharedCaseReferencesCompanion Function({
       required String id,
       required String referenceAndPageNo,
+      Value<String?> parties,
       Value<String?> statute,
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
@@ -27886,6 +28008,7 @@ typedef $$SharedCaseReferencesTableUpdateCompanionBuilder =
     SharedCaseReferencesCompanion Function({
       Value<String> id,
       Value<String> referenceAndPageNo,
+      Value<String?> parties,
       Value<String?> statute,
       Value<String?> sectionOrArticle,
       Value<String?> titleAndDescription,
@@ -27912,6 +28035,11 @@ class $$SharedCaseReferencesTableFilterComposer
 
   ColumnFilters<String> get referenceAndPageNo => $composableBuilder(
     column: $table.referenceAndPageNo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get parties => $composableBuilder(
+    column: $table.parties,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27970,6 +28098,11 @@ class $$SharedCaseReferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get parties => $composableBuilder(
+    column: $table.parties,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get statute => $composableBuilder(
     column: $table.statute,
     builder: (column) => ColumnOrderings(column),
@@ -28022,6 +28155,9 @@ class $$SharedCaseReferencesTableAnnotationComposer
     column: $table.referenceAndPageNo,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get parties =>
+      $composableBuilder(column: $table.parties, builder: (column) => column);
 
   GeneratedColumn<String> get statute =>
       $composableBuilder(column: $table.statute, builder: (column) => column);
@@ -28096,6 +28232,7 @@ class $$SharedCaseReferencesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> referenceAndPageNo = const Value.absent(),
+                Value<String?> parties = const Value.absent(),
                 Value<String?> statute = const Value.absent(),
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
@@ -28107,6 +28244,7 @@ class $$SharedCaseReferencesTableTableManager
               }) => SharedCaseReferencesCompanion(
                 id: id,
                 referenceAndPageNo: referenceAndPageNo,
+                parties: parties,
                 statute: statute,
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,
@@ -28120,6 +28258,7 @@ class $$SharedCaseReferencesTableTableManager
               ({
                 required String id,
                 required String referenceAndPageNo,
+                Value<String?> parties = const Value.absent(),
                 Value<String?> statute = const Value.absent(),
                 Value<String?> sectionOrArticle = const Value.absent(),
                 Value<String?> titleAndDescription = const Value.absent(),
@@ -28131,6 +28270,7 @@ class $$SharedCaseReferencesTableTableManager
               }) => SharedCaseReferencesCompanion.insert(
                 id: id,
                 referenceAndPageNo: referenceAndPageNo,
+                parties: parties,
                 statute: statute,
                 sectionOrArticle: sectionOrArticle,
                 titleAndDescription: titleAndDescription,

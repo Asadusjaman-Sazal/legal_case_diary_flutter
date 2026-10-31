@@ -1178,6 +1178,18 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'the delta pull selects every column. The phone reads the fields through '
         'the generated row model and the card and form draw them.',
   ),
+  LedgerSection(
+    file: '20261031160000_case_reference_parties.sql',
+    version: '0.0.758',
+    label:
+        'The parties to the case on both reference libraries (user request): '
+        '`public.case_references` and `public.shared_case_references` each gain '
+        'one nullable text column, filled from the form field that sits right '
+        'after **Citation**. Existing citations carry none until they are '
+        'edited. No function is re-created, for the same reasons as the Case '
+        'Note and Tags file before it: the push is column-generic, the shared '
+        'table\'s grant is table-level, and the delta pull selects every column.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1215,6 +1227,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.758': 'Case Reference — The Parties To The Case',
   '0.0.756': 'Case Reference — Case Note And Tags',
   '0.0.748': 'Case Reference — The Server-Wide Citation Library',
   '0.0.745': 'Law List — The Statute List On The Server',

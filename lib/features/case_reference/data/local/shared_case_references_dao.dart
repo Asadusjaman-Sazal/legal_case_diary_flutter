@@ -65,7 +65,7 @@ class SharedCaseReferencesDao {
     });
   }
 
-  /// The live official references matching [query] across the seven text fields.
+  /// The live official references matching [query] across the eight text fields.
   ///
   /// The cache is small (an admin's library, not every case on the phone), so
   /// the same case-insensitive substring rule the local DAO's `LIKE` applies is
@@ -83,6 +83,7 @@ class SharedCaseReferencesDao {
         .where(
           (row) =>
               matches(row.referenceAndPageNo) ||
+              matches(row.parties) ||
               matches(row.statute) ||
               matches(row.sectionOrArticle) ||
               matches(row.titleAndDescription) ||

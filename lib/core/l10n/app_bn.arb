@@ -295,9 +295,10 @@
       }
   },
   "@@_section_caseReferenceScreen": "CASE REFERENCE SCREEN  |  lib/features/case_reference/presentation/case_reference_screen.dart",
-  "@@_caseReferenceScreen_labels": "The storage keys keep their names; the new labels are: referenceAndPageNo = মামলার রেফারেন্স, statute = আইন, titleAndDescription = মামলার সারসংক্ষেপ ও সিদ্ধান্ত, commentsNotes = ব্যক্তিগত নোট, plus the new caseNote = মামলার টীকা and tags = ট্যাগ.",
+  "@@_caseReferenceScreen_labels": "The storage keys keep their names; the new labels are: referenceAndPageNo = মামলার রেফারেন্স, parties = মামলার পক্ষসমূহ, statute = আইন, titleAndDescription = মামলার সারসংক্ষেপ ও সিদ্ধান্ত, commentsNotes = ব্যক্তিগত নোট, plus the new caseNote = মামলার টীকা and tags = ট্যাগ.",
   "caseReferenceScreen_title": "মামলার রেফারেন্স",
   "caseReferenceScreen_referenceAndPageNo": "মামলার রেফারেন্স",
+  "caseReferenceScreen_parties": "মামলার পক্ষসমূহ",
   "caseReferenceScreen_statute": "আইন",
   "caseReferenceScreen_sectionOrArticle": "ধারা/অনুচ্ছেদ",
   "caseReferenceScreen_caseNote": "মামলার টীকা",

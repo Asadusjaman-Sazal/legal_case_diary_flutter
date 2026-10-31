@@ -127,6 +127,7 @@ checks that roll back) and the read-only counts
 | 0.0.748 | 2026-10-31 | `20261031100000_shared_case_references.sql` | The server-wide citation library. `public.shared_case_references` holds the five reference fields an admin publishes, with `is_deleted` and the trigger-stamped `server_updated_at` the delta pull pages on — and no owner columns at all, because the phone never pushes to it (table class: server-managed on the server, pull-only cache on the phone). Every signed-in account may SELECT, including a tombstone so a removed citation can disappear from a phone; INSERT, UPDATE and DELETE are each gated by `is_app_admin()`. The revoke of the client write verbs was undone by the next file. The table carries the server-timestamp and realtime broadcast triggers and one delta index; the firm guards are deliberately absent because they read a `firm_id` this table does not have, and the admin policy is the whole write boundary. |
 | 0.0.748 | 2026-10-31 | `20261031101000_shared_case_references_write_grant.sql` | Restores the write privileges the previous file revoked. That file revoked INSERT, UPDATE and DELETE from `authenticated` while its RLS policies already restricted every write to `is_app_admin()`; the privilege check runs first, so the policies could never be reached and an administrator could not publish a citation either. This statement grants the three verbs to `authenticated`, leaves the admin policies as the boundary, and revokes everything from `anon`. |
 | 0.0.756 | 2026-10-31 | `20261031140000_case_reference_note_tags.sql` | Case Note and Tags on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain two nullable text columns, so an existing citation reads exactly as it was written and carries neither until it is edited. No function is re-created: `push_changes` validates a payload against the table's own `pg_attribute` list and applies it through `jsonb_populate_record`, so the new fields are accepted the moment the columns exist; the shared table's write grant is table-level, so the new columns inherit it; and the delta pull selects every column. The phone reads the fields through the generated row model and the card and form draw them. |
+| 0.0.758 | 2026-10-31 | `20261031160000_case_reference_parties.sql` | The parties to the case on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain one nullable text column, filled from the form field that sits right after **Citation**. Existing citations carry none until they are edited. No function is re-created, for the same reasons as the Case Note and Tags file before it: the push is column-generic, the shared table's grant is table-level, and the delta pull selects every column. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -21921,6 +21922,36 @@ alter table public.case_references
 alter table public.shared_case_references
   add column case_note text,
   add column tags text;
+```
+
+## App Version 0.0.758 — Case Reference — The Parties To The Case
+
+### 0.0.758 · `20261031160000_case_reference_parties.sql`
+
+> **Created 2026-10-31.** The parties to the case on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain one nullable text column, filled from the form field that sits right after **Citation**. Existing citations carry none until they are edited. No function is re-created, for the same reasons as the Case Note and Tags file before it: the push is column-generic, the shared table's grant is table-level, and the delta pull selects every column.
+
+```sql
+-- The parties to the case on both reference libraries.
+--
+-- A citation often needs to name the case's parties (for example "State vs.
+-- Md. Karim") beside its citation; the Case Reference form gained the field
+-- right after **Citation** (user request, 0.0.758). It is nullable text on both
+-- libraries, so every existing citation keeps reading exactly as it was written
+-- and simply carries none until it is edited.
+--
+-- No function is re-created. `push_changes` validates a payload's keys against
+-- the table's own `pg_attribute` list and applies the row through
+-- `jsonb_populate_record`, so the new column is accepted as soon as it exists;
+-- the shared table's write grant is table-level, so the column inherits it; and
+-- the delta pull selects every column.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — AGENTS.md rule 12.
+
+alter table public.case_references
+  add column parties text;
+
+alter table public.shared_case_references
+  add column parties text;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

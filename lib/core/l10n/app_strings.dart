@@ -115,6 +115,8 @@ abstract class AppStrings {
       "caseReferenceScreen_commentsNotes";
   static const String caseReferenceScreenReferenceandpageno =
       "caseReferenceScreen_referenceAndPageNo";
+  static const String caseReferenceScreenParties =
+      "caseReferenceScreen_parties";
   static const String caseReferenceScreenSectionorarticle =
       "caseReferenceScreen_sectionOrArticle";
   static const String caseReferenceScreenStatute =

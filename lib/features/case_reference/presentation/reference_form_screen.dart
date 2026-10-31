@@ -24,7 +24,7 @@ import 'law_name_dialog.dart';
 import 'law_picker.dart';
 import 'reference_library.dart';
 
-/// The seven values the form hands to its window's own save.
+/// The eight values the form hands to its window's own save.
 ///
 /// Optional fields are null when their box is blank, which is how both tables
 /// already store an empty reference field. Tags arrive canonicalized.
@@ -32,6 +32,7 @@ class ReferenceFormValues {
   /// Creates the values from the form's boxes.
   const ReferenceFormValues({
     required this.referenceAndPageNo,
+    this.parties,
     this.statute,
     this.sectionOrArticle,
     this.caseNote,
@@ -41,6 +42,7 @@ class ReferenceFormValues {
   });
 
   final String referenceAndPageNo;
+  final String? parties;
   final String? statute;
   final String? sectionOrArticle;
   final String? caseNote;
@@ -62,7 +64,7 @@ typedef ReferenceFormSave =
 typedef ReferenceFormConfirmOpen =
     Future<bool> Function(BuildContext formContext, WidgetRef ref);
 
-/// The shared Add/Edit form: title band, seven labelled fields, Save.
+/// The shared Add/Edit form: title band, eight labelled fields, Save.
 class ReferenceFormScreen extends ConsumerStatefulWidget {
   /// Creates the form with the window's title, its starting values and the
   /// save that stores them.
@@ -70,6 +72,7 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
     required this.title,
     required this.onSave,
     this.referenceAndPageNo = '',
+    this.parties = '',
     this.statute,
     this.sectionOrArticle = '',
     this.caseNote = '',
@@ -90,6 +93,7 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
 
   /// The starting values of the boxes.
   final String referenceAndPageNo;
+  final String parties;
   final String? statute;
   final String sectionOrArticle;
   final String caseNote;
@@ -111,6 +115,7 @@ class ReferenceFormScreen extends ConsumerStatefulWidget {
 
 class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   late final TextEditingController _refNo;
+  late final TextEditingController _parties;
   late final TextEditingController _section;
   late final TextEditingController _caseNote;
   late final TextEditingController _title;
@@ -135,6 +140,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   void initState() {
     super.initState();
     _refNo = TextEditingController(text: widget.referenceAndPageNo);
+    _parties = TextEditingController(text: widget.parties);
     _section = TextEditingController(text: widget.sectionOrArticle);
     _caseNote = TextEditingController(text: widget.caseNote);
     _title = TextEditingController(text: widget.titleAndDescription);
@@ -155,6 +161,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   @override
   void dispose() {
     _refNo.dispose();
+    _parties.dispose();
     _section.dispose();
     _caseNote.dispose();
     _title.dispose();
@@ -218,6 +225,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
     setState(() => _saving = true);
     final values = ReferenceFormValues(
       referenceAndPageNo: _refNo.text.trim(),
+      parties: _nullable(_parties.text),
       statute: _nullable(_statute),
       sectionOrArticle: _nullable(_section.text),
       caseNote: _nullable(_caseNote.text),
@@ -286,6 +294,11 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
                   label: l.caseReferenceScreen_referenceAndPageNo,
                   controller: _refNo,
                   key: const ValueKey('reference-form-citation'),
+                ),
+                _field(
+                  label: l.caseReferenceScreen_parties,
+                  controller: _parties,
+                  key: const ValueKey('reference-form-parties'),
                 ),
                 _statuteField(l, hasStatute),
                 _field(

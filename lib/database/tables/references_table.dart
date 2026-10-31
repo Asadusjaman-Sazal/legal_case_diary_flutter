@@ -19,6 +19,9 @@ class CaseReferences extends Table {
   /// Reference and page number.
   TextColumn get referenceAndPageNo => text()();
 
+  /// The parties to the case, e.g. `State vs. Md. Karim`.
+  TextColumn get parties => text().nullable()();
+
   /// Statute or act name.
   TextColumn get statute => text().nullable()();
 

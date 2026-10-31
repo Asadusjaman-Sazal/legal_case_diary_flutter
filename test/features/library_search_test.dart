@@ -155,6 +155,7 @@ void main() {
     String citation,
     String description, {
     String? statute,
+    String? parties,
     String? caseNote,
     String? tags,
   }) => references.insertReference(
@@ -162,6 +163,7 @@ void main() {
       id: Value(id),
       userId: Value(identity.getId()),
       referenceAndPageNo: Value(citation),
+      parties: Value(parties),
       statute: Value(statute),
       titleAndDescription: Value(description),
       caseNote: Value(caseNote),
@@ -552,6 +554,7 @@ void main() {
         '45 DLR (AD) 1',
         'Bail guidelines.',
         statute: 'The Penal Code, 1860',
+        parties: 'State v. Karim',
         caseNote: 'Witness turned hostile.',
         tags: 'bail, evidence',
       );
@@ -560,21 +563,28 @@ void main() {
         '12 BLC 99',
         'Partition.',
         statute: 'The Penal Code, 1860',
+        parties: 'Rahman v. Salam',
         caseNote: 'Survey record missing.',
         tags: 'bail',
       );
       await pumpLibrary(tester, const CaseReferenceScreen());
 
-      // Each tag is its own chip, and the case note reads as its own paragraph.
+      // The parties, each tag as its own chip, and the case note all read.
       await tester.tap(find.text('The Penal Code, 1860'));
       await settle(tester);
+      expect(find.text('State v. Karim'), findsOneWidget);
       expect(find.text('evidence'), findsOneWidget);
       expect(find.text('Witness turned hostile.'), findsOneWidget);
       expect(find.text('bail'), findsNWidgets(2));
 
-      // The case note and a tag both find their citation.
+      // The parties, the case note and a tag each find their citation.
       await openSearch(tester);
       await tester.enterText(find.byType(TextField), 'hostile');
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'karim');
       await settle(tester);
       expect(find.textContaining('45 DLR'), findsOneWidget);
       expect(find.textContaining('12 BLC'), findsNothing);
@@ -610,6 +620,10 @@ void main() {
       await tester.enterText(
         find.byKey(const ValueKey('reference-form-citation')),
         '68 DLR (AD) 290',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('reference-form-parties')),
+        'State v. Karim',
       );
       await tester.enterText(
         find.byKey(const ValueKey('reference-form-case-note')),
@@ -668,6 +682,7 @@ void main() {
         (row) => row.referenceAndPageNo == '68 DLR (AD) 290',
       );
       expect(saved.caseNote, 'Client in custody.');
+      expect(saved.parties, 'State v. Karim');
       expect(saved.tags, 'evidence');
 
       await unmount(tester);

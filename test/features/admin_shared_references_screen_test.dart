@@ -99,11 +99,13 @@ AdminSharedReference _citation(
   String statute = 'The Penal Code, 1860',
   String section = 'Section 54',
   String title = 'Preventive detention.',
+  String? parties,
   String? caseNote,
   String? tags,
 }) => AdminSharedReference(
   id: id,
   referenceAndPageNo: citation,
+  parties: parties,
   statute: statute,
   sectionOrArticle: section,
   titleAndDescription: title,
@@ -236,6 +238,10 @@ void main() {
       '68 DLR (AD) 290',
     );
     await tester.enterText(
+      find.byKey(const ValueKey('reference-form-parties')),
+      'State v. Karim',
+    );
+    await tester.enterText(
       find.byKey(const ValueKey('reference-form-case-note')),
       'Client in custody.',
     );
@@ -264,6 +270,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.saved.single.caseNote, 'Client in custody.');
+    expect(repo.saved.single.parties, 'State v. Karim');
     expect(repo.saved.single.tags, 'evidence');
   });
 
@@ -379,6 +386,7 @@ void main() {
             statute: 'The Code of Criminal Procedure, 1898',
             section: 'Article 31',
             title: 'Writ petition on unlawful detention.',
+            parties: 'State v. Rahman',
             caseNote: 'Client in custody.',
             tags: 'bail-rehearing',
           ),
@@ -403,7 +411,13 @@ void main() {
     expect(find.textContaining('29 DLR'), findsNothing);
     expect(find.textContaining('32 DLR'), findsOneWidget);
 
-    // The case note and a tag are searched too, whichever law holds them.
+    // The parties, the case note and a tag are searched too, whichever law
+    // holds them.
+    await tester.enterText(find.byType(TextField), 'rahman');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('32 DLR'), findsOneWidget);
+    expect(find.textContaining('29 DLR'), findsNothing);
+
     await tester.enterText(find.byType(TextField), 'custody');
     await tester.pumpAndSettle();
     expect(find.textContaining('32 DLR'), findsOneWidget);

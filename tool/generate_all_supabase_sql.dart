@@ -1190,6 +1190,20 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'Note and Tags file before it: the push is column-generic, the shared '
         'table\'s grant is table-level, and the delta pull selects every column.',
   ),
+  LedgerSection(
+    file: '20261101100000_merge_civil_law_categories.sql',
+    version: '0.0.771',
+    label:
+        'The Contract, Land, Property & Business law category is merged into '
+        'Civil Law (user request). Every law stored under the retired ID moves '
+        'to `civil_procedure_evidence`; the 22 built-in Civil Law names are '
+        'reordered into the slots they already held, English A to Z first and '
+        'then Bengali A to Z; and a `BEFORE INSERT OR UPDATE` trigger '
+        'normalises the retired ID so an older phone\'s queued payload cannot '
+        'bring the category back. No table, policy, grant or function list '
+        'changes, and no version is bumped: the server-timestamp trigger '
+        'carries the change to every phone on the delta pull.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1227,6 +1241,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.771': 'Law List — Civil Law Merge',
   '0.0.758': 'Case Reference — The Parties To The Case',
   '0.0.756': 'Case Reference — Case Note And Tags',
   '0.0.748': 'Case Reference — The Server-Wide Citation Library',

@@ -57,8 +57,11 @@ void main() {
       );
       expect(
         onDisk.length,
-        87,
+        88,
         reason:
+            'The Civil Law merge (2026-11-01) added one file: the contract '
+            'category backfill, the alphabetical reorder of its built-in names '
+            'and the normalising trigger. '
             'The Parties change (2026-10-31) added one file: the new column on '
             'both reference libraries. The Case Note and Tags change '
             '(2026-10-31) added one file: the two '

@@ -30,7 +30,7 @@ class LawNameDraft {
   /// The trimmed name, never empty (the form validates it).
   final String name;
 
-  /// One of the seven stable category IDs.
+  /// One of the six displayed category IDs.
   final String categoryId;
 }
 
@@ -38,6 +38,14 @@ class LawNameDraft {
 ///
 /// [initialCategoryId] is the group the user was looking at, so a name added
 /// from inside a category lands in that category unless they choose another.
+/// An unknown id (the Other page) falls back to the first heading, so the
+/// dropdown always has an item for the value it shows.
+String _dropdownCategoryId(String? categoryId) {
+  final id = categoryId ?? seedLawCategories.first.id;
+  return seedLawCategories.any((category) => category.id == id)
+      ? id
+      : seedLawCategories.first.id;
+}
 Future<LawNameDraft?> showLawNameDialog(
   BuildContext context, {
   bool editing = false,
@@ -60,7 +68,7 @@ Future<LawNameDraft?> showLawNameDialog(
       key: formKey,
       editing: editing,
       initialName: initialName,
-      initialCategoryId: initialCategoryId ?? seedLawCategories.first.id,
+      initialCategoryId: _dropdownCategoryId(initialCategoryId),
     ),
     actions: (dialogContext) {
       final l = AppLocalizations.of(dialogContext);

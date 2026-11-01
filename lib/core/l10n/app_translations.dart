@@ -59,7 +59,7 @@ class AppTranslations {
   ///
   /// A law row stores the heading's ID (`criminal_law`), not its text, so the
   /// Case Reference screen, the statute picker and the Edit Law Names page all
-  /// group by the same seven headings and translate them together. An ID no
+  /// group by the same six headings and translate them together. An ID no
   /// seeded category owns — a blank one written by an older build, or a value
   /// from a newer release — reads as **Other** rather than as a machine key.
   String lawCategoryName(String categoryId) {
@@ -281,7 +281,7 @@ class AppTranslations {
       AppStrings.generalAppTitle: _loc.appTitle,
       AppStrings.generalTomorrow: _loc.general_tomorrow,
     },
-    // The seven headings a law name is grouped under. A law row stores one of
+    // The six headings a law name is grouped under. A law row stores one of
     // these keys in `laws.category`, so the heading follows the app's language
     // while the law's own name stays exactly as it was seeded.
     AppStrings.lawCategoryGroup: <String, String>{
@@ -289,8 +289,6 @@ class AppTranslations {
           _loc.lawCategory_constitutionCourtsPractice,
       AppStrings.lawCategoryCivilprocedureevidence:
           _loc.lawCategory_civilProcedureEvidence,
-      AppStrings.lawCategoryContractlandpropertybusiness:
-          _loc.lawCategory_contractLandPropertyBusiness,
       AppStrings.lawCategoryFamilypersonallaw:
           _loc.lawCategory_familyPersonalLaw,
       AppStrings.lawCategoryCriminallaw: _loc.lawCategory_criminalLaw,

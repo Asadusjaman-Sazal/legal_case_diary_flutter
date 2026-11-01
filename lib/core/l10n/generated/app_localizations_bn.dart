@@ -1911,12 +1911,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'সংবিধান, আদালত ও অনুশীলন';
 
   @override
-  String get lawCategory_civilProcedureEvidence =>
-      'দেওয়ানি কার্যবিধি ও সাক্ষ্য';
-
-  @override
-  String get lawCategory_contractLandPropertyBusiness =>
-      'চুক্তি, ভূমি, সম্পত্তি ও ব্যবসা';
+  String get lawCategory_civilProcedureEvidence => 'দেওয়ানি আইন';
 
   @override
   String get lawCategory_familyPersonalLaw => 'পরিবার ও ব্যক্তিগত আইন';

@@ -13,8 +13,9 @@
 --
 -- What it proves, in order:
 --
---   1. The seed: 57 built-in rows, all seven categories used, order 0…56 unique,
---      every row unmodified and unsynced.
+--   1. The seed after the Civil Law merge: 57 built-in rows, all six categories
+--      used, no retired contract row, the Civil Law built-ins in alphabetical
+--      order, order 0…56 unique, every row unmodified and unsynced.
 --   2. An individual's own law is personal — readable by its author, invisible to
 --      another individual and to a chamber.
 --   3. A chamber's law is shared — an insert by the owner lands in the chamber
@@ -236,8 +237,15 @@ begin
   select count(distinct category) into v_categories
     from public.laws where is_custom = false;
   perform pg_temp.assert_true(
-    v_categories = 7,
-    format('the seed should use all seven categories, found %s', v_categories)
+    v_categories = 6,
+    format('the seed should use all six categories, found %s', v_categories)
+  );
+  perform pg_temp.assert_true(
+    not exists (
+      select 1 from public.laws
+       where category = 'contract_land_property_business'
+    ),
+    'the retired contract category still has rows'
   );
 
   select count(distinct order_index) into v_orders
@@ -279,6 +287,28 @@ begin
          and category = 'labour_everyday_regulation'
     ),
     'the last seeded law is missing or misfiled'
+  );
+
+  -- Civil Law is alphabetical: English names first, then Bengali.
+  perform pg_temp.assert_true(
+    (
+      select name from public.laws
+       where is_custom = false
+         and category = 'civil_procedure_evidence'
+       order by order_index
+       limit 1
+    ) = 'The Acquisition and Requisition of Immovable Property Act, 2017',
+    'Civil Law does not start with the first English name'
+  );
+  perform pg_temp.assert_true(
+    (
+      select name from public.laws
+       where is_custom = false
+         and category = 'civil_procedure_evidence'
+       order by order_index desc
+       limit 1
+    ) = 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২',
+    'Civil Law does not end with the last Bengali name'
   );
 end;
 $$;
@@ -369,6 +399,10 @@ begin
   perform pg_temp.assert_true(
     v_result -> 'row' ->> 'firm_id' = c_firm::text,
     'a chamber law did not take the chamber''s scope'
+  );
+  perform pg_temp.assert_true(
+    v_result -> 'row' ->> 'category' = 'civil_procedure_evidence',
+    'a queued contract category was not normalised on insert'
   );
 
   perform pg_temp.assert_true(
@@ -473,6 +507,11 @@ begin
     pg_temp.read_law_name(c_owner, 'laws-test-firm') =
       'The Chamber Statute (renamed)',
     'the owner does not read the member''s rename'
+  );
+  perform pg_temp.assert_true(
+    (select category from public.laws where id = 'laws-test-firm') =
+      'civil_procedure_evidence',
+    'a queued contract category was not normalised on update'
   );
 
   -- The associate has no can_delete: the tombstone is refused.

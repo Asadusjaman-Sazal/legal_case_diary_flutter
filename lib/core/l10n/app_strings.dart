@@ -197,8 +197,6 @@ abstract class AppStrings {
       "lawCategory_constitutionCourtsPractice";
   static const String lawCategoryCivilprocedureevidence =
       "lawCategory_civilProcedureEvidence";
-  static const String lawCategoryContractlandpropertybusiness =
-      "lawCategory_contractLandPropertyBusiness";
   static const String lawCategoryFamilypersonallaw =
       "lawCategory_familyPersonalLaw";
   static const String lawCategoryCriminallaw = "lawCategory_criminalLaw";

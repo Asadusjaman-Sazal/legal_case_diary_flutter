@@ -1,9 +1,9 @@
 /// Settings → Edit Court/Steps → Law Names.
 ///
-/// Two levels, exactly like the court list it sits beside: the seven law
+/// Two levels, exactly like the court list it sits beside: the six law
 /// categories first (`criminal_law`, `family_personal_law`, …), then the names
 /// inside the one that was tapped. The category headings translate through
-/// [AppTranslations.lawCategoryName], so বাংলা readers see seven বাংলা headings
+/// [AppTranslations.lawCategoryName], so বাংলা readers see six বাংলা headings
 /// while each law keeps the name it was seeded with.
 ///
 /// A built-in name may be reordered but never renamed or deleted; only a name
@@ -39,7 +39,7 @@ import 'next_order_index.dart';
 class LawNamesScreen extends ConsumerWidget {
   const LawNamesScreen({super.key, this.categoryId});
 
-  /// One of the seven stable category IDs, or null for the category list.
+  /// One of the six displayed category IDs, or null for the category list.
   final String? categoryId;
 
   @override
@@ -116,7 +116,7 @@ class LawNamesScreen extends ConsumerWidget {
   }
 }
 
-/// The seven category cards, in seed order, with how many names each holds.
+/// The six category cards, in seed order, with how many names each holds.
 class _CategoryList extends StatelessWidget {
   const _CategoryList({required this.laws});
 
@@ -159,11 +159,10 @@ class _CategoryList extends StatelessWidget {
     );
   }
 
-  /// One outline icon per heading, so seven identical rows stay scannable.
+  /// One outline icon per heading, so the identical rows stay scannable.
   IconData _iconFor(String categoryId) => switch (categoryId) {
     'constitution_courts_practice' => Icons.account_balance_outlined,
     'civil_procedure_evidence' => Icons.description_outlined,
-    'contract_land_property_business' => Icons.handshake_outlined,
     'family_personal_law' => Icons.family_restroom_outlined,
     'criminal_law' => Icons.gavel_outlined,
     'tax_finance' => Icons.receipt_long_outlined,
@@ -298,7 +297,7 @@ class _LawList extends StatelessWidget {
   ///
   /// The rows keep the `order_index` values this group already held, sorted and
   /// handed out in the new order. Renumbering the whole law table would touch
-  /// the six other groups' rows and queue fifty sync writes for one drag, while
+  /// the other categories' rows and queue fifty sync writes for one drag, while
   /// reusing the group's own slots keeps every other category untouched and
   /// cannot collide with it.
   Future<void> _reorder(List<Law> rows, int oldIndex, int newIndex) async {
@@ -307,6 +306,15 @@ class _LawList extends StatelessWidget {
     final moved = reordered.removeAt(oldIndex);
     reordered.insert(newIndex, moved);
     final slots = rows.map((law) => law.orderIndex).toList()..sort();
+    // The merged Civil Law group can hold two rows that took the same next
+    // slot before the merge, and repeating slots would leave the drag half
+    // applied. A dense range from the group's lowest slot keeps it stable.
+    if (slots.toSet().length != slots.length) {
+      final first = slots.first;
+      for (var i = 0; i < slots.length; i++) {
+        slots[i] = first + i;
+      }
+    }
     for (var i = 0; i < reordered.length; i++) {
       if (reordered[i].orderIndex == slots[i]) continue;
       await repo.update(

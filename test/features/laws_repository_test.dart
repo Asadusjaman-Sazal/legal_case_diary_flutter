@@ -4,7 +4,8 @@
 /// must obey the same three write rules as the court list — an add is custom and
 /// appended, a rename marks the row user-modified, a delete refuses a built-in —
 /// and it must arrive on every install with the 57 names the reference document
-/// lists, each under one of the seven categories.
+/// lists, each stored under one of the six categories (the contract list is
+/// moved into Civil Law by `seed_v4` and alphabetised).
 library;
 
 import 'dart:convert';
@@ -61,24 +62,55 @@ void main() {
       );
 
       final categoryIds = seedLawCategories.map((cat) => cat.id).toSet();
-      expect(categoryIds, hasLength(7));
+      expect(categoryIds, hasLength(6));
       for (final law in laws) {
         expect(categoryIds, contains(law.category));
       }
+      expect(
+        laws.where(
+          (law) => law.category == lawCategoryContractLandPropertyBusiness,
+        ),
+        isEmpty,
+      );
 
       // Every category holds at least one name, so the grouped screens never
       // render an empty heading.
       final used = laws.map((law) => law.category).toSet();
       expect(used, categoryIds);
 
-      // Display order is the seed order, which is also category order.
+      // The merged Civil Law block is alphabetical, English first then Bengali;
+      // the other groups keep their seed order.
+      final merged =
+          seedLaws
+              .where(
+                (law) =>
+                    law.categoryId == lawCategoryCivilProcedureEvidence ||
+                    law.categoryId == lawCategoryContractLandPropertyBusiness,
+              )
+              .map((law) => law.name)
+              .toList()
+            ..sort(compareCivilLawNames);
+      final expectedNames = <String>[];
+      var mergedAdded = false;
+      for (final law in seedLaws) {
+        final isMerged =
+            law.categoryId == lawCategoryCivilProcedureEvidence ||
+            law.categoryId == lawCategoryContractLandPropertyBusiness;
+        if (isMerged) {
+          if (!mergedAdded) {
+            expectedNames.addAll(merged);
+            mergedAdded = true;
+          }
+          continue;
+        }
+        expectedNames.add(law.name);
+      }
+      expect(laws.map((law) => law.name).toList(), expectedNames);
       expect(
-        laws.map((law) => law.name).toList(),
-        seedLaws.map((law) => law.name).toList(),
-      );
-      expect(
-        laws.map((law) => law.category).toList(),
-        seedLaws.map((law) => law.categoryId).toList(),
+        laws
+            .where((law) => law.category == lawCategoryCivilProcedureEvidence)
+            .map((law) => law.name),
+        merged,
       );
     });
 

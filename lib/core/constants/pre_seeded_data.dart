@@ -19169,10 +19169,15 @@ final List<SeedCourt> allSeedCourts = [
 
 /// Law-category stable IDs.
 ///
-/// The seven groups are the headings of `docs/seed_data_test/
-/// LawsOfBangladesh.md`, in that file's order. A law category is a *heading*,
-/// not a row: the category list is code, so a law that carries a heading keeps
-/// reading the same even when the heading's wording is corrected.
+/// The displayed groups are the headings of `docs/seed_data_test/
+/// LawsOfBangladesh.md`, in that file's order, except that **Civil Procedure &
+/// Evidence** and **Contract, Land, Property & Business** are one **Civil Law**
+/// heading (user request). Rows stored under the retired contract ID are moved
+/// to [lawCategoryCivilProcedureEvidence] by the local `seed_v4` migration and
+/// the server backfill, so the app compares only the six stored IDs. A law
+/// category is a *heading*, not a row: the category list is code, so a law that
+/// carries a heading keeps reading the same even when the heading's wording is
+/// corrected.
 ///
 /// `laws.category` stores the stable ID. Its label resolves through the ARB
 /// key in [SeedLawCategory.nameKey], exactly like a court category's
@@ -19185,6 +19190,21 @@ const lawCategoryFamilyPersonalLaw = 'family_personal_law';
 const lawCategoryCriminalLaw = 'criminal_law';
 const lawCategoryTaxFinance = 'tax_finance';
 const lawCategoryLabourEverydayRegulation = 'labour_everyday_regulation';
+
+/// Orders the merged Civil Law built-ins: English-script names first, then
+/// Bengali-script names, each A→Z by Unicode code point (user request).
+///
+/// The server backfill uses `lower(name) collate "C"` for the same order, so a
+/// phone and the server write the same `order_index` for every name.
+int compareCivilLawNames(String a, String b) {
+  final aBengali = _bengaliScript.hasMatch(a);
+  final bBengali = _bengaliScript.hasMatch(b);
+  if (aBengali != bBengali) return aBengali ? 1 : -1;
+  final byLower = a.toLowerCase().compareTo(b.toLowerCase());
+  return byLower != 0 ? byLower : a.compareTo(b);
+}
+
+final RegExp _bengaliScript = RegExp(r'[\u0980-\u09FF]');
 
 /// One law category: its stable ID, its localization key and its display
 /// order.
@@ -19205,7 +19225,8 @@ class SeedLawCategory {
   final int orderIndex;
 }
 
-/// The seven law categories, in the order the reference document lists them.
+/// The six displayed law categories, in the order the reference document lists
+/// them, with the two civil headings merged as **Civil Law**.
 const List<SeedLawCategory> seedLawCategories = <SeedLawCategory>[
   SeedLawCategory(
     id: lawCategoryConstitutionCourtsPractice,
@@ -19218,29 +19239,24 @@ const List<SeedLawCategory> seedLawCategories = <SeedLawCategory>[
     orderIndex: 1,
   ),
   SeedLawCategory(
-    id: lawCategoryContractLandPropertyBusiness,
-    nameKey: 'lawCategory_contractLandPropertyBusiness',
-    orderIndex: 2,
-  ),
-  SeedLawCategory(
     id: lawCategoryFamilyPersonalLaw,
     nameKey: 'lawCategory_familyPersonalLaw',
-    orderIndex: 3,
+    orderIndex: 2,
   ),
   SeedLawCategory(
     id: lawCategoryCriminalLaw,
     nameKey: 'lawCategory_criminalLaw',
-    orderIndex: 4,
+    orderIndex: 3,
   ),
   SeedLawCategory(
     id: lawCategoryTaxFinance,
     nameKey: 'lawCategory_taxFinance',
-    orderIndex: 5,
+    orderIndex: 4,
   ),
   SeedLawCategory(
     id: lawCategoryLabourEverydayRegulation,
     nameKey: 'lawCategory_labourEverydayRegulation',
-    orderIndex: 6,
+    orderIndex: 5,
   ),
 ];
 
@@ -19259,7 +19275,8 @@ class SeedLaw {
   /// The name exactly as the reference document writes it — English or বাংলা.
   final String name;
 
-  /// One of [seedLawCategories].
+  /// The stored category ID. Contract rows are seeded with the retired ID and
+  /// moved to [lawCategoryCivilProcedureEvidence] by `seed_v4`.
   final String categoryId;
 
   /// Display order inside the dropdown and the grouped lists.
@@ -19299,7 +19316,7 @@ final List<SeedLaw> seedLaws = <SeedLaw>[
     categoryId: lawCategoryConstitutionCourtsPractice,
     orderIndex: 3,
   ),
-  // Civil Procedure & Evidence.
+  // Civil Procedure & Evidence — now Civil Law.
   SeedLaw(
     id: 'law-code-of-civil-procedure-1908',
     name: 'The Code of Civil Procedure, 1908',
@@ -19342,7 +19359,8 @@ final List<SeedLaw> seedLaws = <SeedLaw>[
     categoryId: lawCategoryCivilProcedureEvidence,
     orderIndex: 10,
   ),
-  // Contract, Land, Property & Business.
+  // Contract, Land, Property & Business — seeded under its historical ID;
+  // seed_v4 moves these names into Civil Law.
   SeedLaw(
     id: 'law-acquisition-and-requisition-of-immovable-property-act-2017',
     name: 'The Acquisition and Requisition of Immovable Property Act, 2017',

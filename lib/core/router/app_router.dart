@@ -175,7 +175,7 @@ class AppRoutes {
   static const String settingsEditCourtNamesCategory =
       '/settings/edit-court-steps/court-names-category';
 
-  /// Law Names: the seven law categories, and `?category=<id>` for one
+  /// Law Names: the six law categories, and `?category=<id>` for one
   /// category's names. Opened from Settings → Edit Court/Steps.
   static const String settingsLawNames = '/settings/edit-court-steps/law-names';
   static const String settingsCourtCategory =

@@ -59,8 +59,11 @@ void main() {
 
       expect(
         versions,
-        hasLength(87),
+        hasLength(88),
         reason:
+            'The Civil Law merge (2026-11-01) added one file: the contract '
+            'category backfill, the alphabetical reorder of its built-in names '
+            'and the normalising trigger. '
             'The Parties change (2026-10-31) added one file: the new column on '
             'both reference libraries. '
             'The Case Note and Tags change (2026-10-31) added one file: the two '
@@ -173,7 +176,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(87),
+        hasLength(88),
         reason: 'versions must be unique',
       );
       expect(
@@ -182,7 +185,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261031160000');
+      expect(versions.last, '20261101100000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

@@ -25,7 +25,7 @@ class Laws extends Table {
   /// The law category this name is listed under, as a stable ID from
   /// `seedLawCategories` (`criminal_law`, `family_personal_law`, …).
   ///
-  /// A heading rather than a row: the seven categories are code, and the
+  /// A heading rather than a row: the six displayed categories are code, and the
   /// heading's label resolves through the matching `lawCategory_*` ARB key, so
   /// the list groups the same way in the app whatever the language. A blank
   /// value is a row an older build wrote before categories existed; it lists

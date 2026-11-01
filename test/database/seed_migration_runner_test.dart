@@ -6,14 +6,18 @@
 /// overwritten by subsequent seed migrations runs.
 library;
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart'
     show
         appellateDivisionId,
+        compareCivilLawNames,
         districtSessionsCriminalId,
         highCourtDivisionId,
+        lawCategoryCivilProcedureEvidence,
+        lawCategoryContractLandPropertyBusiness,
         seedCategories,
         seedLawCategories,
         seedLaws,
@@ -37,7 +41,7 @@ void main() {
 
     test('applies seed_v1 and inserts all reference data', () async {
       final applied = await runner.runMigrations();
-      expect(applied, 3);
+      expect(applied, 4);
 
       final categories = await db.select(db.courtCategories).get();
       final caseCategories = await db.select(db.caseCategories).get();
@@ -110,8 +114,8 @@ void main() {
         expect(court.isUserModified, false);
       }
 
-      // Every seeded law carries one of the seven categories and the name the
-      // reference document gives it, in seed order.
+      // Every seeded law stores one of the six categories; seed_v4 has moved
+      // every contract row into Civil Law.
       final categoryIds = seedLawCategories.map((cat) => cat.id).toSet();
       for (final law in laws) {
         expect(law.isCustom, false);
@@ -119,19 +123,56 @@ void main() {
         expect(law.isDeleted, false);
         expect(categoryIds, contains(law.category));
       }
-      final byOrder = laws.toList()
-        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
       expect(
-        byOrder.map((law) => law.name).toList(),
-        seedLaws.map((law) => law.name).toList(),
+        laws.where(
+          (law) => law.category == lawCategoryContractLandPropertyBusiness,
+        ),
+        isEmpty,
       );
 
-      // Migration ledger must record seed_v1.
+      // The merged Civil Law block is alphabetical after the constitution and
+      // before family/criminal/tax/labour, which keep their seed order.
+      final merged =
+          seedLaws
+              .where(
+                (law) =>
+                    law.categoryId == lawCategoryCivilProcedureEvidence ||
+                    law.categoryId == lawCategoryContractLandPropertyBusiness,
+              )
+              .map((law) => law.name)
+              .toList()
+            ..sort(compareCivilLawNames);
+      final expectedNames = <String>[];
+      var mergedAdded = false;
+      for (final law in seedLaws) {
+        final isMerged =
+            law.categoryId == lawCategoryCivilProcedureEvidence ||
+            law.categoryId == lawCategoryContractLandPropertyBusiness;
+        if (isMerged) {
+          if (!mergedAdded) {
+            expectedNames.addAll(merged);
+            mergedAdded = true;
+          }
+          continue;
+        }
+        expectedNames.add(law.name);
+      }
+      final byOrder = laws.toList()
+        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      expect(byOrder.map((law) => law.name).toList(), expectedNames);
+      expect(merged, hasLength(22));
+      expect(
+        merged.first,
+        'The Acquisition and Requisition of Immovable Property Act, 2017',
+      );
+      expect(merged.last, 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২');
+
+      // Migration ledger must record all four seeds.
       final migrations = await db.select(db.seedMigrations).get();
-      expect(migrations, hasLength(3));
+      expect(migrations, hasLength(4));
       expect(
         migrations.map((m) => m.migrationId),
-        containsAll(['seed_v1', 'seed_v2', 'seed_v3']),
+        containsAll(['seed_v1', 'seed_v2', 'seed_v3', 'seed_v4']),
       );
       expect(migrations.every((m) => m.checksum.isNotEmpty), true);
       expect(migrations.every((m) => m.appliedAt > 0), true);
@@ -141,12 +182,46 @@ void main() {
       'does not re-apply a migration already recorded in the ledger',
       () async {
         final first = await runner.runMigrations();
-        expect(first, 3);
+        expect(first, 4);
 
         final second = await runner.runMigrations();
         expect(second, 0);
       },
     );
+
+    test('seed_v4 moves a legacy contract row into Civil Law', () async {
+      await runner.runMigrations();
+
+      await db
+          .into(db.laws)
+          .insert(
+            LawsCompanion.insert(
+              id: 'law-legacy-contract',
+              name: 'Legacy Contract Act',
+              category: const Value(lawCategoryContractLandPropertyBusiness),
+              orderIndex: const Value(999),
+              updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
+            ),
+          );
+      await db.customStatement(
+        "DELETE FROM seed_migrations WHERE migration_id = 'seed_v4'",
+      );
+
+      final applied = await runner.runMigrations();
+      expect(applied, 1);
+      final legacy = await (db.select(
+        db.laws,
+      )..where((law) => law.id.equals('law-legacy-contract'))).getSingle();
+      expect(legacy.category, lawCategoryCivilProcedureEvidence);
+      expect(
+        await (db.select(db.laws)..where(
+              (law) =>
+                  law.category.equals(lawCategoryContractLandPropertyBusiness),
+            ))
+            .get(),
+        isEmpty,
+      );
+    });
 
     test('preserves user-modified rows on re-seed', () async {
       await runner.runMigrations();

@@ -10,6 +10,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:drift/drift.dart';
+
 import '../core/constants/pre_seeded_data.dart';
 import 'app_database.dart';
 
@@ -41,6 +43,7 @@ class SeedMigrationRunner {
     _NamedMigration('seed_v1', _checksumV1, _applySeedV1),
     _NamedMigration('seed_v2', _checksumV2, _applySeedV2),
     _NamedMigration('seed_v3', _checksumV3, _applySeedV3),
+    _NamedMigration('seed_v4', _checksumV4, _applySeedV4),
   ];
 
   /// Checksum for seed_v1 – base64-encoded SHA-256 of the version string.
@@ -85,6 +88,18 @@ class SeedMigrationRunner {
       (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
     );
     return base64Encode(utf8.encode('seed_v3:$hash'));
+  }
+
+  /// Checksum for seed_v4, which merges the retired contract category into
+  /// Civil Law and alphabetises the merged built-ins.
+  static String get _checksumV4 {
+    const payload = 'seed_v4_merge_contract_into_civil_law_and_alphabetise';
+    final bytes = utf8.encode(payload);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
+    return base64Encode(utf8.encode('seed_v4:$hash'));
   }
 
   // ---------------------------------------------------------------------------
@@ -142,6 +157,40 @@ class SeedMigrationRunner {
   /// row the user renamed or the firm added is left alone.
   static Future<void> _applySeedV3(AppDatabase db) async {
     await _seedLaws(db);
+  }
+
+  /// Moves every law stored under the retired Contract, Land, Property &
+  /// Business heading to Civil Law, then orders the 22 built-in Civil Law names
+  /// alphabetically (English first, then Bengali).
+  ///
+  /// Only `category` and `order_index` change. This mirrors the server
+  /// backfill rather than a user edit, so no sync-queue entry is written; the
+  /// next pull reconciles the same values from the server.
+  static Future<void> _applySeedV4(AppDatabase db) async {
+    await db.customStatement(
+      'UPDATE laws SET category = ? WHERE category = ?',
+      [
+        lawCategoryCivilProcedureEvidence,
+        lawCategoryContractLandPropertyBusiness,
+      ],
+    );
+
+    final rows =
+        await (db.select(db.laws)..where(
+              (law) =>
+                  law.isCustom.equals(false) &
+                  law.category.equals(lawCategoryCivilProcedureEvidence),
+            ))
+            .get();
+    final slots = rows.map((law) => law.orderIndex).toList()..sort();
+    rows.sort((a, b) => compareCivilLawNames(a.name, b.name));
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].orderIndex == slots[i]) continue;
+      await db.customStatement('UPDATE laws SET order_index = ? WHERE id = ?', [
+        slots[i],
+        rows[i].id,
+      ]);
+    }
   }
 
   // ---------------------------------------------------------------------------

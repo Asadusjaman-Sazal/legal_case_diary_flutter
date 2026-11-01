@@ -2,9 +2,10 @@
 ///
 /// The picker, the Case Reference screen and Settings → Law Names all build
 /// their headings from one function, [groupLaws], so this pins that function's
-/// rules: the seven categories in seed order, each group sorted by its own
-/// `order_index` then name, and any row whose category is blank or unknown kept
-/// in ONE trailing **Other** group instead of vanishing from every list.
+/// rules: the six stored categories, the merged Civil Law block in its
+/// alphabetical (English first, then Bengali) order, each group sorted by its
+/// own `order_index` then name, and any row whose category is blank or unknown
+/// kept in ONE trailing **Other** group instead of vanishing from every list.
 library;
 
 import 'package:drift/drift.dart' show Value;
@@ -17,6 +18,7 @@ import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/database/seed_migration_runner.dart';
 import 'package:legal_case_diary/features/case_reference/presentation/law_picker.dart';
+import 'package:legal_case_diary/features/case_reference/presentation/reference_library.dart';
 import 'package:legal_case_diary/features/settings/data/laws_repository.dart';
 import 'package:legal_case_diary/features/settings/data/local/laws_dao.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
@@ -42,19 +44,82 @@ void main() {
       await db.close();
     });
 
-    test('one group per seeded category, in seed order', () async {
+    test('one group per displayed category, in seed order', () async {
       final groups = groupLaws(await repo.listAll());
 
       expect(
         groups.map((group) => group.categoryId).toList(),
         seedLawCategories.map((category) => category.id).toList(),
       );
-      // Every seeded name appears exactly once and in the document's order.
+      // Every seeded name appears exactly once, with the Civil Law block
+      // alphabetised (English first, then Bengali) and every other heading in
+      // the document's order.
+      final merged =
+          seedLaws
+              .where(
+                (law) =>
+                    law.categoryId == lawCategoryCivilProcedureEvidence ||
+                    law.categoryId == lawCategoryContractLandPropertyBusiness,
+              )
+              .map((law) => law.name)
+              .toList()
+            ..sort(compareCivilLawNames);
+      final expectedNames = <String>[];
+      var mergedAdded = false;
+      for (final law in seedLaws) {
+        final isMerged =
+            law.categoryId == lawCategoryCivilProcedureEvidence ||
+            law.categoryId == lawCategoryContractLandPropertyBusiness;
+        if (isMerged) {
+          if (!mergedAdded) {
+            expectedNames.addAll(merged);
+            mergedAdded = true;
+          }
+          continue;
+        }
+        expectedNames.add(law.name);
+      }
       expect(
         groups.expand((group) => group.laws).map((law) => law.name).toList(),
-        seedLaws.map((law) => law.name).toList(),
+        expectedNames,
       );
     });
+
+    test(
+      'the merged Civil Law group holds both former lists in order',
+      () async {
+        final groups = groupLaws(await repo.listAll());
+        final civil = groups.firstWhere(
+          (group) => group.categoryId == lawCategoryCivilProcedureEvidence,
+        );
+
+        // seed_v4 stored both former headings' rows as Civil Law, and the group
+        // reads alphabetically with the Bengali names last.
+        expect(
+          groups.where(
+            (group) =>
+                group.categoryId == lawCategoryContractLandPropertyBusiness,
+          ),
+          isEmpty,
+        );
+        expect(civil.laws.map((law) => law.category).toSet(), <String>{
+          lawCategoryCivilProcedureEvidence,
+        });
+        expect(
+          civil.laws.map((law) => law.name),
+          containsAll(<String>[
+            'The Code of Civil Procedure, 1908',
+            'The Contract Act, 1872',
+          ]),
+        );
+        expect(civil.laws, hasLength(22));
+        expect(
+          civil.laws.first.name,
+          'The Acquisition and Requisition of Immovable Property Act, 2017',
+        );
+        expect(civil.laws.last.name, 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২');
+      },
+    );
 
     test('a blank or unknown category lands in one trailing Other group', () async {
       // A row written before categories existed, plus one a newer release might
@@ -76,10 +141,44 @@ void main() {
         groups.last.laws.map((law) => law.name),
         contains('Blank Category Act'),
       );
-      // The seven known headings are untouched.
+      // The six known headings are untouched.
       expect(
         groups.take(seedLawCategories.length).map((group) => group.categoryId),
         seedLawCategories.map((category) => category.id),
+      );
+    });
+
+    test('the law list files both former headings under Civil Law', () async {
+      final laws = await repo.listAll();
+      final sections = lawSectionsFor(laws, [
+        ReferenceRow.admin(
+          id: 'row-civil',
+          referenceAndPageNo: '1',
+          statute: 'The Code of Civil Procedure, 1908',
+        ),
+        ReferenceRow.admin(
+          id: 'row-contract',
+          referenceAndPageNo: '2',
+          statute: 'The Contract Act, 1872',
+        ),
+      ]);
+
+      final civil = sections.firstWhere(
+        (section) => section.categoryId == lawCategoryCivilProcedureEvidence,
+      );
+      expect(
+        civil.rows.map((row) => row.key),
+        containsAll(<String>[
+          'The Code of Civil Procedure, 1908',
+          'The Contract Act, 1872',
+        ]),
+      );
+      expect(
+        sections.where(
+          (section) =>
+              section.categoryId == lawCategoryContractLandPropertyBusiness,
+        ),
+        isEmpty,
       );
     });
 

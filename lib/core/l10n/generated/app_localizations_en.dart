@@ -1906,11 +1906,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Constitution, Courts & Practice';
 
   @override
-  String get lawCategory_civilProcedureEvidence => 'Civil Procedure & Evidence';
-
-  @override
-  String get lawCategory_contractLandPropertyBusiness =>
-      'Contract, Land, Property & Business';
+  String get lawCategory_civilProcedureEvidence => 'Civil Law';
 
   @override
   String get lawCategory_familyPersonalLaw => 'Family & Personal Law';

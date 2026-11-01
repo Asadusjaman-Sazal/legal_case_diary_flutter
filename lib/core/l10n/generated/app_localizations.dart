@@ -3372,14 +3372,8 @@ abstract class AppLocalizations {
   /// No description provided for @lawCategory_civilProcedureEvidence.
   ///
   /// In en, this message translates to:
-  /// **'Civil Procedure & Evidence'**
+  /// **'Civil Law'**
   String get lawCategory_civilProcedureEvidence;
-
-  /// No description provided for @lawCategory_contractLandPropertyBusiness.
-  ///
-  /// In en, this message translates to:
-  /// **'Contract, Land, Property & Business'**
-  String get lawCategory_contractLandPropertyBusiness;
 
   /// No description provided for @lawCategory_familyPersonalLaw.
   ///

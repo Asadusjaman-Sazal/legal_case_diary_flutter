@@ -4,7 +4,7 @@
 /// a search field and a list — rather than the shared centred frame, and rule 17
 /// names dropdown menus among its deliberate exceptions. This one follows that
 /// pattern and adds two things the reference form needs: **category headings**,
-/// so the 57 names read as seven short lists instead of one long one, and a
+/// so the 57 names read as six short lists instead of one long one, and a
 /// final **Add a Law Name…** row that opens the shared add/edit window.
 ///
 /// The screen and the settings page both use [groupLaws], so the picker, the
@@ -40,7 +40,7 @@ class LawGroup {
   /// Creates a group; [categoryId] is empty for the trailing "other" group.
   const LawGroup({required this.categoryId, required this.laws});
 
-  /// One of the seven stable IDs, or an empty string for unknown/blank rows.
+  /// One of the six displayed IDs, or an empty string for unknown/blank rows.
   final String categoryId;
 
   /// The group's laws, in display order.

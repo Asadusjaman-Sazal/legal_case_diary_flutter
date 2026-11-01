@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        90,
+        91,
         reason:
+            'The dissolve scope-owner write fix (2026-11-01) added one file: '
+            'the owner can now write the rows it inherited. '
             'District-scoped case types (2026-11-01) added one file: the two '
             'columns and the seven built-in Narayanganj CJM rows. '
             'The Civil Law merge (2026-11-01) added one file: the contract '

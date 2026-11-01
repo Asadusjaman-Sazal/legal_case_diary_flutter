@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.788 - The Server-wide Case Reference detail now shows Close beside Delete and Edit; the regular Case Reference detail keeps its first-line Close.
+Version: 0.0.789 - A dissolved chamber's owner can now edit and delete the rows it inherited, so a data wipe can no longer be refused and revert.
 --------------------------------------
 
 ## Version History Log:
@@ -802,3 +802,4 @@ Version: 0.0.785 - The CJM Case Type window lists all eight divisions, and the s
 Version: 0.0.786 - The Case Type District field now lists every district of the selected division, and every district for All Divisions, instead of only districts with a seeded court.
 Version: 0.0.787 - The Case Type Add/Edit window now has one Name field for every category, storing only the name the user types.
 Version: 0.0.788 - The Server-wide Case Reference detail now shows Close beside Delete and Edit; the regular Case Reference detail keeps its first-line Close.
+Version: 0.0.789 - A dissolved chamber's owner can now edit and delete the rows it inherited, so a data wipe can no longer be refused and revert.

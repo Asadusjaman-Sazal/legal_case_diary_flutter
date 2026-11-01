@@ -1226,6 +1226,22 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'correction). Only those labels change; the user-modified guard keeps '
         'an edited row and a tombstone is not revived.',
   ),
+  LedgerSection(
+    file: '20261101160000_dissolve_scope_owner_write.sql',
+    version: '0.0.789',
+    label:
+        'A dissolved chamber'
+        's owner can write what it inherited (bug fix). '
+        'The dissolve already lets the owner read rows it took over through '
+        '`scope_owner_id`, but the UPDATE policies and `sync_can_write` never '
+        'included that owner, so the owner could not edit or delete an '
+        'inherited row: a Delete Data run was rejected and the live row came '
+        'back on the next pull. The twelve ledger tables'
+        ' UPDATE policies and '
+        '`sync_can_write` now allow the scope owner and stop the old author '
+        'while a scope owner exists; the RPC also refuses an INSERT that names '
+        'the server-owned scope column.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1263,6 +1279,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.789': 'Chamber Dissolve — The Owner Can Write What It Inherited',
   '0.0.785': 'Case Types — The Trailing Hyphen',
   '0.0.784': 'Case Types — District-Scoped Types',
   '0.0.771': 'Law List — Civil Law Merge',

@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(90),
+        hasLength(91),
         reason:
+            'The dissolve scope-owner write fix (2026-11-01) added one file: '
+            'the owner can now write the rows it inherited. '
             'The trailing hyphen correction (2026-11-01) added one file: the '
             'seven built-in Narayanganj CJM labels in both languages. '
             'District-scoped case types (2026-11-01) added one file: the two '
@@ -180,7 +182,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(90),
+        hasLength(91),
         reason: 'versions must be unique',
       );
       expect(
@@ -189,7 +191,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261101140000');
+      expect(versions.last, '20261101160000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

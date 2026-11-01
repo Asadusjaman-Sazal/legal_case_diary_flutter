@@ -1,6 +1,7 @@
 /// The read-only Case Reference detail, shared by the user's library and the
 /// Server-wide page: its Case-Detail-style layout, the absent fields' em dash,
-/// the Edit action and the read-only variant.
+/// the Edit action, the read-only variant, and an Official row's small Close on
+/// the citation line beside the Official mark.
 library;
 
 import 'package:flutter/material.dart';
@@ -39,6 +40,7 @@ void main() {
     ReferenceRow row, {
     Future<ReferenceRow?> Function(ReferenceRow currentRow)? onEdit,
     Future<bool> Function(BuildContext context)? onDelete,
+    IconData Function(String? statute)? lawIcon,
   }) async {
     await tester.binding.setSurfaceSize(const Size(800, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -52,6 +54,7 @@ void main() {
           row: row,
           onEdit: onEdit,
           onDelete: onDelete,
+          lawIcon: lawIcon,
         ),
       ),
     );
@@ -111,11 +114,16 @@ void main() {
     expect(find.text('bail'), findsOneWidget);
     expect(find.text('evidence'), findsOneWidget);
 
-    // Delete / Edit / Close sit under the Act/Law on one line, in equal slots
-    // and a little wider than the old 40 px squares; there is no back button.
+    // An Official row puts the small Close on the first line, to the right of
+    // the Official mark; Delete and Edit keep the action row below the
+    // Act/Law, centred as a pair.
+    final citationRect = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-citation')),
+    );
     final law = tester.getRect(
       find.byKey(const ValueKey('reference-detail-law')),
     );
+    final official = tester.getRect(find.byType(OfficialChip));
     final delete = tester.getRect(
       find.byKey(const ValueKey('reference-detail-delete')),
     );
@@ -125,19 +133,51 @@ void main() {
     final close = tester.getRect(
       find.byKey(const ValueKey('reference-detail-close')),
     );
+    expect(close.left - official.right, closeTo(AppSpacing.sm, 0.01));
+    expect(close.top, greaterThanOrEqualTo(citationRect.top));
+    expect(close.bottom, lessThanOrEqualTo(citationRect.bottom));
+    expect(close.width, lessThanOrEqualTo(24));
+    expect(close.height, lessThanOrEqualTo(24));
+    final closeButton = tester.widget<IconButton>(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+    expect(
+      closeButton.style?.backgroundColor?.resolve(<WidgetState>{}),
+      AppColors.secondary,
+    );
+    final closeIcon = tester.widget<Icon>(
+      find.descendant(
+        of: find.byKey(const ValueKey('reference-detail-close')),
+        matching: find.byIcon(Icons.close),
+      ),
+    );
+    expect(closeIcon.color, AppColors.onPrimary);
     expect(delete.top, greaterThan(law.bottom));
     expect((delete.top - edit.top).abs(), lessThan(0.5));
-    expect((delete.top - close.top).abs(), lessThan(0.5));
     expect(delete.left, lessThan(edit.left));
-    expect(edit.left, lessThan(close.left));
-    // Equal distance between the button centres across the line.
     expect(
-      (edit.center.dx - delete.center.dx).abs(),
-      closeTo((close.center.dx - edit.center.dx).abs(), 0.5),
+      ((delete.left + edit.right) / 2 -
+              tester.getCenter(find.byType(Scaffold)).dx)
+          .abs(),
+      lessThan(0.5),
     );
+    expect(edit.left - delete.right, closeTo(AppSpacing.sm, 0.01));
     expect(delete.height, 40);
     expect(delete.width, greaterThan(40));
     expect(find.byKey(const ValueKey('reference-detail-back')), findsNothing);
+  });
+
+  testWidgets('the law line wears its category icon', (tester) async {
+    await pumpDetail(
+      tester,
+      fullRow(),
+      lawIcon: (_) => lawCategoryIcon('civil_procedure_evidence'),
+    );
+
+    // The same glyph Settings → Law Names shows for Civil Law, not the old
+    // fixed gavel.
+    expect(find.byIcon(Icons.description_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.gavel), findsNothing);
   });
 
   testWidgets('hides Edit and shows an em dash for absent fields', (
@@ -151,14 +191,16 @@ void main() {
 
     expect(find.byKey(const ValueKey('reference-detail-edit')), findsNothing);
     expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
-    // Close is the only remaining action, centred on the page.
+    // Close is the only action, on the first line beside the Official mark.
+    final law = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-law')),
+    );
+    final official = tester.getRect(find.byType(OfficialChip));
     final close = tester.getRect(
       find.byKey(const ValueKey('reference-detail-close')),
     );
-    expect(
-      (close.center.dx - tester.getCenter(find.byType(Scaffold)).dx).abs(),
-      lessThan(0.5),
-    );
+    expect(close.left, greaterThan(official.right));
+    expect(close.bottom, lessThan(law.top));
     expect(
       find.byKey(const ValueKey('reference-detail-parties')),
       findsNothing,
@@ -167,27 +209,27 @@ void main() {
     expect(find.text('—'), findsNWidgets(6));
   });
 
-  testWidgets('two actions are centred as a pair', (tester) async {
+  testWidgets('a lone Edit is centred under the Act/Law', (tester) async {
     await pumpDetail(tester, fullRow(), onEdit: (_) async => null);
 
     expect(find.byKey(const ValueKey('reference-detail-delete')), findsNothing);
+    final law = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-law')),
+    );
     final edit = tester.getRect(
       find.byKey(const ValueKey('reference-detail-edit')),
     );
+    expect(edit.top, greaterThan(law.bottom));
+    expect(
+      (edit.center.dx - tester.getCenter(find.byType(Scaffold)).dx).abs(),
+      lessThan(0.5),
+    );
+    expect(edit.width, greaterThan(40));
+    // Close is still the header's, above the Act/Law.
     final close = tester.getRect(
       find.byKey(const ValueKey('reference-detail-close')),
     );
-    expect((edit.top - close.top).abs(), lessThan(0.5));
-    // The pair's own centre sits on the page's centre line, with the same
-    // 8 px gap and the same wider button as the three-button row.
-    expect(
-      ((edit.left + close.right) / 2 -
-              tester.getCenter(find.byType(Scaffold)).dx)
-          .abs(),
-      lessThan(0.5),
-    );
-    expect(close.left - edit.right, closeTo(AppSpacing.sm, 0.01));
-    expect(edit.width, greaterThan(40));
+    expect(close.bottom, lessThan(law.top));
   });
 
   testWidgets('Edit hands over the current row and shows the saved one', (

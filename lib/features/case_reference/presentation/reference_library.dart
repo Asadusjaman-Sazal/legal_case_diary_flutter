@@ -140,6 +140,32 @@ class LawSectionData {
 /// The statute text a reference is filed under; blank reads as "no statute".
 String referenceStatuteKey(String? statute) => (statute ?? '').trim();
 
+/// One outline icon per law-category heading, shared with Settings → Law Names
+/// so a citation's detail wears the same glyph as its category's card there
+/// (user request). An unknown or blank id uses the book, exactly as the
+/// Settings page's fallback does.
+IconData lawCategoryIcon(String categoryId) => switch (categoryId) {
+  'constitution_courts_practice' => Icons.account_balance_outlined,
+  'civil_procedure_evidence' => Icons.description_outlined,
+  'family_personal_law' => Icons.family_restroom_outlined,
+  'criminal_law' => Icons.gavel_outlined,
+  'tax_finance' => Icons.receipt_long_outlined,
+  'labour_everyday_regulation' => Icons.work_outline,
+  _ => Icons.menu_book_outlined,
+};
+
+/// The category icon for [statute], resolved through the live law list.
+///
+/// A citation stores its law as text, not a law id, so the name is matched
+/// against the current list; a name no row owns falls back to the book icon.
+IconData lawIconForStatute(Iterable<Law> laws, String? statute) {
+  final name = referenceStatuteKey(statute);
+  for (final law in laws) {
+    if (law.name == name) return lawCategoryIcon(law.category);
+  }
+  return lawCategoryIcon('');
+}
+
 /// The tags a citation carries, split on the ASCII comma.
 ///
 /// Each tag is trimmed and blank ones disappear; duplicates that differ only in

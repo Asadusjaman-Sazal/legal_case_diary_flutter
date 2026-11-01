@@ -9,7 +9,9 @@
 ///
 /// The layout follows the Case Detail screen: the app background, 16 px side
 /// margins, white section cards with an 8 px corner and the card border, 24 px
-/// padding, icon-and-title headings and labelled value boxes.
+/// padding, icon-and-title headings and labelled value boxes. On an Official
+/// row the small Close shares the first line with the citation and the Official
+/// mark, leaving Delete and Edit to the action row below.
 library;
 
 import 'package:flutter/material.dart';
@@ -35,6 +37,7 @@ class ReferenceDetailScreen extends StatefulWidget {
     required this.row,
     this.onEdit,
     this.onDelete,
+    this.lawIcon,
     super.key,
   });
 
@@ -46,6 +49,11 @@ class ReferenceDetailScreen extends StatefulWidget {
 
   /// The host's delete path, or null when the row cannot be deleted here.
   final Future<bool> Function(BuildContext context)? onDelete;
+
+  /// Resolves the icon before the law name from its stored statute. The host
+  /// supplies it from the live law list so the line wears the icon of the law
+  /// name's category, as Settings → Law Names does.
+  final IconData Function(String? statute)? lawIcon;
 
   @override
   State<ReferenceDetailScreen> createState() => _ReferenceDetailScreenState();
@@ -85,6 +93,8 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
     final tags = referenceTags(_row.tags);
     final statute = _row.statute?.trim() ?? '';
     final parties = _row.parties?.trim() ?? '';
+    final actions = _actionsRow(l);
+    final lawIcon = widget.lawIcon?.call(_row.statute) ?? Icons.gavel;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -110,14 +120,16 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                   if (_row.isOfficial) ...[
                     const SizedBox(width: AppSpacing.sm),
                     OfficialChip(label: l.caseReferenceScreen_official),
+                    const SizedBox(width: AppSpacing.sm),
+                    _headerCloseButton(l),
                   ],
                 ],
               ),
               const SizedBox(height: AppSpacing.xs),
               Row(
                 children: [
-                  const Icon(
-                    Icons.gavel,
+                  Icon(
+                    lawIcon,
                     size: 18,
                     color: AppColors.onSurfaceVariant,
                   ),
@@ -135,10 +147,12 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                   ),
                 ],
               ),
-              // Delete / Edit / Close sit directly under the Act/Law, as the
-              // Case Detail's actions do.
-              const SizedBox(height: AppSpacing.md),
-              _actionsRow(l),
+              // Delete / Edit sit directly under the Act/Law on an Official
+              // row; the user's own row keeps Close here too.
+              if (actions != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                actions,
+              ],
               const SizedBox(height: AppSpacing.lg),
               if (parties.isNotEmpty) ...[
                 _sectionCard(
@@ -191,10 +205,37 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
     );
   }
 
-  /// Delete / Edit / Close, evenly spaced on one line: three share the line in
-  /// equal slots (the Case Detail's 70 % width), while two are centred as a
-  /// pair (user request). Hiding a button re-flows the row.
-  Widget _actionsRow(AppLocalizations l) {
+  /// The Close action on an Official row's first line: a 24 px black button
+  /// with a white cross, spaced from the Official mark (user request), so the
+  /// citation, chip and button share the line. Delete and Edit stay in the
+  /// action row.
+  Widget _headerCloseButton(AppLocalizations l) => IconButton(
+    key: const ValueKey('reference-detail-close'),
+    tooltip: l.sharedActions_close,
+    onPressed: () => Navigator.of(context).maybePop(),
+    style: IconButton.styleFrom(
+      backgroundColor: AppColors.secondary,
+      foregroundColor: AppColors.onPrimary,
+      minimumSize: const Size(24, 24),
+      maximumSize: const Size(24, 24),
+      padding: EdgeInsets.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+      ),
+    ),
+    constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+    iconSize: 18,
+    icon: const Icon(Icons.close, color: AppColors.onPrimary),
+  );
+
+  /// The actions under the Act/Law.
+  ///
+  /// An Official row keeps only Delete and Edit here — Close sits beside the
+  /// Official mark — while the user's own row keeps Delete / Edit / Close.
+  /// Three share the line in equal slots (the Case Detail's 70 % width); two
+  /// are centred as a pair (user request). Hiding a button re-flows the row.
+  Widget? _actionsRow(AppLocalizations l) {
     final specs =
         <
           ({
@@ -221,14 +262,16 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
               background: AppColors.secondary,
               onPressed: _editing ? null : _edit,
             ),
-          (
-            key: const ValueKey('reference-detail-close'),
-            icon: Icons.close,
-            label: l.sharedActions_close,
-            background: AppColors.secondary,
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
+          if (!_row.isOfficial)
+            (
+              key: const ValueKey('reference-detail-close'),
+              icon: Icons.close,
+              label: l.sharedActions_close,
+              background: AppColors.secondary,
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
         ];
+    if (specs.isEmpty) return null;
     return LayoutBuilder(
       builder: (context, constraints) {
         const gap = AppSpacing.sm;

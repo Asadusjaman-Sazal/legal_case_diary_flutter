@@ -158,6 +158,10 @@ class _AdminSharedReferencesScreenState
       MaterialPageRoute<void>(
         builder: (_) => ReferenceDetailScreen(
           row: row,
+          lawIcon: (statute) => lawIconForStatute(
+            ref.read(lawListProvider).value ?? const <Law>[],
+            statute,
+          ),
           onEdit: (current) => _editAndReturn(current.id),
           onDelete: (detailContext) async {
             final reference = _adminReference(row.id);

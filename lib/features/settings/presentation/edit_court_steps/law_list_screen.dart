@@ -29,6 +29,7 @@ import '../../../../shared/widgets/app_dialog.dart';
 import '../../../../shared/widgets/app_dialog_actions.dart';
 import '../../../case_reference/presentation/law_name_dialog.dart';
 import '../../../case_reference/presentation/law_picker.dart';
+import '../../../case_reference/presentation/reference_library.dart';
 import '../../data/laws_repository.dart';
 import '../settings_menu_card.dart';
 import '../settings_sub_page_modal.dart';
@@ -142,7 +143,7 @@ class _CategoryList extends StatelessWidget {
                   ? 'law-category-other'
                   : 'law-category-${groups[i].categoryId}',
             ),
-            icon: _iconFor(groups[i].categoryId),
+            icon: lawCategoryIcon(groups[i].categoryId),
             title: context.l10n.lawCategoryName(groups[i].categoryId),
             onTap: () => context.push(
               groups[i].categoryId.isEmpty
@@ -159,16 +160,6 @@ class _CategoryList extends StatelessWidget {
     );
   }
 
-  /// One outline icon per heading, so the identical rows stay scannable.
-  IconData _iconFor(String categoryId) => switch (categoryId) {
-    'constitution_courts_practice' => Icons.account_balance_outlined,
-    'civil_procedure_evidence' => Icons.description_outlined,
-    'family_personal_law' => Icons.family_restroom_outlined,
-    'criminal_law' => Icons.gavel_outlined,
-    'tax_finance' => Icons.receipt_long_outlined,
-    'labour_everyday_regulation' => Icons.work_outline,
-    _ => Icons.menu_book_outlined,
-  };
 }
 
 /// One category's names: drag to reorder; edit and delete only a user-added

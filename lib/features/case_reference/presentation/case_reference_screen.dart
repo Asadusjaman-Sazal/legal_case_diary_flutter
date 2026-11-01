@@ -337,6 +337,10 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       MaterialPageRoute<void>(
         builder: (_) => ReferenceDetailScreen(
           row: row,
+          lawIcon: (statute) => lawIconForStatute(
+            ref.read(lawListProvider).value ?? const <Law>[],
+            statute,
+          ),
           onEdit: row.own == null ? null : (current) => _editRow(current),
           onDelete: row.own == null
               ? null

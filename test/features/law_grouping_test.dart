@@ -10,6 +10,7 @@ library;
 
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -120,6 +121,24 @@ void main() {
         expect(civil.laws.last.name, 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২');
       },
     );
+
+    test('a law name resolves to its category icon', () async {
+      final laws = await repo.listAll();
+
+      // The same icons Settings → Law Names draws on the category cards.
+      expect(
+        lawIconForStatute(laws, 'The Penal Code, 1860'),
+        Icons.gavel_outlined,
+      );
+      expect(
+        lawIconForStatute(laws, 'The Contract Act, 1872'),
+        Icons.description_outlined,
+      );
+      expect(
+        lawIconForStatute(laws, 'A Law No Row Owns'),
+        Icons.menu_book_outlined,
+      );
+    });
 
     test('a blank or unknown category lands in one trailing Other group', () async {
       // A row written before categories existed, plus one a newer release might

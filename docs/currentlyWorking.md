@@ -1,5 +1,26 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — The law line wears its category icon — COMPLETE (0.0.774)
+
+- **What was asked.** On the Case Reference detail only, the icon before the law name should match the law name's category icon in Settings → Edit Court/Steps → Law Names.
+- **The icon.** `lawCategoryIcon` is now the one mapping for the six headings (Constitution `account_balance_outlined`, Civil Law `description_outlined`, Family `family_restroom_outlined`, Criminal `gavel_outlined`, Tax `receipt_long_outlined`, Labour `work_outline`, Other `menu_book_outlined`); Settings' Law Names cards and the detail's law line both use it. `lawIconForStatute` finds the citation's stored statute in the live `lawListProvider` so a user-added name wears its category's glyph. Both hosts pass the resolver; the old fixed gavel is only the fallback when none is supplied. The mockup comment now names the category icon.
+- **Proof.** New detail case: a Civil Law citation shows `description_outlined` and no gavel. New grouping case: Penal Code → `gavel_outlined`, Contract Act → `description_outlined`, an unowned name → `menu_book_outlined`. Detail/grouping/reference suites pass (41); `flutter analyze` clean.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-01 — The first-line Close wears the action colour — COMPLETE (0.0.773)
+
+- **What was asked.** Give the official detail's first-line Close a black background and a white cross, with appropriate space from the Official chip.
+- **The button.** The 24 px first-line Close is now a black filled button with a white 18 px cross and the action row's 8 px corner. The gap to the Official chip grew from 4 px to **8 px**, the same gap the citation uses before the chip.
+- **Proof.** The updated `reference_detail_test.dart` (8) checks the button's background resolves to the app black, its icon to white, and the chip-to-button gap is 8 px, alongside the earlier position, size, pair and close-path checks; `flutter analyze` clean.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-01 — An official citation's Close moves to the first line — COMPLETE (0.0.772)
+
+- **What was asked.** Only on the Case Reference detail: for official citations, move Close to the right of the Official chip and make it smaller so it fits the first line.
+- **The screen.** The first line is citation (flexible), the Official chip and a **24 px** icon-only Close. The action row under the Act/Law no longer carries Close for an Official row — Delete and Edit remain, centred as a pair — and the row disappears when neither exists, which is the user's official cached citation; the first-line Close is then the only action. A user-owned citation keeps Delete / Edit / Close exactly as before. The mockup's hidden detail page was updated (rule 9).
+- **Proof.** `reference_detail_test.dart` (8) checks the close is right of the chip, inside the citation line and at most 24 px; the Delete/Edit pair sits under the law; a lone Edit is centred; the read-only variant has only the first-line Close; and Close still pops. The reference suites pass (34); `flutter analyze` clean; full suite **2,266 passed**, with only the known pre-existing backup export-list red. (One earlier suite run hung in the unrelated `app_shell_exit_test.dart`; that file passes alone, 7/7, and the rerun was clean.)
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — The civil-law merge is written into local and server data — COMPLETE (0.0.771)
 
 - **What was asked.** The Contract, Land, Property & Business category should be deleted and its law names listed under **Civil Law / দেওয়ানি আইন** in local storage and on the server, with the merged names alphabetical (English first, then Bengali). The user then confirmed both test phones would receive the build, so the 0.0.770 read-time alias could go.

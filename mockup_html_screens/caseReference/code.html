@@ -418,42 +418,38 @@
 
 <!-- The read-only Case Reference detail, opened by tapping a card. It follows
      the Case Detail screen's shell: app background, 16 px sides, the citation
-     at 24 px with the Official mark at its right, the Act/Law line with a
-     gavel, then the Delete / Edit / Close action row directly under it, a
-     Parties card and a Reference Details card whose labelled boxes show an em
-     dash when empty. There is no back button: Close is the way out. An Official
-     cached citation on the user's screen hides Delete and Edit (this device
-     cannot write the library) and the remaining button slides to the left.
-     Hidden here because the list is showing. -->
+     at 24 px with the Official mark and a small first-line Close at its right,
+     the Act/Law line with the icon of its category in Settings → Law Names,
+     then the Delete / Edit action row directly
+     under it, a Parties card and a Reference Details card whose labelled boxes
+     show an em dash when empty. There is no back button: Close is the way out.
+     An Official cached citation on the user's screen has no Delete or Edit, so
+     it has no action row and the first-line Close is its only action. Hidden
+     here because the list is showing. -->
 <div class="hidden fixed inset-0 z-[100] bg-background">
   <div class="h-full flex flex-col px-md">
     <div class="flex-1 overflow-y-auto pt-lg pb-xxxl">
       <div class="flex items-start">
         <p class="flex-1 font-headline-md text-headline-md text-primary">29 DLR (AD), P-69-73</p>
         <span class="ml-sm px-[6px] py-[2px] rounded-md bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface-variant">Official</span>
+        <button aria-label="Close" class="ml-sm w-6 h-6 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
       </div>
       <div class="mt-xs flex items-center">
         <span class="material-symbols-outlined text-[18px] text-on-surface-variant">gavel</span>
         <span class="ml-xs font-body-lg text-body-lg text-on-surface-variant">The Penal Code, 1860</span>
       </div>
-      <!-- One line in equal slots, each button 70% of its slot; hiding one
-           re-flows the row, and a pair (or a lone Close) is centred. -->
-      <div class="mt-md flex items-center gap-sm">
-        <div class="flex-1 flex justify-center">
-          <button aria-label="Delete" class="w-[70%] h-10 rounded-lg bg-error text-on-primary flex items-center justify-center active:opacity-80">
-            <span class="material-symbols-outlined text-[18px]">delete</span>
-          </button>
-        </div>
-        <div class="flex-1 flex justify-center">
-          <button aria-label="Edit" class="w-[70%] h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-            <span class="material-symbols-outlined text-[18px]">edit</span>
-          </button>
-        </div>
-        <div class="flex-1 flex justify-center">
-          <button aria-label="Close" class="w-[70%] h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-          </button>
-        </div>
+      <!-- Delete and Edit keep the action row on an Official row; Close is the
+           first-line button. Two actions are centred as a pair at the same
+           width as the old three-button row's buttons. -->
+      <div class="mt-md flex items-center justify-center gap-sm">
+        <button aria-label="Delete" class="w-[23%] h-10 rounded-lg bg-error text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>
+        <button aria-label="Edit" class="w-[23%] h-10 rounded-lg bg-secondary text-on-primary flex items-center justify-center active:opacity-80">
+          <span class="material-symbols-outlined text-[18px]">edit</span>
+        </button>
       </div>
 
       <div class="mt-lg bg-surface-container-lowest border border-card-border rounded-lg p-lg">

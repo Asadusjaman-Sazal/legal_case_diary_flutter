@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.771 - Law names stored under the retired contract category now move into Civil Law on the phone and the server, alphabetically with English names first.
+Version: 0.0.774 - The Case Reference detail's law line now wears the same category icon as Settings > Law Names.
 --------------------------------------
 
 ## Version History Log:
@@ -785,3 +785,6 @@ Version: 0.0.768 - Associates can now clear and bulk clear their own finished de
 Version: 0.0.769 - The Law Names screen now hides the Edit button on built-in law names; only user-added names keep Edit and Delete.
 Version: 0.0.770 - Civil Procedure & Evidence and Contract, Land, Property & Business now read as one Civil Law heading on Case Reference, Server-wide Case Reference and Law Names.
 Version: 0.0.771 - Law names stored under the retired contract category now move into Civil Law on the phone and the server, alphabetically with English names first.
+Version: 0.0.772 - On the Case Reference detail, an official citation's Close button now sits small beside the Official mark on the first line.
+Version: 0.0.773 - The official citation's first-line Close is now a black button with a white cross, spaced from the Official chip.
+Version: 0.0.774 - The Case Reference detail's law line now wears the same category icon as Settings > Law Names.

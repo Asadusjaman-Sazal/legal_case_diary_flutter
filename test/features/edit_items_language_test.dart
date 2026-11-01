@@ -14,11 +14,11 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/settings/data/case_types_repository.dart';
-import 'package:legal_case_diary/features/settings/data/courts_repository.dart';
 import 'package:legal_case_diary/features/settings/data/on_behalfs_repository.dart';
 import 'package:legal_case_diary/features/settings/data/reference_in_use_checker.dart';
 import 'package:legal_case_diary/features/settings/data/steps_repository.dart';
 import 'package:legal_case_diary/features/settings/presentation/edit_court_steps/item_list_screen.dart';
+import 'package:legal_case_diary/shared/widgets/custom_dropdown.dart';
 
 /// The seeded category used by every case below.
 final _category = seedCategories.firstWhere(
@@ -67,21 +67,6 @@ const _narayanganjType = CaseType(
   nameBn: 'নারায়ণগঞ্জ',
   district: 'narayanganj',
   orderIndex: 4,
-  isCustom: false,
-  isUserModified: false,
-  updatedAt: 0,
-  isDeleted: false,
-);
-
-/// A Narayanganj CJM court, so the district can offer that court's scope.
-const _narayanganjCjmCourt = Court(
-  id: 'cjm-narayanganj',
-  courtName: 'CJM Court, Narayanganj',
-  higherLowerCourts: lowerCourtsOption,
-  division: divisionDhakaId,
-  district: 'narayanganj',
-  courtCategoryId: chiefJudicialMagistrateId,
-  orderIndex: 0,
   isCustom: false,
   isUserModified: false,
   updatedAt: 0,
@@ -252,12 +237,7 @@ void main() {
         kind: ItemKind.caseTypes,
         categoryId: chiefJudicialMagistrateId,
       ),
-      [
-        caseTypesRepositoryProvider.overrideWith((ref) async => repo),
-        courtsRepositoryProvider.overrideWith(
-          (ref) async => _FakeCourtsRepository([_narayanganjCjmCourt]),
-        ),
-      ],
+      [caseTypesRepositoryProvider.overrideWith((ref) async => repo)],
     );
 
     await tester.tap(find.byType(FloatingActionButton));
@@ -284,7 +264,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('case-type-district')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(districtLabelBn['narayanganj']!).last);
+    await tester.tap(find.text(districtLabelBn['dhaka']!).last);
     await tester.pumpAndSettle();
     await tester.tap(
       find.descendant(
@@ -298,7 +278,63 @@ void main() {
     expect(inserted.courtCategoryId.value, chiefJudicialMagistrateId);
     expect(inserted.name.value, 'Custom Type');
     expect(inserted.nameBn.value, 'কাস্টম টাইপ');
-    expect(inserted.district.value, 'narayanganj');
+    expect(inserted.district.value, 'dhaka');
+  });
+
+  testWidgets('the case type window lists all eight divisions and districts', (
+    tester,
+  ) async {
+    final repo = _FakeCaseTypesRepository(const <CaseType>[]);
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: chiefJudicialMagistrateId,
+      ),
+      [caseTypesRepositoryProvider.overrideWith((ref) async => repo)],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    // All eight divisions are in the field's own list, independent of whether a
+    // court for this category is seeded there.
+    final divisionField = tester.widget<CustomDropdown<String>>(
+      find.ancestor(
+        of: find.byKey(const ValueKey('case-type-division')),
+        matching: find.byType(CustomDropdown<String>),
+      ),
+    );
+    expect(
+      divisionField.items.where(allDivisionIds.contains).toSet(),
+      allDivisionIds.toSet(),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('case-type-division')));
+    await tester.pumpAndSettle();
+    expect(find.text('সব বিভাগ'), findsWidgets);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text(divisionLabelBn[divisionChattogramId]!),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Choosing a division fills District with every district of that division,
+    // not only a district that happens to have a court.
+    final districtField = tester.widget<CustomDropdown<String>>(
+      find.ancestor(
+        of: find.byKey(const ValueKey('case-type-district')),
+        matching: find.byType(CustomDropdown<String>),
+      ),
+    );
+    final chattogramDistricts = districtIdsByDivision[divisionChattogramId]!;
+    expect(
+      districtField.items.where(chattogramDistricts.contains).toSet(),
+      chattogramDistricts.toSet(),
+    );
+    expect(districtField.items, hasLength(chattogramDistricts.length + 1));
   });
 
   testWidgets('a case type with no district stays global', (tester) async {
@@ -309,12 +345,7 @@ void main() {
         kind: ItemKind.caseTypes,
         categoryId: chiefJudicialMagistrateId,
       ),
-      [
-        caseTypesRepositoryProvider.overrideWith((ref) async => repo),
-        courtsRepositoryProvider.overrideWith(
-          (ref) async => _FakeCourtsRepository([_narayanganjCjmCourt]),
-        ),
-      ],
+      [caseTypesRepositoryProvider.overrideWith((ref) async => repo)],
     );
 
     await tester.tap(find.byType(FloatingActionButton));
@@ -547,17 +578,6 @@ class _FakeCaseTypesRepository implements CaseTypesRepository {
     inserted = companion;
     return 'new-case-type';
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _FakeCourtsRepository implements CourtsRepository {
-  _FakeCourtsRepository(this._items);
-  final List<Court> _items;
-
-  @override
-  Future<List<Court>> listAll({int? limit, int? offset}) async => _items;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

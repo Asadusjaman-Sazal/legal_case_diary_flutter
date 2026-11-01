@@ -545,8 +545,8 @@ void main() {
       const narayanganjType = CaseType(
         id: 'casetype-chief_judicial_magistrate-narayanganj',
         courtCategoryId: chiefJudicialMagistrateId,
-        name: 'Narayanganj',
-        nameBn: 'নারায়ণগঞ্জ',
+        name: 'Narayanganj-',
+        nameBn: 'নারায়ণগঞ্জ-',
         district: 'narayanganj',
         orderIndex: 4,
         isCustom: false,
@@ -611,7 +611,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(Dialog),
-          matching: find.text('Narayanganj'),
+          matching: find.text('Narayanganj-'),
         ),
         findsOneWidget,
       );
@@ -660,8 +660,8 @@ void main() {
       const narayanganjType = CaseType(
         id: 'casetype-chief_judicial_magistrate-narayanganj',
         courtCategoryId: chiefJudicialMagistrateId,
-        name: 'Narayanganj',
-        nameBn: 'নারায়ণগঞ্জ',
+        name: 'Narayanganj-',
+        nameBn: 'নারায়ণগঞ্জ-',
         district: 'narayanganj',
         orderIndex: 4,
         isCustom: false,
@@ -722,12 +722,13 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(Dialog),
-          matching: find.text('Narayanganj'),
+          matching: find.text('Narayanganj-'),
         ),
       );
       await tester.pumpAndSettle();
-      // The district field and the selected type both read Narayanganj.
-      expect(find.text('Narayanganj'), findsNWidgets(2));
+      // The district field reads Narayanganj and the type reads Narayanganj-.
+      expect(find.text('Narayanganj'), findsOneWidget);
+      expect(find.text('Narayanganj-'), findsOneWidget);
 
       // Moving the case to Dhaka drops the Narayanganj type: the field is
       // empty again and the picker offers only Dhaka's type.
@@ -740,13 +741,11 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('add-edit-district')));
       await tester.pumpAndSettle();
       await tester.tap(
-        find.descendant(
-          of: find.byType(Dialog),
-          matching: find.text('Dhaka'),
-        ),
+        find.descendant(of: find.byType(Dialog), matching: find.text('Dhaka')),
       );
       await tester.pumpAndSettle();
       expect(find.text('Narayanganj'), findsNothing);
+      expect(find.text('Narayanganj-'), findsNothing);
 
       await tester.scrollUntilVisible(
         find.byKey(const ValueKey('add-edit-case-type')),
@@ -761,7 +760,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
       await tester.pumpAndSettle();
       expect(find.text('Dhaka Type'), findsOneWidget);
-      expect(find.text('Narayanganj'), findsNothing);
+      expect(find.text('Narayanganj-'), findsNothing);
     });
 
     testWidgets('a stored Bengali case type name follows the app language', (
@@ -793,8 +792,8 @@ void main() {
       const narayanganjType = CaseType(
         id: 'casetype-chief_judicial_magistrate-narayanganj',
         courtCategoryId: chiefJudicialMagistrateId,
-        name: 'Narayanganj',
-        nameBn: 'নারায়ণগঞ্জ',
+        name: 'Narayanganj-',
+        nameBn: 'নারায়ণগঞ্জ-',
         district: 'narayanganj',
         orderIndex: 4,
         isCustom: false,
@@ -849,7 +848,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(Dialog),
-          matching: find.text('নারায়ণগঞ্জ'),
+          matching: find.text('নারায়ণগঞ্জ-'),
         ),
         findsOneWidget,
       );

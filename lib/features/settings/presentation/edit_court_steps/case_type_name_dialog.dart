@@ -1,13 +1,12 @@
 /// Add/edit window for a case type: an English name, an optional Bengali name,
 /// and — for the CJM and CMM categories — the district the type belongs to.
 ///
-/// Only the district is stored. The division field narrows the district list
-/// and is shown for orientation, because a district already identifies its
-/// division.
+/// Only the district is stored. The division narrows the district list to all
+/// districts of that division, because a district already identifies its
+/// division; it does not depend on which courts are seeded.
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -15,7 +14,6 @@ import '../../../../core/constants/app_typography.dart';
 import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
-import '../../../../core/providers/repository_providers.dart';
 import '../../../../database/app_database.dart';
 import '../../../../shared/widgets/app_dialog.dart';
 import '../../../../shared/widgets/app_dialog_actions.dart';
@@ -38,7 +36,7 @@ class CaseTypeDraft {
 /// Add/edit window for one case type.
 ///
 /// Pops a [CaseTypeDraft], or `null` when the user cancels.
-class CaseTypeNameDialog extends ConsumerStatefulWidget {
+class CaseTypeNameDialog extends StatefulWidget {
   /// Window title, e.g. "Add Item".
   final String title;
 
@@ -56,10 +54,10 @@ class CaseTypeNameDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CaseTypeNameDialog> createState() => _CaseTypeNameDialogState();
+  State<CaseTypeNameDialog> createState() => _CaseTypeNameDialogState();
 }
 
-class _CaseTypeNameDialogState extends ConsumerState<CaseTypeNameDialog> {
+class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
   // A null selection cannot be offered by CustomDropdown, so "All …" travels
   // as this sentinel and is turned back into null before saving.
   static const _allOption = '__all__';
@@ -69,10 +67,6 @@ class _CaseTypeNameDialogState extends ConsumerState<CaseTypeNameDialog> {
   late final TextEditingController _bengaliController;
   String? _division;
   String? _district;
-
-  /// Null while the courts are loading; an empty list when they could not be
-  /// read, in which case the type can still be saved as global.
-  List<Court>? _courts;
 
   /// The district scope belongs to the magistrate categories only.
   bool get _showsDistrictScope =>
@@ -90,7 +84,6 @@ class _CaseTypeNameDialogState extends ConsumerState<CaseTypeNameDialog> {
     );
     _district = widget.initial?.district;
     _division = _divisionForDistrict(_district);
-    if (_showsDistrictScope) _loadCourts();
   }
 
   @override
@@ -100,52 +93,21 @@ class _CaseTypeNameDialogState extends ConsumerState<CaseTypeNameDialog> {
     super.dispose();
   }
 
-  Future<void> _loadCourts() async {
-    try {
-      final repo = await ref.read(courtsRepositoryProvider.future);
-      final courts = await repo.listAll();
-      if (mounted) setState(() => _courts = courts);
-    } catch (_) {
-      if (mounted) setState(() => _courts = const <Court>[]);
-    }
-  }
+  /// Every division is offered, even one with no court in this category.
+  List<String> get _divisionOptions => allDivisionIds;
 
-  /// Districts that have a court in this category, in division order.
-  List<String> get _courtDistricts {
-    final courts = _courts;
-    if (courts == null) return const <String>[];
-    final present = <String>{
-      for (final court in courts)
-        if (court.courtCategoryId == widget.categoryId &&
-            court.higherLowerCourts == lowerCourtsOption &&
-            court.district != null)
-          court.district!,
-    };
-    return <String>[
-      for (final division in allDivisionIds)
-        for (final district
-            in districtIdsByDivision[division] ?? const <String>[])
-          if (present.contains(district)) district,
-    ];
-  }
-
-  List<String> get _divisionOptions {
-    final districts = _courtDistricts.toSet();
-    return <String>[
-      for (final division in allDivisionIds)
-        if ((districtIdsByDivision[division] ?? const <String>[]).any(
-          districts.contains,
-        ))
-          division,
-    ];
-  }
-
+  /// Every district of the selected division. With All Divisions selected the
+  /// list is the whole country, in division order. This is the geographic list,
+  /// not the districts that happen to have a seeded court in the category.
   List<String> get _districtOptions {
     final division = _division;
-    if (division == null) return _courtDistricts;
-    final inDivision = (districtIdsByDivision[division] ?? const <String>[])
-        .toSet();
-    return _courtDistricts.where(inDivision.contains).toList(growable: false);
+    if (division != null) {
+      return districtIdsByDivision[division] ?? const <String>[];
+    }
+    return <String>[
+      for (final id in allDivisionIds)
+        ...districtIdsByDivision[id] ?? const <String>[],
+    ];
   }
 
   String? _divisionForDistrict(String? district) {
@@ -221,50 +183,40 @@ class _CaseTypeNameDialogState extends ConsumerState<CaseTypeNameDialog> {
             ),
             if (_showsDistrictScope) ...[
               const SizedBox(height: AppSpacing.md),
-              if (_courts == null)
-                const Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              else ...[
-                CustomDropdown<String>(
-                  fieldKey: const ValueKey('case-type-division'),
-                  label: l.addEditCaseSheet_division,
-                  modalTitle: l.addEditCaseSheet_division,
-                  items: <String>[_allOption, ..._divisionOptions],
-                  value: _division ?? _allOption,
-                  itemLabel: (id) => id == _allOption
-                      ? l.settingsItemList_allDivisions
-                      : _divisionLabel(context, id),
-                  outlined: true,
-                  emptyFillColor: AppColors.surface,
-                  selectedFillColor: AppColors.surfaceVariant,
-                  onChanged: (value) => setState(() {
-                    _division = value == _allOption ? null : value;
-                    _district = null;
-                  }),
+              CustomDropdown<String>(
+                fieldKey: const ValueKey('case-type-division'),
+                label: l.addEditCaseSheet_division,
+                modalTitle: l.addEditCaseSheet_division,
+                items: <String>[_allOption, ..._divisionOptions],
+                value: _division ?? _allOption,
+                itemLabel: (id) => id == _allOption
+                    ? l.settingsItemList_allDivisions
+                    : _divisionLabel(context, id),
+                outlined: true,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
+                onChanged: (value) => setState(() {
+                  _division = value == _allOption ? null : value;
+                  _district = null;
+                }),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              CustomDropdown<String>(
+                fieldKey: const ValueKey('case-type-district'),
+                label: l.addEditCaseSheet_district,
+                modalTitle: l.addEditCaseSheet_district,
+                items: <String>[_allOption, ..._districtOptions],
+                value: _district ?? _allOption,
+                itemLabel: (id) => id == _allOption
+                    ? l.settingsItemList_allDistricts
+                    : _districtLabel(context, id),
+                outlined: true,
+                emptyFillColor: AppColors.surface,
+                selectedFillColor: AppColors.surfaceVariant,
+                onChanged: (value) => setState(
+                  () => _district = value == _allOption ? null : value,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                CustomDropdown<String>(
-                  fieldKey: const ValueKey('case-type-district'),
-                  label: l.addEditCaseSheet_district,
-                  modalTitle: l.addEditCaseSheet_district,
-                  items: <String>[_allOption, ..._districtOptions],
-                  value: _district ?? _allOption,
-                  itemLabel: (id) => id == _allOption
-                      ? l.settingsItemList_allDistricts
-                      : _districtLabel(context, id),
-                  outlined: true,
-                  emptyFillColor: AppColors.surface,
-                  selectedFillColor: AppColors.surfaceVariant,
-                  onChanged: (value) => setState(
-                    () => _district = value == _allOption ? null : value,
-                  ),
-                ),
-              ],
+              ),
             ],
           ],
         ),

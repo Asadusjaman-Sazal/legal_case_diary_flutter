@@ -45,6 +45,7 @@ class SeedMigrationRunner {
     _NamedMigration('seed_v3', _checksumV3, _applySeedV3),
     _NamedMigration('seed_v4', _checksumV4, _applySeedV4),
     _NamedMigration('seed_v5', _checksumV5, _applySeedV5),
+    _NamedMigration('seed_v6', _checksumV6, _applySeedV6),
   ];
 
   /// Checksum for seed_v1 – base64-encoded SHA-256 of the version string.
@@ -112,6 +113,18 @@ class SeedMigrationRunner {
       (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
     );
     return base64Encode(utf8.encode('seed_v5:$hash'));
+  }
+
+  /// Checksum for seed_v6, which gives the seven district types the trailing
+  /// hyphen every other built-in case type carries.
+  static String get _checksumV6 {
+    const payload = 'seed_v6_district_case_type_trailing_hyphen';
+    final bytes = utf8.encode(payload);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
+    return base64Encode(utf8.encode('seed_v6:$hash'));
   }
 
   // ---------------------------------------------------------------------------
@@ -187,20 +200,21 @@ class SeedMigrationRunner {
       ],
     );
 
-    final rows = await (db.select(db.laws)..where(
-          (law) =>
-              law.isCustom.equals(false) &
-              law.category.equals(lawCategoryCivilProcedureEvidence),
-        ))
-        .get();
+    final rows =
+        await (db.select(db.laws)..where(
+              (law) =>
+                  law.isCustom.equals(false) &
+                  law.category.equals(lawCategoryCivilProcedureEvidence),
+            ))
+            .get();
     final slots = rows.map((law) => law.orderIndex).toList()..sort();
     rows.sort((a, b) => compareCivilLawNames(a.name, b.name));
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].orderIndex == slots[i]) continue;
-      await db.customStatement(
-        'UPDATE laws SET order_index = ? WHERE id = ?',
-        [slots[i], rows[i].id],
-      );
+      await db.customStatement('UPDATE laws SET order_index = ? WHERE id = ?', [
+        slots[i],
+        rows[i].id,
+      ]);
     }
   }
 
@@ -239,6 +253,11 @@ class SeedMigrationRunner {
       );
     }
   }
+
+  /// Re-applies the seven district types so a row seeded before the trailing
+  /// hyphen correction takes the label every other built-in carries. The same
+  /// upsert and `is_user_modified` guard leave a user-edited row alone.
+  static Future<void> _applySeedV6(AppDatabase db) => _applySeedV5(db);
 
   // ---------------------------------------------------------------------------
   // Individual seed helpers (all use INSERT OR REPLACE for idempotency)

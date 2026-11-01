@@ -130,6 +130,7 @@ checks that roll back) and the read-only counts
 | 0.0.758 | 2026-10-31 | `20261031160000_case_reference_parties.sql` | The parties to the case on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain one nullable text column, filled from the form field that sits right after **Citation**. Existing citations carry none until they are edited. No function is re-created, for the same reasons as the Case Note and Tags file before it: the push is column-generic, the shared table's grant is table-level, and the delta pull selects every column. |
 | 0.0.771 | 2026-11-01 | `20261101100000_merge_civil_law_categories.sql` | The Contract, Land, Property & Business law category is merged into Civil Law (user request). Every law stored under the retired ID moves to `civil_procedure_evidence`; the 22 built-in Civil Law names are reordered into the slots they already held, English A to Z first and then Bengali A to Z; and a `BEFORE INSERT OR UPDATE` trigger normalises the retired ID so an older phone's queued payload cannot bring the category back. No table, policy, grant or function list changes, and no version is bumped: the server-timestamp trigger carries the change to every phone on the delta pull. |
 | 0.0.784 | 2026-11-01 | `20261101120000_district_case_types.sql` | Case types can belong to one district (user request). `public.case_types` gains a nullable `district` and `name_bn`; the seven built-in Narayanganj CJM types are inserted with both names and the district, while every existing row stays global with both columns null. The division is derived from the district and is never stored. No policy or function list changes: `push_changes` is column-generic and the reference-table RLS already treats built-in rows as the shared baseline. |
+| 0.0.785 | 2026-11-01 | `20261101140000_district_case_type_names_hyphen.sql` | The seven built-in Narayanganj CJM case types take the trailing hyphen every other built-in type carries, in both languages (user correction). Only those labels change; the user-modified guard keeps an edited row and a tombstone is not revived. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -22145,6 +22146,41 @@ on conflict (id) do update set
   order_index = excluded.order_index,
   updated_at = excluded.updated_at
 where public.case_types.is_user_modified = false;
+```
+
+## App Version 0.0.785 — Case Types — The Trailing Hyphen
+
+### 0.0.785 · `20261101140000_district_case_type_names_hyphen.sql`
+
+> **Created 2026-11-01.** The seven built-in Narayanganj CJM case types take the trailing hyphen every other built-in type carries, in both languages (user correction). Only those labels change; the user-modified guard keeps an edited row and a tombstone is not revived.
+
+```sql
+-- The seven district-scoped Narayanganj CJM case types gain the trailing hyphen
+-- every other built-in case type carries (user correction, 0.0.785).
+--
+-- Their first insert (20261101120000) used the bare names. This migration only
+-- corrects those built-in labels in both languages; a row the user edited is
+-- preserved by the `is_user_modified` guard, and a tombstone is not revived.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — rule 12.
+
+update public.case_types as t
+set name = v.name,
+    name_bn = v.name_bn,
+    updated_at = (extract(epoch from clock_timestamp()) * 1000)::bigint
+from (values
+  ('casetype-chief_judicial_magistrate-narayanganj', 'Narayanganj-', 'নারায়ণগঞ্জ-'),
+  ('casetype-chief_judicial_magistrate-fatulla', 'Fatulla-', 'ফতুল্লা-'),
+  ('casetype-chief_judicial_magistrate-rupganj', 'Rupganj-', 'রুপগঞ্জ-'),
+  ('casetype-chief_judicial_magistrate-araihajar', 'Araihajar-', 'আড়াইহাজার-'),
+  ('casetype-chief_judicial_magistrate-sonargaon', 'Sonargaon-', 'সোনারাগাঁও-'),
+  ('casetype-chief_judicial_magistrate-bandar', 'Bandar-', 'বন্দর-'),
+  ('casetype-chief_judicial_magistrate-siddhirganj', 'Siddhirganj-', 'সিদ্ধিরগঞ্জ-')
+) as v(id, name, name_bn)
+where t.id = v.id
+  and t.is_user_modified = false
+  and t.is_deleted = false
+  and (t.name is distinct from v.name or t.name_bn is distinct from v.name_bn);
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

@@ -57,7 +57,7 @@ void main() {
       );
       expect(
         onDisk.length,
-        89,
+        90,
         reason:
             'District-scoped case types (2026-11-01) added one file: the two '
             'columns and the seven built-in Narayanganj CJM rows. '

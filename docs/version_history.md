@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.784 - Narayanganj's seven CJM case types are built-in and district-scoped, with Bengali names and a district picker in Settings; the case form shows only the selected district's types.
+Version: 0.0.786 - The Case Type District field now lists every district of the selected division, and every district for All Divisions, instead of only districts with a seeded court.
 --------------------------------------
 
 ## Version History Log:
@@ -798,3 +798,5 @@ Version: 0.0.781 - The Daily Cause List selector and Notification Time gear tick
 Version: 0.0.782 - Automatic backups now replace one fixed AutomaticBackup.lcbak through a temporary file, instead of writing a new timestamped file each run.
 Version: 0.0.783 - The downloaded Excel template now writes court names, categories, steps and on-behalf roles in the user's language.
 Version: 0.0.784 - Narayanganj's seven CJM case types are built-in and district-scoped, with Bengali names and a district picker in Settings; the case form shows only the selected district's types.
+Version: 0.0.785 - The CJM Case Type window lists all eight divisions, and the seven Narayanganj types now end with the hyphen every other built-in type uses.
+Version: 0.0.786 - The Case Type District field now lists every district of the selected division, and every district for All Divisions, instead of only districts with a seeded court.

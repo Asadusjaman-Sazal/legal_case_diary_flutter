@@ -87,12 +87,12 @@ $$;
 do $$
 declare
   v_names text[] := array[
-    'Narayanganj', 'Fatulla', 'Rupganj', 'Araihajar',
-    'Sonargaon', 'Bandar', 'Siddhirganj'
+    'Narayanganj-', 'Fatulla-', 'Rupganj-', 'Araihajar-',
+    'Sonargaon-', 'Bandar-', 'Siddhirganj-'
   ];
   v_bengali text[] := array[
-    'নারায়ণগঞ্জ', 'ফতুল্লা', 'রুপগঞ্জ', 'আড়াইহাজার',
-    'সোনারাগাঁও', 'বন্দর', 'সিদ্ধিরগঞ্জ'
+    'নারায়ণগঞ্জ-', 'ফতুল্লা-', 'রুপগঞ্জ-', 'আড়াইহাজার-',
+    'সোনারাগাঁও-', 'বন্দর-', 'সিদ্ধিরগঞ্জ-'
   ];
   v_slugs text[] := array[
     'narayanganj', 'fatulla', 'rupganj', 'araihajar',

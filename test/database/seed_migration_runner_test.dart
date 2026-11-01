@@ -42,7 +42,7 @@ void main() {
 
     test('applies seed_v1 and inserts all reference data', () async {
       final applied = await runner.runMigrations();
-      expect(applied, 5);
+      expect(applied, 6);
 
       final categories = await db.select(db.courtCategories).get();
       final caseCategories = await db.select(db.caseCategories).get();
@@ -83,6 +83,12 @@ void main() {
         seedDistrictCaseTypes.map((type) => type.id).toSet(),
       );
       expect(narayanganj.every((type) => type.nameBn != null), isTrue);
+      expect(
+        narayanganj.every(
+          (type) => type.name.endsWith('-') && type.nameBn!.endsWith('-'),
+        ),
+        isTrue,
+      );
       expect(
         narayanganj.every(
           (type) =>
@@ -200,12 +206,19 @@ void main() {
       );
       expect(merged.last, 'পাওয়ার অব অ্যাটর্নি আইন, ২০১২');
 
-      // Migration ledger must record all four seeds.
+      // Migration ledger must record all six seeds.
       final migrations = await db.select(db.seedMigrations).get();
-      expect(migrations, hasLength(5));
+      expect(migrations, hasLength(6));
       expect(
         migrations.map((m) => m.migrationId),
-        containsAll(['seed_v1', 'seed_v2', 'seed_v3', 'seed_v4', 'seed_v5']),
+        containsAll([
+          'seed_v1',
+          'seed_v2',
+          'seed_v3',
+          'seed_v4',
+          'seed_v5',
+          'seed_v6',
+        ]),
       );
       expect(migrations.every((m) => m.checksum.isNotEmpty), true);
       expect(migrations.every((m) => m.appliedAt > 0), true);
@@ -215,7 +228,7 @@ void main() {
       'does not re-apply a migration already recorded in the ledger',
       () async {
         final first = await runner.runMigrations();
-        expect(first, 5);
+        expect(first, 6);
 
         final second = await runner.runMigrations();
         expect(second, 0);

@@ -1217,6 +1217,15 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'and the reference-table RLS already treats built-in rows as the shared '
         'baseline.',
   ),
+  LedgerSection(
+    file: '20261101140000_district_case_type_names_hyphen.sql',
+    version: '0.0.785',
+    label:
+        'The seven built-in Narayanganj CJM case types take the trailing hyphen '
+        'every other built-in type carries, in both languages (user '
+        'correction). Only those labels change; the user-modified guard keeps '
+        'an edited row and a tombstone is not revived.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1254,6 +1263,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.785': 'Case Types — The Trailing Hyphen',
   '0.0.784': 'Case Types — District-Scoped Types',
   '0.0.771': 'Law List — Civil Law Merge',
   '0.0.758': 'Case Reference — The Parties To The Case',

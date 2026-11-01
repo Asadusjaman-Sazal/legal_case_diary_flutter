@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(89),
+        hasLength(90),
         reason:
+            'The trailing hyphen correction (2026-11-01) added one file: the '
+            'seven built-in Narayanganj CJM labels in both languages. '
             'District-scoped case types (2026-11-01) added one file: the two '
             'columns and the seven built-in Narayanganj CJM rows. '
             'The Civil Law merge (2026-11-01) added one file: the contract '
@@ -178,7 +180,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(89),
+        hasLength(90),
         reason: 'versions must be unique',
       );
       expect(
@@ -187,7 +189,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261101120000');
+      expect(versions.last, '20261101140000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

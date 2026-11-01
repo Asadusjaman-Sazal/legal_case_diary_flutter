@@ -4644,13 +4644,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSubscription_renewSubscription.
   ///
   /// In en, this message translates to:
-  /// **'Renew Subscription'**
+  /// **'Renew Plan'**
   String get settingsSubscription_renewSubscription;
 
   /// No description provided for @settingsSubscription_cancelSubscription.
   ///
   /// In en, this message translates to:
-  /// **'Cancel Subscription'**
+  /// **'Cancel Plan'**
   String get settingsSubscription_cancelSubscription;
 
   /// No description provided for @settingsManageAccount_purchaseNewSubscription.

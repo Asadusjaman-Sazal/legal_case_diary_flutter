@@ -2672,10 +2672,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSubscription_manageSubscription => 'Manage Subscription';
 
   @override
-  String get settingsSubscription_renewSubscription => 'Renew Subscription';
+  String get settingsSubscription_renewSubscription => 'Renew Plan';
 
   @override
-  String get settingsSubscription_cancelSubscription => 'Cancel Subscription';
+  String get settingsSubscription_cancelSubscription => 'Cancel Plan';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

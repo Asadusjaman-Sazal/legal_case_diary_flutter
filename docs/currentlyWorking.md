@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — Manage Plan's actions read Renew Plan and Cancel Plan — COMPLETE (0.0.778)
+
+- **What was asked.** On the Manage Plan screen only, rename Renew Subscription to Renew Plan / প্ল্যান নবায়ন করুন and Cancel Subscription to Cancel Plan / প্ল্যান বাতিল করুন.
+- **What changed.** The two Manage Plan action labels changed in both languages; the behaviour, the keys and the rest of the page, including the Cancel Subscription confirmation window's own title, are untouched. The Settings search rows that name the two actions follow the new wording automatically.
+- **Proof.** The subscription, subscription-menu and settings-search suites pass (28); `flutter analyze` clean.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — Manage Firm's numbers use the active digits — COMPLETE (0.0.777)
 
 - **What was asked.** In the Manage Firm screen only, the Device Usage and Firm Dissolution sections' numbers must be localised under বাংলা.

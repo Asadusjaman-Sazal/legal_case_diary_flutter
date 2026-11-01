@@ -2679,10 +2679,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsSubscription_manageSubscription => 'সাবস্ক্রিপশন পরিচালনা';
 
   @override
-  String get settingsSubscription_renewSubscription => 'সাবস্ক্রিপশন নবায়ন';
+  String get settingsSubscription_renewSubscription => 'প্ল্যান নবায়ন করুন';
 
   @override
-  String get settingsSubscription_cancelSubscription => 'সাবস্ক্রিপশন বাতিল';
+  String get settingsSubscription_cancelSubscription => 'প্ল্যান বাতিল করুন';
 
   @override
   String get settingsManageAccount_purchaseNewSubscription =>

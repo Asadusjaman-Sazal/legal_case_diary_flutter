@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — Manage Firm's numbers use the active digits — COMPLETE (0.0.777)
+
+- **What was asked.** In the Manage Firm screen only, the Device Usage and Firm Dissolution sections' numbers must be localised under বাংলা.
+- **The fix.** The capacity card passes `AppDateUtils.formatDigits` for the used/limit and the pending-shrink counts; the two plural messages (signed-out associates and associates still in the firm) carry `format: decimalPattern`, so the generated Bengali methods format their own counts. English output is unchanged; no other screen's layout or copy moved.
+- **Proof.** A new Bengali Manage Firm case asserts ৫ / ৪ used, ২ signed out and ২ still in the firm; the Manage Firm suite passes (43); `flutter analyze` clean; full suite **2,269 passed**, with only the known pre-existing backup export-list red.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — The new copy is sentence case — COMPLETE (0.0.776)
 
 - **What was asked.** Make the new English wording sentence case — the capital "Password" in the middle of sentences.

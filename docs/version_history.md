@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.776 - Made the new backup and guideline wording sentence case, with password lowercase mid-sentence.
+Version: 0.0.777 - Manage Firm's Device Usage and firm-dissolution counts now use the active language's digits.
 --------------------------------------
 
 ## Version History Log:
@@ -790,3 +790,4 @@ Version: 0.0.773 - The official citation's first-line Close is now a black butto
 Version: 0.0.774 - The Case Reference detail's law line now wears the same category icon as Settings > Law Names.
 Version: 0.0.775 - Refreshed English and Bengali labels across backup, paywall, guidelines, admin and battery screens.
 Version: 0.0.776 - Made the new backup and guideline wording sentence case, with password lowercase mid-sentence.
+Version: 0.0.777 - Manage Firm's Device Usage and firm-dissolution counts now use the active language's digits.

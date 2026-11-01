@@ -1325,7 +1325,7 @@
   "settingsSubscription_usageSeats": "Seats and Devices",
   "settingsSubscription_usageSeatsNote": "Your associates and your own signed-in devices share these slots.",
   "settingsSubscription_usageSignedOut": "{count, plural, =1{1 associate is not signed in.} other{{count} associates are not signed in.}}",
-  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int"}}},
+  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
   "settingsSubscription_capacityShrinkTitle": "Capacity Changes Soon",
   "settingsSubscription_capacityShrinkBody": "From {date}, your firm allows {slots} devices in total. You have {associates} associates and {devices} devices of your own. Sign out a device or remove an associate before then; otherwise the extra ones are signed out automatically.",
   "@settingsSubscription_capacityShrinkBody": {
@@ -2495,7 +2495,8 @@
   "@manageAssociates_dissolveBlockedMembers": {
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

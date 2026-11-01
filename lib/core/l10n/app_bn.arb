@@ -1232,7 +1232,7 @@
   "settingsSubscription_usageSeats": "সিট ও ডিভাইস",
   "settingsSubscription_usageSeatsNote": "আপনার সহযোগী ও আপনার নিজের সাইন-ইন করা ডিভাইসগুলো এই স্লটগুলো ভাগ করে ব্যবহার করে।",
   "settingsSubscription_usageSignedOut": "{count, plural, =1{১ জন সহযোগী সাইন ইন করা নেই।} other{{count} জন সহযোগী সাইন ইন করা নেই।}}",
-  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int"}}},
+  "@settingsSubscription_usageSignedOut": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
   "settingsSubscription_capacityShrinkTitle": "শিগগিরই ধারণক্ষমতা বদলাবে",
   "settingsSubscription_capacityShrinkBody": "{date} থেকে আপনার ফার্মে মোট {slots}টি ডিভাইস চলবে। এখন {associates} জন সহযোগী ও আপনার {devices}টি ডিভাইস আছে। তার আগে একটি ডিভাইস সাইন আউট করুন বা একজন সহযোগী সরান; নাহলে অতিরিক্তগুলো স্বয়ংক্রিয়ভাবে সাইন আউট হবে।",
   "@settingsSubscription_capacityShrinkBody": {
@@ -2283,7 +2283,8 @@
   "@manageAssociates_dissolveBlockedMembers": {
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

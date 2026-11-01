@@ -1136,6 +1136,10 @@ class _CapacityCard extends StatelessWidget {
             capacity.shrinkAt!.millisecondsSinceEpoch,
             locale: locale,
           );
+    // Counts follow the active language's digits, as every other number in
+    // the app does (user request for বাংলা: "২", never "2").
+    String digits(int value) =>
+        AppDateUtils.formatDigits(value, locale, grouping: false);
 
     return Container(
       decoration: settingsCardDecoration(),
@@ -1156,8 +1160,8 @@ class _CapacityCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             l.settingsSubscription_usageOfLimit(
-              '${capacity.used}',
-              '${capacity.slots}',
+              digits(capacity.used),
+              digits(capacity.slots),
             ),
             style: AppTypography.titleMd,
           ),
@@ -1178,9 +1182,9 @@ class _CapacityCard extends StatelessWidget {
             Text(
               l.settingsSubscription_capacityShrinkBody(
                 shrinkDate,
-                '${capacity.pendingSlots}',
-                '${capacity.associates}',
-                '${capacity.ownerDevices}',
+                digits(capacity.pendingSlots ?? 0),
+                digits(capacity.associates),
+                digits(capacity.ownerDevices),
               ),
               style: AppTypography.bodySm,
             ),

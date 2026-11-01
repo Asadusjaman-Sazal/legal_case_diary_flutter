@@ -2629,10 +2629,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsSubscription_usageSignedOut(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count associates are not signed in.',
+      other: '$countString associates are not signed in.',
       one: '1 associate is not signed in.',
     );
     return '$_temp0';
@@ -5223,10 +5227,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String manageAssociates_dissolveBlockedMembers(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count associates are still in the firm. Remove them first.',
+      other:
+          '$countString associates are still in the firm. Remove them first.',
       one: 'One associate is still in the firm. Remove them first.',
     );
     return '$_temp0';

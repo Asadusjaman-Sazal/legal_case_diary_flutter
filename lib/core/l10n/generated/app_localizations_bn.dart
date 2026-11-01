@@ -2636,10 +2636,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String settingsSubscription_usageSignedOut(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count জন সহযোগী সাইন ইন করা নেই।',
+      other: '$countString জন সহযোগী সাইন ইন করা নেই।',
       one: '১ জন সহযোগী সাইন ইন করা নেই।',
     );
     return '$_temp0';
@@ -5249,10 +5253,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String manageAssociates_dissolveBlockedMembers(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ফার্মে এখনো $count জন সহযোগী আছেন। প্রথমে তাঁদের সরান।',
+      other: 'ফার্মে এখনো $countString জন সহযোগী আছেন। প্রথমে তাঁদের সরান।',
       one: 'ফার্মে এখনো একজন সহযোগী আছেন। প্রথমে তাঁকে সরান।',
     );
     return '$_temp0';

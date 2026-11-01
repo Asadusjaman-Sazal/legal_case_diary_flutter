@@ -36,6 +36,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_capacity.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
@@ -91,6 +92,7 @@ void main() {
     WidgetTester tester, {
     Future<void> Function(AppDatabase db)? seed,
     bool online = true,
+    Locale locale = const Locale('en'),
     List<Override> overrides = const <Override>[],
     Map<String, Object> preferences = const <String, Object>{},
     // Tall enough by default for the owner's roster; a test that reads the
@@ -123,6 +125,7 @@ void main() {
     await pumpSettingsRouter(
       tester,
       location: AppRoutes.settingsManageAssociates,
+      locale: locale,
       overrides: providerOverrides,
       routes: [
         GoRoute(
@@ -148,7 +151,7 @@ void main() {
         ),
       ],
     );
-    l = await AppLocalizations.delegate.load(const Locale('en'));
+    l = await AppLocalizations.delegate.load(locale);
 
     if (seed != null) {
       await seed(harness.db);
@@ -501,6 +504,53 @@ void main() {
 
     expect(harness.firm.admittedMemberIds, ['user-2']);
     expect(find.text(l.manageAssociates_capacityAdmitted), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Bengali capacity and dissolve counts use Bengali digits', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 2);
+    const capacity = FirmCapacityView(
+      slots: 5,
+      associates: 2,
+      seated: 0,
+      ownerDevices: 2,
+      ownerDeviceCap: 3,
+      used: 4,
+      active: 2,
+      overRoster: false,
+      overDevices: false,
+      frozen: false,
+      pendingSlots: null,
+      shrinkAt: null,
+      pendingAssociatesExcess: 0,
+      pendingDevicesExcess: 0,
+      shrinkPending: false,
+    );
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      locale: const Locale('bn'),
+      surfaceSize: const Size(420, 1600),
+      overrides: [firmCapacityViewProvider.overrideWithValue(capacity)],
+    );
+
+    final bn = await AppLocalizations.delegate.load(const Locale('bn'));
+    expect(
+      find.text(bn.settingsSubscription_usageOfLimit('৪', '৫')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(bn.settingsSubscription_usageSignedOut(2)),
+      findsOneWidget,
+    );
+    expect(
+      find.text(bn.manageAssociates_dissolveBlockedMembers(2)),
+      findsOneWidget,
+    );
 
     await unmountApp(tester);
   });

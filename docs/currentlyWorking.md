@@ -1,10 +1,25 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — The new copy is sentence case — COMPLETE (0.0.776)
+
+- **What was asked.** Make the new English wording sentence case — the capital "Password" in the middle of sentences.
+- **What changed.** The word is now lowercase in the 20 body values (backup scheduled notice, recovery lock, backup-screen explanation, mismatch/required/wrong-password messages, recovery hint, guidelines and support copy). It stays capital only in labels and titles: the Password field, Confirm Password, Protect Backups With A Password, Change Password and the auth labels. Bengali has no case.
+- **Tests and mockups.** The backup/guidelines test literals and the guidelines/support mockups follow; `flutter analyze` clean; the two suites pass (49).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red, and the full suite still cannot start while a live app session holds the Windows test DLL.
+
+### 2026-11-01 — A broad label and Bengali-translation refresh — COMPLETE (0.0.775)
+
+- **What was asked.** The owner edited `app_en.arb` and `app_bn.arb` directly, changing labels and Bengali translations across many screens, and asked for the rest of the work.
+- **What changed.** 25 English values and 189 Bengali values were rewritten (backup/restore, paywall, guidelines, admin, battery guide, disposed-case help, the Labour category heading). The nine English backup keys had been renamed `passphrase*` → `Password*` while their Bengali keys kept the old names; the keys were restored to the stable `passphrase*` names so code, both languages and the generated getters stay aligned, with the new visible **Password** wording kept. `flutter gen-l10n` regenerated the localisation classes.
+- **Tests and mockups.** The tests that asserted the old Bengali admin/battery titles and the old English backup, paywall and guideline copy were updated; the guidelines, paywall, disposed-case and support mockups follow (rule 9). No data, sync or layout changed.
+- **Proof.** `flutter analyze` clean; the seven suites that hit an old label pass (136). The full suite could not start while the user's live app session held `build/native_assets/windows/sqlite3mc.dll` (Windows reports the deletion as access denied); it is a build-environment lock, not a test failure, and the affected suites were run directly.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — The law line wears its category icon — COMPLETE (0.0.774)
 
 - **What was asked.** On the Case Reference detail only, the icon before the law name should match the law name's category icon in Settings → Edit Court/Steps → Law Names.
 - **The icon.** `lawCategoryIcon` is now the one mapping for the six headings (Constitution `account_balance_outlined`, Civil Law `description_outlined`, Family `family_restroom_outlined`, Criminal `gavel_outlined`, Tax `receipt_long_outlined`, Labour `work_outline`, Other `menu_book_outlined`); Settings' Law Names cards and the detail's law line both use it. `lawIconForStatute` finds the citation's stored statute in the live `lawListProvider` so a user-added name wears its category's glyph. Both hosts pass the resolver; the old fixed gavel is only the fallback when none is supplied. The mockup comment now names the category icon.
-- **Proof.** New detail case: a Civil Law citation shows `description_outlined` and no gavel. New grouping case: Penal Code → `gavel_outlined`, Contract Act → `description_outlined`, an unowned name → `menu_book_outlined`. Detail/grouping/reference suites pass (41); `flutter analyze` clean.
+- **Proof.** New detail case: a Civil Law citation shows `description_outlined` and no gavel. New grouping case: Penal Code → `gavel_outlined`, Contract Act → `description_outlined`, an unowned name → `menu_book_outlined`. Detail/grouping/reference suites pass (41); `flutter analyze` clean; full suite **2,268 passed**, with only the known pre-existing backup export-list red.
 - **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
 
 ### 2026-11-01 — The first-line Close wears the action colour — COMPLETE (0.0.773)

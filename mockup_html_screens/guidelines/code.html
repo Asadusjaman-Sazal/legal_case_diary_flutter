@@ -284,7 +284,7 @@
       </button>
       <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
         <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
-          <p>Your diary lives on this device. In Settings &gt; Backup &amp; Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a passphrase for the file, and the app never stores or sends it.</p>
+          <p>Your diary lives on this device. In Settings &gt; Backup &amp; Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a password for the file, and the app never stores or sends it.</p>
           <p>Restore from backup reads a backup file and replaces the contents of the app with the file's contents. This cannot be undone, so make a fresh backup before restoring. If no backup has been made in the current month, the app displays a reminder you can dismiss.</p>
         </div>
       </div>
@@ -300,8 +300,8 @@
       </button>
       <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
         <div class="p-md flex flex-col gap-sm font-body-md text-body-md text-on-surface-variant">
-          <p>Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your passphrase on the device itself with PBKDF2-HMAC-SHA256. Neither the passphrase nor the key is stored or transmitted anywhere.</p>
-          <p>In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.</p>
+          <p>Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your password on the device itself with PBKDF2-HMAC-SHA256. Neither the password nor the key is stored or transmitted anywhere.</p>
+          <p>In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your password somewhere safe — where a backup exists but its password is lost, the file cannot be opened by us or by anyone else.</p>
         </div>
       </div>
     </div>
@@ -379,11 +379,11 @@
       </button>
       <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
         <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
-          <div><p class="font-semibold text-on-surface">How do I back up my diary?</p><p class="mt-xs leading-relaxed">Go to Settings &gt; Backup &amp; Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. Your account is already in place, so no internet connection is required.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I back up my diary?</p><p class="mt-xs leading-relaxed">Go to Settings &gt; Backup &amp; Restore and tap Backup to Local Storage. You choose where the file is saved and set a password that encrypts it. Your account is already in place, so no internet connection is required.</p></div>
           <div><p class="font-semibold text-on-surface">Does the app back up automatically?</p><p class="mt-xs leading-relaxed">Not in the offline version — each backup is started by you. If no backup has been made in the current month, the app displays a reminder, which you can dismiss.</p></div>
-          <div><p class="font-semibold text-on-surface">I forgot my passphrase. Can you recover it?</p><p class="mt-xs leading-relaxed">No. The passphrase is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a passphrase you can keep safely.</p></div>
+          <div><p class="font-semibold text-on-surface">I forgot my password. Can you recover it?</p><p class="mt-xs leading-relaxed">No. The password is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a password you can keep safely.</p></div>
           <div><p class="font-semibold text-on-surface">What does restoring a backup do to my current data?</p><p class="mt-xs leading-relaxed">Restoring replaces everything currently in the app with the contents of the backup file. It does not merge, and it cannot be undone. Back up your current diary first if there is anything in it you may still need. If the app already holds data, it asks you to confirm before anything is replaced.</p></div>
-          <div><p class="font-semibold text-on-surface">How do I move my diary to a new phone?</p><p class="mt-xs leading-relaxed">Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings &gt; Backup &amp; Restore, and use Restore from backup with the same passphrase.</p></div>
+          <div><p class="font-semibold text-on-surface">How do I move my diary to a new phone?</p><p class="mt-xs leading-relaxed">Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings &gt; Backup &amp; Restore, and use Restore from backup with the same password.</p></div>
           <div><p class="font-semibold text-on-surface">Can I use a backup made by a different version of the app?</p><p class="mt-xs leading-relaxed">Backups made by older versions are upgraded automatically when restored. A backup made by a newer version than the one you are running is refused, so update the app first and then restore.</p></div>
           <div><p class="font-semibold text-on-surface">What happens to my data if I delete the app or lose my phone?</p><p class="mt-xs leading-relaxed">In the offline version your diary is stored only on the device, so uninstalling the app or losing the phone also loses the data unless you hold a backup file. Keep a recent backup, and store a copy somewhere outside the phone.</p></div>
         </div>
@@ -468,7 +468,7 @@
       </button>
       <div class="accordion-content hidden bg-surface-container-low border-t border-outline-variant">
         <div class="p-md flex flex-col gap-md font-body-md text-body-md text-on-surface-variant">
-          <div><p class="font-semibold text-on-surface">Where is my data stored, and who can see it?</p><p class="mt-xs leading-relaxed">In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.</p></div>
+          <div><p class="font-semibold text-on-surface">Where is my data stored, and who can see it?</p><p class="mt-xs leading-relaxed">In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the password you set. When the online version launches, what it stores and where will be described in its own topic before you use it.</p></div>
           <div><p class="font-semibold text-on-surface">Is the app a substitute for court records?</p><p class="mt-xs leading-relaxed">No. The app is a personal record-keeping tool for your own practice. The information in it is entered by you, and the official cause list and court records remain authoritative. Always verify a hearing date against the court before relying on it.</p></div>
           <div><p class="font-semibold text-on-surface">My question isn't answered here.</p><p class="mt-xs leading-relaxed">Open Settings &gt; About &gt; Support and write to us there — the message opens already carrying your app version and your phone model. Describe what you were doing when the problem occurred. You can also write to adv.asadusjaman@gmail.com.</p></div>
         </div>

@@ -216,7 +216,8 @@ void main() {
     expect(find.text('Real-time cloud backup'), findsOneWidget);
     expect(
       find.text(
-        'Disaster recovery: restore your diary from the cloud on a new device',
+        'Disaster recovery: restore your diary from the cloud on a new device '
+        'even when your old device is lost or broken',
       ),
       findsOneWidget,
     );

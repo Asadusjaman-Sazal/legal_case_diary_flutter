@@ -857,7 +857,7 @@ void main() {
     expect(find.text('Protect this backup'), findsOneWidget);
     expect(
       find.text(
-        'The backup is encrypted with this passphrase. It is not stored '
+        'The backup is encrypted with this password. It is not stored '
         'anywhere, so without it the file can never be restored.',
       ),
       findsOneWidget,
@@ -871,7 +871,7 @@ void main() {
       confirmation: 'correct hors',
       confirmLabel: 'Encrypt and save',
     );
-    expect(find.text('The two passphrases do not match.'), findsOneWidget);
+    expect(find.text('The two passwords do not match.'), findsOneWidget);
     expect(gateway.savedBytes, isNull);
 
     await enterPassphrase(
@@ -1188,7 +1188,7 @@ void main() {
     );
 
     expect(
-      find.text('Wrong passphrase, or the backup file has been changed.'),
+      find.text('Wrong password, or the backup file has been changed.'),
       findsOneWidget,
     );
     expect(find.text('Replace all current data?'), findsNothing);

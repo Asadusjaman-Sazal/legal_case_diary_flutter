@@ -389,8 +389,8 @@ void main() {
     await pump(tester, _FakeAdminRepository(), locale: const Locale('bn'));
 
     expect(find.text('অ্যাডমিন প্যানেল'), findsOneWidget);
-    expect(find.text('পেমেন্ট অনুরোধ'), findsOneWidget);
-    expect(find.text('অযাচিত অ্যাকাউন্ট'), findsOneWidget);
+    expect(find.text('পেমেন্ট আবেদন'), findsOneWidget);
+    expect(find.text('যাচাইবিহীন অ্যাকাউন্ট'), findsOneWidget);
   });
 
   test('the panel is offered in the bottom bar only to an admin', () {

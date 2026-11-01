@@ -251,7 +251,7 @@ void main() {
     );
 
     expect(find.text('অটো-স্টার্ট অনুমতি দিন'), findsOneWidget);
-    expect(find.text('ব্যাটারি ব্যবহার সীমাহীন করুন'), findsOneWidget);
+    expect(find.text('ব্যাটারি ব্যবহার Unrestricted করুন'), findsOneWidget);
     expect(
       find.text(
         'Legal Case Diary-এর App info খুলে Permissions > Autostart-এ অনুমতি দিন।',

@@ -294,7 +294,7 @@ void main() {
       locale: const Locale('bn'),
     );
 
-    expect(find.text('অযাচিত অ্যাকাউন্ট'), findsOneWidget);
+    expect(find.text('যাচাইবিহীন অ্যাকাউন্ট'), findsOneWidget);
     expect(find.text('মুছুন'), findsOneWidget);
   });
 }

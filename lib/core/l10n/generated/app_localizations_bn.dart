@@ -29,7 +29,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get nav_upcomingCases => 'আসন্ন মামলা';
 
   @override
-  String get nav_dailyCauseList => 'দৈনিক মামলার তালিকা';
+  String get nav_dailyCauseList => 'দৈনিক কজ লিস্ট';
 
   @override
   String get nav_allCases => 'সকল মামলা';
@@ -75,7 +75,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্লে স্টোরে প্রকাশের পর রেটিং দেওয়া যাবে।';
 
   @override
-  String get drawer_caseScreensShowAll => 'সব মামলার স্ক্রিন দেখান';
+  String get drawer_caseScreensShowAll => 'সকল মামলার স্ক্রিন দেখান';
 
   @override
   String get drawer_caseScreensHide => 'কম মামলার স্ক্রিন দেখান';
@@ -86,7 +86,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get allCasesScreen_title => 'সব মামলা';
+  String get allCasesScreen_title => 'সকল মামলা';
 
   @override
   String get allCasesScreen_empty =>
@@ -157,7 +157,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get activeCasesScreen_empty =>
-      'দেখানোর মতো কোনও চলতি মামলা নেই। যোগ করতে + চাপুন।';
+      'কোনও চলতি মামলা নেই। যোগ করতে + চাপুন।';
 
   @override
   String get upcomingCasesScreen_title => 'আসন্ন মামলা';
@@ -178,8 +178,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dailyCauseListScreen_calendarLabel => 'ক্যালেন্ডার';
 
   @override
-  String get dailyCauseListScreen_noHearings =>
-      'এই তারিখের জন্য কোনো শুনানি নির্ধারিত নেই।';
+  String get dailyCauseListScreen_noHearings => 'এই তারিখে কোনো শুনানি নেই।';
 
   @override
   String dailyCauseListScreen_loadError(String message) {
@@ -219,11 +218,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get disposedCasesScreen_helpBody =>
-      'তারিখ আপডেট করার সময় নিচের যেকোনো উপযুক্ত ধাপ বেছে নিন, যাতে নিষ্পত্তিকৃত বা নিষ্ক্রিয় নিম্ন আদালতের মামলাটি সক্রিয় মামলার তালিকা থেকে এই তালিকায় চলে আসে। আপিল ও হাইকোর্ট ডিভিশনের মামলার ক্ষেত্রে রেজাল্ট ফিল্ডে নিষ্পত্তির কীওয়ার্ড লিখুন। নোট: মামলাটি সব মামলার তালিকায় এখনও থাকবে।';
+      'তারিখ আপডেট করার সময় পদক্ষেপ হিসেবে নিষ্পত্তি বেছে নিন, যাতে নিষ্পত্তিকৃত বা নিষ্ক্রিয় নিম্ন আদালতের মামলাটি চলতি মামলার তালিকা থেকে এই তালিকায় চলে আসে। আপিল ও হাইকোর্ট ডিভিশনের মামলার ক্ষেত্রে রেজাল্ট ফিল্ডে নিষ্পত্তি লিখুন। নোট: নিষ্পত্তিকৃত মামলাটি সকল মামলার তালিকায় সব সময় দেখা যাবে।';
 
   @override
   String get disposedCasesScreen_disposedSteps =>
-      'আদালত বিভাগ অনুযায়ী নিষ্পত্তির ধাপ';
+      'আদালতের বিভাগ অনুযায়ী নিষ্পত্তির পদক্ষেপ';
 
   @override
   String get disposedCasesScreen_appellateHighCourtDivision =>
@@ -295,7 +294,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String caseDetailsScreen_historySaveError(String message) {
-    return 'ইতিহাসের এন্ট্রি সংরক্ষণ করা যায়নি: $message';
+    return 'মামলার ইতিহাসের এন্ট্রি সংরক্ষণ করা যায়নি: $message';
   }
 
   @override
@@ -482,7 +481,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get addEditCaseSheet_step => 'ধাপ';
+  String get addEditCaseSheet_step => 'পদক্ষেপ';
 
   @override
   String get addEditCaseSheet_result => 'ফলাফল';
@@ -753,19 +752,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sync_permissionsChanged =>
-      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
+      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি সম্পন্ন করা যায়নি।';
 
   @override
   String get sync_clockSkewWarning =>
-      'আপনার ডিভাইসের ঘড়ি ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য এটি ঠিক করুন।';
+      'আপনার ডিভাইসের সময় ভুল বলে মনে হচ্ছে। নির্ভরযোগ্য সিঙ্কের জন্য সময় ঠিক করুন।';
 
   @override
   String syncConflict_bannerMessage(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countটি দ্বন্দ্ব পর্যালোচনা প্রয়োজন',
-      one: 'একটি দ্বন্দ্ব পর্যালোচনা প্রয়োজন',
+      other: '$countটি তথ্যের বিরোধ পর্যালোচনা প্রয়োজন',
+      one: 'একটি তথ্যের বিরোধ পর্যালোচনা প্রয়োজন',
     );
     return '$_temp0';
   }
@@ -774,7 +773,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get syncConflict_bannerAction => 'পর্যালোচনা করুন';
 
   @override
-  String get syncConflict_title => 'দ্বন্দ্ব পর্যালোচনা';
+  String get syncConflict_title => 'সিঙ্কের অমিল পর্যালোচনা';
 
   @override
   String get syncConflict_subtitle =>
@@ -794,7 +793,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get syncConflict_intro =>
-      'আপনি এবং অন্য একটি ডিভাইস একই ঘর পরিবর্তন করেছেন। প্রতিটির জন্য যে মান রাখতে চান সেটি বাছুন।';
+      'আপনি এবং অন্য একটি ডিভাইস একই তথ্য পরিবর্তন করেছেন। প্রতিট ডিভাইসের জন্য যে তথ্য রাখতে চান সেটি বাছাই করুন।';
 
   @override
   String get syncConflict_keepServer => 'সার্ভার';
@@ -820,21 +819,22 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get syncConflict_discardConfirmBody =>
-      'সার্ভারের সংস্করণ আপনার অসিঙ্ক করা পরিবর্তন প্রতিস্থাপন করবে। এটি ফেরানো যাবে না।';
+      'সার্ভারের সংস্করণ আপনার সিঙ্ক না করা পরিবর্তন প্রতিস্থাপন করবে। এটি পরিবর্তণ যোগ্য নয়।';
 
   @override
   String get syncConflict_laterEditsTitle => 'পরে সংরক্ষিত পরিবর্তন';
 
   @override
   String get syncConflict_laterEditsBody =>
-      'এই দ্বন্দ্বের সমাধান না হওয়া পর্যন্ত এই পরিবর্তনগুলো সংরক্ষিত থাকবে।';
+      'এই সিঙ্কের অমিল সমাধান না হওয়া পর্যন্ত এই পরিবর্তনগুলো সংরক্ষিত থাকবে।';
 
   @override
   String get syncConflict_resolvedNotice =>
-      'এই দ্বন্দ্বটি ইতিমধ্যে সমাধান হয়েছে।';
+      'এই সিঙ্কের অমিল ইতিমধ্যে সমাধান হয়েছে।';
 
   @override
-  String get syncConflict_missingNotice => 'এই দ্বন্দ্বটি আর পাওয়া যাচ্ছে না।';
+  String get syncConflict_missingNotice =>
+      'এই সিঙ্কের অমিল আর পাওয়া যাচ্ছে না।';
 
   @override
   String get syncStatus_title => 'সিঙ্ক স্ট্যাটাস';
@@ -857,7 +857,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get syncStatus_filterPending => 'অপেক্ষমাণ';
 
   @override
-  String get syncStatus_filterConflicted => 'দ্বন্দ্বপূর্ণ';
+  String get syncStatus_filterConflicted => 'সিঙ্ক অমিল';
 
   @override
   String get syncStatus_filterBlocked => 'আটকে আছে';
@@ -869,7 +869,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get syncStatus_statePushing => 'পাঠানো হচ্ছে';
 
   @override
-  String get syncStatus_stateConflicted => 'দ্বন্দ্বপূর্ণ';
+  String get syncStatus_stateConflicted => 'সিঙ্ক অমিল';
 
   @override
   String get syncStatus_stateBlocked => 'আটকে আছে';
@@ -884,7 +884,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get syncStatus_discard => 'বাতিল করুন';
 
   @override
-  String get syncStatus_reviewConflict => 'দ্বন্দ্ব দেখুন';
+  String get syncStatus_reviewConflict => 'সিঙ্কের অমিল দেখুন';
 
   @override
   String get syncStatus_moreActions => 'আরও কাজ';
@@ -924,7 +924,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get syncStatus_blockedCauseAttempts =>
-      'অনেকবার চেষ্টার পরও সফল না হওয়ায় সিঙ্ক আর চেষ্টা করছে না।';
+      'অনেকবার চেষ্টার পরও সফল না হওয়ায় সিঙ্ক এর জন্য আর চেষ্টা করা হয়নি।';
 
   @override
   String get syncStatus_timeJustNow => 'এইমাত্র';
@@ -1082,11 +1082,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get logout_syncFailed => 'আপনার পরিবর্তনগুলো সিঙ্ক করা যায়নি।';
 
   @override
-  String get recoveryLock_title => 'অনেক দিন অফলাইনে আছেন';
+  String get recoveryLock_title => 'আপনি দীর্ঘদিন অফলাইনে আছেন';
 
   @override
   String recoveryLock_message(int days, String path) {
-    return 'আপনি $days দিন অফলাইনে আছেন। আপনার স্থানীয় পরিবর্তনগুলো $path-এ সংরক্ষণ করা হয়েছে। সম্পাদনা চালু করার আগে সার্ভার থেকে নতুন ডেটা আনতে হবে।';
+    return 'আপনি $days দিন অফলাইনে আছেন। আপনার অফলাইন পরিবর্তনগুলো $path-এ সংরক্ষণ করা হয়েছে। সম্পাদনা চালু করার আগে সার্ভার থেকে নতুন ডেটা আনতে হবে।';
   }
 
   @override
@@ -1099,7 +1099,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get recoveryLock_saveBody =>
-      'এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — একটি এনক্রিপ্টেড ফাইলে সিল করা হবে। নিজে মনে রাখতে পারবেন এমন একটি পাসফ্রেজ দিন; এটি কোথাও সংরক্ষিত হয় না।';
+      'এই ডিভাইসের সব কিছু — আপনার মামলা, নোট ও এখনও সিঙ্ক না হওয়া পরিবর্তন — একটি এনক্রিপ্টেড ফাইলে সিল করা হবে। নিজে মনে রাখতে পারবেন এমন একটি পাসওয়ার্ড দিন; এটি কোথাও সংরক্ষিত হয় না।';
 
   @override
   String get recoveryLock_saveBodyUnencrypted =>
@@ -1126,7 +1126,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get recoveryLock_proceedConfirmBody =>
-      'আপনার স্থানীয় পরিবর্তনগুলো সার্ভারের ডেটা দিয়ে প্রতিস্থাপিত হবে। আপনি যে নিরাপত্তা কপিটি সংরক্ষণ করেছেন, সেটিই তাদের ফিরে পাওয়ার একমাত্র উপায়।';
+      'আপনার অফলাইন পরিবর্তনগুলো সার্ভারের ডেটা দিয়ে প্রতিস্থাপিত হবে। আপনি যে নিরাপত্তা কপিটি সংরক্ষণ করেছেন, সেটিই তাদের ফিরে পাওয়ার একমাত্র উপায়।';
 
   @override
   String get recoveryLock_close => 'বন্ধ করুন';
@@ -1155,11 +1155,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_memberPlanBody =>
-      'এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায়। প্ল্যানটি চেম্বারের মালিক কেনেন ও নবায়ন করেন।';
+      'এই অ্যাকাউন্টটি চেম্বারের সাবস্ক্রিপশনের আওতায় রয়েছে। প্ল্যানটি চেম্বারের স্বত্বাধিকারী কিনতে কিংবা নবায়ন করতে পারবেন।';
 
   @override
   String get paywall_memberLockedToast =>
-      'ফার্মের সাবস্ক্রিপশন কেবল ফার্মের মালিকই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের মালিকের সাথে যোগাযোগ করুন।';
+      'ফার্মের সাবস্ক্রিপশন কেবল ফার্মের স্বত্বাধিকারীই কিনতে পারবেন। সাবস্ক্রিপশন পরিচালনার জন্য অনুগ্রহ করে আপনার ফার্মের স্বত্বাধিকারীর সাথে যোগাযোগ করুন।';
 
   @override
   String get paywall_chamberPlanLockedToast =>
@@ -1170,7 +1170,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String paywall_limitBody(String limit) {
-    return 'ফ্রি প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। একটি মামলা মুছে ফেললে জায়গা খালি হয়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি থাকবে।';
+    return 'ফ্রি প্ল্যানে সর্বোচ্চ $limitটি মামলা সংরক্ষণ যায়। একটি মামলা করলে নতুন আরেকটি মামলা সংরক্ষণ করা যায়; কেস ম্যানেজমেন্ট, নোটস এবং কেস রেফারেন্স এর ব্যবহার, সম্পাদনা ও প্রিন্ট — সবই ফ্রি প্ল্যানের অন্তর্ভুক্ত।';
   }
 
   @override
@@ -1178,11 +1178,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String paywall_lapsedBody(String limit) {
-    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়েছে, তাই অ্যাক্সেস সীমিত: সর্বোচ্চ $limitটি মামলা যোগ করা যায়। আগের সবকিছু পড়া যাবে; আরও যোগ করা ও সবকিছু সম্পাদনা করতে নবায়ন করুন।';
+    return 'আপনার প্ল্যানের মেয়াদ শেষ হয়ে গেছে, তাই অ্যাক্সেস সীমিত: সর্বোচ্চ $limitটি মামলা যোগ করা যাবে। আগের সবকিছু পড়া যাবে; নতুন তথ্য যোগ করতে কিংবা পূর্বের তথ্য সম্পাদনা করতে দয়া করে প্ল্যান নবায়ন করুন।';
   }
 
   @override
-  String get paywall_intro => 'আপনার চর্চার জন্য উপযুক্ত প্ল্যান বেছে নিন।';
+  String get paywall_intro => 'আপনার প্রাক্টিসের উপযুক্ত প্ল্যান বেছে নিন।';
 
   @override
   String get paywall_audienceIndividual => 'ব্যক্তিগত';
@@ -1210,29 +1210,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_tierFreeNote =>
-      'নতুন আইনজীবীদের জন্য, যারা অ্যাপটি চেষ্টা করে দেখতে চান।';
+      'যারা অ্যাপটি ব্যবহার করে দেখতে চান, সেই আইনজীবীদের জন্য।';
 
   @override
-  String get paywall_tierStarterNote => 'যেসব আইনজীবীর ক্লাউড ব্যাকআপ দরকার।';
+  String get paywall_tierStarterNote =>
+      'যেসব আইনজীবীর নিরাপদ ক্লাউড ব্যাকআপ প্রয়োজন।';
 
   @override
   String get paywall_tierProNote =>
-      'যেসব আইনজীবীর নমনীয়তা ও ক্লাউড ব্যাকআপ দরকার।';
+      'যেসব আইনজীবীর বাড়তি সুবিধা ও নিরাপদ ক্লাউড ব্যাকআপ প্রয়োজন।';
 
   @override
   String get paywall_tierFirmNote =>
-      'যেসব ফার্ম ও আইনজীবীর রিয়েল-টাইম সহযোগিতা দরকার।';
+      'যেসব আইনজীবী ও আইনজীবী প্রতিষ্ঠানে সহযোগীদের রিয়েল-টাইম কাজ করা প্রয়োজন।';
 
   @override
   String get paywall_tierFirmPlusNote =>
-      'যেসব ফার্ম ও আইনজীবী প্রচুর মামলার ডেটা ক্লাউডে রাখতে চান।';
+      'যেসব আইনজীবী ও আইনজীবী প্রতিষ্ঠানের বিপুল পরিমাণ মামলার তথ্য ক্লাউডে সংরক্ষণ প্রয়োজন।';
 
   @override
   String get paywall_tierEnterpriseNote =>
-      'যেসব ফার্মের সবচেয়ে বেশি মামলার সক্ষমতা ও ২০ জনের দল দরকার।';
+      'যেসব আইনজীবী প্রতিষ্ঠানের সর্বোচ্চ সংখ্যক মামলা সংরক্ষণ এবং সর্বোচ্চ ২০ জন সদস্যের টিম অ্যাক্সেস প্রয়োজন।';
 
   @override
-  String get paywall_includes => 'অন্তর্ভুক্ত';
+  String get paywall_includes => 'যা আছে';
 
   @override
   String paywall_everythingIn(String tier) {
@@ -1245,7 +1246,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get paywall_featureUnlimitedCases => 'অসীম মামলা';
+  String get paywall_featureUnlimitedCases => 'সীমাহীন মামলার সংখ্যা';
 
   @override
   String get paywall_featureOfflineUse => 'শুধু অফলাইনে ব্যবহার';
@@ -1259,14 +1260,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_featureCustomization =>
-      'ডেটা কাস্টমাইজেশন: আদালতের নাম, ধাপ ও মামলার ধরন';
+      'ডেটা কাস্টমাইজেশন: আদালতের নাম, পদক্ষেপ ও মামলার ধরন';
 
   @override
   String get paywall_featureCloudBackup => 'রিয়েল-টাইম ক্লাউড ব্যাকআপ';
 
   @override
   String get paywall_featureDisasterRecovery =>
-      'দুর্যোগে ডেটা পুনরুদ্ধার: নতুন ডিভাইসে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন';
+      'আপদকালীন ডেটা পুনরুদ্ধার: ফোন হারিয়ে গেলে বা নষ্ট হয়ে গেলেও নতুন ডিভাইসে ক্লাউড থেকে আপনার ডায়েরি ফিরিয়ে আনুন';
 
   @override
   String get paywall_featureSingleDevice => 'একটি ডিভাইসে ব্যবহার';
@@ -1278,14 +1279,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String paywall_featureCollaboration(String devices, String associates) {
-    return 'সহযোগিতা: একসঙ্গে সর্বোচ্চ $devicesটি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন অথবা আপনার ফার্মে সর্বোচ্চ $associates জন সহকারী আমন্ত্রণ করুন।';
+    return 'যৌথ ব্যবহার: একসঙ্গে সর্বোচ্চ $devicesটি ডিভাইসে আপনার অ্যাকাউন্ট ব্যবহার করুন অথবা আপনার ফার্মে সর্বোচ্চ $associates জন সহযোগী যুক্ত করুন।';
   }
 
   @override
   String get paywall_mostPopular => 'সবচেয়ে জনপ্রিয়';
 
   @override
-  String get paywall_currentPlanBadge => 'চলমান প্ল্যান';
+  String get paywall_currentPlanBadge => 'বর্তমান প্ল্যান';
 
   @override
   String get paywall_scheduledBadge => 'নির্ধারিত';
@@ -1402,7 +1403,7 @@ class AppLocalizationsBn extends AppLocalizations {
     String term,
     String limit,
   ) {
-    return 'আপনার $current প্ল্যান $end পর্যন্ত চলবে। $next $start তারিখে শুরু হবে এবং $term চলবে। তখন থেকে আপনার মামলার সীমা $limit হবে।';
+    return 'আপনার $current প্ল্যান $end পর্যন্ত চলবে। $next $start তারিখে শুরু হবে এবং $term চলবে। তখন থেকে আপনার মামলা সংরক্ষণের সীমা $limit হবে।';
   }
 
   @override
@@ -1413,11 +1414,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get paywall_changePendingTitle =>
-      'একটি প্ল্যান পরিবর্তন ইতিমধ্যে নির্ধারিত';
+      'একটি প্ল্যানের পরিবর্তন ইতিমধ্যে নির্ধারিত রয়েছে';
 
   @override
   String paywall_changePendingBody(String plan, String date) {
-    return '$plan $date তারিখে শুরু হওয়ার কথা। আপনি চলমান প্ল্যান অথবা নির্ধারিত প্ল্যান নবায়ন করতে পারেন।';
+    return '$plan $date তারিখে শুরু হওয়ার কথা। আপনার বর্তমান প্ল্যান অথবা নির্ধারিত প্ল্যান নবায়ন করতে পারেন।';
   }
 
   @override
@@ -1436,17 +1437,17 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String paywall_caseLimitTitle(String tier) {
-    return '$tier প্ল্যানের মামলার সীমা পূর্ণ';
+    return '$tier প্ল্যানের নির্ধারিত মামলার সংখ্যা পূর্ণ হয়ে গেছে';
   }
 
   @override
   String paywall_caseLimitBody(String tier, String limit) {
-    return 'আপনার $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। জায়গা খালি করতে একটি মামলা মুছুন, অথবা বড় প্ল্যান বেছে নিন।';
+    return 'আপনার $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা সংরক্ষণ যায়। নতুন মামলা যোগ করতে একটি মামলা ডিলিট করুন, অথবা নতুন প্ল্যান বেছে নিন।';
   }
 
   @override
   String paywall_caseLimitMemberBody(String tier, String limit) {
-    return 'এই চেম্বারের $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা রাখা যায়। প্ল্যানটি চেম্বারের মালিক পরিচালনা করেন।';
+    return 'এই চেম্বারের $tier প্ল্যানে সর্বোচ্চ $limitটি মামলা সংরক্ষণ যায়। প্ল্যানটি চেম্বারের স্বত্বাধিকারী কর্তৃক নিয়ন্ত্রিত।';
   }
 
   @override
@@ -1456,65 +1457,65 @@ class AppLocalizationsBn extends AppLocalizations {
   String get paywall_caseLimitClose => 'বন্ধ করুন';
 
   @override
-  String get lapse_readOnlyBadge => 'পঠন-কেবল';
+  String get lapse_readOnlyBadge => 'রিড-অনলি';
 
   @override
   String get lapse_renewAction => 'নবায়ন';
 
   @override
   String lapse_bannerCases(String editable, String readOnly) {
-    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি মামলা সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি মামলা সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়নের পূর্ব পর্যন্ত শুধু মাত্র দেখা যাবে।';
   }
 
   @override
   String lapse_bannerNotes(String editable, String readOnly) {
-    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি নোট সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি নোট সম্পাদনা করা যাবে; বাকি $readOnlyটি পূর্ব পর্যন্ত শুধু মাত্র দেখা যাবে।';
   }
 
   @override
   String lapse_bannerReferences(String editable, String readOnly) {
-    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি $readOnlyটি নবায়ন পর্যন্ত পঠন-কেবল।';
+    return 'আপনার অ্যাক্সেস সীমিত। সর্বশেষ হালনাগাদ করা $editableটি কেস রেফারেন্স সম্পাদনা করা যাবে; বাকি $readOnlyটি পূর্ব পর্যন্ত শুধু মাত্র দেখা যাবে।';
   }
 
   @override
   String get lapse_readOnlyCase =>
-      'অ্যাক্সেস সীমিত থাকায় এই মামলাটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই মামলাটি শুধু মাত্র দেখা যাবে। সম্পাদনা করতে প্ল্যান নবায়ন করুন।';
 
   @override
   String get lapse_readOnlyNote =>
-      'অ্যাক্সেস সীমিত থাকায় এই নোটটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই নোটটি শুধু মাত্র দেখা যাবে। সম্পাদনা করতে প্ল্যান নবায়ন করুন।';
 
   @override
   String get lapse_readOnlyReference =>
-      'অ্যাক্সেস সীমিত থাকায় এই কেস রেফারেন্সটি পঠন-কেবল। সম্পাদনা করতে নবায়ন করুন।';
+      'অ্যাক্সেস সীমিত থাকায় এই কেস রেফারেন্সটি শুধু মাত্র দেখা যাবে। সম্পাদনা করতে প্ল্যান নবায়ন করুন।';
 
   @override
   String get lapse_noteLimit =>
-      'আপনার সর্বশেষ প্ল্যানের নোটের সীমা পূর্ণ হয়েছে। আরও নোট যোগ করতে নবায়ন করুন।';
+      'আপনার সর্বশেষ প্ল্যানের নোটের সীমা পূর্ণ হয়েছে। আরও নোট যোগ করতে প্ল্যান নবায়ন করুন।';
 
   @override
   String get lapse_referenceLimit =>
-      'আপনার সর্বশেষ প্ল্যানের কেস রেফারেন্সের সীমা পূর্ণ হয়েছে। আরও রেফারেন্স যোগ করতে নবায়ন করুন।';
+      'আপনার সর্বশেষ প্ল্যানের কেস রেফারেন্সের সীমা পূর্ণ হয়েছে। আরও রেফারেন্স যোগ করতে প্ল্যান নবায়ন করুন।';
 
   @override
   String get adminPanel_title => 'অ্যাডমিন প্যানেল';
 
   @override
-  String get adminPanel_paymentRequests => 'পেমেন্ট অনুরোধ';
+  String get adminPanel_paymentRequests => 'পেমেন্ট আবেদন';
 
   @override
   String get adminPanel_paymentRequestsSubtitle =>
       'জমা দেওয়া পেমেন্ট অনুমোদন বা প্রত্যাখ্যান করুন';
 
   @override
-  String get adminPanel_unverifiedAccounts => 'অযাচিত অ্যাকাউন্ট';
+  String get adminPanel_unverifiedAccounts => 'যাচাইবিহীন অ্যাকাউন্ট';
 
   @override
   String get adminPanel_unverifiedAccountsSubtitle =>
       '৭২ ঘণ্টার বেশি সময় ধরে অনিশ্চিত সাইন-আপ';
 
   @override
-  String get adminPanel_unverifiedTitle => 'অযাচিত অ্যাকাউন্ট';
+  String get adminPanel_unverifiedTitle => 'যাচাইবিহীন অ্যাকাউন্ট';
 
   @override
   String get adminPanel_unverifiedEmpty =>
@@ -1538,7 +1539,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_deleteBody =>
-      'অ্যাকাউন্টটি কখনও ঠিকানা নিশ্চিত করেনি এবং কিছুই করেনি, তাই এটি স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।';
+      'অ্যাকাউন্টটি কখনও ইমেইল নিশ্চিত করেনি কিংবা ডেটা সেভ করেনি, তাই এটি স্থায়ীভাবে মুছে ফেলা হবে। এই কাজটি আর পূর্বাবস্থায় ফিরিয়ে নেওয়া যাবে না।';
 
   @override
   String get adminPanel_deleteConfirm => 'অ্যাকাউন্ট মুছুন';
@@ -1576,7 +1577,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_emptyPending =>
-      'সিদ্ধান্তের অপেক্ষায় কোনো পেমেন্ট নেই।';
+      'কোনো পেমেন্ট সিদ্ধান্তের অপেক্ষায় নেই।';
 
   @override
   String get adminPanel_emptyResolved =>
@@ -1601,7 +1602,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_rejectConfirm => 'পেমেন্ট বাতিল করুন';
 
   @override
-  String get adminPanel_rejectPickMessage => 'প্রস্তুত বার্তা';
+  String get adminPanel_rejectPickMessage => 'পূর্ব নির্ধারিত বার্তা';
 
   @override
   String get adminPanel_rejectTemplateMismatch =>
@@ -1665,7 +1666,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_detailLabelMobile => 'মোবাইল';
 
   @override
-  String get adminPanel_detailLabelSubmitted => 'জমা';
+  String get adminPanel_detailLabelSubmitted => 'সাবমিট করা হয়েছে';
 
   @override
   String get adminPanel_detailLabelNote => 'নোট';
@@ -1692,17 +1693,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_rejectedBy => 'বাতিলকারী';
 
   @override
-  String get adminPanel_loading => 'পেমেন্ট অনুরোধ লোড হচ্ছে…';
+  String get adminPanel_loading => 'পেমেন্ট আবেদন লোড হচ্ছে…';
 
   @override
-  String get adminPanel_loadFailed => 'পেমেন্ট অনুরোধ লোড করা যায়নি।';
+  String get adminPanel_loadFailed => 'পেমেন্ট আবেদন লোড করা যায়নি।';
 
   @override
   String get adminPanel_retry => 'আবার চেষ্টা করুন';
 
   @override
   String get adminPanel_failedNotAdmin =>
-      'শুধুমাত্র একজন প্রশাসক এটি করতে পারবেন।';
+      'শুধুমাত্র একজন এডমিট এটি করতে পারবেন।';
 
   @override
   String get adminPanel_failedNotFound => 'এই পেমেন্টটি আর নেই।';
@@ -1719,7 +1720,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPanel_sharedReferencesSubtitle =>
-      'সব অ্যাকাউন্ট পড়তে পারে এমন রেফারেন্স';
+      'সব অ্যাকাউন্টের জন্য নির্ধারিত কেস রেফারেন্স';
 
   @override
   String get adminSharedRefs_loading => 'লাইব্রেরি লোড হচ্ছে…';
@@ -1751,7 +1752,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminSharedRefs_deleteBody =>
-      'পরের সিঙ্কে এটি প্রতিটি অ্যাকাউন্ট থেকে সরে যাবে। এটি ফেরানো যাবে না।';
+      'পরের সিঙ্কে এটি প্রতিটি অ্যাকাউন্ট থেকে সরে যাবে। এই কাজটি আর পূর্বাবস্থায় ফিরিয়ে নেওয়া যাবে না।';
 
   @override
   String get adminSharedRefs_deleteConfirm => 'মুছুন';
@@ -1817,7 +1818,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedActions_no => 'না';
 
   @override
-  String get sharedDialogs_confirmDeleteTitle => 'মুছে ফেলা নি্চিত করুন';
+  String get sharedDialogs_confirmDeleteTitle => 'মুছে ফেলা নিশ্চিত করুন';
 
   @override
   String get sharedDialogs_confirmDeleteMessage =>
@@ -1827,7 +1828,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedDialogs_noResults => 'কোনো ফলাফল পাওয়া যায়নি।';
 
   @override
-  String get sharedDialogs_requiredField => 'এই ক্ষেত্রটি আবশ্যক।';
+  String get sharedDialogs_requiredField => 'এই তথ্য আবশ্যক।';
 
   @override
   String get sharedDialogs_ok => 'ঠিক আছে';
@@ -1848,17 +1849,17 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get shared_avatarUnreadable =>
-      'এই ছবিটি ব্যবহার করা যায়নি। অনুগ্রহ করে একটি JPG বা PNG ছবি চেষ্টা করুন।';
+      'এই ছবিটি ব্যবহার করা যায়নি। অনুগ্রহ করে একটি JPG বা PNG ছবি ব্যবহার করুন।';
 
   @override
-  String get appShell_exitTitle => 'অ্যাপ থেকে প্রস্থান?';
+  String get appShell_exitTitle => 'বন্ধ করতে চান?';
 
   @override
   String get appShell_exitMessage =>
-      'আপনি কি লিগ্যাল কেস ডায়েরি থেকে প্রস্থান করতে চান?';
+      'আপনি কি লিগ্যাল কেস ডায়েরি অ্যাপটি বন্ধ করতে চান?';
 
   @override
-  String get appShell_exit => 'প্রস্থান';
+  String get appShell_exit => 'বন্ধ করুন';
 
   @override
   String get databaseRecovery_title => 'ডেটাবেস লক করা হয়েছে';
@@ -1908,7 +1909,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get lawCategory_constitutionCourtsPractice =>
-      'সংবিধান, আদালত ও অনুশীলন';
+      'সংবিধান, আদালত ও প্রাক্টিস';
 
   @override
   String get lawCategory_civilProcedureEvidence => 'দেওয়ানি আইন';
@@ -1923,8 +1924,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get lawCategory_taxFinance => 'কর ও অর্থায়ন';
 
   @override
-  String get lawCategory_labourEverydayRegulation =>
-      'শ্রম ও দৈনন্দিন নিয়ন্ত্রণ';
+  String get lawCategory_labourEverydayRegulation => 'শ্রম, কোম্পানী ইত্যাদি';
 
   @override
   String get lawCategory_other => 'অন্যান্য';
@@ -2104,10 +2104,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get clientNotification_promptBody =>
-      'আপনি কি ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে বার্তা পাঠাতে চান?';
+      'ক্লায়েন্টকে পরবর্তী আদালতের তারিখ জানিয়ে বার্তা পাঠাতে চান?';
 
   @override
-  String get clientNotification_rememberChoice => 'আমার পছন্দ মনে রাখুন';
+  String get clientNotification_rememberChoice => 'পছন্দ মনে রাখুন';
 
   @override
   String get clientNotification_exampleLabel => 'উদাহরণ:';
@@ -2147,7 +2147,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsScreen_backupAndRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
 
   @override
-  String get settingsScreen_editCourtSteps => 'আদালত/ধাপ সম্পাদনা';
+  String get settingsScreen_editCourtSteps => 'আদালত/পদক্ষেপ সম্পাদনা';
 
   @override
   String get settingsScreen_notifications => 'নোটিফিকেশন';
@@ -2247,22 +2247,22 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsFirm_joinFirmSubtitle =>
-      'ফার্মের মালিকের আমন্ত্রণ কোড দিয়ে ফার্মে যোগ দিন';
+      'ফার্মের স্বত্বাধিকারীর ইনভাইটেশন কোড দিয়ে ফার্মে যোগ দিন';
 
   @override
-  String get settingsFirm_viewFirmSubtitle => 'আপনার ফার্ম ও সহকারীদের দেখুন';
+  String get settingsFirm_viewFirmSubtitle => 'আপনার ফার্ম ও সহযোগীদের দেখুন';
 
   @override
   String get settingsAccountProfile_manageAssociatesSubtitle =>
-      'আপনার ফার্ম, সহকারী ও অনুমতিগুলো পরিচালনা করুন';
+      'আপনার ফার্ম, সহযোগী ও পারমিশন নিয়ন্ত্রণ করুন';
 
   @override
   String get settingsAccountProfile_createFirmSubtitle =>
-      'ফার্ম তৈরি করুন ও সহকারীদের আমন্ত্রণ জানান';
+      'ফার্ম তৈরি করুন ও সহযোগীদের আমন্ত্রণ জানান';
 
   @override
   String get settingsAccountProfile_deleteRequestsSubtitle =>
-      'অনুরোধ পর্যালোচনা করুন ও সিদ্ধান্ত জানুন';
+      'ডিলিট অনুরোধ অনুমোদন ও পর্যালোচনা করুন';
 
   @override
   String get settingsProfile_title => 'প্রোফাইল';
@@ -2338,7 +2338,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String devices_ownerSectionCount(String count) {
-    return 'মালিকের ডিভাইস ($count)';
+    return 'স্বত্বাধিকারীর ডিভাইস ($count)';
   }
 
   @override
@@ -2396,7 +2396,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get devices_signOut => 'সাইন আউট';
 
   @override
-  String get devices_planFullTitle => 'ডিভাইসের সীমা পূর্ণ হয়েছে';
+  String get devices_planFullTitle =>
+      'নির্ধারিত সংখ্যক ডিভাইসের সীমা পূর্ণ হয়ে গেছে';
 
   @override
   String devices_planFullBody(String count) {
@@ -2408,7 +2409,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get devices_planFullWarning =>
-      'যে ডিভাইস থেকে আপনি সাইন আউট করবেন, তার অসংরক্ষিত বা অসিঙ্ক করা কাজ হারিয়ে যেতে পারে।';
+      'যে ডিভাইস থেকে আপনি সাইন আউট করবেন, তার অসংরক্ষিত বা সিঙ্ক না করা কাজ হারিয়ে যেতে পারে।';
 
   @override
   String get devices_signOutThisDevice => 'এই ডিভাইস থেকে সাইন আউট করুন';
@@ -2497,7 +2498,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get devices_limitRevokedDiscarded =>
-      'এই ডিভাইসের যেকোনো অসংরক্ষিত বা অসিঙ্ক করা কাজ বাদ দেওয়া হয়েছে।';
+      'এই ডিভাইসের যেকোনো অসংরক্ষিত বা সিঙ্ক না করা কাজ বাদ দেওয়া হয়েছে।';
 
   @override
   String get devices_limitRevokedRelogin =>
@@ -2512,11 +2513,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get devices_capacityRevokedBody =>
-      'আপনার ফার্মে এই ডিভাইসের জন্য আর স্লট নেই, তাই এটি সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে। আপনার অ্যাকাউন্ট এখনো ফার্মের সদস্য — মালিককে জায়গা করতে বলুন।';
+      'আপনার ফার্মে এই ডিভাইসের জন্য আর স্লট নেই, তাই এটি সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে। আপনার অ্যাকাউন্ট এখনো ফার্মের সদস্য — স্বত্বাধিকারীকে জায়গা করতে বলুন।';
 
   @override
   String get devices_removedRevokedBody =>
-      'ফার্মের মালিক এই অ্যাকাউন্ট সরিয়ে দিয়েছেন, তাই এই ডিভাইস সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে।';
+      'ফার্মের স্বত্বাধিকারী এই অ্যাকাউন্ট সরিয়ে দিয়েছেন, তাই এই ডিভাইস সাইন আউট করা হয়েছে এবং এর স্থানীয় কপি মুছে ফেলা হচ্ছে।';
 
   @override
   String devices_evicted(String name) {
@@ -2568,7 +2569,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_upgradeBody =>
-      'সাবস্ক্রিপশন নিলে আরও বেশি মামলার সীমা ও ক্লাউড সুবিধা পাবেন, শুরু মাত্র:';
+      'সাবস্ক্রিপশন নিলে আরও বেশি মামলার সংখ্যা ও ক্লাউড সুবিধা পাবেন, শুরু মাত্র:';
 
   @override
   String settingsSubscription_upgradeRate(String rate) {
@@ -2631,15 +2632,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_usageSeatsNote =>
-      'আপনার সহকারী ও আপনার নিজের সাইন-ইন করা ডিভাইসগুলো এই স্লটগুলো ভাগ করে ব্যবহার করে।';
+      'আপনার সহযোগী ও আপনার নিজের সাইন-ইন করা ডিভাইসগুলো এই স্লটগুলো ভাগ করে ব্যবহার করে।';
 
   @override
   String settingsSubscription_usageSignedOut(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count জন সহকারী সাইন ইন করা নেই।',
-      one: '১ জন সহকারী সাইন ইন করা নেই।',
+      other: '$count জন সহযোগী সাইন ইন করা নেই।',
+      one: '১ জন সহযোগী সাইন ইন করা নেই।',
     );
     return '$_temp0';
   }
@@ -2655,12 +2656,12 @@ class AppLocalizationsBn extends AppLocalizations {
     String associates,
     String devices,
   ) {
-    return '$date থেকে আপনার ফার্মে মোট $slotsটি ডিভাইস চলবে। এখন $associates জন সহকারী ও আপনার $devicesটি ডিভাইস আছে। তার আগে একটি ডিভাইস সাইন আউট করুন বা একজন সহকারী সরান; নাহলে অতিরিক্তগুলো স্বয়ংক্রিয়ভাবে সাইন আউট হবে।';
+    return '$date থেকে আপনার ফার্মে মোট $slotsটি ডিভাইস চলবে। এখন $associates জন সহযোগী ও আপনার $devicesটি ডিভাইস আছে। তার আগে একটি ডিভাইস সাইন আউট করুন বা একজন সহযোগী সরান; নাহলে অতিরিক্তগুলো স্বয়ংক্রিয়ভাবে সাইন আউট হবে।';
   }
 
   @override
   String get settingsSubscription_capacityOverBody =>
-      'আপনার ফার্মে প্ল্যানের অনুমতির চেয়ে বেশি সহকারী আছে। সিট খালি করতে সহকারী সরান; ততক্ষণ নতুন কোনো সহকারী যোগ দিতে পারবেন না।';
+      'আপনার ফার্মে প্ল্যানের অনুমতির চেয়ে বেশি সহযোগী আছে। সিট খালি করতে সহযোগী সরান; ততক্ষণ নতুন কোনো সহযোগী যোগ দিতে পারবেন না।';
 
   @override
   String get settingsSubscription_capacityDevicesOverBody =>
@@ -2668,7 +2669,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubscription_capacityFrozenBody =>
-      'আপনার ফার্মের সাবস্ক্রিপশন শেষ হয়েছে। নবায়ন না হওয়া পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না। বর্তমান সদস্যরা তাঁদের ডিভাইসে কাজ চালিয়ে যেতে পারবেন, তবে সিঙ্ক হবে না।';
+      'আপনার ফার্মের সাবস্ক্রিপশন শেষ হয়েছে। নবায়ন না হওয়া পর্যন্ত নতুন সহযোগী যোগ দিতে পারবেন না। বর্তমান সদস্যরা তাঁদের ডিভাইসে কাজ চালিয়ে যেতে পারবেন, তবে সিঙ্ক হবে না।';
 
   @override
   String get settingsSubscription_manageSubscription => 'সাবস্ক্রিপশন পরিচালনা';
@@ -2729,7 +2730,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteDataCustomSeedDataHint =>
-      'আপনার যোগ করা আদালতের ক্যাটেগরি, আদালতের নাম, ধাপ, মামলার ধরন ও পক্ষগুলো';
+      'আপনার যোগ করা আদালতের ক্যাটেগরি, আদালতের নাম, পদক্ষেপ, মামলার ধরন ও পক্ষগুলো';
 
   @override
   String get settingsManageAccount_deleteDataConfirm => 'নির্বাচিত মুছুন';
@@ -2751,7 +2752,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteDataFirmRefused =>
-      'আপনি একটি ফার্মের সদস্য, তাই আপনার ডায়েরি ফার্মের সঙ্গে যুক্ত। ডেটা মুছতে আগে ফার্মের মালিককে আপনাকে সরিয়ে দিতে বলুন।';
+      'আপনি একটি ফার্মের সদস্য, তাই আপনার ডায়েরি ফার্মের সঙ্গে যুক্ত। ডেটা মুছতে আগে ফার্মের স্বত্বাধিকারীকে আপনাকে সরিয়ে দিতে বলুন।';
 
   @override
   String get settingsManageAccount_deleteDataFailed =>
@@ -2790,7 +2791,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsManageAccount_deleteFirmRefused =>
-      'আপনি একটি ফার্মের সদস্য, তাই আপনার কিছু তথ্য ফার্মের সঙ্গে যুক্ত। অ্যাকাউন্ট মুছতে আগে ফার্মের মালিককে আপনাকে সরিয়ে দিতে বলুন।';
+      'আপনি একটি ফার্মের সদস্য, তাই আপনার কিছু তথ্য ফার্মের সঙ্গে যুক্ত। অ্যাকাউন্ট মুছতে আগে ফার্মের স্বত্বাধিকারীকে আপনাকে সরিয়ে দিতে বলুন।';
 
   @override
   String get settingsManageAccount_deleteAdminRefused =>
@@ -2810,7 +2811,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsManageAccount_roleIndividual => 'ব্যক্তিগত';
 
   @override
-  String get settingsManageAccount_roleOwner => 'মালিক';
+  String get settingsManageAccount_roleOwner => 'স্বত্বাধিকারী';
 
   @override
   String get settingsManageAccount_roleAssociate => 'সহযোগী';
@@ -3036,7 +3037,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get backupScheduled_skipNoticeBody =>
-      'ব্যাকআপ এমন একটি পাসফ্রেজ দিয়ে এনক্রিপ্ট করা থাকে যা কেবল আপনি জানেন, তাই স্বয়ংক্রিয় ব্যাকআপ চালানো যায় না। লিগ্যাল কেস ডায়েরি খুলে ম্যানুয়ালি ব্যাকআপ নিন।';
+      'ব্যাকআপ এমন একটি পাসওয়ার্ড দিয়ে এনক্রিপ্ট করা থাকে যা কেবল আপনি জানেন, তাই স্বয়ংক্রিয় ব্যাকআপ চালানো যায় না। লিগ্যাল কেস ডায়েরি খুলে ম্যানুয়ালি ব্যাকআপ নিন।';
 
   @override
   String get backupScheduled_noticeChannelName => 'ব্যাকআপ রিমাইন্ডার';
@@ -3057,15 +3058,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_sectionEncryptionSubtitle =>
-      'পাসফ্রেজ দিয়ে ব্যাকআপ সুরক্ষিত করুন';
+      'পাসওয়ার্ড দিয়ে ব্যাকআপ সুরক্ষিত করুন';
 
   @override
   String get settingsBackupRestore_encryptionWhy =>
-      'ব্যাকআপ এনক্রিপ্ট করলে ফাইলটি আপনার বেছে নেওয়া পাসফ্রেজ দিয়ে লক হয়ে যায়, তাই ফাইলটি যার হাতেই পড়ুক আপনার মামলার তথ্য পড়তে পারবে না।';
+      'ব্যাকআপ এনক্রিপ্ট করলে ফাইলটি আপনার বেছে নেওয়া পাসওয়ার্ড দিয়ে লক হয়ে যায়, তাই ফাইলটি যার হাতেই পড়ুক আপনার মামলার তথ্য পড়তে পারবে না।';
 
   @override
   String get settingsBackupRestore_encryptionCost =>
-      'পাসফ্রেজ কোথাও সংরক্ষিত হয় না। এটি ভুলে গেলে ওই ব্যাকআপ আর কখনও পুনরুদ্ধার করা যাবে না, তাই এটি নিরাপদে রাখুন।';
+      'পাসওয়ার্ড কোথাও সংরক্ষিত হয় না। এটি ভুলে গেলে ওই ব্যাকআপ আর কখনও পুনরুদ্ধার করা যাবে না, তাই এটি নিরাপদে রাখুন।';
 
   @override
   String get settingsBackupRestore_encryptionStateOn => 'এনক্রিপশন এখন চালু';
@@ -3101,7 +3102,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_encryptionNote =>
-      'ব্যাকআপ আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পাসফ্রেজ দিয়ে লক করতে ব্যাকআপে এনক্রিপশন চালু করুন। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।';
+      'ব্যাকআপ আপনার লোকাল স্টোরেজ বা ক্লাউড প্রোভাইডারে সংরক্ষিত হয়। পাসওয়ার্ড দিয়ে লক করতে ব্যাকআপে এনক্রিপশন চালু করুন। পুনরুদ্ধার বর্তমান ডেটা প্রতিস্থাপন করবে।';
 
   @override
   String get settingsBackupRestore_offlineNote =>
@@ -3166,21 +3167,22 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_passphraseBody =>
-      'এই পাসফ্রেজ দিয়ে ব্যাকআপটি এনক্রিপ্ট করা হয়। এটি কোথাও সংরক্ষণ করা হয় না, তাই এটি ছাড়া ফাইলটি কখনো পুনরুদ্ধার করা যাবে না।';
+      'এই পাসওয়ার্ড দিয়ে ব্যাকআপটি এনক্রিপ্ট করা হয়। এটি কোথাও সংরক্ষণ করা হয় না, তাই এটি ছাড়া ফাইলটি কখনো পুনরুদ্ধার করা যাবে না।';
 
   @override
-  String get settingsBackupRestore_passphraseLabel => 'পাসফ্রেজ';
+  String get settingsBackupRestore_passphraseLabel => 'পাসওয়ার্ড';
 
   @override
   String get settingsBackupRestore_passphraseConfirmLabel =>
-      'পাসফ্রেজ নিশ্চিত করুন';
+      'পাসওয়ার্ড নিশ্চিত করুন';
 
   @override
-  String get settingsBackupRestore_passphraseRequired => 'একটি পাসফ্রেজ লিখুন।';
+  String get settingsBackupRestore_passphraseRequired =>
+      'একটি পাসওয়ার্ড লিখুন।';
 
   @override
   String get settingsBackupRestore_passphraseMismatch =>
-      'দুটি পাসফ্রেজ মিলছে না।';
+      'দুটি পাসওয়ার্ড মিলছে না।';
 
   @override
   String get settingsBackupRestore_encryptAndSave => 'এনক্রিপ্ট ও সংরক্ষণ';
@@ -3191,11 +3193,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_recoveryPassphraseBody =>
-      'যে পাসফ্রেজ দিয়ে ব্যাকআপটি তৈরি হয়েছিল, সেটি লিখুন।';
+      'যে পাসওয়ার্ড দিয়ে ব্যাকআপটি তৈরি হয়েছিল, সেটি লিখুন।';
 
   @override
   String get settingsBackupRestore_recoveryPassphraseHint =>
-      'এনক্রিপশন চালু হওয়ার আগে তৈরি পুরনো ব্যাকআপ পাসফ্রেজ ছাড়াই খোলে।';
+      'এনক্রিপশন চালু হওয়ার আগে তৈরি পুরনো ব্যাকআপ পাসওয়ার্ড ছাড়াই খোলে।';
 
   @override
   String get settingsBackupRestore_openBackup => 'ব্যাকআপ খুলুন';
@@ -3210,7 +3212,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_restoreBlockedBody =>
-      'ডেটা দূষণ ও সম্ভাব্য সমস্যা এড়াতে সাবস্ক্রিপশন ব্যবহারকারীদের অফলাইন ডেটা পুনরুদ্ধার করা সীমাবদ্ধ। লোকাল সেভ পুনরুদ্ধারের আগে বর্তমান লোকাল ও ক্লাউড ডেটা মুছে ফেলুন।';
+      'ডেটা নষ্ট হয়ে যাওয়ার সমস্যা এড়াতে সাবস্ক্রিপশন ব্যবহারকারীগণ অফলাইন ডেটা পুনরুদ্ধার করতে পারবেন না। অফলাইন ব্যাকআপ থেকে পুনরুদ্ধারের আগে বর্তমান লোকাল ও ক্লাউড ডেটা মুছুন।';
 
   @override
   String settingsBackupRestore_backupSaved(String path) {
@@ -3266,7 +3268,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_errorWrongSecret =>
-      'পাসফ্রেজ ভুল, অথবা ব্যাকআপ ফাইলটি পরিবর্তিত হয়েছে।';
+      'পাসওয়ার্ড ভুল, অথবা ব্যাকআপ ফাইলটি পরিবর্তিত হয়েছে।';
 
   @override
   String get settingsBackupRestore_errorDamaged =>
@@ -3290,7 +3292,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_memberNotice =>
-      'চেম্বারের মালিকই কেবল ব্যাকআপ বা পুনরুদ্ধার করতে পারেন। সদস্যের কাছে চেম্বারের রেকর্ডের অ্যাপের বাইরে কোনো কপি থাকে না।';
+      'চেম্বারের স্বত্বাধিকারীই কেবল ব্যাকআপ বা পুনরুদ্ধার করতে পারেন। সদস্যের কাছে চেম্বারের রেকর্ডের অ্যাপের বাইরে কোনো কপি থাকে না।';
 
   @override
   String get settingsBackupRestore_chamberBarredTitle =>
@@ -3328,7 +3330,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_excelPartialNote =>
-      'এটি সম্পূর্ণ ব্যাকআপ নয়। আদালত, ধাপ ও আপনার সেটিংস এতে নেই, তাই এমন ডায়েরিতে পুনরুদ্ধার করুন যেখানে এগুলো আগে থেকেই আছে।';
+      'এটি সম্পূর্ণ ব্যাকআপ নয়। আদালত, পদক্ষেপ ও আপনার সেটিংস এতে নেই, তাই এমন ডায়েরিতে পুনরুদ্ধার করুন যেখানে এগুলো আগে থেকেই আছে।';
 
   @override
   String get settingsBackupRestore_excelIdNote =>
@@ -3415,11 +3417,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ফাইলের শিটগুলো এই ডিভাইসের সেই রেকর্ডগুলো প্রতিস্থাপন করবে। বাকি সব অপরিবর্তিত থাকবে।';
 
   @override
-  String get settingsEditCourtSteps_editItemTypes => 'মামলার ধরন, ধাপ ইত্যাদি';
+  String get settingsEditCourtSteps_editItemTypes =>
+      'মামলার ধরন, পদক্ষেপ ইত্যাদি';
 
   @override
   String get settingsEditCourtSteps_editItemTypesSubtitle =>
-      'মামলার ধরন, কার্যপদ্ধতির ধাপ ও পক্ষের ভূমিকা পরিচালনা করুন';
+      'মামলার ধরন, কার্যপদ্ধতির পদক্ষেপ ও পক্ষের ভূমিকা পরিচালনা করুন';
 
   @override
   String get settingsEditCourtSteps_courtNamesCategories =>
@@ -3480,13 +3483,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsEditItems_caseTypes => 'মামলার ধরন';
 
   @override
-  String get settingsEditItems_steps => 'ধাপ';
+  String get settingsEditItems_steps => 'পদক্ষেপ';
 
   @override
   String get settingsEditItems_onBehalf => 'পক্ষে';
 
   @override
-  String get settingsCourtNamesSteps_title => 'মামলার ধরন, ধাপ ইত্যাদি';
+  String get settingsCourtNamesSteps_title => 'মামলার ধরন, পদক্ষেপ ইত্যাদি';
 
   @override
   String get settingsCourtNamesSteps_catAppellateDivision => 'আপিল বিভাগ';
@@ -3736,22 +3739,22 @@ class AppLocalizationsBn extends AppLocalizations {
       'শুনানির অ্যালার্ট কাজ করছে। আসল রিমাইন্ডার এমনই দেখাবে।';
 
   @override
-  String get adminPush_channelName => 'পেমেন্ট অনুরোধ';
+  String get adminPush_channelName => 'পেমেন্ট আবেদন';
 
   @override
   String get adminPush_channelDescription =>
-      'পেমেন্ট অনুরোধ অনুমোদনের অপেক্ষায় থাকলে অ্যালার্ট';
+      'পেমেন্ট আবেদন অনুমোদনের অপেক্ষায় থাকলে অ্যালার্ট';
 
   @override
-  String get adminPush_title => 'পেমেন্ট অনুরোধ অপেক্ষমাণ';
+  String get adminPush_title => 'পেমেন্ট আবেদন অপেক্ষমাণ';
 
   @override
   String get adminPush_bodyOne =>
-      'একটি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।';
+      'একটি পেমেন্ট আবেদন আপনার অনুমোদনের অপেক্ষায় আছে।';
 
   @override
   String adminPush_bodyMany(String count) {
-    return '$countটি পেমেন্ট অনুরোধ আপনার অনুমোদনের অপেক্ষায় আছে।';
+    return '$countটি পেমেন্ট আবেদন আপনার অনুমোদনের অপেক্ষায় আছে।';
   }
 
   @override
@@ -3779,11 +3782,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBatteryGuide_batteryTitle =>
-      'ব্যাটারি ব্যবহার সীমাহীন করুন';
+      'ব্যাটারি ব্যবহার Unrestricted করুন';
 
   @override
   String get settingsBatteryGuide_batteryBody =>
-      'ব্যাটারি, তারপর অ্যাপ ব্যাটারি ব্যবহার (বা ব্যাটারি অপটিমাইজেশন) খুলে Legal Case Diary বেছে নিন এবং সীমাহীন / কোনো সীমাবদ্ধতা নেই নির্বাচন করুন।';
+      'Battery বাছাই করে App battery usage (or Battery optimization) অপশন বাছাই করুন, এরপর Legal Case Diary অ্যাপটি বাছাই করে Unrestricted / No restrictions বাছাই করুন.';
 
   @override
   String get settingsBatteryGuide_batteryXiaomi =>
@@ -3798,8 +3801,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'Legal Case Diary-এর App info খুলে Battery usage > Background power control > Allow background power usage বেছে নিন।';
 
   @override
-  String get settingsBatteryGuide_exactTitle =>
-      'নির্দিষ্ট অ্যালার্ম অনুমতি দিন';
+  String get settingsBatteryGuide_exactTitle => 'Exact Alarms এর অনুমতি দিন';
 
   @override
   String get settingsBatteryGuide_exactBody =>
@@ -3810,7 +3812,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBatteryGuide_exactAllowed =>
-      'নির্দিষ্ট অ্যালার্ম ইতিমধ্যেই অনুমোদিত';
+      'Exact Alarms ইতিমধ্যেই অনুমোদিত';
 
   @override
   String get settingsBatteryGuide_batteryAllowed =>
@@ -3945,7 +3947,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_dailyCauseListBody2 =>
-      'তালিকাটি আপনার নিজের মামলার তথ্য থেকে তৈরি, তাই তথ্য যত নির্ভুল তালিকাও তত নির্ভুল। প্রতিটি মামলার পরবর্তী তারিখ ও সর্বশেষ ধাপ হালনাগাদ রাখুন এবং আদালত থেকে ফেরার সঙ্গে সঙ্গে তালিকা থেকেই শুনানির ফলাফল লিখুন। হালনাগাদ ছাড়া শুনানির তারিখ পেরিয়ে গেলে ফলাফল লেখা পর্যন্ত মামলাটি \'মেয়াদোত্তীর্ণ তারিখ\' অংশে থাকবে।';
+      'তালিকাটি আপনার নিজের মামলার তথ্য থেকে তৈরি, তাই তথ্য যত নির্ভুল তালিকাও তত নির্ভুল। প্রতিটি মামলার পরবর্তী তারিখ ও সর্বশেষ পদক্ষেপ হালনাগাদ রাখুন এবং আদালত থেকে ফেরার সঙ্গে সঙ্গে তালিকা থেকেই শুনানির ফলাফল লিখুন। হালনাগাদ ছাড়া শুনানির তারিখ পেরিয়ে গেলে ফলাফল লেখা পর্যন্ত মামলাটি \'মেয়াদোত্তীর্ণ তারিখ\' অংশে থাকবে।';
 
   @override
   String get settingsGuidelines_allCasesTitle => 'সব মামলা';
@@ -3966,7 +3968,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_overdueDatesBody1 =>
-      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো আদালত অনুযায়ী সাজানো থাকে এবং কোনটি কবে সর্বশেষ হালনাগাদ হয়েছে তা দেখা যায়। নতুন ধাপ বা ফলাফল লিখলে মামলাটি এই তালিকা থেকে সরে যায়।';
+      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো আদালত অনুযায়ী সাজানো থাকে এবং কোনটি কবে সর্বশেষ হালনাগাদ হয়েছে তা দেখা যায়। নতুন পদক্ষেপ বা ফলাফল লিখলে মামলাটি এই তালিকা থেকে সরে যায়।';
 
   @override
   String get settingsGuidelines_upcomingCasesTitle => 'আসন্ন মামলা';
@@ -3998,7 +4000,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_backupBody1 =>
-      'আপনার ডায়েরি এই ডিভাইসেই থাকে। সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\' বেছে নিলে আপনার পছন্দের স্থানে এনক্রিপ্ট করা একটি কপি সংরক্ষিত হয় — মেমোরি কার্ড, ফোনের কোনো ফোল্ডার বা সিস্টেমের ফাইল পিকার যেখানে পৌঁছায়। ফাইলটির জন্য আপনি একটি পাসফ্রেজ দেন, যা অ্যাপ কোথাও সংরক্ষণ বা পাঠায় না।';
+      'আপনার ডায়েরি এই ডিভাইসেই থাকে। সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\' বেছে নিলে আপনার পছন্দের স্থানে এনক্রিপ্ট করা একটি কপি সংরক্ষিত হয় — মেমোরি কার্ড, ফোনের কোনো ফোল্ডার বা সিস্টেমের ফাইল পিকার যেখানে পৌঁছায়। ফাইলটির জন্য আপনি একটি পাসওয়ার্ড দেন, যা অ্যাপ কোথাও সংরক্ষণ বা পাঠায় না।';
 
   @override
   String get settingsGuidelines_backupBody2 =>
@@ -4009,11 +4011,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_securityBody1 =>
-      'আপনার মামলার ডায়েরি এই ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। ব্যাকআপ ফাইল AES-256-GCM দিয়ে এনক্রিপ্ট করা হয়, যার চাবি আপনার পাসফ্রেজ থেকে ডিভাইসেই PBKDF2-HMAC-SHA256 দিয়ে তৈরি হয়। পাসফ্রেজ বা চাবি কোথাও সংরক্ষণ বা প্রেরণ করা হয় না।';
+      'আপনার মামলার ডায়েরি এই ডিভাইসে এনক্রিপ্ট করা অবস্থায় সংরক্ষিত থাকে। ব্যাকআপ ফাইল AES-256-GCM দিয়ে এনক্রিপ্ট করা হয়, যার চাবি আপনার পাসওয়ার্ড থেকে ডিভাইসেই PBKDF2-HMAC-SHA256 দিয়ে তৈরি হয়। পাসওয়ার্ড বা চাবি কোথাও সংরক্ষণ বা প্রেরণ করা হয় না।';
 
   @override
   String get settingsGuidelines_securityBody2 =>
-      'অফলাইন সংস্করণে আপনার সাইন-আপের অ্যাকাউন্টের তথ্য ছাড়া আর কিছুই আপনার ফোন থেকে বাইরে যায় না — মামলার কোনো তথ্য নয়। পাসফ্রেজ নিরাপদে রেখে দিন — ব্যাকআপ থাকলেও পাসফ্রেজ হারালে সেটি আমরা বা অন্য কেউ খুলতে পারবে না।';
+      'অফলাইন সংস্করণে আপনার সাইন-আপের অ্যাকাউন্টের তথ্য ছাড়া আর কিছুই আপনার ফোন থেকে বাইরে যায় না — মামলার কোনো তথ্য নয়। পাসওয়ার্ড নিরাপদে রেখে দিন — ব্যাকআপ থাকলেও পাসওয়ার্ড হারালে সেটি আমরা বা অন্য কেউ খুলতে পারবে না।';
 
   @override
   String get settingsGuidelines_sectionFaqs => 'সাধারণ জিজ্ঞাসা';
@@ -4051,7 +4053,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatGettingStartedA4 =>
-      '\'আপডেট\' নতুন ধাপ বা ফলাফল লিখে মামলার ইতিহাসে যোগ করে — প্রতিটি শুনানির পর এটি ব্যবহার করুন। \'মামলা সম্পাদনা\' মামলার নিজস্ব তথ্য, যেমন পক্ষ, আদালত বা মামলা নম্বর পরিবর্তন করে — ভুল তথ্য সংশোধনে এটি ব্যবহার করুন।';
+      '\'আপডেট\' নতুন পদক্ষেপ বা ফলাফল লিখে মামলার ইতিহাসে যোগ করে — প্রতিটি শুনানির পর এটি ব্যবহার করুন। \'মামলা সম্পাদনা\' মামলার নিজস্ব তথ্য, যেমন পক্ষ, আদালত বা মামলা নম্বর পরিবর্তন করে — ভুল তথ্য সংশোধনে এটি ব্যবহার করুন।';
 
   @override
   String get settingsGuidelines_faqCatGettingStartedQ5 =>
@@ -4067,7 +4069,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatGettingStartedA6 =>
-      'মামলাটি খুলে নিষ্পত্তি (Disposed) ছাড়া অন্য যেকোনো ধাপ বা ফলাফল বেছে নিন। মামলাটি আবার \'সক্রিয় মামলা\'-য় ফিরে আসবে।';
+      'মামলাটি খুলে নিষ্পত্তি (Disposed) ছাড়া অন্য যেকোনো পদক্ষেপ বা ফলাফল বেছে নিন। মামলাটি আবার \'সক্রিয় মামলা\'-য় ফিরে আসবে।';
 
   @override
   String get settingsGuidelines_faqCatGettingStartedQ7 =>
@@ -4083,7 +4085,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatGettingStartedA8 =>
-      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো সর্বশেষ হালনাগাদের তারিখসহ এখানে দেখা যায়। এখনো যেসব মামলায় হাত দেওয়া হয়নি তা খুঁজে বের করার সবচেয়ে সহজ উপায় এটি। নতুন ধাপ বা ফলাফল লিখলে মামলাটি তালিকা থেকে সরে যায়।';
+      'যেসব মামলার শুনানির তারিখ পেরিয়ে গেছে কিন্তু ফলাফল লেখা হয়নি, সেগুলো সর্বশেষ হালনাগাদের তারিখসহ এখানে দেখা যায়। এখনো যেসব মামলায় হাত দেওয়া হয়নি তা খুঁজে বের করার সবচেয়ে সহজ উপায় এটি। নতুন পদক্ষেপ বা ফলাফল লিখলে মামলাটি তালিকা থেকে সরে যায়।';
 
   @override
   String get settingsGuidelines_faqCatGettingStartedQ9 =>
@@ -4166,7 +4168,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA1 =>
-      'সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\'-এ ট্যাপ করুন। ফাইলটি কোথায় সংরক্ষিত হবে তা আপনি বেছে নেন এবং একটি পাসফ্রেজ দেন যা ফাইলটি এনক্রিপ্ট করে। আপনার অ্যাকাউন্ট আগেই তৈরি করা থাকে, তাই ইন্টারনেট সংযোগের দরকার নেই।';
+      'সেটিংস > ব্যাকআপ ও পুনরুদ্ধার-এ গিয়ে \'লোকাল স্টোরেজে ব্যাকআপ\'-এ ট্যাপ করুন। ফাইলটি কোথায় সংরক্ষিত হবে তা আপনি বেছে নেন এবং একটি পাসওয়ার্ড দেন যা ফাইলটি এনক্রিপ্ট করে। আপনার অ্যাকাউন্ট আগেই তৈরি করা থাকে, তাই ইন্টারনেট সংযোগের দরকার নেই।';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ2 =>
@@ -4178,11 +4180,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ3 =>
-      'পাসফ্রেজ ভুলে গেছি। আপনি কি তা উদ্ধার করতে পারবেন?';
+      'পাসওয়ার্ড ভুলে গেছি। আপনি কি তা উদ্ধার করতে পারবেন?';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA3 =>
-      'না। পাসফ্রেজ আপনার ডিভাইসে বা অন্য কোথাও সংরক্ষণ করা হয় না, তাই তা ছাড়া ব্যাকআপ খোলা যায় না। হারিয়ে গেলে আপনার মনে রাখা যায় এমন একটি পাসফ্রেজ দিয়ে নতুন ব্যাকআপ নিন।';
+      'না। পাসওয়ার্ড আপনার ডিভাইসে বা অন্য কোথাও সংরক্ষণ করা হয় না, তাই তা ছাড়া ব্যাকআপ খোলা যায় না। হারিয়ে গেলে আপনার মনে রাখা যায় এমন একটি পাসওয়ার্ড দিয়ে নতুন ব্যাকআপ নিন।';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ4 =>
@@ -4198,7 +4200,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA5 =>
-      'বর্তমান ফোনে একটি ব্যাকআপ নিয়ে ফাইলটি নতুন ফোন থেকে পাওয়া যায় এমন জায়গায় রাখুন — মেমোরি কার্ড, গুগল ড্রাইভ বা নিজেকে পাঠানো ইমেইল। নতুন ফোনে অ্যাপ ইনস্টল করে সেটিংস > ব্যাকআপ ও পুনরুদ্ধার থেকে একই পাসফ্রেজ দিয়ে \'ব্যাকআপ থেকে পুনরুদ্ধার\' করুন।';
+      'বর্তমান ফোনে একটি ব্যাকআপ নিয়ে ফাইলটি নতুন ফোন থেকে পাওয়া যায় এমন জায়গায় রাখুন — মেমোরি কার্ড, গুগল ড্রাইভ বা নিজেকে পাঠানো ইমেইল। নতুন ফোনে অ্যাপ ইনস্টল করে সেটিংস > ব্যাকআপ ও পুনরুদ্ধার থেকে একই পাসওয়ার্ড দিয়ে \'ব্যাকআপ থেকে পুনরুদ্ধার\' করুন।';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ6 =>
@@ -4264,7 +4266,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumA2 =>
-      'ফ্রি প্ল্যানে ৫০টি পর্যন্ত মামলা রাখা যায়। সীমায় পৌঁছালে \'মামলা যোগ\' ফর্মের বদলে প্রিমিয়াম স্ক্রিন খোলে। কিছুই লুকানো বা মুছে ফেলা হয় না — আপনার সব মামলা দেখা, সম্পাদনা, প্রিন্ট ও মুছে ফেলার সুবিধা আগের মতোই থাকে এবং মামলা মুছলে একটি স্লট খালি হয়।';
+      'ফ্রি প্ল্যানে ৫০টি পর্যন্ত মামলা রাখা যায়। নির্ধারিত সীমায় পৌঁছালে \'মামলা যোগ\' ফর্মের বদলে প্রিমিয়াম স্ক্রিন খোলে। কিছুই লুকানো বা মুছে ফেলা হয় না — আপনার সব মামলা দেখা, সম্পাদনা, প্রিন্ট ও মুছে ফেলার সুবিধা আগের মতোই থাকে এবং মামলা মুছলে একটি স্লট খালি হয়।';
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumQ3 =>
@@ -4272,7 +4274,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumA3 =>
-      'সীমার বাইরে নতুন মামলা যোগ করা ছাড়া বাকি সব: মামলা দেখা, সম্পাদনা, আপডেট, মুছে ফেলা ও প্রিন্ট, দৈনিক কজ লিস্ট, ক্লায়েন্টের তথ্য ও যোগাযোগের সুবিধা, নোট, মামলার রেফারেন্স এবং ব্যাকআপ ও পুনরুদ্ধার।';
+      'নির্ধারিত সীমার বাইরে নতুন মামলা যোগ করা ছাড়া বাকি সব: মামলা দেখা, সম্পাদনা, আপডেট, মুছে ফেলা ও প্রিন্ট, দৈনিক কজ লিস্ট, ক্লায়েন্টের তথ্য ও যোগাযোগের সুবিধা, নোট, মামলার রেফারেন্স এবং ব্যাকআপ ও পুনরুদ্ধার।';
 
   @override
   String get settingsGuidelines_faqCatFreePlanAndPremiumQ4 =>
@@ -4300,15 +4302,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationA1 =>
-      '৬৪টি জেলার আদালতের নাম আমরা সরকারের কজ লিস্ট ওয়েবসাইট (causelist.judiciary.gov.bd) থেকে সংগ্রহ করে কোনো পরিবর্তন ছাড়াই ব্যবহার করেছি। সেটিংস > আদালত/ধাপ সম্পাদনা থেকে যেকোনো আদালতের নাম আপনার পছন্দমতো বদলাতে পারেন।';
+      '৬৪টি জেলার আদালতের নাম আমরা সরকারের কজ লিস্ট ওয়েবসাইট (causelist.judiciary.gov.bd) থেকে সংগ্রহ করে কোনো পরিবর্তন ছাড়াই ব্যবহার করেছি। সেটিংস > আদালত/পদক্ষেপ সম্পাদনা থেকে যেকোনো আদালতের নাম আপনার পছন্দমতো বদলাতে পারেন।';
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationQ2 =>
-      'নিজের আদালত, মামলার ধরন, ধাপ বা পক্ষ যোগ করতে পারি?';
+      'নিজের আদালত, মামলার ধরন, পদক্ষেপ বা পক্ষ যোগ করতে পারি?';
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationA2 =>
-      'হ্যাঁ। সেটিংস > আদালত/ধাপ সম্পাদনা থেকে \'মামলা যোগ\' ও \'মামলা সম্পাদনা\' ফর্মে ব্যবহৃত আদালত, মামলার ধরন, ধাপ ও পক্ষের এন্ট্রি যোগ, নাম পরিবর্তন ও মুছে ফেলা যায়। কোনো এন্ট্রি মুছে ফেলা আর ফেরানো যায় না।';
+      'হ্যাঁ। সেটিংস > আদালত/পদক্ষেপ সম্পাদনা থেকে \'মামলা যোগ\' ও \'মামলা সম্পাদনা\' ফর্মে ব্যবহৃত আদালত, মামলার ধরন, পদক্ষেপ ও পক্ষের এন্ট্রি যোগ, নাম পরিবর্তন ও মুছে ফেলা যায়। কোনো এন্ট্রি মুছে ফেলা আর ফেরানো যায় না।';
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationQ3 =>
@@ -4316,7 +4318,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationA3 =>
-      'ট্রাইব্যুনালের জন্য সঠিক মামলার ধরন, ধাপ ও পক্ষের অপশন দেখাতে আমরা সেগুলো বিষয় অনুযায়ী সাজিয়েছি:\n\nদেওয়ানি ট্রাইব্যুনাল → জেলা জজ আদালত (দেওয়ানি)\nফৌজদারি ট্রাইব্যুনাল → দায়রা জজ আদালত (ফৌজদারি)\nমহানগর এলাকার ফৌজদারি ট্রাইব্যুনাল → মহানগর দায়রা জজ আদালত (ফৌজদারি)';
+      'ট্রাইব্যুনালের জন্য সঠিক মামলার ধরন, পদক্ষেপ ও পক্ষের অপশন দেখাতে আমরা সেগুলো বিষয় অনুযায়ী সাজিয়েছি:\n\nদেওয়ানি ট্রাইব্যুনাল → জেলা জজ আদালত (দেওয়ানি)\nফৌজদারি ট্রাইব্যুনাল → দায়রা জজ আদালত (ফৌজদারি)\nমহানগর এলাকার ফৌজদারি ট্রাইব্যুনাল → মহানগর দায়রা জজ আদালত (ফৌজদারি)';
 
   @override
   String get settingsGuidelines_faqCatCourtsAndCustomisationQ4 =>
@@ -4336,7 +4338,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportA1 =>
-      'অফলাইন সংস্করণে আপনার লেখা সব তথ্য ডিভাইসেই এনক্রিপ্ট করা অবস্থায় থাকে। আমাদের বা অন্য কারো কাছে কিছু পাঠানো হয় না। প্রথম মামলা থেকেই ডায়েরিটি আপনার অ্যাকাউন্টের সঙ্গে যুক্ত থাকে — ফ্রি প্ল্যানে এটি কোনো মামলার তথ্য কোথাও পাঠায় না। ব্যাকআপ ফাইল এনক্রিপ্ট করা এবং কেবল আপনার দেওয়া পাসফ্রেজ দিয়েই খোলা যায়। অনলাইন সংস্করণ চালু হলে কী তথ্য কোথায় রাখা হবে তা ব্যবহারের আগে আলাদা নির্দেশনায় জানানো হবে।';
+      'অফলাইন সংস্করণে আপনার লেখা সব তথ্য ডিভাইসেই এনক্রিপ্ট করা অবস্থায় থাকে। আমাদের বা অন্য কারো কাছে কিছু পাঠানো হয় না। প্রথম মামলা থেকেই ডায়েরিটি আপনার অ্যাকাউন্টের সঙ্গে যুক্ত থাকে — ফ্রি প্ল্যানে এটি কোনো মামলার তথ্য কোথাও পাঠায় না। ব্যাকআপ ফাইল এনক্রিপ্ট করা এবং কেবল আপনার দেওয়া পাসওয়ার্ড দিয়েই খোলা যায়। অনলাইন সংস্করণ চালু হলে কী তথ্য কোথায় রাখা হবে তা ব্যবহারের আগে আলাদা নির্দেশনায় জানানো হবে।';
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportQ2 =>
@@ -4555,7 +4557,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSupport_warningBody =>
-      'আপনার পাসফ্রেজ, ডায়েরির ডেটাবেস ফাইল বা ব্যাকআপ ফাইল। আমরা কখনো এগুলো চাইব না, আর যে বার্তায় এগুলো চাওয়া হয় তা আমাদের কাছ থেকে আসেনি।';
+      'আপনার পাসওয়ার্ড, ডায়েরির ডেটাবেস ফাইল বা ব্যাকআপ ফাইল। আমরা কখনো এগুলো চাইব না, আর যে বার্তায় এগুলো চাওয়া হয় তা আমাদের কাছ থেকে আসেনি।';
 
   @override
   String get settingsSupport_replyTitle => 'কখন উত্তর পাবেন:';
@@ -4785,7 +4787,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get auth_inviteCodeHelper =>
-      'আপনার ফার্ম মালিকের কাছ থেকে একবার ব্যবহারযোগ্য কোড নিন।';
+      'আপনার ফার্ম স্বত্বাধিকারীর কাছ থেকে একবার ব্যবহারযোগ্য কোড নিন।';
 
   @override
   String get auth_termsAgreePrefix => 'আমি সম্মত আছি';
@@ -4924,7 +4926,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get auth_errorInvalidCode =>
-      'ইনভাইট কোডটি সঠিক নয়। ফার্ম মালিকের সাথে যাচাই করুন।';
+      'ইনভাইট কোডটি সঠিক নয়। ফার্ম স্বত্বাধিকারীর সাথে যাচাই করুন।';
 
   @override
   String get auth_errorTooManyAttempts =>
@@ -4940,7 +4942,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get firm_errorTierRequired =>
-      'চেম্বার তৈরি করতে ফার্ম প্ল্যান প্রয়োজন। প্রো চেম্বারে সহকারী যোগ করা যায় না।';
+      'চেম্বার তৈরি করতে ফার্ম প্ল্যান প্রয়োজন। প্রো চেম্বারে সহযোগী যোগ করা যায় না।';
 
   @override
   String get firm_errorServer =>
@@ -4979,29 +4981,29 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String auth_errorOwnDiary(int cases) {
-    return 'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে ($casesটি মামলা)। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
+    return 'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে ($casesটি মামলা)। সহযোগীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
   }
 
   @override
   String get auth_errorOwnDiaryNoCount =>
-      'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে। সহকারীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
+      'এই অ্যাকাউন্টের নিজস্ব ডায়েরি আছে। সহযোগীর ডায়েরি খালি থাকতে হবে — Join Existing Firm দিয়ে অন্য অ্যাকাউন্টে আবার সাইন আপ করুন, অথবা ডায়েরি এক্সপোর্ট করে এই অ্যাকাউন্টটি মুছে ফেলুন।';
 
   @override
   String auth_errorSeatsFull(int seats) {
-    return 'এই ফার্মের প্ল্যানে $seatsটি সিট আছে এবং সবগুলোই ব্যবহৃত। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
+    return 'এই ফার্মের প্ল্যানে $seatsটি সিট আছে এবং সবগুলোই ব্যবহৃত। স্বত্বাধিকারীকে একজন সহযোগী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
   }
 
   @override
   String get auth_errorSeatsFullNoCount =>
-      'এই ফার্মের প্ল্যানে আর খালি সিট নেই। মালিককে একজন সহকারী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
+      'এই ফার্মের প্ল্যানে আর খালি সিট নেই। স্বত্বাধিকারীকে একজন সহযোগী সরাতে অথবা তাঁর নিজের একটি ডিভাইস সাইন আউট করতে বলুন।';
 
   @override
   String get auth_errorFirmLapsed =>
-      'এই ফার্মের সাবস্ক্রিপশন শেষ হয়েছে, তাই মালিক নবায়ন না করা পর্যন্ত নতুন সহকারী যোগ দিতে পারবেন না।';
+      'এই ফার্মের সাবস্ক্রিপশন শেষ হয়েছে, তাই স্বত্বাধিকারী নবায়ন না করা পর্যন্ত নতুন সহযোগী যোগ দিতে পারবেন না।';
 
   @override
   String get auth_errorAlreadyInFirm =>
-      'আপনি ইতিমধ্যেই একটি ফার্মে আছেন। অন্য ফার্মে যোগ দেওয়ার আগে সেই ফার্মের মালিককে আপনাকে সরাতে বলুন।';
+      'আপনি ইতিমধ্যেই একটি ফার্মে আছেন। অন্য ফার্মে যোগ দেওয়ার আগে সেই ফার্মের স্বত্বাধিকারীকে আপনাকে সরাতে বলুন।';
 
   @override
   String get auth_validationEmailRequired => 'আপনার ইমেইল লিখুন।';
@@ -5043,16 +5045,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_ownerOnly =>
-      'শুধু ফার্মের মালিক ফার্ম পরিচালনা করতে পারেন।';
+      'শুধু ফার্মের স্বত্বাধিকারী ফার্ম পরিচালনা করতে পারেন।';
 
   @override
-  String get manageAssociates_sectionMembers => 'সহকারীরা';
+  String get manageAssociates_sectionMembers => 'সহযোগীরা';
 
   @override
-  String get manageAssociates_addAssociate => 'সহকারী যোগ করুন';
+  String get manageAssociates_addAssociate => 'সহযোগী যোগ করুন';
 
   @override
-  String get manageAssociates_noMembers => 'এখনো কোনো সহকারী নেই।';
+  String get manageAssociates_noMembers => 'এখনো কোনো সহযোগী নেই।';
 
   @override
   String get manageAssociates_statusNotSignedIn => 'সাইন ইন করা নেই';
@@ -5069,7 +5071,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String manageAssociates_capacitySignOutBody(String name) {
-    return '$name-এর ডিভাইসগুলো সাইন আউট হবে এবং অসিঙ্ক করা কাজ মুছে যাবে। তিনি সদস্যই থাকবেন এবং জায়গা হলে আবার সাইন ইন করতে পারবেন।';
+    return '$name-এর ডিভাইসগুলো সাইন আউট হবে এবং সিঙ্ক না করা কাজ মুছে যাবে। তিনি সদস্যই থাকবেন এবং জায়গা হলে আবার সাইন ইন করতে পারবেন।';
   }
 
   @override
@@ -5123,10 +5125,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_joinFirmIntro =>
-      'আপনার ফার্মের মালিকের দেওয়া আমন্ত্রণ কোডটি লিখুন।';
+      'আপনার ফার্মের স্বত্বাধিকারীর দেওয়া ইনভাইটেশন কোডটি লিখুন।';
 
   @override
-  String get manageAssociates_joinFirmCodeLabel => 'আমন্ত্রণ কোড';
+  String get manageAssociates_joinFirmCodeLabel => 'ইনভাইটেশন কোড';
 
   @override
   String get manageAssociates_joinFirmSend => 'যোগ দিন';
@@ -5151,11 +5153,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_nameUpdated => 'ফার্মের নাম হালনাগাদ হয়েছে।';
 
   @override
-  String get manageAssociates_inviteTitle => 'আমন্ত্রণ কোড';
+  String get manageAssociates_inviteTitle => 'ইনভাইটেশন কোড';
 
   @override
   String get manageAssociates_inviteIntro =>
-      'এই কোডটি আপনার সহকারীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।';
+      'এই কোডটি আপনার সহযোগীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।';
 
   @override
   String get manageAssociates_copyCode => 'কোড কপি করুন';
@@ -5171,11 +5173,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String manageAssociates_inviteMessage(String code) {
-    return 'লিগ্যাল কেস ডায়েরিতে আমার ফার্মে যোগ দিন। আমন্ত্রণ কোড: $code';
+    return 'লিগ্যাল কেস ডায়েরিতে আমার ফার্মে যোগ দিন। ইনভাইটেশন কোড: $code';
   }
 
   @override
-  String get manageAssociates_sectionInvites => 'অব্যবহৃত আমন্ত্রণ কোড';
+  String get manageAssociates_sectionInvites => 'অব্যবহৃত ইনভাইটেশন কোড';
 
   @override
   String get manageAssociates_noInvites => 'কোনো অব্যবহৃত আমন্ত্রণ নেই।';
@@ -5226,14 +5228,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_removeAssociateTitle =>
-      'এই সহকারীকে সরিয়ে দেবেন?';
+      'এই সহযোগীকে সরিয়ে দেবেন?';
 
   @override
   String get manageAssociates_removeAssociateBody =>
       'তিনি সঙ্গে সঙ্গে ফার্মের মামলাগুলোতে প্রবেশাধিকার হারাবেন, আর তিনি তৈরি করা রেকর্ড ফার্মেই থাকবে। তাঁর ফোনে ফার্মের একটি কপি থেকে যাবে যতক্ষণ না তিনি পরের বার অ্যাপটি খুলছেন, তখনই তা নিজে থেকে মুছে যাবে। আপনারা যদি তখনও একসঙ্গে থাকেন, সংযোগ থাকা অবস্থায় তাঁকে একবার অ্যাপটি খুলতে বলুন, যাতে মুছে যাওয়াটা আপনি দেখতে পারেন। যে ফোন আর কখনো খোলা হবে না, তা কেবল ফ্যাক্টরি রিসেট বা প্ল্যাটফর্মের রিমোট-ওয়াইপ সুবিধা দিয়েই মোছা যায় — বন্ধ থাকা ডিভাইস কোনো অ্যাপ মুছতে পারে না।';
 
   @override
-  String get manageAssociates_associateRemoved => 'সহকারীকে সরানো হয়েছে।';
+  String get manageAssociates_associateRemoved => 'সহযোগীকে সরানো হয়েছে।';
 
   @override
   String get manageAssociates_sectionFirm => 'ফার্ম ব্যবস্থাপনা';
@@ -5243,15 +5245,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_dissolveIntro =>
-      'বিলুপ্ত করলে ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হিসেবে থেকে যাবে, আর আপনার প্ল্যান চালু থাকবে।';
+      'ফার্ম বিলুপ্ত করলে ফার্ম ও তার ইনভাইটেশন কোড গুলো মুছে যাবে। ফার্ম/চেম্বারের ডায়েরিতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হিসেবে থেকে যাবে, আর আপনার প্ল্যান চালু থাকবে।';
 
   @override
   String manageAssociates_dissolveBlockedMembers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ফার্মে এখনো $count জন সহকারী আছেন। প্রথমে তাঁদের সরান।',
-      one: 'ফার্মে এখনো একজন সহকারী আছেন। প্রথমে তাঁকে সরান।',
+      other: 'ফার্মে এখনো $count জন সহযোগী আছেন। প্রথমে তাঁদের সরান।',
+      one: 'ফার্মে এখনো একজন সহযোগী আছেন। প্রথমে তাঁকে সরান।',
     );
     return '$_temp0';
   }
@@ -5265,7 +5267,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_dissolveConfirmBody =>
-      'ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হয়ে যাবে, আর যাঁরা সেগুলো লিখেছেন সেই সহকারীরা আর সেগুলো দেখতে পাবেন না। আপনার প্ল্যান বাতিল হবে না, আর প্রতিটি রেকর্ডে লেখকের নাম অপরিবর্তিত থাকবে। এটি ফিরিয়ে আনা যাবে না।';
+      'ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হয়ে যাবে, আর যাঁরা সেগুলো লিখেছেন সেই সহযোগীরা আর সেগুলো দেখতে পাবেন না। আপনার প্ল্যান বাতিল হবে না, আর প্রতিটি রেকর্ডে লেখকের নাম অপরিবর্তিত থাকবে। এটি ফিরিয়ে আনা যাবে না।';
 
   @override
   String get manageAssociates_dissolveDone =>
@@ -5282,11 +5284,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_firmOverviewCollaborateTitle =>
-      'সহকারীদের সাথে একসাথে কাজ করুন';
+      'সহযোগীদের সাথে একসাথে কাজ করুন';
 
   @override
   String get manageAssociates_firmOverviewCollaborateBody =>
-      'আপনার ডায়েরি সহকারীদের সাথে শেয়ার করুন, যাতে তারা মামলা যোগ করতে, আদালতের তারিখ হালনাগাদ করতে এবং আপনার পক্ষে ডায়েরি দেখাশোনা করতে পারেন — এতে আপনি আরও জরুরি কাজে মন দিতে পারবেন।';
+      'আপনার ডায়েরি সহযোগীদের সাথে শেয়ার করুন, যাতে তারা মামলা যোগ করতে, আদালতের তারিখ হালনাগাদ করতে এবং আপনার পক্ষে ডায়েরি দেখাশোনা করতে পারেন — এতে আপনি আরও জরুরি কাজে মন দিতে পারবেন।';
 
   @override
   String get manageAssociates_firmOverviewDevicesTitle =>
@@ -5294,7 +5296,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_firmOverviewDevicesBody =>
-      'আপনার কেনা ফার্ম প্ল্যান অনুযায়ী ৫–২০টি ডিভাইসে ডায়েরি ব্যবহার করুন এবং প্ল্যানের সীমা পর্যন্ত সহকারী আমন্ত্রণ করুন।';
+      'আপনার কেনা ফার্ম প্ল্যান অনুযায়ী ৫–২০টি ডিভাইসে ডায়েরি ব্যবহার করুন এবং প্ল্যানের নির্ধারিত সীমা পর্যন্ত সহযোগী আমন্ত্রণ করুন।';
 
   @override
   String get manageAssociates_firmOverviewBackupTitle =>
@@ -5310,7 +5312,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_firmOverviewReadyPrefix =>
-      'ফার্ম তৈরি করে আপনার প্রথম সহকারীকে আমন্ত্রণ জানাতে';
+      'ফার্ম তৈরি করে আপনার প্রথম সহযোগীকে আমন্ত্রণ জানাতে';
 
   @override
   String get manageAssociates_firmOverviewReadySuffix =>
@@ -5318,7 +5320,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get syncNotice_permissionsChanged =>
-      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি প্রয়োগ করা হয়নি।';
+      'আপনার ফার্মের অনুমতি পরিবর্তিত হয়েছে; এই অপেক্ষমাণ কাজটি সিঙ্ক করা যায়নি।';
 
   @override
   String get syncNotice_clockSkew =>
@@ -5329,7 +5331,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get membershipRevoked_body =>
-      'ফার্মের মালিক এই অ্যাকাউন্টটি সরিয়ে দিয়েছেন। এই ডিভাইসে ফার্মের যা কিছু ছিল — মামলা, নোট, রেফারেন্স, সদস্যতালিকা এবং অপেক্ষমাণ কাজ — সব ইতিমধ্যেই মুছে ফেলা হয়েছে, এবং সিঙ্কের অপেক্ষায় থাকা কাজ পাঠানো হয়নি, বাতিল করা হয়েছে। আপনার নিজের রেকর্ড ফার্মের কাছে সুরক্ষিত আছে। আপনি এই অ্যাকাউন্ট দিয়ে আবার ব্যক্তিগত ডায়েরি চালাতে পারেন, অথবা অন্য ফার্মে যোগ দিতে পারেন। ফোনটি বন্ধ থাকা অবস্থায় সরিয়ে ফেলা হয়ে থাকলে, এটিই সেই মোছা — ফোনটি প্রথমবার খোলার সঙ্গে সঙ্গে চলছে।';
+      'ফার্মের স্বত্বাধিকারী এই অ্যাকাউন্টটি সরিয়ে দিয়েছেন। এই ডিভাইসে ফার্মের যা কিছু ছিল — মামলা, নোট, রেফারেন্স, সদস্যতালিকা এবং অপেক্ষমাণ কাজ — সব ইতিমধ্যেই মুছে ফেলা হয়েছে, এবং সিঙ্কের অপেক্ষায় থাকা কাজ পাঠানো হয়নি, বাতিল করা হয়েছে। আপনার নিজের রেকর্ড ফার্মের কাছে সুরক্ষিত আছে। আপনি এই অ্যাকাউন্ট দিয়ে আবার ব্যক্তিগত ডায়েরি চালাতে পারেন, অথবা অন্য ফার্মে যোগ দিতে পারেন। ফোনটি বন্ধ থাকা অবস্থায় সরিয়ে ফেলা হয়ে থাকলে, এটিই সেই মোছা — ফোনটি প্রথমবার খোলার সঙ্গে সঙ্গে চলছে।';
 
   @override
   String get membershipRevoked_eraseFailed =>
@@ -5526,7 +5528,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get deleteRequests_fieldRespondentPhone => 'বিবাদীর ফোন';
 
   @override
-  String get deleteRequests_fieldStep => 'ধাপ';
+  String get deleteRequests_fieldStep => 'পদক্ষেপ';
 
   @override
   String get deleteRequests_fieldResult => 'ফলাফল';
@@ -5639,7 +5641,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get payments_limitReached =>
-      'আজকের জমা দেওয়ার সীমায় পৌঁছে গেছেন। আগামীকাল আবার চেষ্টা করুন।';
+      'আজকের জমা দেওয়ার নির্ধারিত সীমায় পৌঁছে গেছেন। আগামীকাল আবার চেষ্টা করুন।';
 
   @override
   String get payments_duplicateTrx =>
@@ -5692,7 +5694,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get payments_cancelFirmMember =>
-      'এই প্ল্যানটি ফার্মের। শুধু ফার্মের মালিক এটি বাতিল করতে পারেন।';
+      'এই প্ল্যানটি ফার্মের। শুধু ফার্মের স্বত্বাধিকারী এটি বাতিল করতে পারেন।';
 
   @override
   String get payments_notesLabel => 'মন্তব্য';
@@ -5709,12 +5711,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String subscription_bannerEndingAssociate(String days, String date) {
-    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের স্বত্বাধিকারীকে বলুন।';
   }
 
   @override
   String subscription_bannerEndingAssociateLastDay(String date) {
-    return 'আপনার ফার্মের প্ল্যান $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+    return 'আপনার ফার্মের প্ল্যান $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের স্বত্বাধিকারীকে বলুন।';
   }
 
   @override
@@ -5734,7 +5736,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String subscription_reminderBodyAssociate(String days, String date) {
-    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের মালিককে বলুন।';
+    return 'আপনার ফার্মের প্ল্যান $days দিন পর, $date তারিখে শেষ হবে। নবায়নের জন্য ফার্মের স্বত্বাধিকারীকে বলুন।';
   }
 
   @override
@@ -5752,7 +5754,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get subscription_bannerExpiredAssociate =>
-      'আপনার ফার্মের প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। নবায়নের জন্য ফার্মের মালিকের সাথে যোগাযোগ করুন।';
+      'আপনার ফার্মের প্রিমিয়াম সাবস্ক্রিপশন শেষ হয়ে গেছে। নবায়নের জন্য ফার্মের স্বত্বাধিকারীর সাথে যোগাযোগ করুন।';
 
   @override
   String get settingsManageAccount_plan => 'প্ল্যান';

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.774 - The Case Reference detail's law line now wears the same category icon as Settings > Law Names.
+Version: 0.0.776 - Made the new backup and guideline wording sentence case, with password lowercase mid-sentence.
 --------------------------------------
 
 ## Version History Log:
@@ -788,3 +788,5 @@ Version: 0.0.771 - Law names stored under the retired contract category now move
 Version: 0.0.772 - On the Case Reference detail, an official citation's Close button now sits small beside the Official mark on the first line.
 Version: 0.0.773 - The official citation's first-line Close is now a black button with a white cross, spaced from the Official chip.
 Version: 0.0.774 - The Case Reference detail's law line now wears the same category icon as Settings > Law Names.
+Version: 0.0.775 - Refreshed English and Bengali labels across backup, paywall, guidelines, admin and battery screens.
+Version: 0.0.776 - Made the new backup and guideline wording sentence case, with password lowercase mid-sentence.

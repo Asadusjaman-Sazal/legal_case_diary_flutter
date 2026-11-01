@@ -71,7 +71,7 @@ void main() {
     // Nothing is open, so no body copy and no rotated chevron.
     expect(find.textContaining('grouped by court'), findsNothing);
     expect(find.textContaining('AES-256-GCM'), findsNothing);
-    expect(find.textContaining('passphrase is never stored'), findsNothing);
+    expect(find.textContaining('password is never stored'), findsNothing);
     expect(_openChevrons(), findsNothing);
   });
 
@@ -129,11 +129,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('I forgot my passphrase. Can you recover it?'),
+      find.text('I forgot my password. Can you recover it?'),
       findsOneWidget,
     );
     expect(
-      find.textContaining('The passphrase is never stored'),
+      find.textContaining('The password is never stored'),
       findsOneWidget,
     );
     expect(find.text('How do I move my diary to a new phone?'), findsOneWidget);
@@ -142,7 +142,7 @@ void main() {
     await tester.tap(find.text('Offline Backup & Restore'));
     await tester.pumpAndSettle();
     expect(
-      find.text('I forgot my passphrase. Can you recover it?'),
+      find.text('I forgot my password. Can you recover it?'),
       findsNothing,
     );
     expect(find.textContaining('make a fresh backup before restoring'), findsOne);

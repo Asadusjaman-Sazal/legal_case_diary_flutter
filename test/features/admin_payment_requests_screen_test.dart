@@ -726,7 +726,7 @@ void main() {
       locale: const Locale('bn'),
     );
 
-    expect(find.text('পেমেন্ট অনুরোধ'), findsOneWidget);
+    expect(find.text('পেমেন্ট আবেদন'), findsOneWidget);
     expect(find.text('প্রো · ১ বছর · ৳১,২০০'), findsOneWidget);
     expect(find.text('অনুমোদন'), findsOneWidget);
     expect(find.text('বাতিল'), findsOneWidget);

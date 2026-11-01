@@ -218,7 +218,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get disposedCasesScreen_helpBody =>
-      'During updating date, choose an appropriate step from the followings to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter a disposal keyword in the Result field instead. Note: The case will remain available in the All Cases list.';
+      'During updating date, choose Disposed as a Step to move a disposed or inactive lower-court case from the Active Cases list to this list. For Appellate & High Court Division cases, enter Disposed in the Result field instead. Note: The case will remain available in the All Cases list.';
 
   @override
   String get disposedCasesScreen_disposedSteps =>
@@ -1097,7 +1097,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryLock_saveBody =>
-      'Everything on this device — your cases, notes and unsynced changes — is sealed into one encrypted file first. Set a passphrase you will remember; it is not stored anywhere.';
+      'Everything on this device — your cases, notes and unsynced changes — is sealed into one encrypted file first. Set a password you will remember; it is not stored anywhere.';
 
   @override
   String get recoveryLock_saveBodyUnencrypted =>
@@ -1207,26 +1207,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywall_tierEnterprise => 'Enterprise';
 
   @override
-  String get paywall_tierFreeNote => 'For new lawyers who want to try the app.';
+  String get paywall_tierFreeNote => 'For lawyers who want to try the app.';
 
   @override
-  String get paywall_tierStarterNote => 'For lawyers who need cloud backup.';
+  String get paywall_tierStarterNote =>
+      'For lawyers who need secure cloud backup.';
 
   @override
   String get paywall_tierProNote =>
-      'For lawyers who need flexibility and cloud backup.';
+      'For lawyers who need greater flexibility and secure cloud backup.';
 
   @override
   String get paywall_tierFirmNote =>
-      'For firms and lawyers who need real-time collaboration.';
+      'For lawyers and law firms that need real-time collaboration.';
 
   @override
   String get paywall_tierFirmPlusNote =>
-      'For firms and lawyers that need to store large amounts of case data in the cloud.';
+      'For lawyers and law firms that need extensive cloud storage for case data.';
 
   @override
   String get paywall_tierEnterpriseNote =>
-      'For firms that need the largest case capacity and a team of 20.';
+      'For law firms that need maximum case capacity and team access for up to 20 members.';
 
   @override
   String get paywall_includes => 'Includes';
@@ -1262,7 +1263,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paywall_featureDisasterRecovery =>
-      'Disaster recovery: restore your diary from the cloud on a new device';
+      'Disaster recovery: restore your diary from the cloud on a new device even when your old device is lost or broken';
 
   @override
   String get paywall_featureSingleDevice => 'Single-device use';
@@ -1918,8 +1919,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lawCategory_taxFinance => 'Tax & Finance';
 
   @override
-  String get lawCategory_labourEverydayRegulation =>
-      'Labour & Everyday Regulation';
+  String get lawCategory_labourEverydayRegulation => 'Labour, Company etc.';
 
   @override
   String get lawCategory_other => 'Other';
@@ -3027,7 +3027,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupScheduled_skipNoticeBody =>
-      'Backups are encrypted with a passphrase only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.';
+      'Backups are encrypted with a password only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.';
 
   @override
   String get backupScheduled_noticeChannelName => 'Backup reminders';
@@ -3048,15 +3048,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_sectionEncryptionSubtitle =>
-      'Protect Backups With A Passphrase';
+      'Protect Backups With A Password';
 
   @override
   String get settingsBackupRestore_encryptionWhy =>
-      'Encrypting a backup locks the file behind a passphrase you choose, so anyone who gets it cannot read your case data.';
+      'Encrypting a backup locks the file behind a password you choose, so anyone who gets it cannot read your case data.';
 
   @override
   String get settingsBackupRestore_encryptionCost =>
-      'The passphrase is never stored. If you forget it, that backup can never be restored, so keep it somewhere safe.';
+      'The password is never stored. If you forget it, that backup can never be restored, so keep it somewhere safe.';
 
   @override
   String get settingsBackupRestore_encryptionStateOn =>
@@ -3093,7 +3093,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_encryptionNote =>
-      'Backups are saved to your local storage or cloud provider. Turn on Encryption On Backup to lock them behind a passphrase. Restoration will overwrite current data.';
+      'Backups are saved to your local storage or cloud provider. Turn on Encryption On Backup to lock them behind a password. Restoration will overwrite current data.';
 
   @override
   String get settingsBackupRestore_offlineNote =>
@@ -3157,21 +3157,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_passphraseBody =>
-      'The backup is encrypted with this passphrase. It is not stored anywhere, so without it the file can never be restored.';
+      'The backup is encrypted with this password. It is not stored anywhere, so without it the file can never be restored.';
 
   @override
-  String get settingsBackupRestore_passphraseLabel => 'Passphrase';
+  String get settingsBackupRestore_passphraseLabel => 'Password';
 
   @override
-  String get settingsBackupRestore_passphraseConfirmLabel =>
-      'Confirm passphrase';
+  String get settingsBackupRestore_passphraseConfirmLabel => 'Confirm Password';
 
   @override
-  String get settingsBackupRestore_passphraseRequired => 'Enter a passphrase.';
+  String get settingsBackupRestore_passphraseRequired => 'Enter a password.';
 
   @override
   String get settingsBackupRestore_passphraseMismatch =>
-      'The two passphrases do not match.';
+      'The two passwords do not match.';
 
   @override
   String get settingsBackupRestore_encryptAndSave => 'Encrypt and save';
@@ -3182,11 +3181,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_recoveryPassphraseBody =>
-      'Enter the passphrase this backup was created with.';
+      'Enter the password this backup was created with.';
 
   @override
   String get settingsBackupRestore_recoveryPassphraseHint =>
-      'A backup made before encryption was added opens without a passphrase.';
+      'A backup made before encryption was added opens without a password.';
 
   @override
   String get settingsBackupRestore_openBackup => 'Open backup';
@@ -3256,7 +3255,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_errorWrongSecret =>
-      'Wrong passphrase, or the backup file has been changed.';
+      'Wrong password, or the backup file has been changed.';
 
   @override
   String get settingsBackupRestore_errorDamaged =>
@@ -3977,7 +3976,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_backupBody1 =>
-      'Your diary lives on this device. In Settings > Backup & Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a passphrase for the file, and the app never stores or sends it.';
+      'Your diary lives on this device. In Settings > Backup & Restore, choose Backup to Local Storage to write an encrypted copy to a location you choose — a memory card, a folder on the phone, or anywhere the system file picker can reach. You set a password for the file, and the app never stores or sends it.';
 
   @override
   String get settingsGuidelines_backupBody2 =>
@@ -3988,11 +3987,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_securityBody1 =>
-      'Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your passphrase on the device itself with PBKDF2-HMAC-SHA256. Neither the passphrase nor the key is stored or transmitted anywhere.';
+      'Your case diary is stored on this device in encrypted form. Backup files are encrypted with AES-256-GCM, using a key derived from your password on the device itself with PBKDF2-HMAC-SHA256. Neither the password nor the key is stored or transmitted anywhere.';
 
   @override
   String get settingsGuidelines_securityBody2 =>
-      'In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your passphrase somewhere safe — where a backup exists but its passphrase is lost, the file cannot be opened by us or by anyone else.';
+      'In the offline version nothing leaves your phone except the account details you signed up with — nothing about your cases. Keep your password somewhere safe — where a backup exists but its password is lost, the file cannot be opened by us or by anyone else.';
 
   @override
   String get settingsGuidelines_sectionFaqs => 'FAQs';
@@ -4144,7 +4143,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA1 =>
-      'Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a passphrase that encrypts it. Your account is already in place, so no internet connection is required.';
+      'Go to Settings > Backup & Restore and tap Backup to Local Storage. You choose where the file is saved and set a password that encrypts it. Your account is already in place, so no internet connection is required.';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ2 =>
@@ -4156,11 +4155,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ3 =>
-      'I forgot my passphrase. Can you recover it?';
+      'I forgot my password. Can you recover it?';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA3 =>
-      'No. The passphrase is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a passphrase you can keep safely.';
+      'No. The password is never stored, on your device or anywhere else, so a backup cannot be opened without it. If it is lost, make a fresh backup with a password you can keep safely.';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ4 =>
@@ -4176,7 +4175,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreA5 =>
-      'Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings > Backup & Restore, and use Restore from backup with the same passphrase.';
+      'Make a backup on your current phone and save the file somewhere the new phone can reach — a memory card, Google Drive, or an email to yourself. Install the app on the new phone, open Settings > Backup & Restore, and use Restore from backup with the same password.';
 
   @override
   String get settingsGuidelines_faqCatBackupAndRestoreQ6 =>
@@ -4315,7 +4314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportA1 =>
-      'In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the passphrase you set. When the online version launches, what it stores and where will be described in its own topic before you use it.';
+      'In the offline version, everything you enter is stored on your device in encrypted form. Nothing is sent to us or to anyone else. Your account is what makes the diary yours from the first case — on the free plan it carries no case data anywhere. Backup files are encrypted and can only be opened with the password you set. When the online version launches, what it stores and where will be described in its own topic before you use it.';
 
   @override
   String get settingsGuidelines_faqCatDataAndSupportQ2 =>
@@ -4534,7 +4533,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSupport_warningBody =>
-      'Your passphrase, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.';
+      'Your password, your diary database file, or a backup file. We will never ask for them, and a message that asks for them is not from us.';
 
   @override
   String get settingsSupport_replyTitle => 'When you will hear back:';

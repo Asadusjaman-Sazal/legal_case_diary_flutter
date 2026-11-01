@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/constants/pre_seeded_data.dart';
 import '../../../../core/l10n/app_translations.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/providers/repository_providers.dart';
@@ -22,6 +23,7 @@ import '../../data/on_behalfs_repository.dart';
 import '../../data/reference_in_use_checker.dart';
 import '../../data/steps_repository.dart';
 import '../settings_sub_page_modal.dart';
+import 'case_type_name_dialog.dart';
 import 'edit_name_dialog.dart';
 import 'next_order_index.dart';
 
@@ -66,7 +68,7 @@ class ItemListScreen extends ConsumerWidget {
           title: title,
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
-              onPressed: () => _add(context, ref, repo),
+              onPressed: () => _addCaseType(context, repo),
               // The Add Case button, exactly: black fill, white `+` at 28 px
               // (user request, 0.0.737).
               backgroundColor: Colors.black,
@@ -88,7 +90,7 @@ class ItemListScreen extends ConsumerWidget {
           title: title,
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
-              onPressed: () => _add(context, ref, repo),
+              onPressed: () => _add(context, repo),
               // The Add Case button, exactly (user request, 0.0.737).
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
@@ -108,7 +110,7 @@ class ItemListScreen extends ConsumerWidget {
           title: title,
           floatingActionButton: repoAsync.whenOrNull(
             data: (repo) => FloatingActionButton(
-              onPressed: () => _add(context, ref, repo),
+              onPressed: () => _add(context, repo),
               // The Add Case button, exactly (user request, 0.0.737).
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
@@ -142,7 +144,7 @@ class ItemListScreen extends ConsumerWidget {
       id;
 
   // Separate typed add/edit callbacks keep the repository generics concrete.
-  Future<void> _add(BuildContext context, WidgetRef ref, dynamic repo) async {
+  Future<void> _add(BuildContext context, dynamic repo) async {
     final l = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
@@ -154,18 +156,7 @@ class ItemListScreen extends ConsumerWidget {
     if (name == null || !context.mounted) return;
     // The new row takes the slot after the rows already in this list, so it
     // lands at the end instead of tying with the first one.
-    if (repo is CaseTypesRepository) {
-      final existing = await repo.listByCategory(categoryId);
-      await repo.insert(
-        CaseTypesCompanion(
-          courtCategoryId: Value(categoryId),
-          name: Value(name),
-          orderIndex: Value(
-            nextOrderIndex(existing.map((item) => item.orderIndex)),
-          ),
-        ),
-      );
-    } else if (repo is StepsRepository) {
+    if (repo is StepsRepository) {
       final existing = await repo.listByCategory(categoryId);
       await repo.insert(
         StepsCompanion(
@@ -189,6 +180,35 @@ class ItemListScreen extends ConsumerWidget {
       );
     }
   }
+
+  /// Case types add through their own window so the English and Bengali names
+  /// and, in the magistrate categories, the district can be set together.
+  Future<void> _addCaseType(
+    BuildContext context,
+    CaseTypesRepository repo,
+  ) async {
+    final l = AppLocalizations.of(context);
+    final draft = await showDialog<CaseTypeDraft>(
+      context: context,
+      builder: (_) => CaseTypeNameDialog(
+        title: l.settingsItemList_addTitle,
+        categoryId: categoryId,
+      ),
+    );
+    if (draft == null || !context.mounted) return;
+    final existing = await repo.listByCategory(categoryId);
+    await repo.insert(
+      CaseTypesCompanion(
+        courtCategoryId: Value(categoryId),
+        name: Value(draft.name),
+        nameBn: Value(draft.nameBn),
+        district: Value(draft.district),
+        orderIndex: Value(
+          nextOrderIndex(existing.map((item) => item.orderIndex)),
+        ),
+      ),
+    );
+  }
 }
 
 class _CaseTypeListView extends ConsumerWidget {
@@ -203,15 +223,10 @@ class _CaseTypeListView extends ConsumerWidget {
         builder: (context, snap) => _ListBody<CaseType>(
           items: snap.data ?? const <CaseType>[],
           getName: (c) => c.name,
+          getDisplayName: _displayName,
+          getSubtitle: _scopeLabel,
           getId: (c) => c.id,
-          onEdit: (c) => _edit(
-            context,
-            c.name,
-            (name) => repo.update(
-              CaseTypesCompanion(id: Value(c.id), name: Value(name)),
-              base: c,
-            ),
-          ),
+          onEdit: (c) => _editCaseType(context, c),
           onDelete: (c) => _delete(context, c, repo.delete),
           // Built-in seed options cannot be deleted; only what the user added.
           isDeletable: (c) => c.isCustom,
@@ -226,6 +241,62 @@ class _CaseTypeListView extends ConsumerWidget {
           ),
         ),
       );
+
+  /// Bengali when the row carries a Bengali name, otherwise the seeded
+  /// translation or the stored English name.
+  String _displayName(BuildContext context, CaseType item) {
+    final isBengali = Localizations.localeOf(context).languageCode == 'bn';
+    final bengali = item.nameBn?.trim() ?? '';
+    if (isBengali && bengali.isNotEmpty) return bengali;
+    return context.l10n.seedLabel(item.id, fallbackEn: item.name);
+  }
+
+  /// The district (and its derived division) a scoped type belongs to; null
+  /// for a type shown in every district.
+  String? _scopeLabel(BuildContext context, CaseType item) {
+    final district = item.district;
+    if (district == null) return null;
+    final districtLabel = context.l10n.seedLabel(
+      district,
+      fallbackEn: districtLabelEn[district] ?? district,
+    );
+    final division = _divisionForDistrict(district);
+    if (division == null) return districtLabel;
+    final divisionLabel = context.l10n.seedLabel(
+      division,
+      fallbackEn: divisionLabelEn[division] ?? division,
+    );
+    return '$districtLabel · $divisionLabel';
+  }
+
+  Future<void> _editCaseType(BuildContext context, CaseType caseType) async {
+    final l = AppLocalizations.of(context);
+    final draft = await showDialog<CaseTypeDraft>(
+      context: context,
+      builder: (_) => CaseTypeNameDialog(
+        title: l.settingsItemList_editTitle,
+        categoryId: caseType.courtCategoryId,
+        initial: caseType,
+      ),
+    );
+    if (draft == null || !context.mounted) return;
+    await repo.update(
+      CaseTypesCompanion(
+        id: Value(caseType.id),
+        name: Value(draft.name),
+        nameBn: Value(draft.nameBn),
+        district: Value(draft.district),
+      ),
+      base: caseType,
+    );
+  }
+}
+
+String? _divisionForDistrict(String district) {
+  for (final entry in districtIdsByDivision.entries) {
+    if (entry.value.contains(district)) return entry.key;
+  }
+  return null;
 }
 
 class _StepListView extends ConsumerWidget {
@@ -316,6 +387,13 @@ class _ListBody<T> extends StatelessWidget {
   final String Function(T) getId;
   final void Function(T) onEdit;
 
+  /// Resolves the visible row title; defaults to the seeded translation of
+  /// [getId] with [getName] as the fallback.
+  final String Function(BuildContext, T)? getDisplayName;
+
+  /// A supporting line under the title, e.g. a case type's district scope.
+  final String? Function(BuildContext, T)? getSubtitle;
+
   /// Null when this list offers no deletion at all, in which case the Delete
   /// action is not rendered.
   final void Function(T)? onDelete;
@@ -332,6 +410,8 @@ class _ListBody<T> extends StatelessWidget {
     required this.getName,
     required this.getId,
     required this.onEdit,
+    this.getDisplayName,
+    this.getSubtitle,
     this.onDelete,
     this.isDeletable,
     required this.onReorder,
@@ -351,6 +431,10 @@ class _ListBody<T> extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         final canDelete = onDelete != null && (isDeletable?.call(item) ?? true);
+        final title =
+            getDisplayName?.call(context, item) ??
+            context.l10n.seedLabel(getId(item), fallbackEn: getName(item));
+        final subtitle = getSubtitle?.call(context, item);
         return Card(
           key: ValueKey(getId(item)),
           elevation: 0,
@@ -367,10 +451,15 @@ class _ListBody<T> extends StatelessWidget {
             // Seeded rows are stored in English; resolve them from the seed
             // data so the list follows the active language, like the court
             // list does. User-added rows fall back to their stored name.
-            title: Text(
-              context.l10n.seedLabel(getId(item), fallbackEn: getName(item)),
-              style: AppTypography.bodyLg,
-            ),
+            title: Text(title, style: AppTypography.bodyLg),
+            subtitle: subtitle == null
+                ? null
+                : Text(
+                    subtitle,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.tertiary,
+                    ),
+                  ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

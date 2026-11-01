@@ -11,7 +11,7 @@
 ///
 /// Why counting by eye misleads: the Supabase Table Editor shows 100 rows per
 /// page, and a single PostgREST response stops at the project's `max_rows` (1000
-/// by default). The two largest tables here — 1,016 courts and 160 case types —
+/// by default). The two largest tables here — 1,016 courts and 167 case types —
 /// are therefore the two that look truncated, while the small ones look complete.
 /// The numbers this tool prints are whole-table counts.
 library;
@@ -54,8 +54,9 @@ List<SeededTable> expectedSeedCounts() => <SeededTable>[
       ),
       SeededTable(
         'case_types',
-        seedCategories.fold<int>(0, (t, c) => t + c.allCaseTypes.length),
-        'seedCategories[].allCaseTypes',
+        seedCategories.fold<int>(0, (t, c) => t + c.allCaseTypes.length) +
+            seedDistrictCaseTypes.length,
+        'seedCategories[].allCaseTypes + seedDistrictCaseTypes',
       ),
       SeededTable(
         'on_behalfs',

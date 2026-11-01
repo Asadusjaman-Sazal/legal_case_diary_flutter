@@ -128,7 +128,7 @@ void main() {
           'case_categories': 9,
           'courts': 1016,
           'steps': 209,
-          'case_types': 160,
+          'case_types': 167,
           'on_behalfs': 40,
           'laws': 57,
         },

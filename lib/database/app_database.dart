@@ -64,7 +64,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Current schema version.
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   /// Migration strategy for the local Drift database.
   ///
@@ -88,7 +88,8 @@ class AppDatabase extends _$AppDatabase {
   /// the law category that list groups its names under, then v17→v18 by adding
   /// the server-wide references cache and its per-device pin table, then
   /// v18→v19 by adding the case note and tags to both reference libraries, then
-  /// v19→v20 by adding the parties to the case to both.
+  /// v19→v20 by adding the parties to the case to both, then v20→v21 by adding
+  /// the district scope and Bengali name to case types.
   /// [beforeOpen] enables foreign-key enforcement.
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -216,6 +217,13 @@ class AppDatabase extends _$AppDatabase {
         // nullable, so an older citation carries none until it is edited.
         await m.addColumn(caseReferences, caseReferences.parties);
         await m.addColumn(sharedCaseReferences, sharedCaseReferences.parties);
+      }
+      if (from < 21) {
+        // Case types can be limited to one district and carry a Bengali name.
+        // Additive and nullable: every existing row stays a global type and
+        // falls back to the seeded translation or its stored name.
+        await m.addColumn(caseTypes, caseTypes.nameBn);
+        await m.addColumn(caseTypes, caseTypes.district);
       }
     },
     beforeOpen: (details) async {

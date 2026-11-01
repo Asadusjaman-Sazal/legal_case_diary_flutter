@@ -6043,6 +6043,30 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get settingsItemList_nameLabel;
 
+  /// No description provided for @settingsItemList_englishNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English Name'**
+  String get settingsItemList_englishNameLabel;
+
+  /// No description provided for @settingsItemList_bengaliNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bengali Name'**
+  String get settingsItemList_bengaliNameLabel;
+
+  /// No description provided for @settingsItemList_allDivisions.
+  ///
+  /// In en, this message translates to:
+  /// **'All Divisions'**
+  String get settingsItemList_allDivisions;
+
+  /// No description provided for @settingsItemList_allDistricts.
+  ///
+  /// In en, this message translates to:
+  /// **'All Districts'**
+  String get settingsItemList_allDistricts;
+
   /// No description provided for @settingsItemList_empty.
   ///
   /// In en, this message translates to:

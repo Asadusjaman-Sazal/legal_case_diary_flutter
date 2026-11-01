@@ -157,6 +157,8 @@ class LocalCaseTypesRepository
     if (companion.courtCategoryId.present) fields.add('court_category_id');
     if (companion.caseCategoryId.present) fields.add('case_category_id');
     if (companion.name.present) fields.add('name');
+    if (companion.nameBn.present) fields.add('name_bn');
+    if (companion.district.present) fields.add('district');
     if (companion.orderIndex.present) fields.add('order_index');
     return fields;
   }

@@ -80,7 +80,10 @@ void main() {
         );
 
         final caseTypeColumns = await _tableColumns(db, 'case_types');
-        expect(caseTypeColumns, contains('case_category_id'));
+        expect(
+          caseTypeColumns,
+          containsAll(<String>['case_category_id', 'name_bn', 'district']),
+        );
 
         final courtColumns = await _tableColumns(db, 'courts');
         expect(courtColumns, contains('order_index'));

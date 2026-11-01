@@ -468,6 +468,11 @@ void main() {
       // the district it sits in.
       expect(courts, contains('Court Category'));
       expect(courts, contains('District'));
+      // The Case Types sheet names the district a scoped type belongs to and
+      // carries its Bengali label for reference.
+      final caseTypes = parts['xl/worksheets/sheet8.xml']!;
+      expect(caseTypes, contains('District'));
+      expect(caseTypes, contains('Bengali Name'));
       // Every reference sheet leads with one clearly-labelled sample row.
       expect(courts, contains('Example — $excelSampleRowLabel'));
     });
@@ -476,6 +481,12 @@ void main() {
       await db.customStatement(
         "INSERT INTO steps (id, court_category_id, step_name, order_index, "
         "updated_at) SELECT 'step-test', id, 'Hearing', 1, 1 "
+        'FROM court_categories LIMIT 1',
+      );
+      await db.customStatement(
+        "INSERT INTO case_types (id, court_category_id, name, name_bn, "
+        "district, order_index, updated_at) SELECT 'ct-test', id, "
+        "'Narayanganj', 'নারায়ণগঞ্জ', 'narayanganj', 1, 1 "
         'FROM court_categories LIMIT 1',
       );
 
@@ -491,14 +502,17 @@ void main() {
       // The court, its category, the step and the role are the labels the app
       // shows in the active language, not the stored English names.
       expect(parts['xl/worksheets/sheet6.xml'], contains('COURT:$courtId'));
-      expect(
-        parts['xl/worksheets/sheet6.xml'],
-        contains('CAT:test_category'),
-      );
+      expect(parts['xl/worksheets/sheet6.xml'], contains('CAT:test_category'));
       expect(parts['xl/worksheets/sheet9.xml'], contains('STEP:step-test'));
       expect(parts['xl/worksheets/sheet10.xml'], contains('ROLE:$onBehalfId'));
+      // The Case Types sheet carries the district and the Bengali label too.
+      expect(parts['xl/worksheets/sheet8.xml'], contains('Narayanganj'));
+      expect(parts['xl/worksheets/sheet8.xml'], contains('নারায়ণগঞ্জ'));
+      expect(parts['xl/worksheets/sheet8.xml'], contains('narayanganj'));
       // The example case quotes the same localized step the Steps sheet shows.
       expect(parts['xl/worksheets/sheet2.xml'], contains('STEP:step-test'));
+      // Its case type is the one the example court's district can use.
+      expect(parts['xl/worksheets/sheet2.xml'], contains('Narayanganj'));
     });
 
     test(

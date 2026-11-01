@@ -19,6 +19,7 @@ import 'package:legal_case_diary/core/constants/pre_seeded_data.dart'
         lawCategoryCivilProcedureEvidence,
         lawCategoryContractLandPropertyBusiness,
         seedCategories,
+        seedDistrictCaseTypes,
         seedLawCategories,
         seedLaws,
         allSeedCourts;
@@ -41,7 +42,7 @@ void main() {
 
     test('applies seed_v1 and inserts all reference data', () async {
       final applied = await runner.runMigrations();
-      expect(applied, 4);
+      expect(applied, 5);
 
       final categories = await db.select(db.courtCategories).get();
       final caseCategories = await db.select(db.caseCategories).get();
@@ -70,8 +71,40 @@ void main() {
       expect(
         caseTypes,
         hasLength(
-          seedCategories.fold<int>(0, (sum, c) => sum + c.allCaseTypes.length),
+          seedCategories.fold<int>(0, (sum, c) => sum + c.allCaseTypes.length) +
+              seedDistrictCaseTypes.length,
         ),
+      );
+      final narayanganj = caseTypes
+          .where((type) => type.district == 'narayanganj')
+          .toList();
+      expect(
+        narayanganj.map((type) => type.id).toSet(),
+        seedDistrictCaseTypes.map((type) => type.id).toSet(),
+      );
+      expect(narayanganj.every((type) => type.nameBn != null), isTrue);
+      expect(
+        narayanganj.every(
+          (type) =>
+              type.courtCategoryId ==
+                  seedDistrictCaseTypes.first.courtCategoryId &&
+              type.orderIndex >= 4 &&
+              type.orderIndex <= 10,
+        ),
+        isTrue,
+      );
+      expect(
+        caseTypes.where(
+          (type) =>
+              type.district != null &&
+              type.courtCategoryId !=
+                  seedDistrictCaseTypes.first.courtCategoryId,
+        ),
+        isEmpty,
+      );
+      expect(
+        narayanganj.every((type) => !type.isCustom && !type.isUserModified),
+        isTrue,
       );
       expect(
         onBehalfs,
@@ -169,10 +202,10 @@ void main() {
 
       // Migration ledger must record all four seeds.
       final migrations = await db.select(db.seedMigrations).get();
-      expect(migrations, hasLength(4));
+      expect(migrations, hasLength(5));
       expect(
         migrations.map((m) => m.migrationId),
-        containsAll(['seed_v1', 'seed_v2', 'seed_v3', 'seed_v4']),
+        containsAll(['seed_v1', 'seed_v2', 'seed_v3', 'seed_v4', 'seed_v5']),
       );
       expect(migrations.every((m) => m.checksum.isNotEmpty), true);
       expect(migrations.every((m) => m.appliedAt > 0), true);
@@ -182,7 +215,7 @@ void main() {
       'does not re-apply a migration already recorded in the ledger',
       () async {
         final first = await runner.runMigrations();
-        expect(first, 4);
+        expect(first, 5);
 
         final second = await runner.runMigrations();
         expect(second, 0);

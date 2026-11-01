@@ -44,6 +44,7 @@ class SeedMigrationRunner {
     _NamedMigration('seed_v2', _checksumV2, _applySeedV2),
     _NamedMigration('seed_v3', _checksumV3, _applySeedV3),
     _NamedMigration('seed_v4', _checksumV4, _applySeedV4),
+    _NamedMigration('seed_v5', _checksumV5, _applySeedV5),
   ];
 
   /// Checksum for seed_v1 – base64-encoded SHA-256 of the version string.
@@ -100,6 +101,17 @@ class SeedMigrationRunner {
       (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
     );
     return base64Encode(utf8.encode('seed_v4:$hash'));
+  }
+
+  /// Checksum for seed_v5, which adds the district-scoped case types.
+  static String get _checksumV5 {
+    const payload = 'seed_v5_district_case_types';
+    final bytes = utf8.encode(payload);
+    final hash = bytes.fold<int>(
+      0,
+      (prev, b) => ((prev * 31) ^ b) & 0x7FFFFFFF,
+    );
+    return base64Encode(utf8.encode('seed_v5:$hash'));
   }
 
   // ---------------------------------------------------------------------------
@@ -175,21 +187,56 @@ class SeedMigrationRunner {
       ],
     );
 
-    final rows =
-        await (db.select(db.laws)..where(
-              (law) =>
-                  law.isCustom.equals(false) &
-                  law.category.equals(lawCategoryCivilProcedureEvidence),
-            ))
-            .get();
+    final rows = await (db.select(db.laws)..where(
+          (law) =>
+              law.isCustom.equals(false) &
+              law.category.equals(lawCategoryCivilProcedureEvidence),
+        ))
+        .get();
     final slots = rows.map((law) => law.orderIndex).toList()..sort();
     rows.sort((a, b) => compareCivilLawNames(a.name, b.name));
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].orderIndex == slots[i]) continue;
-      await db.customStatement('UPDATE laws SET order_index = ? WHERE id = ?', [
-        slots[i],
-        rows[i].id,
-      ]);
+      await db.customStatement(
+        'UPDATE laws SET order_index = ? WHERE id = ?',
+        [slots[i], rows[i].id],
+      );
+    }
+  }
+
+  /// Adds the built-in case types that belong to one district.
+  ///
+  /// The seven Narayanganj CJM types are built-ins like the category defaults:
+  /// an existing row is refreshed, and a row the user edited is preserved by the
+  /// `is_user_modified` guard. The district and Bengali name columns exist from
+  /// schema v21; the seed runner runs after the database upgrade.
+  static Future<void> _applySeedV5(AppDatabase db) async {
+    for (final type in seedDistrictCaseTypes) {
+      await db.customStatement(
+        '''INSERT INTO case_types
+           (id, court_category_id, case_category_id, name, name_bn, district,
+            order_index, is_custom, is_user_modified, user_id, firm_id,
+            updated_at, version, synced_at, is_deleted, last_modified_by)
+           VALUES (?, ?, NULL, ?, ?, ?, ?, 0, 0, NULL, NULL, ?, NULL, NULL, 0, NULL)
+           ON CONFLICT(id) DO UPDATE SET
+             court_category_id = excluded.court_category_id,
+             case_category_id = excluded.case_category_id,
+             name = excluded.name,
+             name_bn = excluded.name_bn,
+             district = excluded.district,
+             order_index = excluded.order_index,
+             updated_at = excluded.updated_at
+           WHERE case_types.is_user_modified = 0''',
+        [
+          type.id,
+          type.courtCategoryId,
+          type.name,
+          type.nameBn,
+          type.district,
+          type.orderIndex,
+          _nowMs,
+        ],
+      );
     }
   }
 

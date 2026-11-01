@@ -665,10 +665,20 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       .where(
         (item) =>
             item.courtCategoryId == _courtCategoryId &&
+            (item.district == null || item.district == _district) &&
             (!_isHigherCourt ||
                 item.caseCategoryId == _selectedCaseCategory?.id),
       )
       .toList(growable: false);
+
+  /// The type's Bengali name when one is stored, otherwise the seeded label or
+  /// the stored English name.
+  String _caseTypeLabel(BuildContext context, CaseType item) {
+    final isBengali = Localizations.localeOf(context).languageCode == 'bn';
+    final bengali = item.nameBn?.trim() ?? '';
+    if (isBengali && bengali.isNotEmpty) return bengali;
+    return _seedLabel(context, item.id, item.name);
+  }
 
   List<CaseCategory> get _caseCategoryOptions => _lookupData!.caseCategories
       .where((item) => item.courtCategoryId == _courtCategoryId)
@@ -938,8 +948,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                         modalTitle: l.allCasesScreen_caseType,
                         items: _caseTypeOptions,
                         value: _selectedCaseType,
-                        itemLabel: (item) =>
-                            _seedLabel(context, item.id, item.name),
+                        itemLabel: (item) => _caseTypeLabel(context, item),
                         enabled: editable && _courtCategoryId != null,
                         emptyFillColor: AppColors.surface,
                         selectedFillColor: AppColors.surfaceVariant,
@@ -1844,9 +1853,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(
-              context,
-            ).addEditCaseSheet_saveFailed('$error'),
+            AppLocalizations.of(context).addEditCaseSheet_saveFailed('$error'),
           ),
         ),
       );

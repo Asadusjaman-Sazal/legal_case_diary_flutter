@@ -14,6 +14,7 @@ import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/settings/data/case_types_repository.dart';
+import 'package:legal_case_diary/features/settings/data/courts_repository.dart';
 import 'package:legal_case_diary/features/settings/data/on_behalfs_repository.dart';
 import 'package:legal_case_diary/features/settings/data/reference_in_use_checker.dart';
 import 'package:legal_case_diary/features/settings/data/steps_repository.dart';
@@ -52,6 +53,36 @@ const _customOnBehalf = OnBehalf(
   name: 'My Own Role',
   orderIndex: 99,
   isCustom: true,
+  isUserModified: false,
+  updatedAt: 0,
+  isDeleted: false,
+);
+
+/// A Narayanganj CJM type: its stored Bengali name is shown under বাংলা, with
+/// the district and the division derived from it.
+const _narayanganjType = CaseType(
+  id: 'casetype-chief_judicial_magistrate-narayanganj',
+  courtCategoryId: chiefJudicialMagistrateId,
+  name: 'Narayanganj',
+  nameBn: 'নারায়ণগঞ্জ',
+  district: 'narayanganj',
+  orderIndex: 4,
+  isCustom: false,
+  isUserModified: false,
+  updatedAt: 0,
+  isDeleted: false,
+);
+
+/// A Narayanganj CJM court, so the district can offer that court's scope.
+const _narayanganjCjmCourt = Court(
+  id: 'cjm-narayanganj',
+  courtName: 'CJM Court, Narayanganj',
+  higherLowerCourts: lowerCourtsOption,
+  division: divisionDhakaId,
+  district: 'narayanganj',
+  courtCategoryId: chiefJudicialMagistrateId,
+  orderIndex: 0,
+  isCustom: false,
   isUserModified: false,
   updatedAt: 0,
   isDeleted: false,
@@ -183,6 +214,154 @@ void main() {
     expect(find.text(_customOnBehalf.name), findsOneWidget);
     // Only the user-added row offers Delete.
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+  });
+
+  testWidgets('a stored Bengali case type name and its district tag show', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: chiefJudicialMagistrateId,
+      ),
+      [
+        caseTypesRepositoryProvider.overrideWith(
+          (ref) async => _FakeCaseTypesRepository([_narayanganjType]),
+        ),
+      ],
+    );
+
+    expect(find.text('নারায়ণগঞ্জ'), findsOneWidget);
+    expect(
+      find.text(
+        '${districtLabelBn['narayanganj']} · '
+        '${divisionLabelBn[divisionDhakaId]}',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a CJM case type saves both names and the district', (
+    tester,
+  ) async {
+    final repo = _FakeCaseTypesRepository(const <CaseType>[]);
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: chiefJudicialMagistrateId,
+      ),
+      [
+        caseTypesRepositoryProvider.overrideWith((ref) async => repo),
+        courtsRepositoryProvider.overrideWith(
+          (ref) async => _FakeCourtsRepository([_narayanganjCjmCourt]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('case-type-english-name')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('case-type-bengali-name')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('case-type-division')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-type-district')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('case-type-english-name')),
+      'Custom Type',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('case-type-bengali-name')),
+      'কাস্টম টাইপ',
+    );
+    await tester.tap(find.byKey(const ValueKey('case-type-district')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(districtLabelBn['narayanganj']!).last);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final inserted = repo.inserted!;
+    expect(inserted.courtCategoryId.value, chiefJudicialMagistrateId);
+    expect(inserted.name.value, 'Custom Type');
+    expect(inserted.nameBn.value, 'কাস্টম টাইপ');
+    expect(inserted.district.value, 'narayanganj');
+  });
+
+  testWidgets('a case type with no district stays global', (tester) async {
+    final repo = _FakeCaseTypesRepository(const <CaseType>[]);
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: chiefJudicialMagistrateId,
+      ),
+      [
+        caseTypesRepositoryProvider.overrideWith((ref) async => repo),
+        courtsRepositoryProvider.overrideWith(
+          (ref) async => _FakeCourtsRepository([_narayanganjCjmCourt]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('case-type-english-name')),
+      'Global Type',
+    );
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(repo.inserted!.name.value, 'Global Type');
+    expect(repo.inserted!.nameBn.value, isNull);
+    expect(repo.inserted!.district.value, isNull);
+  });
+
+  testWidgets('a non-magistrate case type window keeps the name fields only', (
+    tester,
+  ) async {
+    final repo = _FakeCaseTypesRepository(const <CaseType>[]);
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: districtCourtsCivilId,
+      ),
+      [caseTypesRepositoryProvider.overrideWith((ref) async => repo)],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('case-type-english-name')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('case-type-bengali-name')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('case-type-division')), findsNothing);
+    expect(find.byKey(const ValueKey('case-type-district')), findsNothing);
   });
 
   /// Pumps one list screen and checks its add button against the All Cases
@@ -352,11 +531,33 @@ void main() {
 class _FakeCaseTypesRepository implements CaseTypesRepository {
   _FakeCaseTypesRepository(this._items);
   final List<CaseType> _items;
+  CaseTypesCompanion? inserted;
 
   @override
   Stream<List<CaseType>> watchByCategory(String categoryId) => Stream.value(
     _items.where((item) => item.courtCategoryId == categoryId).toList(),
   );
+
+  @override
+  Future<List<CaseType>> listByCategory(String categoryId) async =>
+      _items.where((item) => item.courtCategoryId == categoryId).toList();
+
+  @override
+  Future<String> insert(CaseTypesCompanion companion) async {
+    inserted = companion;
+    return 'new-case-type';
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeCourtsRepository implements CourtsRepository {
+  _FakeCourtsRepository(this._items);
+  final List<Court> _items;
+
+  @override
+  Future<List<Court>> listAll({int? limit, int? offset}) async => _items;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

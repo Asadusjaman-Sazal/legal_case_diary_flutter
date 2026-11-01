@@ -311,6 +311,22 @@ void main() {
       }
     });
 
+    test(
+      'label maps resolve the district-scoped case types by id and name',
+      () {
+        for (final caseType in seedDistrictCaseTypes) {
+          expect(caseTypeLabelEn[caseType.id], caseType.name);
+          expect(caseTypeLabelBn[caseType.id], caseType.nameBn);
+          expect(
+            caseTypeLabelBnByCourtCategory[caseType.courtCategoryId]?[caseType
+                .name],
+            caseType.nameBn,
+          );
+          expect(caseTypeLabelBnByEnName[caseType.name], caseType.nameBn);
+        }
+      },
+    );
+
     test('label maps resolve all case category IDs', () {
       for (final cat in seedCategories) {
         for (final caseCategory in cat.caseCategories) {

@@ -19164,6 +19164,109 @@ final List<SeedCourt> allSeedCourts = [
 ];
 
 // ---------------------------------------------------------------------------
+// District-scoped case types
+// ---------------------------------------------------------------------------
+
+/// A built-in case type that belongs to one district rather than a whole court
+/// category.
+///
+/// The district is the stable id `courts.district` stores; the division is
+/// derived from it and is never stored on the type. A row here is still a
+/// built-in (`is_custom = false`) and cannot be deleted.
+class SeedDistrictCaseType {
+  const SeedDistrictCaseType({
+    required this.id,
+    required this.name,
+    required this.nameBn,
+    required this.courtCategoryId,
+    required this.district,
+    required this.orderIndex,
+  });
+
+  /// Stable deterministic ID, shared by the phone and the server.
+  final String id;
+
+  /// English display name, stored as `cases.case_type`.
+  final String name;
+
+  /// Bengali display name shown when the app is in বাংলা.
+  final String nameBn;
+
+  /// The court category the type appears under.
+  final String courtCategoryId;
+
+  /// Stable district id; the type is shown only for this district.
+  final String district;
+
+  /// Display order within the court category, after the category's defaults.
+  final int orderIndex;
+}
+
+/// The Narayanganj CJM case types (user request).
+///
+/// They extend the four default CJM types (CR-, GR-, Petition-, NFIR-) and are
+/// shown only when the selected CJM court sits in Narayanganj. The trailing
+/// hyphens in the user's list are punctuation, not part of the names.
+final List<SeedDistrictCaseType> seedDistrictCaseTypes = <SeedDistrictCaseType>[
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'narayanganj'),
+    name: 'Narayanganj',
+    nameBn: 'নারায়ণগঞ্জ',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 4,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'fatulla'),
+    name: 'Fatulla',
+    nameBn: 'ফতুল্লা',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 5,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'rupganj'),
+    name: 'Rupganj',
+    nameBn: 'রুপগঞ্জ',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 6,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'araihajar'),
+    name: 'Araihajar',
+    nameBn: 'আড়াইহাজার',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 7,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'sonargaon'),
+    name: 'Sonargaon',
+    nameBn: 'সোনারাগাঁও',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 8,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'bandar'),
+    name: 'Bandar',
+    nameBn: 'বন্দর',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 9,
+  ),
+  SeedDistrictCaseType(
+    id: _caseTypeId(chiefJudicialMagistrateId, 'siddhirganj'),
+    name: 'Siddhirganj',
+    nameBn: 'সিদ্ধিরগঞ্জ',
+    courtCategoryId: chiefJudicialMagistrateId,
+    district: 'narayanganj',
+    orderIndex: 10,
+  ),
+];
+
+// ---------------------------------------------------------------------------
 // Law names (case references)
 // ---------------------------------------------------------------------------
 
@@ -19813,22 +19916,18 @@ final Set<String> disposedStepNames = disposedStepIds
     .toSet();
 
 /// All case type stable IDs → English label.
-final Map<String, String> caseTypeLabelEn = Map.unmodifiable(
-  Map.fromEntries(
-    seedCategories.expand(
-      (c) => c.allCaseTypes.map((ct) => MapEntry(ct.id, ct.labelEn)),
-    ),
-  ),
-);
+final Map<String, String> caseTypeLabelEn = Map.unmodifiable(<String, String>{
+  for (final category in seedCategories)
+    for (final caseType in category.allCaseTypes) caseType.id: caseType.labelEn,
+  for (final caseType in seedDistrictCaseTypes) caseType.id: caseType.name,
+});
 
 /// All case type stable IDs → Bengali label.
-final Map<String, String> caseTypeLabelBn = Map.unmodifiable(
-  Map.fromEntries(
-    seedCategories.expand(
-      (c) => c.allCaseTypes.map((ct) => MapEntry(ct.id, ct.labelBn)),
-    ),
-  ),
-);
+final Map<String, String> caseTypeLabelBn = Map.unmodifiable(<String, String>{
+  for (final category in seedCategories)
+    for (final caseType in category.allCaseTypes) caseType.id: caseType.labelBn,
+  for (final caseType in seedDistrictCaseTypes) caseType.id: caseType.nameBn,
+});
 
 /// Case type English label → Bengali label, per court category.
 ///
@@ -19839,19 +19938,27 @@ final Map<String, String> caseTypeLabelBn = Map.unmodifiable(
 /// ("Misc Case" is `ছানী মিছ-` for the civil district courts but `বিবিধ মোকদ্দমা-`
 /// for the executive magistrates), which is why the court category is the key.
 final Map<String, Map<String, String>> caseTypeLabelBnByCourtCategory =
-    Map.unmodifiable(
-      Map.fromEntries(
-        seedCategories.map(
-          (category) => MapEntry(
-            category.id,
-            Map<String, String>.unmodifiable(<String, String>{
-              for (final caseType in category.allCaseTypes)
-                caseType.labelEn: caseType.labelBn,
-            }),
-          ),
-        ),
-      ),
-    );
+    Map.unmodifiable(() {
+      final byCategory = <String, Map<String, String>>{
+        for (final category in seedCategories)
+          category.id: <String, String>{
+            for (final caseType in category.allCaseTypes)
+              caseType.labelEn: caseType.labelBn,
+          },
+      };
+      // The district-scoped built-ins are part of their category's translation
+      // table too, so a case that stored one of their names reads its Bengali
+      // name on every card, notification and PDF.
+      for (final caseType in seedDistrictCaseTypes) {
+        (byCategory[caseType.courtCategoryId] ??=
+                <String, String>{})[caseType.name] =
+            caseType.nameBn;
+      }
+      return <String, Map<String, String>>{
+        for (final entry in byCategory.entries)
+          entry.key: Map<String, String>.unmodifiable(entry.value),
+      };
+    }());
 
 /// Case type English label → Bengali label, ignoring the court category.
 ///
@@ -19862,6 +19969,9 @@ final Map<String, String> caseTypeLabelBnByEnName = () {
   final byName = <String, String>{};
   for (final caseType in seedCategories.expand((c) => c.allCaseTypes)) {
     byName.putIfAbsent(caseType.labelEn, () => caseType.labelBn);
+  }
+  for (final caseType in seedDistrictCaseTypes) {
+    byName.putIfAbsent(caseType.name, () => caseType.nameBn);
   }
   return Map<String, String>.unmodifiable(byName);
 }();

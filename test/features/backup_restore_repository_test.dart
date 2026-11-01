@@ -306,6 +306,68 @@ void main() {
       expect(await target.backup.hasExistingData(), isTrue);
     });
 
+    test(
+      'restores a case type written before the district and Bengali columns',
+      () async {
+        final bytes = _legacyFile(<String, dynamic>{
+          'court_categories': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'cat-old',
+              'name_key': 'test_category',
+              'court_level': 'lower',
+              'order_index': 1,
+              'updated_at': 1,
+            },
+          ],
+          'case_types': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'old-type',
+              'court_category_id': 'cat-old',
+              'name': 'Old Type',
+              'order_index': 1,
+              'updated_at': 1,
+            },
+          ],
+        });
+
+        final opened = await openBackupFile(
+          bytes: bytes,
+          recoverySecret: _secret,
+        );
+        await target.backup.restoreSnapshot(
+          backup: opened,
+          ownerId: target.ownerId,
+        );
+
+        // The two new columns are nullable, so an old row imports with nulls
+        // instead of failing the whole file.
+        final row = await target.db.select(target.db.caseTypes).getSingle();
+        expect(row.name, 'Old Type');
+        expect(row.nameBn, isNull);
+        expect(row.district, isNull);
+      },
+    );
+
+    test('round-trips the district and Bengali case-type columns', () async {
+      await source.seedReferenceData();
+      await source.db.customStatement(
+        "INSERT INTO case_types (id, court_category_id, name, name_bn, "
+        "district, order_index, updated_at) SELECT 'ct-scoped', id, "
+        "'Scoped Type', 'স্কোপড', 'narayanganj', 90, 1 "
+        'FROM court_categories LIMIT 1',
+      );
+
+      await target.backup.restoreSnapshot(
+        backup: (await _export(source)).opened,
+        ownerId: target.ownerId,
+      );
+
+      final row = await target.db.select(target.db.caseTypes).getSingle();
+      expect(row.name, 'Scoped Type');
+      expect(row.nameBn, 'স্কোপড');
+      expect(row.district, 'narayanganj');
+    });
+
     test('keeps ids, sync columns, tombstones and queued writes', () async {
       final seeded = await _seed(source);
       final result = await target.backup.restoreSnapshot(

@@ -1204,6 +1204,19 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'changes, and no version is bumped: the server-timestamp trigger '
         'carries the change to every phone on the delta pull.',
   ),
+  LedgerSection(
+    file: '20261101120000_district_case_types.sql',
+    version: '0.0.784',
+    label:
+        'Case types can belong to one district (user request). '
+        '`public.case_types` gains a nullable `district` and `name_bn`; the '
+        'seven built-in Narayanganj CJM types are inserted with both names and '
+        'the district, while every existing row stays global with both columns '
+        'null. The division is derived from the district and is never stored. '
+        'No policy or function list changes: `push_changes` is column-generic '
+        'and the reference-table RLS already treats built-in rows as the shared '
+        'baseline.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1241,6 +1254,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.784': 'Case Types — District-Scoped Types',
   '0.0.771': 'Law List — Civil Law Merge',
   '0.0.758': 'Case Reference — The Parties To The Case',
   '0.0.756': 'Case Reference — Case Note And Tags',

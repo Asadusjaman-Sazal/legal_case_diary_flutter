@@ -3516,6 +3516,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsItemList_nameLabel => 'Name';
 
   @override
+  String get settingsItemList_englishNameLabel => 'English Name';
+
+  @override
+  String get settingsItemList_bengaliNameLabel => 'Bengali Name';
+
+  @override
+  String get settingsItemList_allDivisions => 'All Divisions';
+
+  @override
+  String get settingsItemList_allDistricts => 'All Districts';
+
+  @override
   String get settingsItemList_empty => 'No items yet. Add one below.';
 
   @override

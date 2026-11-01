@@ -24,6 +24,15 @@ class CaseTypes extends Table {
   /// Display name of the case type.
   TextColumn get name => text()();
 
+  /// Bengali display name; null falls back to the seeded translation or [name].
+  TextColumn get nameBn => text().nullable()();
+
+  /// The district this type is limited to, or null for every district.
+  ///
+  /// The district is the same stable id `courts.district` stores; the division
+  /// is derived from it and is never stored here.
+  TextColumn get district => text().nullable()();
+
   /// Display order within the category.
   IntColumn get orderIndex => integer()();
 

@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        88,
+        89,
         reason:
+            'District-scoped case types (2026-11-01) added one file: the two '
+            'columns and the seven built-in Narayanganj CJM rows. '
             'The Civil Law merge (2026-11-01) added one file: the contract '
             'category backfill, the alphabetical reorder of its built-in names '
             'and the normalising trigger. '

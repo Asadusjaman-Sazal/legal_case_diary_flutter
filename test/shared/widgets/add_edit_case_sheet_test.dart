@@ -12,6 +12,7 @@ Widget _localizedApp(
     canAdd: true,
     canEdit: true,
   ),
+  Locale locale = const Locale('en'),
 }) {
   return ProviderScope(
     overrides: [
@@ -20,7 +21,7 @@ Widget _localizedApp(
     child: MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('en'),
+      locale: locale,
       home: Scaffold(body: child),
     ),
   );
@@ -503,6 +504,355 @@ void main() {
       );
       expect(find.byKey(const ValueKey('add-edit-result')), findsOneWidget);
       expect(find.byKey(const ValueKey('add-edit-step')), findsNothing);
+    });
+
+    testWidgets('a lower-court case type list stops at the selected district', (
+      WidgetTester tester,
+    ) async {
+      const category = CourtCategory(
+        id: chiefJudicialMagistrateId,
+        nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
+        courtLevel: 'lower',
+        orderIndex: 5,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const court = Court(
+        id: 'cjm-narayanganj',
+        courtName: 'CJM Court, Narayanganj',
+        higherLowerCourts: lowerCourtsOption,
+        division: divisionDhakaId,
+        district: 'narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const globalType = CaseType(
+        id: 'casetype-chief_judicial_magistrate-misc',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Misc Case',
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const narayanganjType = CaseType(
+        id: 'casetype-chief_judicial_magistrate-narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Narayanganj',
+        nameBn: 'নারায়ণগঞ্জ',
+        district: 'narayanganj',
+        orderIndex: 4,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const dhakaType = CaseType(
+        id: 'custom-dhaka-type',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Dhaka Type',
+        district: 'dhaka',
+        orderIndex: 5,
+        isCustom: true,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(
+              courtCategories: [category],
+              courts: [court],
+              caseTypes: [globalType, narayanganjType, dhakaType],
+              lastAddCaseHigherLowerCourt: lowerCourtsOption,
+              lastAddCaseDivision: divisionDhakaId,
+              lastAddCaseDistrict: 'narayanganj',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-court-category')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const ValueKey('add-edit-court-category')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Chief Judicial Magistrate Court').last);
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-case-type')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, 40),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
+      await tester.pumpAndSettle();
+
+      // The global default and the Narayanganj type are offered; the type that
+      // belongs to Dhaka is not, even though it is in the same court category.
+      expect(find.text('Misc Case'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.text('Narayanganj'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Dhaka Type'), findsNothing);
+    });
+
+    testWidgets('changing the district clears a case type from the old one', (
+      WidgetTester tester,
+    ) async {
+      const category = CourtCategory(
+        id: chiefJudicialMagistrateId,
+        nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
+        courtLevel: 'lower',
+        orderIndex: 5,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const narayanganjCourt = Court(
+        id: 'cjm-narayanganj',
+        courtName: 'CJM Court, Narayanganj',
+        higherLowerCourts: lowerCourtsOption,
+        division: divisionDhakaId,
+        district: 'narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const dhakaCourt = Court(
+        id: 'cjm-dhaka',
+        courtName: 'CJM Court, Dhaka',
+        higherLowerCourts: lowerCourtsOption,
+        division: divisionDhakaId,
+        district: 'dhaka',
+        courtCategoryId: chiefJudicialMagistrateId,
+        orderIndex: 1,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const narayanganjType = CaseType(
+        id: 'casetype-chief_judicial_magistrate-narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Narayanganj',
+        nameBn: 'নারায়ণগঞ্জ',
+        district: 'narayanganj',
+        orderIndex: 4,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const dhakaType = CaseType(
+        id: 'custom-dhaka-type',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Dhaka Type',
+        district: 'dhaka',
+        orderIndex: 5,
+        isCustom: true,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(
+              courtCategories: [category],
+              courts: [narayanganjCourt, dhakaCourt],
+              caseTypes: [narayanganjType, dhakaType],
+              lastAddCaseHigherLowerCourt: lowerCourtsOption,
+              lastAddCaseDivision: divisionDhakaId,
+              lastAddCaseDistrict: 'narayanganj',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-court-category')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const ValueKey('add-edit-court-category')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Chief Judicial Magistrate Court').last);
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-case-type')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, 40),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.text('Narayanganj'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // The district field and the selected type both read Narayanganj.
+      expect(find.text('Narayanganj'), findsNWidgets(2));
+
+      // Moving the case to Dhaka drops the Narayanganj type: the field is
+      // empty again and the picker offers only Dhaka's type.
+      await Scrollable.ensureVisible(
+        tester.element(find.byKey(const ValueKey('add-edit-district'))),
+        alignment: 0.5,
+        duration: Duration.zero,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-district')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.text('Dhaka'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Narayanganj'), findsNothing);
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-case-type')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, 40),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
+      await tester.pumpAndSettle();
+      expect(find.text('Dhaka Type'), findsOneWidget);
+      expect(find.text('Narayanganj'), findsNothing);
+    });
+
+    testWidgets('a stored Bengali case type name follows the app language', (
+      WidgetTester tester,
+    ) async {
+      const category = CourtCategory(
+        id: chiefJudicialMagistrateId,
+        nameKey: 'lowerCourtCategory_chiefJudicialMagistrate',
+        courtLevel: 'lower',
+        orderIndex: 5,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const court = Court(
+        id: 'cjm-narayanganj',
+        courtName: 'CJM Court, Narayanganj',
+        higherLowerCourts: lowerCourtsOption,
+        division: divisionDhakaId,
+        district: 'narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        orderIndex: 0,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+      const narayanganjType = CaseType(
+        id: 'casetype-chief_judicial_magistrate-narayanganj',
+        courtCategoryId: chiefJudicialMagistrateId,
+        name: 'Narayanganj',
+        nameBn: 'নারায়ণগঞ্জ',
+        district: 'narayanganj',
+        orderIndex: 4,
+        isCustom: false,
+        isUserModified: false,
+        updatedAt: 0,
+        isDeleted: false,
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(
+            lookupData: AddEditCaseLookupData(
+              courtCategories: [category],
+              courts: [court],
+              caseTypes: [narayanganjType],
+              lastAddCaseHigherLowerCourt: lowerCourtsOption,
+              lastAddCaseDivision: divisionDhakaId,
+              lastAddCaseDistrict: 'narayanganj',
+            ),
+          ),
+          locale: const Locale('bn'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-court-category')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const ValueKey('add-edit-court-category')));
+      await tester.pumpAndSettle();
+      final l = await AppLocalizations.delegate.load(const Locale('bn'));
+      await tester.tap(
+        find.text(l.lowerCourtCategory_chiefJudicialMagistrate).last,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('add-edit-case-type')),
+        240,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.byKey(const ValueKey('add-edit-form-scroll')),
+        const Offset(0, 40),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('add-edit-case-type')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.text('নারায়ণগঞ্জ'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('canEdit false disables editable controls and save', (

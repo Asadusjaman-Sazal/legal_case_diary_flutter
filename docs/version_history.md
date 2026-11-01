@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.783 - The downloaded Excel template now writes court names, categories, steps and on-behalf roles in the user's language.
+Version: 0.0.784 - Narayanganj's seven CJM case types are built-in and district-scoped, with Bengali names and a district picker in Settings; the case form shows only the selected district's types.
 --------------------------------------
 
 ## Version History Log:
@@ -797,3 +797,4 @@ Version: 0.0.780 - The Daily Cause List year/month selector's gear tick now play
 Version: 0.0.781 - The Daily Cause List selector and Notification Time gear ticks now play at 10% volume.
 Version: 0.0.782 - Automatic backups now replace one fixed AutomaticBackup.lcbak through a temporary file, instead of writing a new timestamped file each run.
 Version: 0.0.783 - The downloaded Excel template now writes court names, categories, steps and on-behalf roles in the user's language.
+Version: 0.0.784 - Narayanganj's seven CJM case types are built-in and district-scoped, with Bengali names and a district picker in Settings; the case form shows only the selected district's types.

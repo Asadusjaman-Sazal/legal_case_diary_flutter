@@ -47,6 +47,7 @@ import '../../../core/backup/backup_format.dart';
 import '../../../core/backup/backup_ownership.dart';
 import '../../../core/backup/backup_restore.dart';
 import '../../../core/backup/excel_backup.dart';
+import '../../../core/constants/pre_seeded_data.dart' as seed;
 import '../../../database/app_database.dart';
 import '../../../database/seed_migration_runner.dart';
 import '../../../sync/sync_metadata_dao.dart';
@@ -702,14 +703,45 @@ class BackupRepository {
         label(row.read<String?>('category_key')),
       ],
     );
-    final caseTypes = await rowsOf(
-      _caseTypesSql,
-      (row) => <Object?>[
-        row.read<String>('row_name'),
-        label(row.read<String?>('category_key')),
-        row.read<String?>('case_category_name') ?? '',
-      ],
-    );
+    final caseTypeRows = await db.customSelect(_caseTypesSql).get();
+    final caseTypes = <List<Object?>>[
+      for (final row in caseTypeRows)
+        () {
+          final name = row.read<String>('row_name');
+          final storedBn = row.read<String?>('name_bn')?.trim() ?? '';
+          final categoryId = row.read<String?>('category_id');
+          final bengali = storedBn.isNotEmpty
+              ? storedBn
+              : seed.caseTypeLabelBnByCourtCategory[categoryId]?[name] ??
+                    seed.caseTypeLabelBnByEnName[name] ??
+                    '';
+          return <Object?>[
+            name,
+            label(row.read<String?>('category_key')),
+            row.read<String?>('case_category_name') ?? '',
+            district(row.read<String?>('district_id')),
+            bengali,
+          ];
+        }(),
+    ];
+    // The example case quotes a type the example court's district can use: a
+    // global type or one scoped to that same district. The first type would be
+    // a Narayanganj-only type whenever the Courts sheet leads with another
+    // district, and the sample case would then show a type its form would not.
+    final exampleCourtDistrict = courtRows.isEmpty
+        ? null
+        : courtRows.first.read<String?>('district_id');
+    String? exampleCaseType;
+    for (final row in caseTypeRows) {
+      final districtId = row.read<String?>('district_id');
+      if (districtId == null || districtId == exampleCourtDistrict) {
+        exampleCaseType = row.read<String>('row_name');
+        break;
+      }
+    }
+    exampleCaseType ??= caseTypeRows.isEmpty
+        ? null
+        : caseTypeRows.first.read<String>('row_name');
     final steps = await rowsOf(
       _stepsSql,
       (row) => <Object?>[
@@ -756,9 +788,15 @@ class BackupRepository {
         ),
         excelCaseTypesSheet: ExcelTemplateSheet(
           excelCaseTypesSheet,
-          const <String>['Case Type', 'Court Category', 'Case Category'],
+          const <String>[
+            'Case Type',
+            'Court Category',
+            'Case Category',
+            'District',
+            'Bengali Name',
+          ],
           <List<Object?>>[
-            <Object?>[sample, sample, sample],
+            <Object?>[sample, sample, sample, sample, sample],
             ...caseTypes,
           ],
         ),
@@ -787,7 +825,7 @@ class BackupRepository {
         if (onBehalfs.isNotEmpty) 'on_behalf_id': onBehalfs.first[0],
         if (caseCategories.isNotEmpty)
           'case_category_id': caseCategories.first[0],
-        if (caseTypes.isNotEmpty) 'case_type': caseTypes.first[0],
+        if (caseTypes.isNotEmpty) 'case_type': exampleCaseType,
         if (steps.isNotEmpty) 'last_step': steps.first[0],
       },
     );
@@ -1150,6 +1188,7 @@ const List<String> _guideLines = <String>[
   'The Other Sheets',
   'Courts, Case Categories, Case Types, Steps and On Behalfs list the reference data this diary already holds, so you can see the exact ids and names to quote. Each of them starts with one Example — Sample Row row; delete it.',
   'On the Courts sheet the District column groups the lower courts by district, so you can filter them by it; it is blank for the Appellate Division and the High Court Division.',
+  'On the Case Types sheet the District column names the district a type belongs to, and is blank for a type that appears in every district. The Bengali Name column is for reference only; case_type still quotes the Case Type column.',
   'Case History, Notes and Case References hold the records that belong to a case. Each row needs the case_id of a case that exists, either already in the diary or added in this same file.',
   'Courts, steps and settings themselves cannot be added here — that is done in the app.',
   '',
@@ -1182,10 +1221,12 @@ const String _caseCategoriesSql =
     'WHERE k.is_deleted = 0 '
     'ORDER BY cc.order_index, k.order_index, k.name';
 
-/// Case types: the name `cases.case_type` stores, plus its scopes.
+/// Case types: the name `cases.case_type` stores, plus its scopes and the
+/// Bengali label shown in the reference sheet.
 const String _caseTypesSql =
-    'SELECT t.name AS row_name, cc.name_key AS category_key, '
-    'k.name AS case_category_name FROM case_types t '
+    'SELECT t.id AS row_id, t.name AS row_name, cc.name_key AS category_key, '
+    'k.name AS case_category_name, t.court_category_id AS category_id, '
+    't.district AS district_id, t.name_bn AS name_bn FROM case_types t '
     'LEFT JOIN court_categories cc ON cc.id = t.court_category_id '
     'LEFT JOIN case_categories k ON k.id = t.case_category_id '
     'WHERE t.is_deleted = 0 '

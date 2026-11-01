@@ -129,6 +129,7 @@ checks that roll back) and the read-only counts
 | 0.0.756 | 2026-10-31 | `20261031140000_case_reference_note_tags.sql` | Case Note and Tags on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain two nullable text columns, so an existing citation reads exactly as it was written and carries neither until it is edited. No function is re-created: `push_changes` validates a payload against the table's own `pg_attribute` list and applies it through `jsonb_populate_record`, so the new fields are accepted the moment the columns exist; the shared table's write grant is table-level, so the new columns inherit it; and the delta pull selects every column. The phone reads the fields through the generated row model and the card and form draw them. |
 | 0.0.758 | 2026-10-31 | `20261031160000_case_reference_parties.sql` | The parties to the case on both reference libraries (user request): `public.case_references` and `public.shared_case_references` each gain one nullable text column, filled from the form field that sits right after **Citation**. Existing citations carry none until they are edited. No function is re-created, for the same reasons as the Case Note and Tags file before it: the push is column-generic, the shared table's grant is table-level, and the delta pull selects every column. |
 | 0.0.771 | 2026-11-01 | `20261101100000_merge_civil_law_categories.sql` | The Contract, Land, Property & Business law category is merged into Civil Law (user request). Every law stored under the retired ID moves to `civil_procedure_evidence`; the 22 built-in Civil Law names are reordered into the slots they already held, English A to Z first and then Bengali A to Z; and a `BEFORE INSERT OR UPDATE` trigger normalises the retired ID so an older phone's queued payload cannot bring the category back. No table, policy, grant or function list changes, and no version is bumped: the server-timestamp trigger carries the change to every phone on the delta pull. |
+| 0.0.784 | 2026-11-01 | `20261101120000_district_case_types.sql` | Case types can belong to one district (user request). `public.case_types` gains a nullable `district` and `name_bn`; the seven built-in Narayanganj CJM types are inserted with both names and the district, while every existing row stays global with both columns null. The division is derived from the district and is never stored. No policy or function list changes: `push_changes` is column-generic and the reference-table RLS already treats built-in rows as the shared baseline. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -22053,6 +22054,97 @@ update public.laws l
 
 comment on column public.laws.category is
   'One of the six stable law-category IDs (constitution_courts_practice … labour_everyday_regulation). The retired Contract, Land, Property & Business ID is normalised to civil_procedure_evidence (Civil Law) by trg_laws_normalize_category. The heading''s label lives in the app''s ARB files, so it follows the language while the law name does not.';
+```
+
+## App Version 0.0.784 — Case Types — District-Scoped Types
+
+### 0.0.784 · `20261101120000_district_case_types.sql`
+
+> **Created 2026-11-01.** Case types can belong to one district (user request). `public.case_types` gains a nullable `district` and `name_bn`; the seven built-in Narayanganj CJM types are inserted with both names and the district, while every existing row stays global with both columns null. The division is derived from the district and is never stored. No policy or function list changes: `push_changes` is column-generic and the reference-table RLS already treats built-in rows as the shared baseline.
+
+```sql
+-- District-scoped case types on the server, starting with the seven Narayanganj
+-- CJM types (user request).
+--
+-- 0.0.784. `public.case_types` gains a nullable `district` and `name_bn`, so a
+-- case type can belong to every district in its court category (the defaults,
+-- both columns null) or to one district (the seven rows below). The division is
+-- derived from the district and is not stored.
+--
+-- The seven rows are built-in (`is_custom = false`) like the category defaults:
+-- every account can read them, and the app filters them to the Narayanganj CJM
+-- form. Table class (AGENTS.md rule 4): push/pull domain — no policy or function
+-- list changes, because `push_changes` is column-generic and the reference-table
+-- RLS already treats built-in rows as the shared baseline.
+--
+-- Applied to `lsthasywrdrhuuxnykau` ("Legal Case Diary") only — rule 12.
+
+-- ---------------------------------------------------------------------------
+-- 1. The two columns
+-- ---------------------------------------------------------------------------
+
+alter table public.case_types
+  add column if not exists name_bn text,
+  add column if not exists district text;
+
+comment on column public.case_types.name_bn is
+  'Bengali display name for a case type; null falls back to the app translation of the English name.';
+comment on column public.case_types.district is
+  'Stable district id for a case type limited to one district; null means every district in its court category. The division is derived, never stored.';
+
+-- The reference tables carry column-level INSERT/UPDATE grants because their
+-- table-level write privileges are revoked. A new column starts with none, so
+-- the two are added explicitly for the app's own writes; SELECT stays
+-- table-level and therefore already covers them.
+grant insert (name_bn, district), update (name_bn, district)
+  on public.case_types to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 2. The built-in Narayanganj CJM types
+-- ---------------------------------------------------------------------------
+
+insert into public.case_types (
+  id, court_category_id, case_category_id, name, name_bn, district,
+  order_index, is_custom, is_user_modified, user_id, firm_id, updated_at,
+  version, synced_at, is_deleted, last_modified_by
+) values
+  ('casetype-chief_judicial_magistrate-narayanganj', 'chief_judicial_magistrate', null,
+   'Narayanganj', 'নারায়ণগঞ্জ', 'narayanganj', 4,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-fatulla', 'chief_judicial_magistrate', null,
+   'Fatulla', 'ফতুল্লা', 'narayanganj', 5,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-rupganj', 'chief_judicial_magistrate', null,
+   'Rupganj', 'রুপগঞ্জ', 'narayanganj', 6,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-araihajar', 'chief_judicial_magistrate', null,
+   'Araihajar', 'আড়াইহাজার', 'narayanganj', 7,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-sonargaon', 'chief_judicial_magistrate', null,
+   'Sonargaon', 'সোনারাগাঁও', 'narayanganj', 8,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-bandar', 'chief_judicial_magistrate', null,
+   'Bandar', 'বন্দর', 'narayanganj', 9,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null),
+  ('casetype-chief_judicial_magistrate-siddhirganj', 'chief_judicial_magistrate', null,
+   'Siddhirganj', 'সিদ্ধিরগঞ্জ', 'narayanganj', 10,
+   false, false, null, null,
+   (extract(epoch from clock_timestamp()) * 1000)::bigint, 1, null, false, null)
+on conflict (id) do update set
+  court_category_id = excluded.court_category_id,
+  case_category_id = excluded.case_category_id,
+  name = excluded.name,
+  name_bn = excluded.name_bn,
+  district = excluded.district,
+  order_index = excluded.order_index,
+  updated_at = excluded.updated_at
+where public.case_types.is_user_modified = false;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

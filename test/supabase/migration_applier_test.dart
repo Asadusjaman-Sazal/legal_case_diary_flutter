@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(88),
+        hasLength(89),
         reason:
+            'District-scoped case types (2026-11-01) added one file: the two '
+            'columns and the seven built-in Narayanganj CJM rows. '
             'The Civil Law merge (2026-11-01) added one file: the contract '
             'category backfill, the alphabetical reorder of its built-in names '
             'and the normalising trigger. '
@@ -176,7 +178,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(88),
+        hasLength(89),
         reason: 'versions must be unique',
       );
       expect(
@@ -185,7 +187,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261101100000');
+      expect(versions.last, '20261101120000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

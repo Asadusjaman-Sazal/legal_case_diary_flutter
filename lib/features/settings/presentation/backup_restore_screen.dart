@@ -341,14 +341,15 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// [OpenedBackup] and share the confirm-and-replace step, the transaction and
   /// the reload.
   ///
-  /// A subscribed account that has synced and still holds its own data never
-  /// reaches the picker directly: restoring a local save over a diary that also
-  /// lives in the cloud would contaminate it, so a window says so first and
-  /// offers the way through — Delete Local & Cloud Data, the very flow Manage
-  /// Account runs — and a completed wipe continues into the restore below, which
-  /// then finds an empty diary. Anything else restores straight through, so the
-  /// flow can never strand a user with nothing to delete.
-  Future<void> _restoreFromBackup() async {
+  /// The chosen file is opened and its ownership checked before the premium
+  /// guard: a backup from another account or chamber is refused without asking
+  /// the user to delete this diary for a file that can never be restored. Only
+  /// a file that belongs here reaches the guard — a subscribed account that has
+  /// synced and still holds its own data is offered Delete Local & Cloud Data,
+  /// and a completed wipe continues into the restore below. Anything else
+  /// restores straight through, so the flow can never strand a user with
+  /// nothing to delete.
+  Future<void> _restoreFromBackup({bool forcePicker = false}) async {
     final l = AppLocalizations.of(context);
 
     // Whose diary this is, read **before** the first await (Riverpod 3 refuses a
@@ -373,44 +374,21 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     final lastSync = await SyncMetadataDao(
       db,
     ).getIntValue(lastSuccessfulSyncAtKey);
-    final diaryHoldsUserData = await (await ref.read(
-      backupRepositoryProvider.future,
-    )).hasUserAuthoredData();
     if (!mounted) return;
 
-    // A chamber's fence sits above the premium guard and has no way through
-    // (firm-mode §6): a backup is the ledger at one moment, and putting it back
-    // over a chamber re-introduces rows other members may have changed or
-    // deleted since. The premium guard's Delete Local & Cloud Data route is not
-    // offered here — erasing a chamber's records is not this screen's choice to
-    // make — so the one restore firm mode allows is onto a device that holds
-    // nothing yet, which is a fresh install rather than a window to click past.
-    if (firmMode && diaryHoldsUserData) {
-      await showRestoreBarredInChamberDialog(context);
-      return;
-    }
-
-    if (premium && lastSync != null && diaryHoldsUserData) {
-      final wipe = await showRestoreBlockedDialog(context);
-      if (!wipe || !mounted) return;
-      final deleted = await runDataDeletionFlow(
-        context,
-        ref,
-        cloud: true,
-        online: online,
-        firmMode: firmMode,
-      );
-      // A refusal or a cancellation restores nothing, and a failure already
-      // said so. Only a completed wipe continues into the restore below.
-      if (deleted == null || deleted.failed || !mounted) return;
-    }
-
-    // Inside the diary folder: one backup restores directly, more than one
-    // offers a choice. The picker is the folder's replacement when the folder
-    // is missing or inaccessible.
+    // Pick the file first. Opening it and checking whose it is costs no write,
+    // and it keeps a file from another account or chamber from triggering the
+    // premium guard's delete flow for a backup that can never be restored here.
     PickedBackupFile? picked;
+    var fromFolder = false;
     try {
-      picked = await _pickFromFolderOrPicker();
+      if (forcePicker) {
+        picked = await ref.read(backupFileGatewayProvider).pick();
+      } else {
+        final source = await _pickFromFolderOrPicker();
+        picked = source.file;
+        fromFolder = source.fromFolder;
+      }
     } catch (error, stack) {
       debugPrint('Backup source unavailable: $error\n$stack');
       _showMessage(l.settingsBackupRestore_errorOpenFile);
@@ -456,6 +434,41 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       repository.checkRestorable(opened, ownerId: identity, firmId: firmId);
       if (!mounted) return;
 
+      // The file is valid and belongs here. Only now does the guard decide
+      // whether this diary must be emptied first: a backup from another account
+      // or chamber never reaches this point, so it can never make the user
+      // delete their diary for a file that would be refused.
+      final diaryHoldsUserData = await repository.hasUserAuthoredData();
+      if (!mounted) return;
+
+      // A chamber's fence sits above the premium guard and has no way through
+      // (firm-mode §6): a backup is the ledger at one moment, and putting it
+      // back over a chamber re-introduces rows other members may have changed
+      // or deleted since. The premium guard's Delete Local & Cloud Data route
+      // is not offered here — erasing a chamber's records is not this screen's
+      // choice to make — so the one restore firm mode allows is onto a device
+      // that holds nothing yet, which is a fresh install rather than a window
+      // to click past.
+      if (firmMode && diaryHoldsUserData) {
+        await showRestoreBarredInChamberDialog(context);
+        return;
+      }
+
+      if (premium && lastSync != null && diaryHoldsUserData) {
+        final wipe = await showRestoreBlockedDialog(context);
+        if (!wipe || !mounted) return;
+        final deleted = await runDataDeletionFlow(
+          context,
+          ref,
+          cloud: true,
+          online: online,
+          firmMode: firmMode,
+        );
+        // A refusal or a cancellation restores nothing, and a failure already
+        // said so. Only a completed wipe continues into the restore below.
+        if (deleted == null || deleted.failed || !mounted) return;
+      }
+
       // Restores never merge silently: existing data asks first. The check is
       // scoped to the tables the file carries, so a four-sheet workbook never
       // asks about — and never replaces — anything outside its own scope.
@@ -499,7 +512,22 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       _showMessage(_excelRefusalMessage(l, error));
     } on BackupRestoreException catch (error) {
       debugPrint('Restore refused: ${error.failure.name} — ${error.message}');
-      _showMessage(_restoreFailureMessage(l, error.failure));
+      // A folder holds one backup and it is opened without a question; when that
+      // file belongs to another account or chamber, offer the platform picker so
+      // the user can reach a backup this device may actually restore.
+      final chooseAnother =
+          fromFolder &&
+          (error.failure == BackupRestoreFailure.anotherFirm ||
+              error.failure == BackupRestoreFailure.anotherAccount);
+      _showMessage(
+        _restoreFailureMessage(l, error.failure),
+        action: chooseAnother
+            ? SnackBarAction(
+                label: l.settingsBackupRestore_chooseAnotherBackup,
+                onPressed: () => _restoreFromBackup(forcePicker: true),
+              )
+            : null,
+      );
     } catch (error, stack) {
       debugPrint('Restore failed: $error\n$stack');
       _showMessage(l.settingsBackupRestore_errorImportFailed);
@@ -518,19 +546,23 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// Files are read synchronously: a backup is a few megabytes at most, and this
   /// keeps the folder path free of the async I/O a widget test's fake clock
   /// cannot complete.
-  Future<PickedBackupFile?> _pickFromFolderOrPicker() async {
+  Future<({PickedBackupFile? file, bool fromFolder})>
+  _pickFromFolderOrPicker() async {
     final directory = await ref.read(backupFolderDirectoryProvider)();
     final files = await listBackupFiles(directory);
     if (files.length == 1) {
       final bytes = files.single.readAsBytesSync();
-      return PickedBackupFile(
-        name: p.basename(files.single.path),
-        path: files.single.path,
-        bytes: bytes,
+      return (
+        file: PickedBackupFile(
+          name: p.basename(files.single.path),
+          path: files.single.path,
+          bytes: bytes,
+        ),
+        fromFolder: true,
       );
     }
     if (files.length > 1) {
-      if (!mounted) return null;
+      if (!mounted) return (file: null, fromFolder: true);
       final picked = await showDialog<PickedBackupFile?>(
         context: context,
         builder: (_) => _BackupFilePickerDialog(
@@ -542,13 +574,15 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
           ),
         ),
       );
-      if (picked != null) return picked;
-      return null; // The choice was cancelled; nothing to restore.
+      // The choice was cancelled; nothing to restore.
+      return (file: picked, fromFolder: true);
     }
     // The folder is missing, empty or holds no app backup: ask the platform.
     final picked = await ref.read(backupFileGatewayProvider).pick();
-    if (picked == null || !mounted) return null;
-    return picked;
+    return (
+      file: (picked == null || !mounted) ? null : picked,
+      fromFolder: false,
+    );
   }
 
   /// The user-facing message for one engine refusal.
@@ -612,11 +646,11 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// The guard lives here rather than at each call site, so a flow that ends
   /// after an await (or after the app reloads itself following a restore) can
   /// report its outcome without touching a dead context.
-  void _showMessage(String message) {
+  void _showMessage(String message, {SnackBarAction? action}) {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(message), action: action));
   }
 
   @override

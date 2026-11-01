@@ -3295,6 +3295,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই ব্যাকআপটি অন্য একটি চেম্বারে তৈরি। এখানে কেবল এই চেম্বারের ব্যাকআপ পুনরুদ্ধার করা যায়।';
 
   @override
+  String get settingsBackupRestore_chooseAnotherBackup => 'অন্য ব্যাকআপ বাছুন';
+
+  @override
   String get settingsBackupRestore_memberNotice =>
       'চেম্বারের স্বত্বাধিকারীই কেবল ব্যাকআপ বা পুনরুদ্ধার করতে পারেন। সদস্যের কাছে চেম্বারের রেকর্ডের অ্যাপের বাইরে কোনো কপি থাকে না।';
 

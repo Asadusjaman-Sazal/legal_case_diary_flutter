@@ -1581,6 +1581,7 @@
   "settingsBackupRestore_errorImportFailed": "The restore failed. Your existing data was left unchanged.",
   "settingsBackupRestore_errorAnotherAccount": "This backup belongs to another account. Sign in as that account to restore it.",
   "settingsBackupRestore_errorAnotherFirm": "This backup was made inside another chamber. Only a backup of this chamber can be restored here.",
+  "settingsBackupRestore_chooseAnotherBackup": "Choose Another Backup",
   "settingsBackupRestore_memberNotice": "Only the chamber's owner can back up or restore. A member keeps no copy of the chamber's records outside the app.",
   "settingsBackupRestore_chamberBarredTitle": "Restore Is Not Available In A Chamber",
   "settingsBackupRestore_chamberBarredBody": "A backup is a copy of the ledger at one moment, and restoring it here could undo changes other members have made since. Restore is only available on a device that holds nothing yet, such as a fresh install.",

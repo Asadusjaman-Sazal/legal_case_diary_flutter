@@ -1493,65 +1493,108 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('a synced premium diary is fenced off before the picker', (
+    testWidgets(
+      'a synced premium diary is fenced off after the file is chosen',
+      (tester) async {
+        await seedNote();
+        await seedPremium();
+        await seedLastSync();
+        gateway.picked = _legacyBackup();
+        await pumpScreen(tester, deletionService: deletionService());
+
+        await tapAction(tester, 'Restore from Backup');
+
+        // The file is chosen and checked first; the fence then stops the restore
+        // before any database change. There is no replace question and no
+        // completion — only the warning, with Cancel and the red destructive
+        // action centred beneath it.
+        expect(find.text(blockedBody), findsOneWidget);
+        expect(find.text('Replace all current data?'), findsNothing);
+        expect(find.text('Restore complete'), findsNothing);
+        final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+        expect(dialog.actionsAlignment, MainAxisAlignment.center);
+        final wipe = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('restore-blocked-delete')),
+        );
+        expect(
+          wipe.style?.backgroundColor?.resolve(const <WidgetState>{}),
+          AppColors.error,
+        );
+        expect(
+          wipe.style?.foregroundColor?.resolve(const <WidgetState>{}),
+          AppColors.onError,
+        );
+        // One after another and middle aligned, at the same size: Cancel spans
+        // the same width and height as the destructive action, stacked beneath
+        // it on the same centre line.
+        final wipeSize = tester.getSize(
+          find.byKey(const ValueKey('restore-blocked-delete')),
+        );
+        final cancelSize = tester.getSize(
+          find.widgetWithText(TextButton, 'Cancel'),
+        );
+        expect(cancelSize, wipeSize);
+        expect(
+          tester
+              .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
+              .dy,
+          lessThan(
+            tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dy,
+          ),
+        );
+        expect(
+          tester
+              .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
+              .dx,
+          tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dx,
+        );
+
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+
+        expect(find.text(blockedBody), findsNothing);
+        expect(await liveNotes(), 1);
+      },
+    );
+
+    testWidgets('an unusable backup is refused before the delete guard', (
       tester,
     ) async {
       await seedNote();
       await seedPremium();
       await seedLastSync();
-      gateway.picked = _legacyBackup();
+      // The folder holds one backup from another chamber, so the folder scan
+      // opens it without a question. Its ownership refusal must come before the
+      // premium fence, or the user is asked to delete a diary for a file that
+      // can never be restored here.
+      await placeInFolder(
+        _legacyBackup(
+          notes: 1,
+          name: 'Backup_01-02-26_09-30-15am.lcbak',
+          userId: '',
+          firmId: '44444444-4444-4444-8444-444444444444',
+        ),
+      );
       await pumpScreen(tester, deletionService: deletionService());
 
       await tapAction(tester, 'Restore from Backup');
 
-      // The fence, not the file: the picker never opened, so there is no
-      // replace question and no completion — only the warning, with Cancel and
-      // the red destructive action centred beneath it.
-      expect(find.text(blockedBody), findsOneWidget);
-      expect(find.text('Replace all current data?'), findsNothing);
-      expect(find.text('Restore complete'), findsNothing);
-      final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
-      expect(dialog.actionsAlignment, MainAxisAlignment.center);
-      final wipe = tester.widget<FilledButton>(
-        find.byKey(const ValueKey('restore-blocked-delete')),
-      );
       expect(
-        wipe.style?.backgroundColor?.resolve(const <WidgetState>{}),
-        AppColors.error,
-      );
-      expect(
-        wipe.style?.foregroundColor?.resolve(const <WidgetState>{}),
-        AppColors.onError,
-      );
-      // One after another and middle aligned, at the same size: Cancel spans
-      // the same width and height as the destructive action, stacked beneath
-      // it on the same centre line.
-      final wipeSize = tester.getSize(
-        find.byKey(const ValueKey('restore-blocked-delete')),
-      );
-      final cancelSize = tester.getSize(
-        find.widgetWithText(TextButton, 'Cancel'),
-      );
-      expect(cancelSize, wipeSize);
-      expect(
-        tester
-            .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
-            .dy,
-        lessThan(
-          tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dy,
+        find.text(
+          'This backup was made inside another chamber. '
+          'Only a backup of this chamber can be restored here.',
         ),
+        findsOneWidget,
       );
-      expect(
-        tester
-            .getCenter(find.byKey(const ValueKey('restore-blocked-delete')))
-            .dx,
-        tester.getCenter(find.widgetWithText(TextButton, 'Cancel')).dx,
-      );
-
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-
+      // No wipe window, no replace question, no restore: the diary is untouched
+      // and the folder file can be changed for another one.
       expect(find.text(blockedBody), findsNothing);
+      expect(
+        find.byKey(const ValueKey('restore-blocked-delete')),
+        findsNothing,
+      );
+      expect(find.text('Replace all current data?'), findsNothing);
+      expect(find.text('Choose Another Backup'), findsOneWidget);
       expect(await liveNotes(), 1);
     });
 

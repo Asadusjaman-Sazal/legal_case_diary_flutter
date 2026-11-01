@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — Restore checks the file before the delete guard — COMPLETE (0.0.790)
+
+- **What was reported.** Restore from Backup kept showing Delete Local & Cloud Data, even after deleting everything, and the file picker was never reached. The debug console showed `Restore refused: anotherFirm`.
+- **The cause.** The premium restore guard ran **before** any file was chosen, so it asked for a wipe first. The diary folder held a single backup from another chamber; after the wipe, the folder scan opened that file silently, the ownership check refused it, and the next press started the same cycle. The user never chose a file because one folder backup is restored without a picker.
+- **The fix.** The flow now picks, opens and ownership-checks the backup **before** the chamber fence and the premium guard. A file from another account or chamber is refused with its own sentence and no delete window. When the single folder backup is refused, the message offers **Choose Another Backup** and opens the platform picker. A valid backup reaches the guard, the wipe and the restore exactly as before.
+- **Proof.** New regression case: a folder backup from another chamber is refused before the guard, the note stays untouched and the **Choose Another Backup** action is shown. The existing guard tests now read as file-then-fence and still pass. `flutter analyze` clean; full suite **2,282 passed**, with only the known pre-existing backup export-list red.
+- **Next.** Install the new build on the connected phones to verify the restore flow against the real folder backup; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — The dissolved owner can write inherited rows — COMPLETE (0.0.789)
 
 - **What was reported.** After Delete Local & Cloud Data removed Cases and Notes, one case (`Election Petition- 10/22`) stayed in Active Cases and on the server even after switching tabs and pulling to sync.

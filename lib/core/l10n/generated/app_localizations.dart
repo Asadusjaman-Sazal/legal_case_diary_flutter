@@ -5673,6 +5673,12 @@ abstract class AppLocalizations {
   /// **'This backup was made inside another chamber. Only a backup of this chamber can be restored here.'**
   String get settingsBackupRestore_errorAnotherFirm;
 
+  /// No description provided for @settingsBackupRestore_chooseAnotherBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Another Backup'**
+  String get settingsBackupRestore_chooseAnotherBackup;
+
   /// No description provided for @settingsBackupRestore_memberNotice.
   ///
   /// In en, this message translates to:

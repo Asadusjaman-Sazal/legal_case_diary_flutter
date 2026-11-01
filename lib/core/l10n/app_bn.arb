@@ -1446,6 +1446,7 @@
   "settingsBackupRestore_errorImportFailed": "পুনরুদ্ধার ব্যর্থ হয়েছে। আপনার আগের ডেটা অপরিবর্তিত রয়েছে।",
   "settingsBackupRestore_errorAnotherAccount": "এই ব্যাকআপটি অন্য একটি অ্যাকাউন্টের। এটি পুনরুদ্ধার করতে ওই অ্যাকাউন্টে সাইন ইন করুন।",
   "settingsBackupRestore_errorAnotherFirm": "এই ব্যাকআপটি অন্য একটি চেম্বারে তৈরি। এখানে কেবল এই চেম্বারের ব্যাকআপ পুনরুদ্ধার করা যায়।",
+  "settingsBackupRestore_chooseAnotherBackup": "অন্য ব্যাকআপ বাছুন",
   "settingsBackupRestore_memberNotice": "চেম্বারের স্বত্বাধিকারীই কেবল ব্যাকআপ বা পুনরুদ্ধার করতে পারেন। সদস্যের কাছে চেম্বারের রেকর্ডের অ্যাপের বাইরে কোনো কপি থাকে না।",
   "settingsBackupRestore_chamberBarredTitle": "চেম্বারে পুনরুদ্ধার করা যায় না",
   "settingsBackupRestore_chamberBarredBody": "ব্যাকআপ হলো এক সময়ের লেজারের কপি, এটি এখানে ফিরিয়ে আনলে অন্য সদস্যরা এর পর যে পরিবর্তন করেছেন তা মুছে যেতে পারে। কেবল নতুন ইনস্টল করা ফাঁকা ডিভাইসে পুনরুদ্ধার করা যায়।",

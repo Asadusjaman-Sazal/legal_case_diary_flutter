@@ -3282,6 +3282,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This backup was made inside another chamber. Only a backup of this chamber can be restored here.';
 
   @override
+  String get settingsBackupRestore_chooseAnotherBackup =>
+      'Choose Another Backup';
+
+  @override
   String get settingsBackupRestore_memberNotice =>
       'Only the chamber\'s owner can back up or restore. A member keeps no copy of the chamber\'s records outside the app.';
 

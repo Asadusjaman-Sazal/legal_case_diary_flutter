@@ -636,17 +636,10 @@ void main() {
       expect(defaultBackupFileName(stamp), expected);
     });
 
-    test('an automatic backup carries its own stem and the same stamp', () {
-      // The stamp is the same shape as a manual backup's, so the file still
-      // says when it was made; the stem is what tells the two apart, and what
-      // lets the sweep delete only the app's own automatic file.
-      final stamp = DateTime.utc(2026, 9, 20, 5, 6, 7).millisecondsSinceEpoch;
-      final automatic = automaticBackupFileName(stamp);
-      final manual = defaultBackupFileName(stamp);
-      expect(automatic, startsWith('AutomaticBackup_'));
-      expect(automatic, endsWith('.lcbak'));
-      // Identical but for the prefix: same stamp, same extension.
-      expect(automatic, 'Automatic$manual');
+    test('an automatic backup has one fixed name', () {
+      // One name means the run replaces the previous file atomically rather
+      // than creating a timestamped file and sweeping the old ones.
+      expect(automaticBackupFileName, 'AutomaticBackup.lcbak');
     });
 
     test('names a workbook with the same stem and the Excel extension', () {

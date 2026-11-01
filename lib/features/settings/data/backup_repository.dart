@@ -328,7 +328,8 @@ class BackupRepository {
     for (final name in backupTableOrder.reversed) {
       if (name == 'sync_metadata' && keepMetadataKeys.isNotEmpty) {
         await (db.delete(db.syncMetadata)..where(
-              (row) => row.key.isNotIn(keepMetadataKeys.toList(growable: false)),
+              (row) =>
+                  row.key.isNotIn(keepMetadataKeys.toList(growable: false)),
             ))
             .go();
         continue;
@@ -644,7 +645,9 @@ class BackupRepository {
         b.read<int?>('category_order') ?? 0,
       );
       if (category != 0) return category;
-      final order = a.read<int>('row_order').compareTo(b.read<int>('row_order'));
+      final order = a
+          .read<int>('row_order')
+          .compareTo(b.read<int>('row_order'));
       if (order != 0) return order;
       return a.read<String>('row_name').compareTo(b.read<String>('row_name'));
     }
@@ -670,25 +673,37 @@ class BackupRepository {
           district(row.read<String?>('district_id')),
         ],
     ];
-    final caseCategories = await rowsOf(_caseCategoriesSql, (row) => <Object?>[
-      row.read<String>('row_id'),
-      row.read<String>('row_name'),
-      label(row.read<String?>('category_key')),
-    ]);
-    final caseTypes = await rowsOf(_caseTypesSql, (row) => <Object?>[
-      row.read<String>('row_name'),
-      label(row.read<String?>('category_key')),
-      row.read<String?>('case_category_name') ?? '',
-    ]);
-    final steps = await rowsOf(_stepsSql, (row) => <Object?>[
-      row.read<String>('row_name'),
-      label(row.read<String?>('category_key')),
-    ]);
-    final onBehalfs = await rowsOf(_onBehalfsSql, (row) => <Object?>[
-      row.read<String>('row_id'),
-      row.read<String>('row_name'),
-      label(row.read<String?>('category_key')),
-    ]);
+    final caseCategories = await rowsOf(
+      _caseCategoriesSql,
+      (row) => <Object?>[
+        row.read<String>('row_id'),
+        row.read<String>('row_name'),
+        label(row.read<String?>('category_key')),
+      ],
+    );
+    final caseTypes = await rowsOf(
+      _caseTypesSql,
+      (row) => <Object?>[
+        row.read<String>('row_name'),
+        label(row.read<String?>('category_key')),
+        row.read<String?>('case_category_name') ?? '',
+      ],
+    );
+    final steps = await rowsOf(
+      _stepsSql,
+      (row) => <Object?>[
+        row.read<String>('row_name'),
+        label(row.read<String?>('category_key')),
+      ],
+    );
+    final onBehalfs = await rowsOf(
+      _onBehalfsSql,
+      (row) => <Object?>[
+        row.read<String>('row_id'),
+        row.read<String>('row_name'),
+        label(row.read<String?>('category_key')),
+      ],
+    );
 
     /// The sample row every reference sheet leads with, so the shape is visible
     /// before the diary holds anything. It has to be deleted before restoring
@@ -697,15 +712,19 @@ class BackupRepository {
 
     return _ExcelReferenceData(
       sheets: <String, ExcelTemplateSheet>{
-        excelCourtsSheet: ExcelTemplateSheet(excelCourtsSheet, const <String>[
-          'Court ID',
-          'Court Name',
-          'Court Category',
-          'District',
-        ], <List<Object?>>[
-          <Object?>['example-court-id', sample, sample, sample],
-          ...courts,
-        ]),
+        excelCourtsSheet: ExcelTemplateSheet(
+          excelCourtsSheet,
+          const <String>[
+            'Court ID',
+            'Court Name',
+            'Court Category',
+            'District',
+          ],
+          <List<Object?>>[
+            <Object?>['example-court-id', sample, sample, sample],
+            ...courts,
+          ],
+        ),
         excelCaseCategoriesSheet: ExcelTemplateSheet(
           excelCaseCategoriesSheet,
           const <String>['Case Category ID', 'Case Category', 'Court Category'],
@@ -850,11 +869,7 @@ class BackupRepository {
     // Ownership first, and before the transaction: whose rows these are decides
     // whether the file may be opened at all, and a refused file must not have
     // touched the database — not even by holding a write lock.
-    final ownership = checkRestorable(
-      backup,
-      ownerId: ownerId,
-      firmId: firmId,
-    );
+    final ownership = checkRestorable(backup, ownerId: ownerId, firmId: firmId);
     // Validated before the transaction opens: a malformed snapshot is refused
     // outright rather than discovered halfway through the inserts.
     final tables = portableTablesFrom(backup.payload);
@@ -898,11 +913,7 @@ class BackupRepository {
             rowCount++;
             final insert = Map<String, dynamic>.of(row);
             if (columns != null) {
-              if (stampRowOwnership(
-                insert,
-                columns,
-                ownerId: ownerId,
-              )) {
+              if (stampRowOwnership(insert, columns, ownerId: ownerId)) {
                 stamped++;
               }
               // Scope is settled for every row, not only the stamped ones: a
@@ -1026,9 +1037,7 @@ Map<String, List<Map<String, dynamic>>> portableTablesFrom(
         'The backup stores "$name" as something other than a list of rows.',
       );
     }
-    validated[name] = [
-      for (final row in rows) _validatedRow(name, row),
-    ];
+    validated[name] = [for (final row in rows) _validatedRow(name, row)];
   }
   return validated;
 }
@@ -1201,28 +1210,14 @@ class _ExcelReferenceData {
 String defaultBackupFileName(int exportedAt) =>
     'Backup_${_fileStamp(exportedAt)}.lcbak';
 
-/// The stem every automatic backup's name starts with.
+/// The fixed name an **automatic** backup is written under (user request).
 ///
-/// Shared by the name a run writes and the sweep that deletes the previous one
-/// (in `backup_file_gateway.dart`, which already imports this file), so the two
-/// cannot drift apart.
-const String automaticBackupStem = 'AutomaticBackup_';
-
-/// The name an **automatic** backup is written under (user request).
-///
-/// It carries the same stamp as a manual one — so the file still says when it
-/// was made — but under a stem of its own, because the automatic backup is the
-/// one the app **replaces** rather than accumulates: each run writes a fresh
-/// file and deletes the previous automatic ones, so the diary folder holds one
-/// automatic backup instead of one per day.
-///
-/// The distinct stem is what makes that pruning safe. Manual backups a user
-/// deliberately kept share the folder and must never be swept up by it, and
-/// nothing but this prefix identifies the app's own automatic file — a stamp
-/// alone cannot, because a manual backup made at the same minute would look
-/// identical.
-String automaticBackupFileName(int exportedAt) =>
-    '$automaticBackupStem${_fileStamp(exportedAt)}.lcbak';
+/// One name means each run replaces the previous automatic file through a
+/// temporary file and an atomic rename, rather than writing a new timestamped
+/// file and sweeping the old one. A crash leaves either the old file or the new
+/// one, never a growing pile. A manual backup keeps its timestamped name and is
+/// never touched.
+const String automaticBackupFileName = 'AutomaticBackup.lcbak';
 
 /// Default workbook file name for an export taken at [exportedAt].
 ///

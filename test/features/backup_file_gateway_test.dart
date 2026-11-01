@@ -1,14 +1,14 @@
 /// The rules that decide which files in the diary folder are the app's own.
 ///
-/// Two behaviours matter, and both are about *not* losing data. A restore lists
-/// the folder through [backupFileNamePattern], so a name it does not recognise
-/// is a backup the user cannot restore — which is why the automatic backup's own
-/// stem is accepted there. And the automatic backup is replaced rather than
-/// accumulated, so a sweep must delete yesterday's automatic file while never
-/// touching a manual backup a user chose to keep.
+/// A restore lists the folder through [backupFileNamePattern], so every name the
+/// app has written must be recognised. The automatic backup uses one fixed
+/// name, written through a temporary file and renamed into place, so it
+/// replaces itself without a sweep; a manual backup keeps its timestamped name
+/// and is never touched.
 library;
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -38,9 +38,15 @@ void main() {
       );
     });
 
-    test('accepts the automatic backup, so a restore can still list it', () {
+    test('accepts the fixed automatic backup, so a restore can list it', () {
       // The whole point of the automatic copy is that it can be restored; a
       // name the listing rule rejects would make it invisible.
+      expect(backupFileNamePattern.hasMatch('AutomaticBackup'), isTrue);
+    });
+
+    test('accepts the timestamped automatic names older releases wrote', () {
+      // They stay restorable even though the current job replaces one fixed
+      // file.
       expect(
         backupFileNamePattern.hasMatch('AutomaticBackup_20-09-26_11-06-07am'),
         isTrue,
@@ -60,76 +66,47 @@ void main() {
     });
   });
 
-  test('listBackupFiles finds an automatic backup beside a manual one', () async {
-    final automatic = automaticBackupFileName(1700000000000);
-    seed(automatic);
-    seed('Backup_20-09-26_11-06-07am.lcbak');
-    seed('holiday-photo.jpg');
+  test(
+    'listBackupFiles finds an automatic backup beside a manual one',
+    () async {
+      seed(automaticBackupFileName);
+      seed('Backup_20-09-26_11-06-07am.lcbak');
+      seed('holiday-photo.jpg');
 
-    final listed = [for (final f in await listBackupFiles(dir)) p.basename(f.path)];
+      final listed = [
+        for (final f in await listBackupFiles(dir)) p.basename(f.path),
+      ];
 
-    expect(listed, hasLength(2));
-    expect(listed, contains(automatic));
-    expect(listed, contains('Backup_20-09-26_11-06-07am.lcbak'));
-  });
+      expect(listed, hasLength(2));
+      expect(listed, contains(automaticBackupFileName));
+      expect(listed, contains('Backup_20-09-26_11-06-07am.lcbak'));
+    },
+  );
 
-  group('pruneAutomaticBackups', () {
-    test('sweeps the previous automatic files and keeps the new one', () async {
-      seed('AutomaticBackup_18-09-26_03-00-00am.lcbak');
-      seed('AutomaticBackup_19-09-26_03-00-00am.lcbak');
-      seed('AutomaticBackup_20-09-26_03-00-00am.lcbak');
+  test('an atomic write replaces the fixed file and leaves no temp', () async {
+    final sink = BackupFolderSink(
+      directoryProvider: () async => dir,
+      atomic: true,
+    );
 
-      final removed = await pruneAutomaticBackups(
-        dir,
-        keep: 'AutomaticBackup_20-09-26_03-00-00am.lcbak',
-      );
+    await sink.write(
+      fileName: automaticBackupFileName,
+      bytes: Uint8List.fromList(<int>[1, 2, 3]),
+    );
+    await sink.write(
+      fileName: automaticBackupFileName,
+      bytes: Uint8List.fromList(<int>[4, 5, 6]),
+    );
 
-      expect(removed, hasLength(2));
-      final left = dir.listSync().map((f) => p.basename(f.path)).toList();
-      expect(left, <String>['AutomaticBackup_20-09-26_03-00-00am.lcbak']);
-    });
-
-    test('never touches a manual backup sharing the folder', () async {
-      // A manual backup is something the user chose to keep, and the sweep
-      // exists only to stop the *automatic* file piling up.
-      seed('Backup_18-09-26_11-06-07am.lcbak');
-      seed('Backup_19-09-26_11-06-07am.xlsx');
-      seed('AutomaticBackup_19-09-26_03-00-00am.lcbak');
-      seed('AutomaticBackup_20-09-26_03-00-00am.lcbak');
-
-      await pruneAutomaticBackups(
-        dir,
-        keep: 'AutomaticBackup_20-09-26_03-00-00am.lcbak',
-      );
-
-      final left = dir.listSync().map((f) => p.basename(f.path)).toList()
-        ..sort();
-      expect(left, <String>[
-        'AutomaticBackup_20-09-26_03-00-00am.lcbak',
-        'Backup_18-09-26_11-06-07am.lcbak',
-        'Backup_19-09-26_11-06-07am.xlsx',
-      ]);
-    });
-
-    test('a folder that does not exist is not an error', () async {
-      // The job creates the folder before writing, but a sweep that runs after
-      // a failure must not throw on top of it.
-      final missing = Directory(p.join(dir.path, 'gone'));
-      expect(
-        await pruneAutomaticBackups(missing, keep: 'anything.lcbak'),
-        isEmpty,
-      );
-    });
-
-    test('with nothing to sweep it removes nothing', () async {
-      seed('AutomaticBackup_20-09-26_03-00-00am.lcbak');
-      expect(
-        await pruneAutomaticBackups(
-          dir,
-          keep: 'AutomaticBackup_20-09-26_03-00-00am.lcbak',
-        ),
-        isEmpty,
-      );
-    });
+    final names = dir
+        .listSync()
+        .whereType<File>()
+        .map((file) => p.basename(file.path))
+        .toList();
+    expect(names, <String>[automaticBackupFileName]);
+    expect(
+      File(p.join(dir.path, automaticBackupFileName)).readAsBytesSync(),
+      <int>[4, 5, 6],
+    );
   });
 }

@@ -104,28 +104,23 @@ Future<BackupJobDecision> runAutomaticBackupJob({
       if (!await folder.exists()) await folder.create(recursive: true);
       final now = nowEpochMs ?? DateTime.now().millisecondsSinceEpoch;
       final result = await BackupRepository(db).exportSnapshot(
-        sink: BackupFolderSink(directoryProvider: () async => folder),
+        // One fixed name, written through a temporary file and renamed over the
+        // previous copy: a crash leaves either the old automatic backup or the
+        // new one, never a growing pile (user request).
+        sink: BackupFolderSink(
+          directoryProvider: () async => folder,
+          atomic: true,
+        ),
         appVersion: appVersion,
         // Automatic backups are always plain: a passphrase cannot be asked for
         // in the background, and the user's encryption-on choice means "skip,
         // not downgrade" (see `decideBackupJob`).
         recoverySecret: null,
         exportedAt: now,
-        // A stem of its own, so the sweep below can tell this file from the
-        // manual backups sharing the folder (user request).
-        fileName: automaticBackupFileName(now),
+        fileName: automaticBackupFileName,
       );
       await prefs.setInt(lastSuccessfulBackupAtKey, result.envelope.exportedAt);
       await prefs.setString(lastBackupPathKey, result.path);
-      // The automatic backup is **replaced**, not accumulated (user request): a
-      // file per day would quietly fill the folder, and the point of the
-      // automatic copy is that there is always one, not that there is a
-      // history. Deleting **after** the write means a failure leaves yesterday's
-      // file in place rather than none at all.
-      await pruneAutomaticBackups(
-        folder,
-        keep: result.path.split(Platform.pathSeparator).last,
-      );
     } finally {
       await db.close();
     }

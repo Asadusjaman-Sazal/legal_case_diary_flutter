@@ -1,10 +1,18 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — The automatic backup replaces one fixed file — COMPLETE (0.0.782)
+
+- **What was asked.** Audit why the automatic backup created a new file instead of replacing the old one, then fix that path only. Manual backups must stay untouched.
+- **The cause.** The job wrote a timestamped `AutomaticBackup_<stamp>.lcbak` and then swept older automatic files. The sweep was the last step after the export; a killed background isolate or a silently refused delete left the older files behind.
+- **The fix.** The automatic job now writes one fixed **`AutomaticBackup.lcbak`** through a sibling `.tmp` file and renames it over the old copy (`BackupFolderSink(atomic: true)`). A crash leaves either the old or the new backup, never a growing pile; the sweep and the automatic timestamp are removed. Manual backups keep their timestamped `Backup_…` names and the plain write, untouched. The restore listing still accepts the old timestamped automatic names, so they stay restorable. Existing old automatic files are not deleted by this change; remove them once by hand.
+- **Proof.** New atomic-replacement test (two writes leave one file, the new bytes, no `.tmp`), the fixed-name and listing tests, and the backup gateway, repository and restore suites; `flutter analyze` clean; full suite **2,267 passed**, with only the known pre-existing backup export-list red.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — Both gear ticks are 10 % — COMPLETE (0.0.781)
 
 - **What was asked.** Set both the Daily Cause List Year/Month selector's gear tick and the Notification Time window's tick to 10 % volume.
 - **What changed.** The selector moved from 15 % to **10 %**, and the Notification Time window now sets **10 %** before every tick instead of using the plugin's full-volume default. Both keep their own low-latency players and the same `gear_click.wav`; no other sound changed.
-- **Proof.** The calendar picker and notification settings suites pass (30); `flutter analyze` clean. As before, the level was not listened to on a phone here.
+- **Proof.** The calendar picker and notification settings suites pass (30); `flutter analyze` clean; full suite **2,269 passed**, with only the known pre-existing backup export-list red. As before, the level was not listened to on a phone here.
 - **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
 
 ### 2026-11-01 — The selector's gear tick is a soft feedback — COMPLETE (0.0.780)

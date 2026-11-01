@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — Both gear ticks are 10 % — COMPLETE (0.0.781)
+
+- **What was asked.** Set both the Daily Cause List Year/Month selector's gear tick and the Notification Time window's tick to 10 % volume.
+- **What changed.** The selector moved from 15 % to **10 %**, and the Notification Time window now sets **10 %** before every tick instead of using the plugin's full-volume default. Both keep their own low-latency players and the same `gear_click.wav`; no other sound changed.
+- **Proof.** The calendar picker and notification settings suites pass (30); `flutter analyze` clean. As before, the level was not listened to on a phone here.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-01 — The selector's gear tick is a soft feedback — COMPLETE (0.0.780)
+
+- **What was asked.** On the Daily Cause List screen only, the Year/Month selector's gear sound plays at full volume and distracts lawyers; make it very mild, like a feedback tick.
+- **What changed.** The badge calendar's dedicated `daily-cause-list-month-year` player now sets a **15 %** volume before every tick, so a spin reads as a quiet mechanical ratchet; the same sound in the Notification Time window is untouched. Opening or closing the columns, tapping the row the wheel already holds, the header arrows and day swipes still stay silent.
+- **Proof.** The calendar picker widget suite passes (10); `flutter analyze` clean; full suite **2,269 passed**, with only the known pre-existing backup export-list red. The 15 % level is a starting point and can be nudged if it is still too loud or too quiet on the phone.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — Subscription Plans drops the “Includes” prefix — COMPLETE (0.0.779)
 
 - **What was asked.** On the Subscription Plans screen only, make the inherited-features line read “Everything in <plan name>, plus” instead of “Includes Everything in <plan name>, plus”.

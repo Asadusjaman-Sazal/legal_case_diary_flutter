@@ -95,10 +95,17 @@ Future<TimeOfDay?> showNotificationTimePicker(
   );
 }
 
-/// Plays the bundled gear tick. Tests replace this with a counter so the audio
-/// plugin is never touched in a widget test.
+/// Plays the bundled gear tick at a **soft feedback volume** — a tenth of the
+/// device's media volume, the same level as the Daily Cause List selector, so a
+/// drag reads as a quiet ratchet rather than a click that carries (user
+/// request). Tests replace this with a counter so the audio plugin is never
+/// touched in a widget test.
 @visibleForTesting
 void Function() gearClickPlayer = _playGearClick;
+
+/// How loud one Notification Time tick plays, as a fraction of the device's
+/// media volume.
+const double _gearTickVolume = 0.10;
 
 /// The one low-latency player for the tick, created on first use.
 AudioPlayer? _gearAudio;
@@ -116,6 +123,9 @@ Future<void> _playGearClickAsync() async {
       _gearAudio = player;
     }
     await player.stop();
+    // Set on every tick: a reused player must never fall back to the plugin's
+    // full-volume default.
+    await player.setVolume(_gearTickVolume);
     await player.play(AssetSource('sounds/gear_click.wav'));
   } catch (error, stackTrace) {
     // Never break the picker, but leave a trace in debug: a missing plugin or

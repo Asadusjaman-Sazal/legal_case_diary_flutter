@@ -11,8 +11,9 @@
 /// Cause List screen (per the design plan).
 ///
 /// Every month or year the Month | Year columns move to plays the bundled gear
-/// tick — the same sound the Notification Time window plays — so a spin is heard
-/// rather than only seen. Opening or closing the columns, a tap on the row the
+/// tick at a **soft feedback volume** — the same `gear_click.wav` the
+/// Notification Time window uses, but quiet here so a spin is felt rather than
+/// heard across the room. Opening or closing the columns, a tap on the row the
 /// wheel already holds, the header's ‹ › arrows and a day-grid swipe stay silent.
 library;
 
@@ -35,12 +36,17 @@ const int _calendarMaxYear = 2100;
 
 /// Plays the gear tick for one month or year move in the selector.
 ///
-/// It is the very sound the Notification Time window plays while its hand is
-/// dragged — the same `sounds/gear_click.wav`, in the same low-latency mode — so
-/// the two pickers sound alike. Tests replace this with a counter so the audio
-/// plugin is never touched in a widget test.
+/// It is the same `sounds/gear_click.wav` the Notification Time window plays,
+/// but at a **soft feedback volume** here: a fast spin should read as a quiet
+/// ratchet, not a full click that distracts a lawyer mid-hearing (user request).
+/// Tests replace this with a counter so the audio plugin is never touched in a
+/// widget test.
 @visibleForTesting
 void Function() monthYearTickPlayer = _playMonthYearTick;
+
+/// How loud one selector tick plays, as a fraction of the device's media
+/// volume. Kept low so the tick is feedback, not a sound that carries.
+const double _monthYearTickVolume = 0.10;
 
 /// The one player for this screen's tick, created on first use.
 AudioPlayer? _tickAudio;
@@ -58,6 +64,9 @@ Future<void> _playMonthYearTickAsync() async {
       _tickAudio = player;
     }
     await player.stop();
+    // Set on every tick: the level is the point of this player, and a reused
+    // player must never fall back to the plugin's full-volume default.
+    await player.setVolume(_monthYearTickVolume);
     await player.play(AssetSource('sounds/gear_click.wav'));
   } catch (error, stackTrace) {
     // Never break the picker, but leave a trace in debug: a missing plugin or

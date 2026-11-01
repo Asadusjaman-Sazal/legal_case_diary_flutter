@@ -472,6 +472,35 @@ void main() {
       expect(courts, contains('Example — $excelSampleRowLabel'));
     });
 
+    test('the reference sheets use the active language labels', () async {
+      await db.customStatement(
+        "INSERT INTO steps (id, court_category_id, step_name, order_index, "
+        "updated_at) SELECT 'step-test', id, 'Hearing', 1, 1 "
+        'FROM court_categories LIMIT 1',
+      );
+
+      final bytes = await backup.buildExcelTemplateWorkbook(
+        appVersion: '0.0.783',
+        categoryLabel: (nameKey) => 'CAT:$nameKey',
+        courtLabel: (id, name) => 'COURT:$id',
+        stepLabel: (id, name) => 'STEP:$id',
+        onBehalfLabel: (id, name) => 'ROLE:$id',
+      );
+      final parts = _workbookParts(bytes);
+
+      // The court, its category, the step and the role are the labels the app
+      // shows in the active language, not the stored English names.
+      expect(parts['xl/worksheets/sheet6.xml'], contains('COURT:$courtId'));
+      expect(
+        parts['xl/worksheets/sheet6.xml'],
+        contains('CAT:test_category'),
+      );
+      expect(parts['xl/worksheets/sheet9.xml'], contains('STEP:step-test'));
+      expect(parts['xl/worksheets/sheet10.xml'], contains('ROLE:$onBehalfId'));
+      // The example case quotes the same localized step the Steps sheet shows.
+      expect(parts['xl/worksheets/sheet2.xml'], contains('STEP:step-test'));
+    });
+
     test(
       'the Courts sheet groups lower courts by district, AD and HCD first',
       () async {

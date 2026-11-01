@@ -586,8 +586,17 @@ class BackupRepository {
     required String appVersion,
     String Function(String nameKey)? categoryLabel,
     String Function(String districtId)? districtLabel,
+    String Function(String courtId, String storedName)? courtLabel,
+    String Function(String stepId, String storedName)? stepLabel,
+    String Function(String onBehalfId, String storedName)? onBehalfLabel,
   }) async {
-    final reference = await _referenceData(categoryLabel, districtLabel);
+    final reference = await _referenceData(
+      categoryLabel,
+      districtLabel,
+      courtLabel,
+      stepLabel,
+      onBehalfLabel,
+    );
     return excelBytes(
       buildExcelTemplate(
         appVersion: appVersion,
@@ -618,6 +627,9 @@ class BackupRepository {
   Future<_ExcelReferenceData> _referenceData(
     String Function(String nameKey)? categoryLabel,
     String Function(String districtId)? districtLabel,
+    String Function(String courtId, String storedName)? courtLabel,
+    String Function(String stepId, String storedName)? stepLabel,
+    String Function(String onBehalfId, String storedName)? onBehalfLabel,
   ) async {
     /// Turns a court category's stored name key into the label the app shows.
     String label(String? nameKey) =>
@@ -626,6 +638,15 @@ class BackupRepository {
     /// Turns a court's stored district id into the name the app shows.
     String district(String? id) =>
         id == null ? '' : (districtLabel?.call(id) ?? id);
+
+    /// A built-in court, step or role is shown in the active language; a row the
+    /// user added keeps the name they typed.
+    String courtName(String id, String storedName) =>
+        courtLabel?.call(id, storedName) ?? storedName;
+    String stepName(String id, String storedName) =>
+        stepLabel?.call(id, storedName) ?? storedName;
+    String onBehalfName(String id, String storedName) =>
+        onBehalfLabel?.call(id, storedName) ?? storedName;
 
     Future<List<List<Object?>>> rowsOf(
       String sql,
@@ -668,7 +689,7 @@ class BackupRepository {
       for (final row in courtRows)
         <Object?>[
           row.read<String>('row_id'),
-          row.read<String>('row_name'),
+          courtName(row.read<String>('row_id'), row.read<String>('row_name')),
           label(row.read<String?>('category_key')),
           district(row.read<String?>('district_id')),
         ],
@@ -692,7 +713,7 @@ class BackupRepository {
     final steps = await rowsOf(
       _stepsSql,
       (row) => <Object?>[
-        row.read<String>('row_name'),
+        stepName(row.read<String>('row_id'), row.read<String>('row_name')),
         label(row.read<String?>('category_key')),
       ],
     );
@@ -700,7 +721,7 @@ class BackupRepository {
       _onBehalfsSql,
       (row) => <Object?>[
         row.read<String>('row_id'),
-        row.read<String>('row_name'),
+        onBehalfName(row.read<String>('row_id'), row.read<String>('row_name')),
         label(row.read<String?>('category_key')),
       ],
     );
@@ -1172,7 +1193,8 @@ const String _caseTypesSql =
 
 /// Steps: the name `cases.last_step` stores.
 const String _stepsSql =
-    'SELECT s.step_name AS row_name, cc.name_key AS category_key '
+    'SELECT s.id AS row_id, s.step_name AS row_name, '
+    'cc.name_key AS category_key '
     'FROM steps s '
     'LEFT JOIN court_categories cc ON cc.id = s.court_category_id '
     'WHERE s.is_deleted = 0 '

@@ -305,6 +305,18 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         districtLabel: (districtId) => mounted
             ? context.l10n.seedLabel(districtId, fallbackEn: districtId)
             : districtId,
+        // The reference rows a hand-typed case quotes are read by a person, so
+        // built-in courts, steps and roles use the same labels the app shows in
+        // the active language. A user-added row keeps the name it was typed with.
+        courtLabel: (id, storedName) => mounted
+            ? context.l10n.seedLabel(id, fallbackEn: storedName)
+            : storedName,
+        stepLabel: (id, storedName) => mounted
+            ? context.l10n.seedLabel(id, fallbackEn: storedName)
+            : storedName,
+        onBehalfLabel: (id, storedName) => mounted
+            ? context.l10n.seedLabel(id, fallbackEn: storedName)
+            : storedName,
       );
       if (!mounted) return;
       final path = await ref

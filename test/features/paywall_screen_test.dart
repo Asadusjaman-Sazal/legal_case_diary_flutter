@@ -211,7 +211,7 @@ void main() {
     // Starter's own features and its inherited header.
     expect(find.text('Most Popular'), findsOneWidget);
     _expectBadgeAtCardRight(tester, 'paywall-plan-starter');
-    expect(find.text('Includes Everything in Free, plus'), findsOneWidget);
+    expect(find.text('Everything in Free, plus'), findsOneWidget);
     expect(find.text('Up to 500 cases'), findsOneWidget);
     expect(find.text('Real-time cloud backup'), findsOneWidget);
     expect(
@@ -225,7 +225,7 @@ void main() {
     expect(find.text('Pro · 1 Month'), findsNothing);
 
     // Pro inherits Starter and adds its own two features.
-    expect(find.text('Includes Everything in Starter, plus'), findsOneWidget);
+    expect(find.text('Everything in Starter, plus'), findsOneWidget);
     expect(find.text('Up to 1,000 cases'), findsOneWidget);
     expect(
       find.text(

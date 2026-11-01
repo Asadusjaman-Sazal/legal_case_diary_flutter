@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — Subscription Plans drops the “Includes” prefix — COMPLETE (0.0.779)
+
+- **What was asked.** On the Subscription Plans screen only, make the inherited-features line read “Everything in <plan name>, plus” instead of “Includes Everything in <plan name>, plus”.
+- **What changed.** The Starter and Pro cards now print the ARB phrase alone — Everything in Free, plus / Everything in Starter, plus — while the three chamber cards keep their plain **Includes** heading, because they list their whole allowance. The phrase itself and the Bengali value were already correct; only the screen's prefix concatenation, its comments, the test expectations and the paywall mockup changed.
+- **Proof.** `flutter analyze` clean. The paywall suite could not start while the live app session held `build/native_assets/windows/sqlite3mc.dll`; the test expectations were updated to the new text.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — Manage Plan's actions read Renew Plan and Cancel Plan — COMPLETE (0.0.778)
 
 - **What was asked.** On the Manage Plan screen only, rename Renew Subscription to Renew Plan / প্ল্যান নবায়ন করুন and Cancel Subscription to Cancel Plan / প্ল্যান বাতিল করুন.

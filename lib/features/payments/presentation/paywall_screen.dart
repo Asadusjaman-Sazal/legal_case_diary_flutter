@@ -12,10 +12,9 @@
 ///   leaves it chosen, so a card always carries a term (and its action) to
 ///   buy. A 6-month or yearly button also
 ///   shows its undiscounted price struck in red with the saving in green;
-/// * every card's list opens with the **Includes** heading, so all six open the
-///   same way. Starter and Pro list only what they **add**, under *Includes
-///   Everything in X, plus*; the three chamber cards list their whole allowance
-///   under plain *Includes* (user ruling, 2026-10-21), because a buyer comparing
+/// * Starter and Pro list only what they **add**, under *Everything in X, plus*;
+///   the three chamber cards list their whole allowance under plain *Includes*
+///   (user ruling, 2026-10-21), because a buyer comparing
 ///   chambers should not have to leave the Firm tab to learn what *Pro* holds;
 /// * a card takes the ink outline when it is **touched**, keeping it until a
 ///   different card is touched;
@@ -168,7 +167,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   /// The tier's own feature rows, in display order.
   ///
   /// Starter and Pro list only what the tier **adds**: the inherited features
-  /// sit behind their *Includes Everything in X, plus* header. The three chamber
+  /// sit behind their *Everything in X, plus* header. The three chamber
   /// cards list their **whole** allowance, because a chamber buyer would
   /// otherwise have to switch to the Individual tab to decode what is inherited
   /// (user ruling, 2026-10-21).
@@ -247,8 +246,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   SubscriptionTier _previousTier(SubscriptionTier tier) =>
       SubscriptionTier.values[tier.index - 1];
 
-  /// Whether the card lists only what the tier **adds**, under *Includes
-  /// Everything in X, plus*.
+  /// Whether the card lists only what the tier **adds**, under
+  /// *Everything in X, plus*.
   ///
   /// Starter and Pro do. The chamber cards print their whole allowance instead,
   /// so their header is plain *Includes* — an inherited line plus a complete
@@ -595,14 +594,13 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           ],
           const SizedBox(height: AppSpacing.md),
           Text(
-            // Every card's feature list opens with *Includes*. Where the rows
-            // list only what the tier adds, the heading runs straight into the
-            // inherited line — *Includes Everything in Free, plus* — so no
-            // comma: the phrase is one sentence. The chamber cards list their
-            // whole allowance, so their heading stands alone.
+            // An inheriting card opens with *Everything in Free, plus*; a
+            // chamber card opens with plain *Includes*, because it lists its
+            // whole allowance rather than only what it adds.
             _inheritsFromLowerTier(tier)
-                ? '${l.paywall_includes} '
-                      '${l.paywall_everythingIn(subscriptionTierLabel(l, _previousTier(tier)))}'
+                ? l.paywall_everythingIn(
+                    subscriptionTierLabel(l, _previousTier(tier)),
+                  )
                 : l.paywall_includes,
             style: AppTypography.titleMd,
           ),

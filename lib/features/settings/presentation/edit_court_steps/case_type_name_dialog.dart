@@ -21,13 +21,10 @@ import '../../../../shared/widgets/custom_dropdown.dart';
 
 /// The values the window returns to the list.
 class CaseTypeDraft {
-  const CaseTypeDraft({required this.name, this.nameBn, this.district});
+  const CaseTypeDraft({required this.name, this.district});
 
-  /// The English name stored in `case_types.name` and quoted by cases.
+  /// The name stored in `case_types.name` and quoted by cases.
   final String name;
-
-  /// The Bengali label, or null when the user left it blank.
-  final String? nameBn;
 
   /// The district stable id, or null for a type shown in every district.
   final String? district;
@@ -63,8 +60,7 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
   static const _allOption = '__all__';
 
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _englishController;
-  late final TextEditingController _bengaliController;
+  late final TextEditingController _nameController;
   String? _division;
   String? _district;
 
@@ -76,20 +72,14 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
   @override
   void initState() {
     super.initState();
-    _englishController = TextEditingController(
-      text: widget.initial?.name ?? '',
-    );
-    _bengaliController = TextEditingController(
-      text: widget.initial?.nameBn ?? '',
-    );
+    _nameController = TextEditingController(text: widget.initial?.name ?? '');
     _district = widget.initial?.district;
     _division = _divisionForDistrict(_district);
   }
 
   @override
   void dispose() {
-    _englishController.dispose();
-    _bengaliController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -153,12 +143,12 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextFormField(
-              key: const ValueKey('case-type-english-name'),
-              controller: _englishController,
+              key: const ValueKey('case-type-name'),
+              controller: _nameController,
               autofocus: true,
               style: AppTypography.bodyLg,
               decoration: InputDecoration(
-                labelText: l.settingsItemList_englishNameLabel,
+                labelText: l.settingsItemList_nameLabel,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md,
                   vertical: AppSpacing.md,
@@ -167,19 +157,6 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
               validator: (value) => value == null || value.trim().isEmpty
                   ? l.sharedDialogs_requiredField
                   : null,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
-              key: const ValueKey('case-type-bengali-name'),
-              controller: _bengaliController,
-              style: AppTypography.bodyLg,
-              decoration: InputDecoration(
-                labelText: l.settingsItemList_bengaliNameLabel,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.md,
-                ),
-              ),
             ),
             if (_showsDistrictScope) ...[
               const SizedBox(height: AppSpacing.md),
@@ -231,11 +208,9 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
           kind: AppDialogActionKind.primary,
           onPressed: () {
             if (!_formKey.currentState!.validate()) return;
-            final bengali = _bengaliController.text.trim();
             Navigator.of(dialogContext).pop(
               CaseTypeDraft(
-                name: _englishController.text.trim(),
-                nameBn: bengali.isEmpty ? null : bengali,
+                name: _nameController.text.trim(),
                 district: _district,
               ),
             );

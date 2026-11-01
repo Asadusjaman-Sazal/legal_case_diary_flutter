@@ -3532,12 +3532,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsItemList_nameLabel => 'নাম';
 
   @override
-  String get settingsItemList_englishNameLabel => 'ইংরেজি নাম';
-
-  @override
-  String get settingsItemList_bengaliNameLabel => 'বাংলা নাম';
-
-  @override
   String get settingsItemList_allDivisions => 'সব বিভাগ';
 
   @override

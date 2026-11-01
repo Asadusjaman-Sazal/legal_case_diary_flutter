@@ -357,6 +357,19 @@ void main() {
       find.byKey(const ValueKey('reference-detail-citation')),
       findsOneWidget,
     );
+    // The admin action row carries Close beside Delete and Edit, not the
+    // citation line.
+    final law = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-law')),
+    );
+    final delete = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-delete')),
+    );
+    final close = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+    expect(close.top, greaterThan(law.bottom));
+    expect((close.top - delete.top).abs(), lessThan(0.5));
     await tester.tap(find.byKey(const ValueKey('reference-detail-edit')));
     await tester.pumpAndSettle();
     expect(find.text('Edit Official Reference'), findsOneWidget);

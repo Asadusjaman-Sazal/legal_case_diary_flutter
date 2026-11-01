@@ -227,7 +227,7 @@ void main() {
     );
   });
 
-  testWidgets('a CJM case type saves both names and the district', (
+  testWidgets('a CJM case type saves its name and the district', (
     tester,
   ) async {
     final repo = _FakeCaseTypesRepository(const <CaseType>[]);
@@ -243,24 +243,14 @@ void main() {
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
-    expect(
-      find.byKey(const ValueKey('case-type-english-name')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('case-type-bengali-name')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('case-type-name')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-type-bengali-name')), findsNothing);
     expect(find.byKey(const ValueKey('case-type-division')), findsOneWidget);
     expect(find.byKey(const ValueKey('case-type-district')), findsOneWidget);
 
     await tester.enterText(
-      find.byKey(const ValueKey('case-type-english-name')),
+      find.byKey(const ValueKey('case-type-name')),
       'Custom Type',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('case-type-bengali-name')),
-      'কাস্টম টাইপ',
     );
     await tester.tap(find.byKey(const ValueKey('case-type-district')));
     await tester.pumpAndSettle();
@@ -277,7 +267,8 @@ void main() {
     final inserted = repo.inserted!;
     expect(inserted.courtCategoryId.value, chiefJudicialMagistrateId);
     expect(inserted.name.value, 'Custom Type');
-    expect(inserted.nameBn.value, 'কাস্টম টাইপ');
+    // A new type has one name only; the row's default leaves name_bn null.
+    expect(inserted.nameBn.present, isFalse);
     expect(inserted.district.value, 'dhaka');
   });
 
@@ -351,7 +342,7 @@ void main() {
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('case-type-english-name')),
+      find.byKey(const ValueKey('case-type-name')),
       'Global Type',
     );
     await tester.tap(
@@ -363,11 +354,72 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repo.inserted!.name.value, 'Global Type');
-    expect(repo.inserted!.nameBn.value, isNull);
+    expect(repo.inserted!.nameBn.present, isFalse);
     expect(repo.inserted!.district.value, isNull);
   });
 
-  testWidgets('a non-magistrate case type window keeps the name fields only', (
+  testWidgets('a saved Bengali label survives an unchanged name, not a rename', (
+    tester,
+  ) async {
+    const scoped = CaseType(
+      id: 'custom-scoped-type',
+      courtCategoryId: chiefJudicialMagistrateId,
+      name: 'My Type',
+      nameBn: 'আমার ধরন',
+      district: 'narayanganj',
+      orderIndex: 99,
+      isCustom: true,
+      isUserModified: false,
+      updatedAt: 0,
+      isDeleted: false,
+    );
+    final repo = _FakeCaseTypesRepository(const [scoped]);
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.caseTypes,
+        categoryId: chiefJudicialMagistrateId,
+      ),
+      [caseTypesRepositoryProvider.overrideWith((ref) async => repo)],
+    );
+
+    // Opening and saving without touching the name keeps the row's Bengali
+    // label, so a no-op edit cannot silently erase it.
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('case-type-name')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-type-bengali-name')), findsNothing);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(repo.updated!.name.value, 'My Type');
+    expect(repo.updated!.nameBn.present, isFalse);
+
+    // Renaming a type that still carries a Bengali label clears the old label,
+    // so the list cannot show a translation of a name that is gone.
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('case-type-name')),
+      'Renamed Type',
+    );
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(repo.updated!.name.value, 'Renamed Type');
+    expect(repo.updated!.nameBn.present, isTrue);
+    expect(repo.updated!.nameBn.value, isNull);
+  });
+
+  testWidgets('a non-magistrate case type window keeps the single name field', (
     tester,
   ) async {
     final repo = _FakeCaseTypesRepository(const <CaseType>[]);
@@ -383,14 +435,8 @@ void main() {
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
 
-    expect(
-      find.byKey(const ValueKey('case-type-english-name')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('case-type-bengali-name')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('case-type-name')), findsOneWidget);
+    expect(find.byKey(const ValueKey('case-type-bengali-name')), findsNothing);
     expect(find.byKey(const ValueKey('case-type-division')), findsNothing);
     expect(find.byKey(const ValueKey('case-type-district')), findsNothing);
   });
@@ -563,6 +609,7 @@ class _FakeCaseTypesRepository implements CaseTypesRepository {
   _FakeCaseTypesRepository(this._items);
   final List<CaseType> _items;
   CaseTypesCompanion? inserted;
+  CaseTypesCompanion? updated;
 
   @override
   Stream<List<CaseType>> watchByCategory(String categoryId) => Stream.value(
@@ -577,6 +624,11 @@ class _FakeCaseTypesRepository implements CaseTypesRepository {
   Future<String> insert(CaseTypesCompanion companion) async {
     inserted = companion;
     return 'new-case-type';
+  }
+
+  @override
+  Future<void> update(CaseTypesCompanion companion, {CaseType? base}) async {
+    updated = companion;
   }
 
   @override

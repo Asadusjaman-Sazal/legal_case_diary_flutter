@@ -1512,8 +1512,6 @@
   "settingsItemList_addTitle": "আইটেম যোগ করুন",
   "settingsItemList_editTitle": "আইটেম সম্পাদনা",
   "settingsItemList_nameLabel": "নাম",
-  "settingsItemList_englishNameLabel": "ইংরেজি নাম",
-  "settingsItemList_bengaliNameLabel": "বাংলা নাম",
   "settingsItemList_allDivisions": "সব বিভাগ",
   "settingsItemList_allDistricts": "সব জেলা",
   "settingsItemList_empty": "এখনো কোনো আইটেম যুক্ত করা হয়নি। নিচে একটি যোগ করুন।",

@@ -201,7 +201,6 @@ class ItemListScreen extends ConsumerWidget {
       CaseTypesCompanion(
         courtCategoryId: Value(categoryId),
         name: Value(draft.name),
-        nameBn: Value(draft.nameBn),
         district: Value(draft.district),
         orderIndex: Value(
           nextOrderIndex(existing.map((item) => item.orderIndex)),
@@ -284,7 +283,11 @@ class _CaseTypeListView extends ConsumerWidget {
       CaseTypesCompanion(
         id: Value(caseType.id),
         name: Value(draft.name),
-        nameBn: Value(draft.nameBn),
+        // A saved Bengali label stays only while the name it translates is
+        // unchanged; renaming the type would otherwise show two different names.
+        nameBn: draft.name == caseType.name
+            ? const Value.absent()
+            : const Value(null),
         district: Value(draft.district),
       ),
       base: caseType,

@@ -9,9 +9,10 @@
 ///
 /// The layout follows the Case Detail screen: the app background, 16 px side
 /// margins, white section cards with an 8 px corner and the card border, 24 px
-/// padding, icon-and-title headings and labelled value boxes. On an Official
-/// row the small Close shares the first line with the citation and the Official
-/// mark, leaving Delete and Edit to the action row below.
+/// padding, icon-and-title headings and labelled value boxes. On the user's
+/// library an Official row keeps the small Close on the first line with the
+/// citation and the Official mark; the Server-wide library puts it in the
+/// Delete/Edit action row instead, because an admin already has that line.
 library;
 
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class ReferenceDetailScreen extends StatefulWidget {
     this.onEdit,
     this.onDelete,
     this.lawIcon,
+    this.closeInActionsRow = false,
     super.key,
   });
 
@@ -54,6 +56,12 @@ class ReferenceDetailScreen extends StatefulWidget {
   /// supplies it from the live law list so the line wears the icon of the law
   /// name's category, as Settings → Law Names does.
   final IconData Function(String? statute)? lawIcon;
+
+  /// Whether Close sits in the Delete/Edit action row instead of on the first
+  /// line. The Server-wide library passes true: its admin rows already carry
+  /// an action line, so Close belongs there; the user's own library keeps it
+  /// beside the Official mark.
+  final bool closeInActionsRow;
 
   @override
   State<ReferenceDetailScreen> createState() => _ReferenceDetailScreenState();
@@ -120,19 +128,17 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                   if (_row.isOfficial) ...[
                     const SizedBox(width: AppSpacing.sm),
                     OfficialChip(label: l.caseReferenceScreen_official),
-                    const SizedBox(width: AppSpacing.sm),
-                    _headerCloseButton(l),
+                    if (!widget.closeInActionsRow) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      _headerCloseButton(l),
+                    ],
                   ],
                 ],
               ),
               const SizedBox(height: AppSpacing.xs),
               Row(
                 children: [
-                  Icon(
-                    lawIcon,
-                    size: 18,
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                  Icon(lawIcon, size: 18, color: AppColors.onSurfaceVariant),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
@@ -148,7 +154,8 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                 ],
               ),
               // Delete / Edit sit directly under the Act/Law on an Official
-              // row; the user's own row keeps Close here too.
+              // row; the user's own row keeps Close here too, and the
+              // Server-wide library adds it to this row as well.
               if (actions != null) ...[
                 const SizedBox(height: AppSpacing.md),
                 actions,
@@ -205,10 +212,10 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
     );
   }
 
-  /// The Close action on an Official row's first line: a 24 px black button
-  /// with a white cross, spaced from the Official mark (user request), so the
-  /// citation, chip and button share the line. Delete and Edit stay in the
-  /// action row.
+  /// The Close action on an Official row's first line, used by the user's own
+  /// library: a 24 px black button with a white cross, spaced from the Official
+  /// mark (user request), so the citation, chip and button share the line. The
+  /// Server-wide library puts Close in the action row instead.
   Widget _headerCloseButton(AppLocalizations l) => IconButton(
     key: const ValueKey('reference-detail-close'),
     tooltip: l.sharedActions_close,
@@ -231,8 +238,10 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
 
   /// The actions under the Act/Law.
   ///
-  /// An Official row keeps only Delete and Edit here — Close sits beside the
-  /// Official mark — while the user's own row keeps Delete / Edit / Close.
+  /// The user's own row keeps Delete / Edit / Close here and an Official row
+  /// keeps Close on the first line, so only Delete and Edit appear below. The
+  /// Server-wide library passes [ReferenceDetailScreen.closeInActionsRow], so
+  /// its Official row puts Close in this row beside Delete and Edit.
   /// Three share the line in equal slots (the Case Detail's 70 % width); two
   /// are centred as a pair (user request). Hiding a button re-flows the row.
   Widget? _actionsRow(AppLocalizations l) {
@@ -262,7 +271,7 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
               background: AppColors.secondary,
               onPressed: _editing ? null : _edit,
             ),
-          if (!_row.isOfficial)
+          if (!_row.isOfficial || widget.closeInActionsRow)
             (
               key: const ValueKey('reference-detail-close'),
               icon: Icons.close,

@@ -168,6 +168,9 @@ class _AdminSharedReferencesScreenState
             if (reference == null) return false;
             return _confirmDelete(reference, ledgerContext: detailContext);
           },
+          // The admin action row already sits under the citation, so Close
+          // belongs there beside Delete and Edit instead of on the first line.
+          closeInActionsRow: true,
         ),
       ),
     );

@@ -1,7 +1,8 @@
 /// The read-only Case Reference detail, shared by the user's library and the
 /// Server-wide page: its Case-Detail-style layout, the absent fields' em dash,
-/// the Edit action, the read-only variant, and an Official row's small Close on
-/// the citation line beside the Official mark.
+/// the Edit action, the read-only variant, an Official row's small Close on the
+/// citation line in the user's library, and Close in the Delete/Edit row on the
+/// Server-wide page.
 library;
 
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ void main() {
     Future<ReferenceRow?> Function(ReferenceRow currentRow)? onEdit,
     Future<bool> Function(BuildContext context)? onDelete,
     IconData Function(String? statute)? lawIcon,
+    bool closeInActionsRow = false,
   }) async {
     await tester.binding.setSurfaceSize(const Size(800, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -55,6 +57,7 @@ void main() {
           onEdit: onEdit,
           onDelete: onDelete,
           lawIcon: lawIcon,
+          closeInActionsRow: closeInActionsRow,
         ),
       ),
     );
@@ -165,6 +168,49 @@ void main() {
     expect(delete.height, 40);
     expect(delete.width, greaterThan(40));
     expect(find.byKey(const ValueKey('reference-detail-back')), findsNothing);
+  });
+
+  testWidgets('the Server-wide detail puts Close in the Delete/Edit row', (
+    tester,
+  ) async {
+    await pumpDetail(
+      tester,
+      fullRow(),
+      onEdit: (_) async => null,
+      onDelete: (_) async => false,
+      closeInActionsRow: true,
+    );
+
+    final law = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-law')),
+    );
+    final delete = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-delete')),
+    );
+    final edit = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-edit')),
+    );
+    final close = tester.getRect(
+      find.byKey(const ValueKey('reference-detail-close')),
+    );
+
+    // Close has left the first line: the Official mark stays there, while all
+    // three actions share the row under the Act/Law.
+    expect(find.text('Official'), findsOneWidget);
+    expect(close.top, greaterThan(law.bottom));
+    expect((close.top - delete.top).abs(), lessThan(0.5));
+    expect((close.top - edit.top).abs(), lessThan(0.5));
+    expect(close.left, greaterThan(edit.right));
+    expect((close.width - delete.width).abs(), lessThan(0.5));
+    expect(
+      tester.widget(find.byKey(const ValueKey('reference-detail-close'))),
+      isA<FilledButton>(),
+    );
+    // Only the row's Close exists, not a second one on the header.
+    expect(
+      find.byKey(const ValueKey('reference-detail-close')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the law line wears its category icon', (tester) async {

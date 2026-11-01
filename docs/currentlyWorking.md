@@ -1,5 +1,19 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-01 — The Server-wide detail's Close joins the admin actions — COMPLETE (0.0.788)
+
+- **What was asked.** On the Server-wide Case Reference detail only, the Close button should sit with Delete and Edit, because admins already have that action line. The regular Case Reference detail must stay exactly as it is.
+- **What changed.** The shared detail gained `closeInActionsRow`, which only the Admin Panel's Server-wide host sets. With it, an Official row no longer draws the 24 px Close on the citation line; Close joins Delete and Edit in the row under the Act/Law as three equal slots. The regular Case Reference detail keeps its first-line Close beside the Official mark (0.0.772/0.0.773) and its own rows keep Delete / Edit / Close below.
+- **Proof.** A new shared-detail test asserts the Server-wide placement: Close below the law, level with Delete and Edit with the same width, one FilledButton and no second Close in the tree. The Admin Panel detail test asserts the same placement through its real host. `flutter analyze` clean; full suite **2,281 passed**, with only the known pre-existing backup export-list red. No mockup exists for the admin detail.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-01 — One Name field in the Case Type window — COMPLETE (0.0.787)
+
+- **What was asked.** The Case Types screen's Add Item window should show only one **Name** field for every court category; separate English and Bengali fields confuse users, and a user should see only the name they typed.
+- **What changed.** The dedicated Case Type window now has one **Name** field (localized as **নাম**) instead of **English Name** and **Bengali Name**. A new type stores exactly that name in `case_types.name` and leaves `name_bn` null, so it reads the same in both languages. Division and District are unchanged for CJM/CMM. Editing keeps an existing row's stored Bengali label only while its name is unchanged, and clears it on a rename so the list cannot show an old translation; built-in bilingual labels are untouched. The two now-unused ARB keys were removed in both languages.
+- **Proof.** The settings tests assert the CJM window has one name field plus Division/District and saves the name and district; a non-magistrate window has the single name field only; and an unchanged edit preserves a stored Bengali label while a rename clears it. `flutter analyze` clean; full suite **2,280 passed**, with only the known pre-existing backup export-list red. No mockup is owed (the item lists have none).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — The District field shows every district — COMPLETE (0.0.786)
 
 - **What was reported.** After the Division list gained all eight divisions, the District field still had no choices for most of them.

@@ -44,6 +44,20 @@ String itemKindTitle(AppLocalizations l, ItemKind kind) => switch (kind) {
   ItemKind.onBehalf => l.settingsEditItems_onBehalf,
 };
 
+/// Window title for adding one item of [kind], e.g. "Add Step".
+String itemAddTitle(AppLocalizations l, ItemKind kind) => switch (kind) {
+  ItemKind.caseTypes => l.settingsItemList_addCaseType,
+  ItemKind.steps => l.settingsItemList_addStep,
+  ItemKind.onBehalf => l.settingsItemList_addOnBehalf,
+};
+
+/// Window title for editing one item of [kind], e.g. "Edit Step".
+String itemEditTitle(AppLocalizations l, ItemKind kind) => switch (kind) {
+  ItemKind.caseTypes => l.settingsItemList_editCaseType,
+  ItemKind.steps => l.settingsItemList_editStep,
+  ItemKind.onBehalf => l.settingsItemList_editOnBehalf,
+};
+
 /// Generic item list screen (Case Types / Steps / On Behalf).
 class ItemListScreen extends ConsumerWidget {
   final ItemKind kind;
@@ -146,10 +160,12 @@ class ItemListScreen extends ConsumerWidget {
   // Separate typed add/edit callbacks keep the repository generics concrete.
   Future<void> _add(BuildContext context, dynamic repo) async {
     final l = AppLocalizations.of(context);
+    // The window names what it adds: Add Step, Add On Behalf.
+    final kind = repo is StepsRepository ? ItemKind.steps : ItemKind.onBehalf;
     final name = await showDialog<String>(
       context: context,
       builder: (_) => EditNameDialog(
-        title: l.settingsItemList_addTitle,
+        title: itemAddTitle(l, kind),
         fieldLabel: l.settingsItemList_nameLabel,
       ),
     );
@@ -191,7 +207,7 @@ class ItemListScreen extends ConsumerWidget {
     final draft = await showDialog<CaseTypeDraft>(
       context: context,
       builder: (_) => CaseTypeNameDialog(
-        title: l.settingsItemList_addTitle,
+        title: itemAddTitle(l, ItemKind.caseTypes),
         categoryId: categoryId,
       ),
     );
@@ -270,24 +286,29 @@ class _CaseTypeListView extends ConsumerWidget {
 
   Future<void> _editCaseType(BuildContext context, CaseType caseType) async {
     final l = AppLocalizations.of(context);
+    // The list shows the Bengali name (or the seeded translation) under বাংলা,
+    // so the window opens on that same name instead of the stored English one.
+    final shown = _displayName(context, caseType);
     final draft = await showDialog<CaseTypeDraft>(
       context: context,
       builder: (_) => CaseTypeNameDialog(
-        title: l.settingsItemList_editTitle,
+        title: itemEditTitle(l, ItemKind.caseTypes),
         categoryId: caseType.courtCategoryId,
         initial: caseType,
+        initialName: shown,
       ),
     );
     if (draft == null || !context.mounted) return;
+    final renamed = draft.name != shown;
     await repo.update(
       CaseTypesCompanion(
         id: Value(caseType.id),
-        name: Value(draft.name),
+        // A name the user did not touch is not a new name: keep the stored one,
+        // so the translated label never overwrites it.
+        name: renamed ? Value(draft.name) : Value(caseType.name),
         // A saved Bengali label stays only while the name it translates is
         // unchanged; renaming the type would otherwise show two different names.
-        nameBn: draft.name == caseType.name
-            ? const Value.absent()
-            : const Value(null),
+        nameBn: renamed ? const Value(null) : const Value.absent(),
         district: Value(draft.district),
       ),
       base: caseType,
@@ -317,8 +338,10 @@ class _StepListView extends ConsumerWidget {
           getId: (c) => c.id,
           onEdit: (c) => _edit(
             context,
-            c.stepName,
-            (name) => repo.update(
+            title: itemEditTitle(AppLocalizations.of(context), ItemKind.steps),
+            id: c.id,
+            storedName: c.stepName,
+            save: (name) => repo.update(
               StepsCompanion(id: Value(c.id), stepName: Value(name)),
               base: c,
             ),
@@ -361,8 +384,10 @@ class _OnBehalfListView extends ConsumerWidget {
         getId: (c) => c.id,
         onEdit: (c) => _edit(
           context,
-          c.name,
-          (name) => repo.update(
+          title: itemEditTitle(AppLocalizations.of(context), ItemKind.onBehalf),
+          id: c.id,
+          storedName: c.name,
+          save: (name) => repo.update(
             OnBehalfsCompanion(id: Value(c.id), name: Value(name)),
             base: c,
           ),
@@ -490,21 +515,28 @@ class _ListBody<T> extends StatelessWidget {
 }
 
 Future<void> _edit(
-  BuildContext context,
-  String initial,
-  Future<void> Function(String) save,
-) async {
+  BuildContext context, {
+  required String title,
+  required String id,
+  required String storedName,
+  required Future<void> Function(String) save,
+}) async {
   final l = AppLocalizations.of(context);
+  // A pre-seeded row is stored in English; the window opens on the label the
+  // list shows, so editing in Bengali does not drop the user back into English.
+  final shown = context.l10n.seedLabel(id, fallbackEn: storedName);
   final name = await showDialog<String>(
     context: context,
     builder: (_) => EditNameDialog(
-      title: l.settingsItemList_editTitle,
+      title: title,
       fieldLabel: l.settingsItemList_nameLabel,
-      initialName: initial,
+      initialName: shown,
     ),
   );
   if (name == null || !context.mounted) return;
-  await save(name);
+  // Leaving the shown name untouched writes nothing new: saving it back would
+  // replace the stored English name with its translated label.
+  await save(name == shown ? storedName : name);
 }
 
 Future<void> _delete<T>(

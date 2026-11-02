@@ -3520,6 +3520,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsItemList_editTitle => 'Edit Item';
 
   @override
+  String get settingsItemList_addCaseType => 'Add Case Type';
+
+  @override
+  String get settingsItemList_editCaseType => 'Edit Case Type';
+
+  @override
+  String get settingsItemList_addStep => 'Add Step';
+
+  @override
+  String get settingsItemList_editStep => 'Edit Step';
+
+  @override
+  String get settingsItemList_addOnBehalf => 'Add On Behalf';
+
+  @override
+  String get settingsItemList_editOnBehalf => 'Edit On Behalf';
+
+  @override
   String get settingsItemList_nameLabel => 'Name';
 
   @override
@@ -3567,10 +3585,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsItemList_catTribunals => 'Tribunals';
 
   @override
-  String get settingsCourtList_addTitle => 'Add Court';
+  String get settingsCourtList_addTitle => 'Add Court Name';
 
   @override
-  String get settingsCourtList_editTitle => 'Edit Court';
+  String get settingsCourtList_editTitle => 'Edit Court Name';
 
   @override
   String get settingsCourtList_nameLabel => 'Court name';

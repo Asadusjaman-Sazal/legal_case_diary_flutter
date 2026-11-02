@@ -603,6 +603,83 @@ void main() {
     );
     expect(deleteRect.left - cancelRect.right, 12);
   });
+
+  testWidgets('the steps add window says Add Step', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.steps,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        stepsRepositoryProvider.overrideWith(
+          (ref) async => _FakeStepsRepository([_customStep]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.settingsItemList_addStep), findsOneWidget);
+  });
+
+  testWidgets('the on-behalf add window says Add On Behalf', (tester) async {
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.onBehalf,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        onBehalfsRepositoryProvider.overrideWith(
+          (ref) async => _FakeOnBehalfsRepository([_customOnBehalf]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.settingsItemList_addOnBehalf), findsOneWidget);
+  });
+
+  testWidgets('a seeded step opens its edit window in Bengali', (tester) async {
+    final seed = _category.steps.first;
+    await pump(
+      tester,
+      const ItemListScreen(
+        kind: ItemKind.steps,
+        categoryId: districtCourtsCivilId,
+      ),
+      [
+        stepsRepositoryProvider.overrideWith(
+          (ref) async => _FakeStepsRepository([
+            Step(
+              id: seed.id,
+              courtCategoryId: districtCourtsCivilId,
+              stepName: seed.labelEn,
+              orderIndex: 0,
+              isCustom: false,
+              isUserModified: false,
+              updatedAt: 0,
+              isDeleted: false,
+            ),
+          ]),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    expect(find.text(l.settingsItemList_editStep), findsOneWidget);
+    // The tile and the window's field both carry the Bengali label.
+    expect(find.text(stepLabelBn[seed.id]!), findsNWidgets(2));
+  });
 }
 
 class _FakeCaseTypesRepository implements CaseTypesRepository {

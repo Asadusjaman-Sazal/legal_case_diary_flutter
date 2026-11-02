@@ -3435,12 +3435,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'মামলার ধরন, কার্যপদ্ধতির পদক্ষেপ ও পক্ষের ভূমিকা পরিচালনা করুন';
 
   @override
-  String get settingsEditCourtSteps_courtNamesCategories =>
-      'আদালতের নাম ও ক্যাটেগরি';
+  String get settingsEditCourtSteps_courtNamesCategories => 'আদালতের নাম';
 
   @override
   String get settingsEditCourtSteps_courtNamesCategoriesSubtitle =>
-      'সুপ্রিম কোর্টের বিভাগ ও জেলার নিম্ন আদালত';
+      'আপিল/হাই কোর্ট বিভাগ, নিম্ন আদালতের নাম';
 
   @override
   String get settingsEditCourtSteps_lowerCourtCategories =>
@@ -3535,6 +3534,24 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsItemList_editTitle => 'আইটেম সম্পাদনা';
 
   @override
+  String get settingsItemList_addCaseType => 'মামলার ধরন যোগ করুন';
+
+  @override
+  String get settingsItemList_editCaseType => 'মামলার ধরন সম্পাদনা';
+
+  @override
+  String get settingsItemList_addStep => 'পদক্ষেপ যোগ করুন';
+
+  @override
+  String get settingsItemList_editStep => 'পদক্ষেপ সম্পাদনা';
+
+  @override
+  String get settingsItemList_addOnBehalf => 'পক্ষে যোগ করুন';
+
+  @override
+  String get settingsItemList_editOnBehalf => 'পক্ষে সম্পাদনা';
+
+  @override
   String get settingsItemList_nameLabel => 'নাম';
 
   @override
@@ -3582,10 +3599,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsItemList_catTribunals => 'ট্রাইব্যুনাল';
 
   @override
-  String get settingsCourtList_addTitle => 'আদালত যোগ করুন';
+  String get settingsCourtList_addTitle => 'আদালতের নাম যোগ করুন';
 
   @override
-  String get settingsCourtList_editTitle => 'আদালত সম্পাদনা';
+  String get settingsCourtList_editTitle => 'আদালতের নাম সম্পাদনা';
 
   @override
   String get settingsCourtList_nameLabel => 'আদালতের নাম';

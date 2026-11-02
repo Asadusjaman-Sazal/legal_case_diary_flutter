@@ -43,11 +43,16 @@ class CaseTypeNameDialog extends StatefulWidget {
   /// The row being edited; null when adding.
   final CaseType? initial;
 
+  /// The name the field opens with — the row's label in the active language,
+  /// which may differ from [initial]'s stored English name.
+  final String? initialName;
+
   const CaseTypeNameDialog({
     super.key,
     required this.title,
     required this.categoryId,
     this.initial,
+    this.initialName,
   });
 
   @override
@@ -72,7 +77,9 @@ class _CaseTypeNameDialogState extends State<CaseTypeNameDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.initial?.name ?? '');
+    _nameController = TextEditingController(
+      text: widget.initialName ?? widget.initial?.name ?? '',
+    );
     _district = widget.initial?.district;
     _division = _divisionForDistrict(_district);
   }

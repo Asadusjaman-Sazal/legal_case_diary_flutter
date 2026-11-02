@@ -242,17 +242,25 @@ class _CourtListViewState extends ConsumerState<_CourtListView> {
 
   Future<void> _editCourt(BuildContext context, Court court) async {
     final l = AppLocalizations.of(context);
+    // A seeded court is stored in English, so the window opens on the name the
+    // tile shows — the Bengali label under বাংলা.
+    final shown = context.l10n.seedLabel(court.id, fallbackEn: court.courtName);
     final name = await showDialog<String>(
       context: context,
       builder: (_) => EditNameDialog(
         title: l.settingsCourtList_editTitle,
         fieldLabel: l.settingsCourtList_nameLabel,
-        initialName: court.courtName,
+        initialName: shown,
       ),
     );
     if (name == null || !mounted) return;
+    // Leaving the shown name untouched keeps the stored English name instead of
+    // overwriting it with the Bengali label.
     await widget.repo.update(
-      CourtsCompanion(id: Value(court.id), courtName: Value(name)),
+      CourtsCompanion(
+        id: Value(court.id),
+        courtName: Value(name == shown ? court.courtName : name),
+      ),
       base: court,
     );
   }

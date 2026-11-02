@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-02 — Edit Court/Steps speaks Bengali and names each window — COMPLETE (0.0.795)
+
+- **What was asked.** Three things in the Edit Court/Steps area: the Bengali Court Names row and its subtitle; Bengali court and item names inside the edit windows; and an Add/Edit window title that names the item being edited.
+- **What changed.** The Bengali row now reads আদালতের নাম with the subtitle আপিল/হাই কোর্ট বিভাগ, নিম্ন আদালতের নাম. The windows are titled by kind — Add/Edit Court Name, Case Type, Step, On Behalf — and under বাংলা they open on the Bengali name the row shows instead of the stored English one. Leaving a name untouched saves the stored English name unchanged, so a translated label is never written over it.
+- **Proof.** `edit_items_language_test.dart` adds three cases (Add Step, Add On Behalf, and a seeded step opening in Bengali); `flutter analyze` clean; the Edit Court/Steps suites **38 passed**. No mockup change is owed: the mockup does not draw these windows.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-02 — The Update window says Current Date — COMPLETE (0.0.794)
 
 - **What was asked.** In the Update window only, change the label Current Next Date / বর্তমান তারিখ to Current Date / বর্তমান তারিখ.

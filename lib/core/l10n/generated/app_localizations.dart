@@ -6049,6 +6049,42 @@ abstract class AppLocalizations {
   /// **'Edit Item'**
   String get settingsItemList_editTitle;
 
+  /// No description provided for @settingsItemList_addCaseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Case Type'**
+  String get settingsItemList_addCaseType;
+
+  /// No description provided for @settingsItemList_editCaseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Case Type'**
+  String get settingsItemList_editCaseType;
+
+  /// No description provided for @settingsItemList_addStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Step'**
+  String get settingsItemList_addStep;
+
+  /// No description provided for @settingsItemList_editStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Step'**
+  String get settingsItemList_editStep;
+
+  /// No description provided for @settingsItemList_addOnBehalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Add On Behalf'**
+  String get settingsItemList_addOnBehalf;
+
+  /// No description provided for @settingsItemList_editOnBehalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit On Behalf'**
+  String get settingsItemList_editOnBehalf;
+
   /// No description provided for @settingsItemList_nameLabel.
   ///
   /// In en, this message translates to:
@@ -6142,13 +6178,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCourtList_addTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Court'**
+  /// **'Add Court Name'**
   String get settingsCourtList_addTitle;
 
   /// No description provided for @settingsCourtList_editTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Court'**
+  /// **'Edit Court Name'**
   String get settingsCourtList_editTitle;
 
   /// No description provided for @settingsCourtList_nameLabel.

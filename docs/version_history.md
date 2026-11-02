@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.794 - The Update window's summary line now reads Current Date instead of Current Next Date; nothing else in the window changed.
+Version: 0.0.795 - Edit Court/Steps: Bengali Court Names row and subtitle, Bengali names in the court and item edit windows, and kind-named Add/Edit titles.
 --------------------------------------
 
 ## Version History Log:
@@ -808,3 +808,4 @@ Version: 0.0.791 - Choosing a backup now offers Files for a file anywhere on the
 Version: 0.0.792 - Each backup in the Choose the backup to restore window now shows its date, time and file size under the name, so two backups can be told apart before opening one.
 Version: 0.0.793 - The Choose the backup to restore window lists the newest backup first and marks it Recommended, so the latest copy is the obvious choice.
 Version: 0.0.794 - The Update window's summary line now reads Current Date instead of Current Next Date; nothing else in the window changed.
+Version: 0.0.795 - Edit Court/Steps: Bengali Court Names row and subtitle, Bengali names in the court and item edit windows, and kind-named Add/Edit titles.

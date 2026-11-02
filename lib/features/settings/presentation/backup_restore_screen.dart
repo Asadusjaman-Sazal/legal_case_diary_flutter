@@ -539,9 +539,9 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// Finds the backup(s) the restore should use, dialog-free.
   ///
   /// One backup in the folder restores directly. Several are offered in a
-  /// choice dialog (the "slightly rounder corner popup" the user asked for), and
-  /// the system file picker remains the fallback when the folder is missing,
-  /// inaccessible, or holds no backup.
+  /// choice dialog, which also offers **Files** for a backup kept somewhere
+  /// else, and the system file picker remains the fallback when the folder is
+  /// missing, inaccessible, or holds no backup.
   ///
   /// Files are read synchronously: a backup is a few megabytes at most, and this
   /// keeps the folder path free of the async I/O a widget test's fake clock
@@ -563,19 +563,44 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
     }
     if (files.length > 1) {
       if (!mounted) return (file: null, fromFolder: true);
-      final picked = await showDialog<PickedBackupFile?>(
-        context: context,
-        builder: (_) => _BackupFilePickerDialog(
-          files: files,
-          onPick: (File f) async => PickedBackupFile(
-            name: p.basename(f.path),
-            path: f.path,
-            bytes: f.readAsBytesSync(),
+      // Each row carries what the user needs to tell two backups apart: when
+      // the file was last written and how big it is, beside its name. Stamped
+      // here, once, so the window never reads the disk while it builds.
+      final entries = [
+        for (final file in files)
+          _BackupEntry(
+            file: file,
+            modified: file.statSync().modified,
+            size: file.lengthSync(),
           ),
-        ),
-      );
+      ];
+      // Newest first, so the backup a user most likely wants is the first row
+      // (and wears the Recommended mark). The name breaks an exact tie, which
+      // keeps the order stable when two files share a timestamp.
+      entries.sort((a, b) {
+        final byTime = b.modified.compareTo(a.modified);
+        return byTime != 0
+            ? byTime
+            : p.basename(a.file.path).compareTo(p.basename(b.file.path));
+      });
+      // The window answers with where the file came from as well as the file:
+      // a folder row is a folder choice, while Files is the platform picker, so
+      // a refusal later offers "choose another" only for the former.
+      final choice =
+          await showDialog<({PickedBackupFile? file, bool fromFolder})>(
+            context: context,
+            builder: (_) => _BackupFilePickerDialog(
+              entries: entries,
+              onPick: (File f) async => PickedBackupFile(
+                name: p.basename(f.path),
+                path: f.path,
+                bytes: f.readAsBytesSync(),
+              ),
+              onBrowse: _browseForBackup,
+            ),
+          );
       // The choice was cancelled; nothing to restore.
-      return (file: picked, fromFolder: true);
+      return choice ?? (file: null, fromFolder: true);
     }
     // The folder is missing, empty or holds no app backup: ask the platform.
     final picked = await ref.read(backupFileGatewayProvider).pick();
@@ -583,6 +608,25 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
       file: (picked == null || !mounted) ? null : picked,
       fromFolder: false,
     );
+  }
+
+  /// Opens the platform file manager for a backup held outside the diary folder.
+  ///
+  /// A dismissed picker returns null and leaves the choice window open, so the
+  /// folder list is not lost to a mis-tap. A picker that cannot open is reported
+  /// here rather than thrown through the window's button: the snackbar says the
+  /// same thing it says when the folder fallback fails.
+  Future<PickedBackupFile?> _browseForBackup() async {
+    if (!mounted) return null;
+    try {
+      return await ref.read(backupFileGatewayProvider).pick();
+    } catch (error, stack) {
+      debugPrint('Backup source unavailable: $error\n$stack');
+      _showMessage(
+        AppLocalizations.of(context).settingsBackupRestore_errorOpenFile,
+      );
+      return null;
+    }
   }
 
   /// The user-facing message for one engine refusal.
@@ -780,34 +824,86 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   }
 }
 
-/// The "slightly rounder corner popup" listing the backup files in the diary
-/// folder, shown when a restore finds more than one.
+/// One row of the choose-a-backup window: the file and what the row prints.
+///
+/// The timestamp and size are read when the folder is scanned, not while the
+/// window builds, so a file that disappears mid-build cannot throw behind the
+/// window.
+class _BackupEntry {
+  const _BackupEntry({
+    required this.file,
+    required this.modified,
+    required this.size,
+  });
+
+  /// The backup file to open.
+  final File file;
+
+  /// When the file was last written (its backup time for the app's own files).
+  final DateTime modified;
+
+  /// The file's size in bytes.
+  final int size;
+}
+
+/// A human file size: bytes, then KB, then MB.
+///
+/// One decimal only below ten of a unit, so a row reads `866 KB` or `1.2 MB`
+/// rather than `866.37 KB`; the unit stays Latin in both languages, as it does
+/// in every other file measurement on a phone.
+String _formatFileSize(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  final kb = bytes / 1024;
+  if (kb < 1024) return '${kb.toStringAsFixed(kb < 10 ? 1 : 0)} KB';
+  final mb = kb / 1024;
+  return '${mb.toStringAsFixed(mb < 10 ? 1 : 0)} MB';
+}
+
+/// The choose-a-backup window listing the files in the diary folder, shown when
+/// a restore finds more than one.
 ///
 /// Each row is a tappable backup file; tapping one reads it into the same
 /// [PickedBackupFile] the platform picker would have produced, so the rest of
-/// the restore flow is unchanged. The corner radius is a little rounder than
-/// the app's default dialogs — `sheetRadius + radiusSm` — as the user asked.
+/// the restore flow is unchanged. Under the name the row prints the file's date
+/// and time and its size, so two `Backup_…` names can be told apart at a glance.
+/// **Files** opens the platform file manager for a backup stored anywhere else,
+/// which is why the window exists at all: the folder list is the shortcut, not
+/// the only door.
+///
+/// It is built on the shared frame (rule 17): corner, width range, height cap
+/// and the centred 112 x 48 action pair all come from `AppDialogMetrics` / the
+/// shared frame, so it reads like every other pop-over. Only the file rows are
+/// its own.
 class _BackupFilePickerDialog extends StatelessWidget {
-  /// The backup files to choose from, pre-sorted.
-  final List<File> files;
+  /// The backup files to choose from, pre-sorted, with their stamps.
+  final List<_BackupEntry> entries;
 
   /// Reads one chosen file into an opened backup.
   final Future<PickedBackupFile> Function(File file) onPick;
 
-  const _BackupFilePickerDialog({required this.files, required this.onPick});
+  /// Opens the platform file manager; null when the user closes it.
+  final Future<PickedBackupFile?> Function() onBrowse;
+
+  const _BackupFilePickerDialog({
+    required this.entries,
+    required this.onPick,
+    required this.onBrowse,
+  });
+
+  /// The row's supporting line: the file's date and time, then its size.
+  ///
+  /// The date uses the same `dd/MM/yyyy, hh:mm AM/PM` format the delete-request
+  /// screens use, in the active language, so a timestamp reads the same way
+  /// across the app.
+  String _details(_BackupEntry entry, String locale) =>
+      '${AppDateUtils.formatDateTimeDDMMYYYY(entry.modified.millisecondsSinceEpoch, locale: locale)}'
+      ' · ${_formatFileSize(entry.size)}';
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
     return AppDialogFrame(
-      // A little rounder than the shared corner, as the user asked for this
-      // window (rule: a unique window keeps its own shape).
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          AppSpacing.sheetRadius + AppSpacing.radiusSm,
-        ),
-        side: const BorderSide(color: AppColors.outlineVariant),
-      ),
       title: Text(
         l.settingsBackupRestore_chooseBackupTitle,
         style: AppTypography.titleLg,
@@ -816,27 +912,95 @@ class _BackupFilePickerDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final file in files)
+          // The list is newest first, so the first row is the one recommended.
+          for (var i = 0; i < entries.length; i++)
             ListTile(
-              key: ValueKey('backup-file-${p.basename(file.path)}'),
-              title: Text(p.basename(file.path)),
+              key: ValueKey('backup-file-${p.basename(entries[i].file.path)}'),
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      p.basename(entries[i].file.path),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (i == 0) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    _RecommendedChip(
+                      label: l.settingsBackupRestore_recommended,
+                    ),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                _details(entries[i], locale),
+                key: ValueKey(
+                  'backup-file-details-${p.basename(entries[i].file.path)}',
+                ),
+                style: AppTypography.bodySm.copyWith(
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
               onTap: () async {
-                final opened = await onPick(file);
+                final opened = await onPick(entries[i].file);
                 if (context.mounted) {
-                  Navigator.of(context).pop(opened);
+                  Navigator.of(context).pop((file: opened, fromFolder: true));
                 }
               },
             ),
         ],
       ),
+      // Two equal-weight actions on one centred line, the Exit App window's
+      // own pair rule. **Files** leaves the window open when the platform
+      // picker is cancelled, so the folder list is still there to choose from.
       actions: (dialogContext) => [
         AppDialogAction(
           label: l.sharedActions_cancel,
           onPressed: () => Navigator.of(dialogContext).pop(),
         ),
+        AppDialogAction(
+          label: l.imageSource_files,
+          key: const ValueKey('backup-files-button'),
+          onPressed: () async {
+            final browsed = await onBrowse();
+            if (browsed != null && dialogContext.mounted) {
+              Navigator.of(
+                dialogContext,
+              ).pop((file: browsed, fromFolder: false));
+            }
+          },
+        ),
       ],
     );
   }
+}
+
+/// The **Recommended** mark on the newest backup row.
+///
+/// Outlined like the app's Official chip, so it reads as a small label beside
+/// the file name rather than another file detail. It is drawn only on the first
+/// row of a newest-first list.
+class _RecommendedChip extends StatelessWidget {
+  const _RecommendedChip({required this.label});
+
+  /// The localized **Recommended** text.
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('backup-file-recommended'),
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(color: AppColors.outline),
+    ),
+    child: Text(
+      label,
+      style: AppTypography.labelMd.copyWith(color: AppColors.onSurfaceVariant),
+    ),
+  );
 }
 
 /// One collapsible section: a sub-menu button that reveals its options.

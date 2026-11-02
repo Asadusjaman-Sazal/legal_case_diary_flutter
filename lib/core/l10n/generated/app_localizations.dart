@@ -863,7 +863,7 @@ abstract class AppLocalizations {
   /// No description provided for @quickUpdateCase_currentNextDate.
   ///
   /// In en, this message translates to:
-  /// **'Current Next Date'**
+  /// **'Current Date'**
   String get quickUpdateCase_currentNextDate;
 
   /// No description provided for @addEditCaseSheet_pickDate.
@@ -5246,6 +5246,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose the backup to restore'**
   String get settingsBackupRestore_chooseBackupTitle;
+
+  /// No description provided for @settingsBackupRestore_recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get settingsBackupRestore_recommended;
 
   /// No description provided for @backupScheduled_skipNoticeTitle.
   ///

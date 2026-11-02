@@ -436,7 +436,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get addEditCaseSheet_nextDate => 'পরবর্তী তারিখ';
 
   @override
-  String get quickUpdateCase_currentNextDate => 'বর্তমান পরবর্তী তারিখ';
+  String get quickUpdateCase_currentNextDate => 'বর্তমান তারিখ';
 
   @override
   String get addEditCaseSheet_pickDate => 'তারিখ নির্বাচন করুন';
@@ -3034,6 +3034,9 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get settingsBackupRestore_chooseBackupTitle =>
       'পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন';
+
+  @override
+  String get settingsBackupRestore_recommended => 'প্রস্তাবিত';
 
   @override
   String get backupScheduled_skipNoticeTitle =>

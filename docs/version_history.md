@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.790 - Restore now checks the chosen backup before the premium delete guard, so a backup from another chamber is refused instead of looping through Delete Data.
+Version: 0.0.794 - The Update window's summary line now reads Current Date instead of Current Next Date; nothing else in the window changed.
 --------------------------------------
 
 ## Version History Log:
@@ -804,3 +804,7 @@ Version: 0.0.787 - The Case Type Add/Edit window now has one Name field for ever
 Version: 0.0.788 - The Server-wide Case Reference detail now shows Close beside Delete and Edit; the regular Case Reference detail keeps its first-line Close.
 Version: 0.0.789 - A dissolved chamber's owner can now edit and delete the rows it inherited, so a data wipe can no longer be refused and revert.
 Version: 0.0.790 - Restore now checks the chosen backup before the premium delete guard, so a backup from another chamber is refused instead of looping through Delete Data.
+Version: 0.0.791 - Choosing a backup now offers Files for a file anywhere on the device, keeps the folder list when the picker is closed, and uses the shared pop-over corner and centred button pair.
+Version: 0.0.792 - Each backup in the Choose the backup to restore window now shows its date, time and file size under the name, so two backups can be told apart before opening one.
+Version: 0.0.793 - The Choose the backup to restore window lists the newest backup first and marks it Recommended, so the latest copy is the obvious choice.
+Version: 0.0.794 - The Update window's summary line now reads Current Date instead of Current Next Date; nothing else in the window changed.

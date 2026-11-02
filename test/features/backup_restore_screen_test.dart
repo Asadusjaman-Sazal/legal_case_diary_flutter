@@ -25,6 +25,8 @@ import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/providers/backup_providers.dart';
 import 'package:legal_case_diary/core/providers/print_providers.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
+import 'package:legal_case_diary/core/theme/app_dialog_metrics.dart';
+import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:path/path.dart' as p;
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
 import 'package:legal_case_diary/core/services/app_share_service.dart';
@@ -1377,21 +1379,86 @@ void main() {
     await placeInFolder(
       _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
     );
+    // Give the two files definite times so "newest first" is not a race between
+    // two writes in the same test tick: 1 Feb vs 2 Feb.
+    final older = File(p.join(folder.path, 'Backup_01-02-26_09-30-15am.lcbak'))
+      ..setLastModifiedSync(DateTime(2026, 2, 1, 9, 30, 15));
+    File(
+      p.join(folder.path, 'Backup_02-02-26_09-30-15pm.lcbak'),
+    ).setLastModifiedSync(DateTime(2026, 2, 2, 21, 30, 15));
     gateway.picked = null;
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
 
-    // Both files are listed in the popup, and the popup is the rounder-corner
-    // dialog the user asked for, replacing the platform picker.
+    // Both files are listed in the popup, and the popup replaces the platform
+    // picker for the folder's own backups.
     expect(find.text('Choose the backup to restore'), findsOneWidget);
     expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
     expect(find.text('Backup_02-02-26_09-30-15pm.lcbak'), findsOneWidget);
 
-    // The popup uses a slightly rounder corner than the app's default dialog.
+    // Newest first, and only the newest says so.
+    expect(
+      tester.getTopLeft(find.text('Backup_02-02-26_09-30-15pm.lcbak')).dy,
+      lessThan(
+        tester.getTopLeft(find.text('Backup_01-02-26_09-30-15am.lcbak')).dy,
+      ),
+    );
+    expect(find.text('Recommended'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Backup_02-02-26_09-30-15pm.lcbak'),
+        matching: find.text('Recommended'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Backup_01-02-26_09-30-15am.lcbak'),
+        matching: find.text('Recommended'),
+      ),
+      findsNothing,
+    );
+
+    // Each row prints its file's date/time and size under the name, so two
+    // backups can be told apart without opening them.
+    final firstFile = older;
+    final firstDetails = tester.widget<Text>(
+      find.byKey(
+        const ValueKey('backup-file-details-Backup_01-02-26_09-30-15am.lcbak'),
+      ),
+    );
+    expect(
+      firstDetails.data,
+      startsWith(
+        AppDateUtils.formatDateTimeDDMMYYYY(
+          firstFile.statSync().modified.millisecondsSinceEpoch,
+          locale: 'en',
+        ),
+      ),
+    );
+    expect(firstDetails.data, matches(RegExp(r' · \d+(\.\d)? (B|KB|MB)$')));
+
+    // The window wears the shared frame, not a bespoke corner: it must read
+    // like every other pop-over (rule 17).
     final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
     final shape = dialog.shape! as RoundedRectangleBorder;
-    expect((shape.borderRadius as BorderRadius).topLeft.x, greaterThan(8.0));
+    expect(
+      (shape.borderRadius as BorderRadius).topLeft.x,
+      AppDialogMetrics.corner,
+    );
+
+    // Cancel and Files share one centred line, the Exit App window's pair rule.
+    final dialogCenter = tester.getCenter(find.byType(AlertDialog));
+    final cancelCenter = tester.getCenter(find.text('Cancel'));
+    final filesCenter = tester.getCenter(find.text('Files'));
+    expect(filesCenter.dy, moreOrLessEquals(cancelCenter.dy));
+    // Two logical pixels of dialog-chrome rounding are not a misalignment; the
+    // pair is centred on the window rather than pinned to one side.
+    expect(
+      (cancelCenter.dx + filesCenter.dx) / 2,
+      moreOrLessEquals(dialogCenter.dx, epsilon: 3),
+    );
 
     await tester.tap(find.text('Backup_02-02-26_09-30-15pm.lcbak'));
     await tester.pumpAndSettle();
@@ -1399,6 +1466,59 @@ void main() {
     // The chosen file's data is what gets restored.
     expect(find.text('Restore complete'), findsOneWidget);
     expect(find.text('3 records restored.'), findsOneWidget);
+  });
+
+  testWidgets(
+    'Files opens the platform picker for a backup outside the folder',
+    (tester) async {
+      await placeInFolder(
+        _legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak', notes: 2),
+      );
+      await placeInFolder(
+        _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
+      );
+      // A file the folder scan cannot see, as if it were downloaded or emailed.
+      gateway.picked = _legacyBackup(
+        name: 'delivered-by-email.lcbak',
+        notes: 3,
+      );
+      await pumpScreen(tester);
+
+      await tapAction(tester, 'Restore from Backup');
+      expect(find.text('Choose the backup to restore'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('backup-files-button')));
+      await tester.pumpAndSettle();
+
+      // The window closed on the picked file and the restore used that file, not
+      // one of the folder's rows.
+      expect(find.text('Choose the backup to restore'), findsNothing);
+      expect(find.text('Restore complete'), findsOneWidget);
+      expect(find.text('3 records restored.'), findsOneWidget);
+    },
+  );
+
+  testWidgets('closing the platform picker keeps the backup list open', (
+    tester,
+  ) async {
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak', notes: 2),
+    );
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
+    );
+    gateway.picked = null; // The user closed the file manager.
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
+    await tester.tap(find.byKey(const ValueKey('backup-files-button')));
+    await tester.pumpAndSettle();
+
+    // A cancelled picker is not a cancelled restore: the folder list is still
+    // there to choose from, and nothing was imported.
+    expect(find.text('Choose the backup to restore'), findsOneWidget);
+    expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
+    expect(find.text('Restore complete'), findsNothing);
   });
 
   testWidgets('an empty or missing folder falls back to the platform picker', (

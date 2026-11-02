@@ -437,7 +437,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addEditCaseSheet_nextDate => 'Next Date';
 
   @override
-  String get quickUpdateCase_currentNextDate => 'Current Next Date';
+  String get quickUpdateCase_currentNextDate => 'Current Date';
 
   @override
   String get addEditCaseSheet_pickDate => 'Pick a date';
@@ -3025,6 +3025,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsBackupRestore_chooseBackupTitle =>
       'Choose the backup to restore';
+
+  @override
+  String get settingsBackupRestore_recommended => 'Recommended';
 
   @override
   String get backupScheduled_skipNoticeTitle => 'Automatic backup skipped';

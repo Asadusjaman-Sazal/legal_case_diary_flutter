@@ -1,5 +1,33 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-02 — The Update window says Current Date — COMPLETE (0.0.794)
+
+- **What was asked.** In the Update window only, change the label Current Next Date / বর্তমান তারিখ to Current Date / বর্তমান তারিখ.
+- **What changed.** The fixed summary line above the editable fields now reads **Current Date: 05/08/26, Wed** (English) or **বর্তমান তারিখ: 05/08/26, Wed** (Bengali). Only that one label changed: the case number line, the blank editable Next Date with its Pick a date hint, the stored date it prints and saving are all untouched.
+- **Proof.** `test/features/task07_acceptance_test.dart` now expects `Current Date: 05/08/26, Wed` and passes **22 passed**; `flutter analyze` clean. No mockup change is owed (rule 9): the Update window has no mockup file.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-02 — The newest backup is first and marked Recommended — COMPLETE (0.0.793)
+
+- **What was asked.** Sort the Choose the backup to restore list newest first and mark the most recent backup as recommended.
+- **What changed.** The folder list is sorted newest first by the same last-written time each row prints, with the file name only breaking an exact tie, so the order always matches the dates on screen. The first row carries a small outlined **Recommended** chip at the right of its name (new keys **Recommended** / **প্রস্তাবিত**); no other row has it. A long file name is capped at two lines with an ellipsis, so the chip keeps its place.
+- **Proof.** The choice-window test stamps both files with fixed times, then asserts the newer row is above the older, the chip is drawn once, and it sits in the newer row's tile; `flutter analyze` clean; `test/features/backup_restore_screen_test.dart` **44 passed**. No mockup change is owed, because the mockup does not draw this window.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-02 — Backup rows show their date, time and size — COMPLETE (0.0.792)
+
+- **What was asked.** In the Choose the backup to restore window, show each backup's date, time and file size instead of only its file name.
+- **What changed.** Under every file name the window now prints the file's date and time in the app's usual `dd/MM/yyyy, hh:mm AM/PM` form and its size, separated by a middle dot (`02/11/2026, 06:37 PM · 1.2 MB`). The date follows the active language, so Bengali reads Bengali digits; the size stays `B` / `KB` / `MB`. The timestamp and size are read once while the folder is scanned, so the window never touches the disk while it builds.
+- **Proof.** The choice-window test now reads the row's details line and matches the file's own modified time through `AppDateUtils` plus a size unit; `flutter analyze` clean; `test/features/backup_restore_screen_test.dart` **44 passed**. No mockup change is owed, because the mockup does not draw this window.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+### 2026-11-02 — Choosing a backup can open Files — COMPLETE (0.0.791)
+
+- **What was asked.** In the window that appears when the diary folder holds more than one backup, add a **Files** button that opens the file manager so the user can choose any file, and make the button pair follow the shared pop-over rules and sit middle aligned.
+- **What changed.** The **Choose the backup to restore** window now has **Cancel** and **Files** as the shared 112 × 48 pair on one centred line. **Files** opens the platform file manager through the same gateway the restore fallback already used; a chosen file closes the window and continues the existing restore, while closing the picker leaves the folder list on screen. A file chosen this way counts as a picker file, not a folder file, so a later ownership refusal no longer offers *Choose Another Backup* for a file the user just chose by hand. The window also lost its bespoke rounder corner and now wears the shared frame's 8 px corner, as rule 17 requires.
+- **Proof.** The backup-screen suite's choice-window case now asserts the shared corner and that both actions share one centred line; new cases prove Files restores a backup kept outside the folder and that a cancelled picker keeps the list open. `flutter analyze` clean; `test/features/backup_restore_screen_test.dart` **44 passed**. No mockup change is owed, because the mockup does not draw this window.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-01 — Restore checks the file before the delete guard — COMPLETE (0.0.790)
 
 - **What was reported.** Restore from Backup kept showing Delete Local & Cloud Data, even after deleting everything, and the file picker was never reached. The debug console showed `Restore refused: anotherFirm`.

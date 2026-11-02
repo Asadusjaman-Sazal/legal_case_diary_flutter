@@ -222,7 +222,7 @@
   "addEditCaseSheet_caseTitleAndSection": "Case Title or Section",
   "addEditCaseSheet_caseRemarks": "Case Remarks",
   "addEditCaseSheet_nextDate": "Next Date",
-  "quickUpdateCase_currentNextDate": "Current Next Date",
+  "quickUpdateCase_currentNextDate": "Current Date",
   "addEditCaseSheet_pickDate": "Pick a date",
   "addEditCaseSheet_loadError": "Unable to load case form data: {message}",
   "@addEditCaseSheet_loadError": {
@@ -1493,6 +1493,7 @@
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "Backup & Restore",
   "settingsBackupRestore_chooseBackupTitle": "Choose the backup to restore",
+  "settingsBackupRestore_recommended": "Recommended",
   "backupScheduled_skipNoticeTitle": "Automatic backup skipped",
   "backupScheduled_skipNoticeBody": "Backups are encrypted with a password only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.",
   "backupScheduled_noticeChannelName": "Backup reminders",

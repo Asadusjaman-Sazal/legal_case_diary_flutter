@@ -131,6 +131,7 @@ class LocalReferenceRepository
     await syncHelper.recordDelete(
       entityType: 'reference',
       entityId: reference.id,
+      syncedAt: reference.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': reference.id,
         'isDeleted': true,

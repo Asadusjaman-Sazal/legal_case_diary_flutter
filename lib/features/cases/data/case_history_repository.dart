@@ -90,6 +90,7 @@ class LocalCaseHistoryRepository
     await syncHelper.recordDelete(
       entityType: 'case_history',
       entityId: entry.id,
+      syncedAt: entry.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': entry.id,
         'isDeleted': true,

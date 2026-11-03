@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.795 - Edit Court/Steps: Bengali Court Names row and subtitle, Bengali names in the court and item edit windows, and kind-named Add/Edit titles.
+Version: 0.0.798 - Case Detail: the courthouse glyph now sits beside the first line of a two-line court name instead of centred between the lines.
 --------------------------------------
 
 ## Version History Log:
@@ -809,3 +809,6 @@ Version: 0.0.792 - Each backup in the Choose the backup to restore window now sh
 Version: 0.0.793 - The Choose the backup to restore window lists the newest backup first and marks it Recommended, so the latest copy is the obvious choice.
 Version: 0.0.794 - The Update window's summary line now reads Current Date instead of Current Next Date; nothing else in the window changed.
 Version: 0.0.795 - Edit Court/Steps: Bengali Court Names row and subtitle, Bengali names in the court and item edit windows, and kind-named Add/Edit titles.
+Version: 0.0.796 - Excel restore now queues every imported case, history, note and reference row for upload, and the pusher sends restored history as real events, so a restored diary reaches the server instead of vanishing on sign-out.
+Version: 0.0.797 - Deleting a row the server never had no longer queues a delete that blocks for ever, and a restore clears stale queued changes for the tables it replaces.
+Version: 0.0.798 - Case Detail: the courthouse glyph now sits beside the first line of a two-line court name instead of centred between the lines.

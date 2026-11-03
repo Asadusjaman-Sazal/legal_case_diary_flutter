@@ -920,6 +920,10 @@ void main() {
         seed: (db) async {
           await seedPremium(db);
           await _seedNote(db);
+          // The account's copy exists: this card's sentence is about removing
+          // it on the next sync.
+          await (db.update(db.notes)..where((r) => r.id.equals('n1')))
+              .write(const NotesCompanion(syncedAt: Value(1000)));
         },
       );
 

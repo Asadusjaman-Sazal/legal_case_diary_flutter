@@ -216,6 +216,7 @@ class LocalCaseRepository
     await syncHelper.recordDelete(
       entityType: 'case',
       entityId: currentCase.id,
+      syncedAt: currentCase.syncedAt,
       payload: payload,
       changedFields: ['is_deleted', 'updated_at', 'last_modified_by'],
       basePayload: BaseLocalRepository.toSyncPayload(currentCase.toJson()),

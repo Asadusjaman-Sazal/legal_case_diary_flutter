@@ -11,6 +11,7 @@ import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/database/app_database.dart';
+import 'package:legal_case_diary/sync/entity_tables.dart';
 import 'package:legal_case_diary/sync/push_worker.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
@@ -415,6 +416,90 @@ void main() {
     final row = (await queue.getAll()).single;
     expect(row.state, 'pending');
     expect(row.retryCount, 0, reason: 'it never became an attempt');
+  });
+
+  test('a restored history row is pushed on its own', () async {
+    await enqueue(
+      entityType: 'case_history',
+      entityId: 'h1',
+      operation: 'insert',
+      payload: <String, dynamic>{
+        'id': 'h1',
+        'case_id': 'k1',
+        'hearing_date': 1000,
+        restoredHistoryPayloadKey: true,
+      },
+      mutationId: 'mut-restored',
+    );
+
+    final outcome = await worker().flushBatch();
+
+    expect(outcome.attempted, 1);
+    final sent = transport.last.single;
+    expect(sent['operation'], 'insert');
+    expect(sent['entity_type'], 'case_history');
+    expect(
+      (sent['payload'] as Map<String, dynamic>).containsKey(
+        restoredHistoryPayloadKey,
+      ),
+      isFalse,
+      reason: 'the local-only marker never reaches the server',
+    );
+    expect((await queue.getAll()).single.state, 'resolved');
+  });
+
+  test('a blocked delete whose row is live again is resolved', () async {
+    // A restore re-created the row the delete was queued for; the entry can
+    // never become true and must not ask the user to resolve it.
+    await db.into(db.notes).insert(
+      NotesCompanion.insert(
+        id: 'n1',
+        userId: 'user-1',
+        title: 'Restored',
+        body: 'Body',
+        createdAt: 1,
+        updatedAt: 1,
+      ),
+    );
+    await enqueue(
+      entityType: 'note',
+      entityId: 'n1',
+      operation: 'delete',
+      payload: <String, dynamic>{'id': 'n1', 'is_deleted': true},
+      mutationId: 'mut-stale',
+      state: 'blocked',
+    );
+
+    final outcome = await worker().flushBatch();
+
+    expect(outcome.isEmpty, isTrue);
+    expect((await queue.getAll()).single.state, 'resolved');
+  });
+
+  test('a delete the server says not_found for is resolved, not blocked', () async {
+    await enqueue(
+      entityType: 'note',
+      entityId: 'n1',
+      operation: 'delete',
+      payload: <String, dynamic>{'id': 'n1', 'is_deleted': true},
+      mutationId: 'mut-gone',
+    );
+    transport.results = <Map<String, dynamic>>[
+      <String, dynamic>{
+        'mutation_id': 'mut-gone',
+        'entity_type': 'note',
+        'entity_id': 'n1',
+        'status': 'rejected',
+        'error_code': 'not_found',
+        'message': 'The row no longer exists on the server.',
+      },
+    ];
+
+    final outcome = await worker().flushBatch();
+
+    expect(outcome.blocked, 0);
+    expect(outcome.applied, 1);
+    expect((await queue.getAll()).single.state, 'resolved');
   });
 
   test('a history edit is still pushed on its own', () async {

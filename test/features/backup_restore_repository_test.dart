@@ -31,6 +31,7 @@ import 'package:legal_case_diary/features/settings/data/local/court_categories_d
 import 'package:legal_case_diary/features/settings/data/local/courts_dao.dart';
 import 'package:legal_case_diary/features/settings/data/local/on_behalfs_dao.dart';
 import 'package:legal_case_diary/features/settings/data/on_behalfs_repository.dart';
+import 'package:legal_case_diary/sync/entity_tables.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
 
@@ -405,6 +406,152 @@ void main() {
       expect(caseRows.single['payload'], isNotNull);
       expect(caseRows.single['id'], isNotNull);
       expect(result.rowCount, greaterThanOrEqualTo(queue.length));
+    });
+
+    test('an Excel restore queues every row for upload', () async {
+      final seeded = await _seed(source);
+      // A workbook carries only the four data sheets, so the target needs the
+      // same reference rows the source's ids point at.
+      final sourceTables = await source.backup.collectTables();
+      await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: _legacyFile(<String, dynamic>{
+            'court_categories': sourceTables['court_categories'],
+            'courts': sourceTables['courts'],
+            'on_behalfs': sourceTables['on_behalfs'],
+          }),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+      );
+      await source.db.into(source.db.caseHistory).insert(
+        CaseHistoryCompanion.insert(
+          id: 'history-1',
+          caseId: seeded.aliveId,
+          userId: source.ownerId,
+          hearingDate: 1000,
+          createdBy: source.ownerId,
+          sourceMutationId: 'mutation-1',
+          baseCaseVersion: 0,
+          resultCaseVersion: 1,
+          updatedAt: 1000,
+        ),
+      );
+
+      // A workbook carries no queue sheet, so the restore itself must queue its
+      // rows; without that they never leave the device (the reported loss: 49
+      // restored cases vanished on sign-out because none had been uploaded).
+      final opened = target.backup.openExcelBackup(
+        await source.backup.buildExcelWorkbook(
+          appVersion: '0.0.266',
+          exportedAt: 1,
+        ),
+      );
+      await target.backup.restoreSnapshot(
+        backup: opened,
+        ownerId: target.ownerId,
+      );
+
+      final queue = (await target.backup.collectTables())['sync_queue'] as List;
+      final entries = queue.cast<Map<String, dynamic>>().toList();
+
+      expect(entries, isNotEmpty);
+      expect(entries.every((row) => row['state'] == 'pending'), isTrue);
+      expect(entries.every((row) => row['operation'] == 'insert'), isTrue);
+      expect(
+        entries.where((row) => row['entity_type'] == 'case'),
+        hasLength(1),
+      );
+      expect(
+        entries.where((row) => row['entity_type'] == 'case_history'),
+        hasLength(1),
+      );
+      expect(
+        entries.where((row) => row['entity_type'] == 'note'),
+        hasLength(1),
+      );
+      final historyRow = entries.singleWhere(
+        (row) => row['entity_type'] == 'case_history',
+      );
+      expect(
+        (jsonDecode(historyRow['payload'] as String)
+            as Map<String, dynamic>)[restoredHistoryPayloadKey],
+        isTrue,
+      );
+
+      final caseRow = entries.singleWhere(
+        (row) => row['entity_id'] == seeded.aliveId,
+      );
+      final payload =
+          jsonDecode(caseRow['payload'] as String) as Map<String, dynamic>;
+      expect(payload['id'], seeded.aliveId);
+      expect(payload['user_id'], target.ownerId);
+      // A tombstone needs no upload of its own.
+      expect(
+        entries.where((row) => row['entity_id'] == seeded.deadId),
+        isEmpty,
+      );
+    });
+
+    test('a restore clears stale mutations for the tables it replaces', () async {
+      final seeded = await _seed(source);
+      final sourceTables = await source.backup.collectTables();
+      await target.backup.restoreSnapshot(
+        backup: await openBackupFile(
+          bytes: _legacyFile(<String, dynamic>{
+            'court_categories': sourceTables['court_categories'],
+            'courts': sourceTables['courts'],
+            'on_behalfs': sourceTables['on_behalfs'],
+          }),
+          recoverySecret: '',
+        ),
+        ownerId: target.ownerId,
+      );
+      final workbook = await source.backup.buildExcelWorkbook(
+        appVersion: '0.0.266',
+        exportedAt: 1,
+      );
+      await target.backup.restoreSnapshot(
+        backup: target.backup.openExcelBackup(workbook),
+        ownerId: target.ownerId,
+      );
+
+      // A mutation queued before the restore describes a row the file replaces:
+      // it must not survive the import and fight the restored state (this is the
+      // stale delete a delete-then-restore cycle left blocked).
+      await target.db.into(target.db.syncQueue).insert(
+        SyncQueueCompanion.insert(
+          entityType: 'case',
+          entityId: seeded.aliveId,
+          operation: 'delete',
+          mutationId: 'stale-1',
+          basePayload: '{}',
+          changedFields: '[]',
+          payload: '{"id":"${seeded.aliveId}","is_deleted":true}',
+          preMutationPayload: '{}',
+          createdAt: 1,
+          state: 'blocked',
+        ),
+      );
+
+      await target.backup.restoreSnapshot(
+        backup: target.backup.openExcelBackup(workbook),
+        ownerId: target.ownerId,
+        replaceExisting: true,
+      );
+
+      final queue =
+          ((await target.backup.collectTables())['sync_queue'] as List)
+              .cast<Map<String, dynamic>>();
+      expect(
+        queue.where((row) => row['mutation_id'] == 'stale-1'),
+        isEmpty,
+      );
+      expect(queue.every((row) => row['operation'] == 'insert'), isTrue);
+      expect(
+        queue.where((row) => row['entity_id'] == seeded.aliveId),
+        hasLength(1),
+      );
     });
 
     test('restores a legacy plaintext backup too', () async {

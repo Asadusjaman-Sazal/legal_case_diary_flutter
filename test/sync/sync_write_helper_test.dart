@@ -122,11 +122,41 @@ void main() {
         entityId: 'entity-1',
         payload: makePayload(name: 'New', isDeleted: true),
         changedFields: <String>['is_deleted'],
+        syncedAt: null,
         preMutationPayload: <String, dynamic>{'id': 'entity-1', 'name': 'New'},
       );
 
       final rows = await queue.getAll();
       expect(rows, isEmpty);
+    });
+
+    test('a delete of a never-synced, unqueued row is not queued', () async {
+      // A row the server never received (a restore from an older build, or a
+      // legacy backup) needs no delete mutation: sending one is refused as an
+      // unknown id and blocks for ever.
+      await helper.recordDelete(
+        entityType: 'case',
+        entityId: 'entity-1',
+        payload: makePayload(name: 'New', isDeleted: true),
+        changedFields: <String>['is_deleted'],
+        syncedAt: null,
+      );
+
+      expect(await queue.getAll(), isEmpty);
+    });
+
+    test('a delete of a server-confirmed row is queued', () async {
+      await helper.recordDelete(
+        entityType: 'case',
+        entityId: 'entity-1',
+        payload: makePayload(name: 'New', isDeleted: true),
+        changedFields: <String>['is_deleted'],
+        syncedAt: 1000,
+      );
+
+      final rows = await queue.getAll();
+      expect(rows, hasLength(1));
+      expect(rows.single.operation, 'delete');
     });
 
     test('update(s) + delete compacts to a single delete', () async {
@@ -155,6 +185,7 @@ void main() {
         entityId: 'entity-1',
         payload: makePayload(name: 'Second Update', isDeleted: true),
         changedFields: <String>['is_deleted'],
+        syncedAt: 1,
         preMutationPayload: <String, dynamic>{'id': 'entity-1', 'name': 'Second Update'},
       );
 

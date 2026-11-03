@@ -59,6 +59,22 @@ class SyncTableBinding {
   final DeleteLocalRow deleteLocal;
 }
 
+/// The local row's `is_deleted` flag, or null when the row is gone.
+///
+/// A queued delete whose row is missing or live again has nothing left to
+/// delete — a restore re-created the row, or a wipe removed it — so the entry is
+/// stale and the push worker resolves it instead of retrying work the server can
+/// no longer do. [table] comes from a [SyncTableBinding], never from a file.
+Future<bool?> localIsDeleted(AppDatabase db, String table, String id) async {
+  final row = await db.customSelect(
+    'SELECT is_deleted FROM "$table" WHERE id = ? LIMIT 1',
+    variables: <Variable<Object>>[Variable<String>(id)],
+  ).getSingleOrNull();
+  if (row == null) return null;
+  final value = row.data['is_deleted'];
+  return value == 1 || value == true;
+}
+
 /// Every binding, keyed by entity type.
 final Map<String, SyncTableBinding>
 syncTableBindings = <String, SyncTableBinding>{

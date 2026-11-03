@@ -43,6 +43,15 @@ String? syncTableForEntity(String entityType) =>
 /// The queue entity type for server [table], or null when it is out of class.
 String? syncEntityForTable(String table) => syncEntityTypeByTable[table];
 
+/// Local-only payload key marking a restored `case_history` insert as a real
+/// event rather than a provisional preview.
+///
+/// The batch builder folds a preview into the case update it belongs to and
+/// never sends it on its own; a history row restored from a backup has no such
+/// parent, so this flag tells the builder to push it. The key is removed from
+/// the payload before `push_changes` is called — the server has no such column.
+const String restoredHistoryPayloadKey = 'restored_history';
+
 /// The FK-safe processing rank; lower is applied first.
 int syncDependencyRank(String entityType) => switch (entityType) {
   'court_category' ||

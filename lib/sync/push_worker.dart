@@ -73,6 +73,23 @@ class PushBatchOutcome {
   bool get isEmpty => attempted == 0 && failure == null;
 }
 
+/// Entity types whose local rows carry an `is_deleted` column, so a queued
+/// delete can be checked against the row it names. `delete_requests` and
+/// `conflict_log` use other state columns and are left out.
+const Set<String> _deletableEntityTypes = <String>{
+  'case',
+  'case_history',
+  'note',
+  'reference',
+  'court_category',
+  'case_category',
+  'court',
+  'step',
+  'case_type',
+  'on_behalf',
+  'law',
+};
+
 /// One prepared mutation plus the local queue rows it reconciles.
 class _Prepared {
   _Prepared(this.row, this.json, {this.pairedHistoryQueueId});
@@ -117,6 +134,9 @@ class PushWorker {
     final send = transport;
     if (send == null) return const PushBatchOutcome();
 
+    // A stale delete is finished work, not a blocked mutation (see the method).
+    await _resolveStaleDeletes();
+
     final prepared = await _prepare();
     if (prepared.isEmpty) return const PushBatchOutcome();
 
@@ -148,6 +168,27 @@ class PushWorker {
     return _handleResults(prepared, results);
   }
 
+  /// Resolves queued deletes whose local row is already gone or live again.
+  ///
+  /// A delete entry is queued immediately after a local soft delete, so its row
+  /// is normally a tombstone. A missing or live row means the local state moved
+  /// on — a restore re-created the row, or a wipe removed it — and the queued
+  /// delete can never become true. Resolving it here clears work the user should
+  /// not have to review, and stops a stale entry holding the entity.
+  Future<void> _resolveStaleDeletes() async {
+    final unresolved = await queue.getUnresolved();
+    for (final row in unresolved) {
+      if (row.state != 'blocked' || row.operation != 'delete') continue;
+      if (!_deletableEntityTypes.contains(row.entityType)) continue;
+      final binding = syncBindingFor(row.entityType);
+      if (binding == null) continue;
+      final deleted = await localIsDeleted(db, binding.tableName, row.entityId);
+      if (deleted == null || !deleted) {
+        await queue.resolve(row.id);
+      }
+    }
+  }
+
   /// Loads, filters and pairs the next batch in dependency order.
   Future<List<_Prepared>> _prepare() async {
     final rows = await queue.getPushable();
@@ -168,9 +209,12 @@ class PushWorker {
 
     // A case-histoty insert is the provisional preview of a coincident case
     // update; it is folded into that mutation rather than pushed separately.
+    // A restored row is a real event and is pushed on its own.
     final provisionalByCase = <String, SyncQueueRow>{};
     for (final row in eligible) {
-      if (row.entityType == 'case_history' && row.operation == 'insert') {
+      if (row.entityType == 'case_history' &&
+          row.operation == 'insert' &&
+          !_isRestoredHistory(row)) {
         final caseId = decodeJsonObject(row.payload)['case_id'];
         if (caseId is String && caseId.isNotEmpty) {
           provisionalByCase[caseId] = row;
@@ -183,14 +227,17 @@ class PushWorker {
     for (final row in eligible) {
       if (prepared.length >= batchSize) break;
 
-      // A provisional preview is never a mutation of its own — the only
-      // `case_history` insert the client ever queues is a preview — so it is
-      // dropped here and travels folded into the case update it belongs to.
-      // Sent alone it would put a history event on the server for a next-date
-      // change that was never applied there, and the repaired retry would mint a
-      // second event for the same change. Skipping (not deleting) it keeps the
-      // preview `pending` until its parent case mutation is eligible again.
-      if (row.entityType == 'case_history' && row.operation == 'insert') {
+      // A provisional preview is never a mutation of its own — a restored row
+      // is: it was imported from a backup, so no case update carries it. A
+      // preview is dropped here and travels folded into the case update it
+      // belongs to. Sent alone it would put a history event on the server for a
+      // next-date change that was never applied there, and the repaired retry
+      // would mint a second event for the same change. Skipping (not deleting)
+      // it keeps the preview `pending` until its parent case mutation is
+      // eligible again.
+      if (row.entityType == 'case_history' &&
+          row.operation == 'insert' &&
+          !_isRestoredHistory(row)) {
         continue;
       }
 
@@ -218,6 +265,11 @@ class PushWorker {
     return prepared;
   }
 
+  /// Whether a queued `case_history` insert is a restored row rather than the
+  /// provisional preview of a coincident case update.
+  bool _isRestoredHistory(SyncQueueRow row) =>
+      decodeJsonObject(row.payload)[restoredHistoryPayloadKey] == true;
+
   /// Builds the wire object for one queue row (the provisional preview folded
   /// in when there is one).
   Map<String, dynamic> _mutationJson(
@@ -225,6 +277,9 @@ class PushWorker {
     Map<String, dynamic>? provisional,
   ) {
     final payload = decodeJsonObject(row.payload);
+    // A restored history row carries a local-only flag so the batch builder
+    // pushes it; the server has no such column.
+    payload.remove(restoredHistoryPayloadKey);
     if (row.entityType == 'conflict_log') {
       // The local mirror carries no ownership columns; the server table has
       // both and RLS/sync_can_write need them.
@@ -316,6 +371,7 @@ class PushWorker {
           final outcome = await _applyRejected(item, result);
           if (outcome == _RejectedAction.rolledBack) rolledBack++;
           if (outcome == _RejectedAction.blocked) blocked++;
+          if (outcome == _RejectedAction.resolved) applied++;
           if (outcome == _RejectedAction.permission) {
             rolledBack++;
             permissionRollback = true;
@@ -467,6 +523,14 @@ class PushWorker {
       return _RejectedAction.permission;
     }
 
+    if (code == 'not_found' && item.row.operation == 'delete') {
+      // The row this delete names is not on the server, so the delete's goal is
+      // already true. The local tombstone stays as it is; the entry is finished,
+      // not refused.
+      await queue.resolve(item.row.id);
+      return _RejectedAction.resolved;
+    }
+
     await queue.block(item.row.id, error: message);
     return _RejectedAction.blocked;
   }
@@ -479,4 +543,4 @@ class PushWorker {
   }
 }
 
-enum _RejectedAction { permission, blocked, rolledBack }
+enum _RejectedAction { permission, blocked, rolledBack, resolved }

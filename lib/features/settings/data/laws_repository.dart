@@ -118,6 +118,7 @@ class LocalLawsRepository with BaseLocalRepository implements LawsRepository {
     await syncHelper.recordDelete(
       entityType: 'law',
       entityId: law.id,
+      syncedAt: law.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': law.id,
         'isDeleted': true,

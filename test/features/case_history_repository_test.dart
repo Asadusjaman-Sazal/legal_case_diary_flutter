@@ -269,6 +269,8 @@ void main() {
           baseCaseVersion: const Value(0),
           resultCaseVersion: const Value(1),
           updatedAt: const Value(1),
+          // The server already holds this row; only its queued insert is gone.
+          syncedAt: const Value(1000),
         ),
       );
       final fixture = await (db.select(db.caseHistory)

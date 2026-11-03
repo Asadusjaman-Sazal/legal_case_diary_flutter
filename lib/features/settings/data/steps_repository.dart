@@ -108,6 +108,7 @@ class LocalStepsRepository with BaseLocalRepository implements StepsRepository {
     await syncHelper.recordDelete(
       entityType: 'step',
       entityId: step.id,
+      syncedAt: step.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': step.id,
         'isDeleted': true,

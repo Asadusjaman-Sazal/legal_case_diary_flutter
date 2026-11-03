@@ -1,5 +1,26 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-03 — Refused deletes and restores no longer leave blocked work — COMPLETE (0.0.797)
+
+- **What was reported.** After *Delete Local & Cloud Data* and a restore, every Pending Sync entry was **Blocked** with “The server refused this change. Last Error: The row no longer exists on the server.” The entries were the deletes queued for rows the server had never received (the first restore pre-dated the queue fix); the restore's own inserts were not among them.
+- **What changed.** A delete is no longer queued when the row's `synced_at` is null and it has no open queue entry (there is nothing on the server to delete). A `not_found` answer to a delete is resolved as finished work, not blocked. Before each push, a blocked delete whose local row is missing or live again (a restore re-created it) is resolved automatically, so the 351 leftover entries clear without reviewing impossible work. A restore also drops every queued mutation for the tables it replaces, so an old edit or delete cannot fight the restored state.
+- **Proof.** New helper, push-worker and restore tests cover all four rules; existing fixtures that simulate a pushed row now stamp `synced_at` as the real push does. `flutter analyze` clean; full suite **2,293 passed**, with only the known export-list red and the date-dependent calendar test (it seeds 3 hearings while today is the 3rd).
+- **Next.** Install 0.0.797 and let one sync run: the blocked deletes clear themselves. If Supabase already holds the 49 cases, nothing else is needed; if not, restore the workbook once (the restore now clears the queue and queues fresh inserts).
+
+### 2026-11-03 — Excel restore uploads what it imports — COMPLETE (0.0.796)
+
+- **What was reported.** After importing a converted Excel diary, the app said **Synced**, Supabase's `cases` table stayed empty, and signing out then back in left no cases. The workbook was valid; the restore wrote its rows locally and never queued them, the pusher sends only queued rows, and the sync marker only counts the queue — so an empty queue read as synced and logout wiped the only copy.
+- **What changed.** `restoreSnapshot` now queues a pending insert for every restored row in the four workbook tables that the server has never confirmed and that no restored queue entry already names, skipping tombstones. A full JSON backup's own queue is found and left alone, so it is never double-queued. Restored `case_history` rows carry a local-only `restored_history` flag, because the batch builder otherwise treats every history insert as a provisional preview and never sends it; the flag is stripped before `push_changes`.
+- **Proof.** New restore test `an Excel restore queues every row for upload` (one pending insert per case/history/note, stamped `user_id`, marker on history, no entry for a tombstone) and a new push-worker test proving a flagged history row is sent alone with the flag stripped. `flutter analyze` clean; full suite **2,288 passed**, with the known export-list red and one unrelated date-dependent calendar test (it seeds 3 hearings while today is the 3rd, so the badge and day cell both render "৩").
+- **Next.** Build and re-restore the converted workbook once; the Online Sync screen will show the real pending count and the 49 cases and 302 history rows will upload.
+
+### 2026-11-03 — The court glyph sits beside the first line — COMPLETE (0.0.798)
+
+- **What was asked.** In the Case Detail header, when the court name runs to two lines, the courthouse glyph must sit beside the first line, not halfway down the pair.
+- **What changed.** The court-name row now starts at the top and the glyph is nudged down by half the slack its 18 pt box leaves in the first 16/24 line, so it is centred on line 1 however far the name scales. Nothing outside the Case Detail screen was touched.
+- **Proof.** `case_detail_test.dart` gains *the court glyph sits beside the first line of a wrapped name*: a 400 pt surface, a name that wraps to two lines, and the glyph centre within 1 pt of the first line's centre. `flutter analyze` clean.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-02 — Edit Court/Steps speaks Bengali and names each window — COMPLETE (0.0.795)
 
 - **What was asked.** Three things in the Edit Court/Steps area: the Bengali Court Names row and its subtitle; Bengali court and item names inside the edit windows; and an Add/Edit window title that names the item being edited.

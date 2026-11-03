@@ -430,6 +430,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
     context,
   ).showSnackBar(SnackBar(content: Text(message)));
 
+  /// Half the slack between the court glyph's 18 pt box and the first line of
+  /// the court name ([AppTypography.bodyLg] is 16 pt text on a 1.5 line box), so
+  /// the glyph centres on that line instead of on the whole wrapped block.
+  double _courtGlyphTopInset(BuildContext context) =>
+      (MediaQuery.textScalerOf(context).scale(16) * 1.5 - 18) / 2;
+
   String _courtLabel(BuildContext context, Court court) =>
       context.l10n.seedLabel(court.id, fallbackEn: court.courtName);
 
@@ -665,11 +671,19 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
         const SizedBox(height: AppSpacing.xs),
         // L2: court icon + court name; AD/HCD only: judges names line.
         if (court != null) ...[
+          // The glyph stands beside the court name's FIRST line. A centred row
+          // put it halfway down a name that wrapped to two lines, so the row
+          // starts at the top and the icon is nudged down by half the slack its
+          // 18 pt box leaves in that first line (user request).
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // The courthouse glyph the Overdue Dates court title uses (user
               // request, 0.0.723).
-              const Icon(Icons.account_balance, size: 18),
+              Padding(
+                padding: EdgeInsets.only(top: _courtGlyphTopInset(context)),
+                child: const Icon(Icons.account_balance, size: 18),
+              ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(

@@ -198,6 +198,9 @@ void main() {
         version: Value(version),
         lastModifiedBy: const Value('user-2'),
         isDeleted: const Value(false),
+        // A request with a version came from the server, so a withdrawal is a
+        // tombstone it must hear about.
+        syncedAt: const Value(1000),
       ),
     );
     return id;

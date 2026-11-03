@@ -50,6 +50,7 @@ import '../../../core/backup/excel_backup.dart';
 import '../../../core/constants/pre_seeded_data.dart' as seed;
 import '../../../database/app_database.dart';
 import '../../../database/seed_migration_runner.dart';
+import '../../../sync/entity_tables.dart';
 import '../../../sync/sync_metadata_dao.dart';
 
 /// Portable local tables in FK-safe parent → child order.
@@ -100,6 +101,21 @@ const Set<String> neverRestoredTables = <String>{
   'profiles',
   'firms',
   'firm_members',
+};
+
+/// The four tables an Excel workbook carries — the only ones a restore can
+/// import without the outbound queue a full backup brings with it.
+///
+/// A workbook has no `sync_queue` sheet, so [BackupRepository.restoreSnapshot]
+/// queues an insert for every restored row the server has never confirmed;
+/// without that the rows stay on the device for ever and the sync screen's
+/// pending count reads zero (a user-reported loss: 49 restored cases vanished
+/// on sign-out because none had ever been uploaded).
+const Set<String> _excelDomainTables = <String>{
+  'cases',
+  'case_history',
+  'notes',
+  'case_references',
 };
 
 /// The seven editable reference tables, in the order [backupTableOrder] lists them.
@@ -962,10 +978,26 @@ class BackupRepository {
             await db.customStatement('DELETE FROM "$name"');
           }
         }
+        // A restore replaces these tables wholesale, so a mutation still queued
+        // for their entities describes a row that no longer exists in that
+        // shape — an old delete the file reverses, or an edit the file
+        // overwrites. Dropping them first keeps the restore authoritative and
+        // stops a stale entry holding the restored row. A full backup carries
+        // its own queue, restored by the loop below.
+        for (final name in scope) {
+          final entityType = syncEntityForTable(name);
+          if (entityType == null) continue;
+          await db.customStatement(
+            'DELETE FROM sync_queue WHERE entity_type = ?',
+            [entityType],
+          );
+        }
         // Parent before child, the same order the export wrote them in. Each row
         // is copied before it is stamped, so the payload the caller still holds
         // is never mutated by an import.
         final ownerColumns = backupOwnerColumns();
+        // The rows as they were actually written, for the queue pass below.
+        final restoredRows = <String, List<Map<String, dynamic>>>{};
         for (final name in scope) {
           final columns = ownerColumns[name];
           for (final row in tables[name] ?? const <Map<String, dynamic>>[]) {
@@ -980,9 +1012,15 @@ class BackupRepository {
               // chamber it already belonged to (firm-mode §6).
               settleRestoredScope(insert, columns, firmId: firmId);
             }
+            restoredRows.putIfAbsent(name, () => <Map<String, dynamic>>[]).add(
+              insert,
+            );
             await _insertRow(name, insert);
           }
         }
+        // After every table, so a full backup's own queue rows are already in
+        // place and are found (and skipped) instead of being duplicated.
+        await _queueRestoredRows(restoredRows);
       });
     } on BackupRestoreException {
       rethrow;
@@ -1014,6 +1052,64 @@ class BackupRepository {
       'INSERT INTO "$table" ($names) VALUES ($placeholders)',
       variables: [for (final column in columns) _variableFor(row[column])],
     );
+  }
+
+  /// Queues an insert for every restored row the server has never confirmed.
+  ///
+  /// The pusher sends only `sync_queue` entries, so a row restored without one
+  /// never leaves the device — the defect a hand-filled workbook met: it has no
+  /// queue sheet, the pending count stayed zero, and the sync screen said
+  /// "Synced" while nothing had been uploaded. Only the four tables a workbook
+  /// carries are considered. A full backup's queue was restored first, so a row
+  /// it already names is skipped on purpose: a second insert would be refused by
+  /// the server as an existing id. Tombstones and rows the server has already
+  /// confirmed are skipped for the same reason — neither needs an upload.
+  Future<void> _queueRestoredRows(
+    Map<String, List<Map<String, dynamic>>> restoredRows,
+  ) async {
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    for (final table in _excelDomainTables) {
+      final entityType = syncEntityForTable(table);
+      if (entityType == null) continue;
+      final rows = restoredRows[table] ?? const <Map<String, dynamic>>[];
+      if (rows.isEmpty) continue;
+      // One query per table: a full backup already restored its own queue rows,
+      // and any entity one of them names must not be inserted again.
+      final queuedIds = {
+        for (final entry
+            in await (db.select(db.syncQueue)..where(
+                  (entry) => entry.entityType.equals(entityType),
+                ))
+                .get())
+          entry.entityId,
+      };
+      for (final row in rows) {
+        if (row['synced_at'] != null) continue;
+        final deleted = row['is_deleted'];
+        if (deleted == true || deleted == 1) continue;
+        final id = '${row['id']}';
+        if (queuedIds.contains(id)) continue;
+        // A restored history row has no case update to ride on, so it carries
+        // the local-only flag that tells the pusher it is a real event.
+        final payload = table == 'case_history'
+            ? <String, dynamic>{...row, restoredHistoryPayloadKey: true}
+            : row;
+        await db.into(db.syncQueue).insert(
+          SyncQueueCompanion.insert(
+            entityType: entityType,
+            entityId: id,
+            operation: 'insert',
+            mutationId: const Uuid().v4(),
+            basePayload: '{}',
+            changedFields: jsonEncode(row.keys.toList()),
+            payload: jsonEncode(payload),
+            preMutationPayload: '{}',
+            createdAt: now,
+            state: 'pending',
+          ),
+        );
+      }
+    }
   }
 }
 

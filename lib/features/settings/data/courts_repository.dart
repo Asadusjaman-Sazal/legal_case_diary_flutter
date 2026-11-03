@@ -110,6 +110,7 @@ class LocalCourtsRepository
     await syncHelper.recordDelete(
       entityType: 'court',
       entityId: court.id,
+      syncedAt: court.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': court.id,
         'isDeleted': true,

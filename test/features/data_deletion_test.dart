@@ -35,6 +35,7 @@ import 'package:legal_case_diary/features/settings/data/on_behalfs_repository.da
 import 'package:legal_case_diary/features/settings/data/steps_repository.dart';
 import 'package:legal_case_diary/sync/recovery_lock.dart';
 import 'package:legal_case_diary/sync/sync_queue_dao.dart';
+import 'package:legal_case_diary/sync/sync_table_bindings.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
 import 'package:legal_case_diary/sync/sync_write_helper.dart';
 
@@ -305,7 +306,9 @@ void main() {
         courtId: ids.courtId,
         onBehalfId: ids.onBehalfId,
       );
-      // As if the insert had been pushed and its receipt settled.
+      // As if the insert had been pushed and its receipt settled: the accepted
+      // push stamps synced_at and resolves the queue entry.
+      await syncBindingFor('case')!.markSynced(h.db, caseId, 1, 1);
       await h.queue.resolveEntity('case', caseId);
 
       await h.service().delete(
@@ -420,6 +423,8 @@ void main() {
         courtId: ids.courtId,
         onBehalfId: ids.onBehalfId,
       );
+      // The accepted insert stamped the row and resolved its queue entry.
+      await syncBindingFor('case')!.markSynced(h.db, caseId, 1, 1);
       await h.queue.resolveEntity('case', caseId);
 
       // A push that could not place the delete (offline, refused, paused): the

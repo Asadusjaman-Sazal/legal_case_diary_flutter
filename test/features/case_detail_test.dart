@@ -940,6 +940,42 @@ void main() {
       },
     );
 
+    testWidgets('the court glyph sits beside the first line of a wrapped name', (
+      WidgetTester tester,
+    ) async {
+      const longName =
+          'Joint District Judge, 2nd Court, Dhaka, Additional Sessions';
+      await db
+          .into(db.courts)
+          .insert(
+            const CourtsCompanion(
+              id: Value('court-long'),
+              courtName: Value(longName),
+              higherLowerCourts: Value('lower_courts'),
+              courtCategoryId: Value('test-category'),
+              orderIndex: Value(0),
+              updatedAt: Value(1),
+            ),
+          );
+      final caseId = await seedCase(courtId: 'court-long', nextDateMs: null);
+      await pumpDetail(tester, caseId);
+
+      // Narrow the surface after the shared harness sets its own phone size, so
+      // this long court name wraps to two lines.
+      tester.view.physicalSize = const Size(400, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pump();
+
+      final nameRect = tester.getRect(find.text(longName));
+      final glyphRect = tester.getRect(find.byIcon(Icons.account_balance));
+
+      // Two lines of 16/24 text, so the name is taller than one line, and the
+      // glyph is centred on the first of them rather than on the whole block.
+      expect(nameRect.height, greaterThan(24));
+      expect(glyphRect.center.dy, closeTo(nameRect.top + 12, 1));
+    });
+
     testWidgets('the header shows the case type in the active language', (
       WidgetTester tester,
     ) async {

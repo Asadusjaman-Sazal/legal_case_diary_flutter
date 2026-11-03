@@ -123,6 +123,7 @@ class LocalNotesRepository with BaseLocalRepository implements NotesRepository {
     await syncHelper.recordDelete(
       entityType: 'note',
       entityId: note.id,
+      syncedAt: note.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': note.id,
         'isDeleted': true,

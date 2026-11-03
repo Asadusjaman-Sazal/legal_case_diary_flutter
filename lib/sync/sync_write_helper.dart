@@ -107,11 +107,17 @@ class SyncWriteHelper {
   );
 
   /// Records a soft-delete into `sync_queue` (with compaction).
+  ///
+  /// [syncedAt] is the deleted row's own `synced_at`. A row the server has
+  /// never confirmed (null) and that has no open queue entry needs no delete
+  /// mutation: there is nothing on the server to remove, and sending one would
+  /// be refused as an unknown id and block for ever.
   Future<void> recordDelete({
     required String entityType,
     required String entityId,
     required Map<String, dynamic> payload,
     required List<String> changedFields,
+    required int? syncedAt,
     Map<String, dynamic>? basePayload,
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
@@ -121,6 +127,7 @@ class SyncWriteHelper {
     entityId: entityId,
     payload: payload,
     changedFields: changedFields,
+    syncedAt: syncedAt,
     basePayload: basePayload,
     baseVersion: baseVersion,
     preMutationPayload: preMutationPayload,
@@ -132,6 +139,7 @@ class SyncWriteHelper {
     required String entityId,
     required Map<String, dynamic> payload,
     required List<String> changedFields,
+    int? syncedAt,
     Map<String, dynamic>? basePayload,
     int? baseVersion,
     Map<String, dynamic>? preMutationPayload,
@@ -164,6 +172,17 @@ class SyncWriteHelper {
     final existing = (await _queue.getByEntity(entityType, entityId))
         .where((row) => row.state != 'resolved')
         .toList(growable: false);
+
+    // A delete for a row the server never received needs no mutation: the local
+    // removal is the whole job. A row created and deleted before its push
+    // already compacts to nothing; this also covers a row that was never queued
+    // at all (a restored or legacy backup row), whose delete the server would
+    // refuse as an unknown id and block for ever.
+    if (operation == SyncOperation.delete &&
+        syncedAt == null &&
+        existing.isEmpty) {
+      return;
+    }
 
     // Inserts are always enqueued as a new pending row (a second insert for the
     // same entity is an caller error, but preserving it is safest). We also

@@ -225,6 +225,7 @@ class LocalDeleteRequestsRepository
     await syncHelper.recordDelete(
       entityType: 'delete_request',
       entityId: id,
+      syncedAt: existing.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': id,
         'isDeleted': true,

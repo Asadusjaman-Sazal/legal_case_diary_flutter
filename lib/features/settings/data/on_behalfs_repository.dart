@@ -108,6 +108,7 @@ class LocalOnBehalfsRepository with BaseLocalRepository implements OnBehalfsRepo
     await syncHelper.recordDelete(
       entityType: 'on_behalf',
       entityId: onBehalf.id,
+      syncedAt: onBehalf.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': onBehalf.id,
         'isDeleted': true,

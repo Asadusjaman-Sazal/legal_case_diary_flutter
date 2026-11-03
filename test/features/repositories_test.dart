@@ -670,6 +670,8 @@ void main() {
         await SyncQueueDao(db).resolve(
           (await SyncQueueDao(db).getByEntity('delete_request', id)).single.id,
         );
+        await (db.update(db.deleteRequests)..where((r) => r.id.equals(id)))
+            .write(const DeleteRequestsCompanion(syncedAt: Value(1000)));
 
         await deleteRequestsRepo.cancel(id);
 

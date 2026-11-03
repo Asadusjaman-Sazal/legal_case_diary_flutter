@@ -107,6 +107,7 @@ class LocalCourtCategoriesRepository with BaseLocalRepository implements CourtCa
     await syncHelper.recordDelete(
       entityType: 'court_category',
       entityId: category.id,
+      syncedAt: category.syncedAt,
       payload: BaseLocalRepository.toSyncPayload(<String, dynamic>{
         'id': category.id,
         'isDeleted': true,

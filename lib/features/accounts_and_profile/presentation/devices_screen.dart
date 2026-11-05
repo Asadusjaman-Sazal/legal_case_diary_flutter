@@ -134,6 +134,14 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     );
   }
 
+  /// A count in the active language's digits — বাংলা reads ২, never 2 — the
+  /// same rule Manage Associates' capacity line follows.
+  String _digits(int value) => AppDateUtils.formatDigits(
+    value,
+    Localizations.localeOf(context).toString(),
+    grouping: false,
+  );
+
   /// The limit line, its sentence and the shared-slots note.
   ///
   /// An owner's line counts the whole chamber against its slots; while the
@@ -149,10 +157,13 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     return <Widget>[
       Text(
         slots == null
-            ? l.devices_limitLabel('${state.devices.length}', '${state.cap}')
+            ? l.devices_limitLabel(
+                _digits(state.devices.length),
+                _digits(state.cap),
+              )
             : l.devices_firmLimitLabel(
-                '${state.devices.length + associates.length}',
-                '$slots',
+                _digits(state.devices.length + associates.length),
+                _digits(slots),
               ),
         style: AppTypography.titleMd,
       ),
@@ -187,7 +198,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
   ) {
     final associateDevices = firm.value?.associateDevices;
     return <Widget>[
-      _SectionHeading(l.devices_ownerSectionCount('${devices.length}')),
+      _SectionHeading(l.devices_ownerSectionCount(_digits(devices.length))),
       for (final device in devices) ...[
         _DeviceRow(
           device: device,
@@ -201,7 +212,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
       _SectionHeading(
         associateDevices == null
             ? l.devices_associateSection
-            : l.devices_associateSectionCount('${associateDevices.length}'),
+            : l.devices_associateSectionCount(_digits(associateDevices.length)),
       ),
       if (firm.isLoading && associateDevices == null)
         const Padding(

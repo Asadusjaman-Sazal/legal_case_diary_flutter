@@ -14,6 +14,13 @@
 - **Proof.** New restore test `an Excel restore queues every row for upload` (one pending insert per case/history/note, stamped `user_id`, marker on history, no entry for a tombstone) and a new push-worker test proving a flagged history row is sent alone with the flag stripped. `flutter analyze` clean; full suite **2,288 passed**, with the known export-list red and one unrelated date-dependent calendar test (it seeds 3 hearings while today is the 3rd, so the badge and day cell both render "৩").
 - **Next.** Build and re-restore the converted workbook once; the Online Sync screen will show the real pending count and the 49 cases and 302 history rows will upload.
 
+### 2026-11-05 — The Devices screen counts in Bengali digits — COMPLETE (0.0.799)
+
+- **What was asked.** On Settings › Account & Profile › Devices, the numbers stayed in English digits under বাংলা.
+- **What changed.** The slot line (৩টির মধ্যে ২টি ডিভাইস ব্যবহৃত) and the two Owner/Associates heading counts now use the app’s existing digit formatter, so বাংলা reads ২ and ৩ instead of 2 and 3. The last-used dates were already Bengali-dated, so they are unchanged. Device names and model numbers are the server’s text and are left alone. Nothing outside this screen was touched.
+- **Proof.** `device_limit_test.dart` gains *under বাংলা every count and date uses Bengali digits*: the firm limit line, both section counts and a Bengali date are asserted, and the ASCII form is asserted absent. The whole file passes **17 tests** and `flutter analyze` is clean.
+- **Next.** The user’s next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-03 — The court glyph sits beside the first line — COMPLETE (0.0.798)
 
 - **What was asked.** In the Case Detail header, when the court name runs to two lines, the courthouse glyph must sit beside the first line, not halfway down the pair.

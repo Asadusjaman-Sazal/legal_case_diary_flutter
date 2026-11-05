@@ -210,6 +210,7 @@ Future<_FakeGate> _pump(
   DeviceGateState state, {
   required Widget child,
   List<Override> extra = const <Override>[],
+  Locale? locale,
 }) async {
   final gate = _FakeGate(state);
   await tester.pumpWidget(
@@ -227,6 +228,7 @@ Future<_FakeGate> _pump(
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        locale: locale,
         home: child,
       ),
     ),
@@ -275,6 +277,41 @@ void main() {
     await tester.pumpAndSettle();
     expect(gate.removed, ['d2']);
     expect(find.text('Xiaomi 13'), findsNothing);
+  });
+
+  testWidgets('under বাংলা every count and date uses Bengali digits', (
+    tester,
+  ) async {
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await _pump(
+      tester,
+      DeviceGateState(
+        status: DeviceGateStatus.active,
+        cap: 3,
+        devices: [
+          _device('d1', 'Samsung SM-A525F', current: true),
+          _device('d2', 'Dell Latitude'),
+        ],
+      ),
+      child: const DevicesScreen(),
+      locale: const Locale('bn'),
+      extra: [
+        firmModeProvider.overrideWithValue(true),
+        firmMemberProvider.overrideWithValue(false),
+        firmDeviceListProvider.overrideWith((ref) async => _chamber),
+      ],
+    );
+
+    // The limit line and both section counts carry Bengali digits, and so do
+    // the dates beneath each device (২১/১০/২০২৬, ১০:০০ AM).
+    expect(find.text(l.devices_firmLimitLabel('৪', '৫')), findsOneWidget);
+    expect(find.text(l.devices_ownerSectionCount('২')), findsOneWidget);
+    expect(find.text(l.devices_associateSectionCount('২')), findsOneWidget);
+    expect(
+      find.text(l.devices_lastUsed('২১/১০/২০২৬, ১০:০০ AM')),
+      findsOneWidget,
+    );
+    expect(find.text(l.devices_lastUsed('21/10/2026, 10:00 AM')), findsNothing);
   });
 
   testWidgets('a chamber owner reads both halves of the shared slots', (

@@ -3024,7 +3024,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_chooseBackupTitle =>
-      'Choose the backup to restore';
+      'Choose the Backup File';
 
   @override
   String get settingsBackupRestore_recommended => 'Recommended';

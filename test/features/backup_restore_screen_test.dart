@@ -1364,7 +1364,7 @@ void main() {
     await tapAction(tester, 'Restore from Backup');
 
     // No choice popup and no platform picker: the folder's only file restores.
-    expect(find.text('Choose the backup to restore'), findsNothing);
+    expect(find.text('Choose the Backup File'), findsNothing);
     expect(find.text('Open this backup'), findsNothing);
     expect(find.text('Restore complete'), findsOneWidget);
     expect(find.text('3 records restored.'), findsOneWidget);
@@ -1393,7 +1393,7 @@ void main() {
 
     // Both files are listed in the popup, and the popup replaces the platform
     // picker for the folder's own backups.
-    expect(find.text('Choose the backup to restore'), findsOneWidget);
+    expect(find.text('Choose the Backup File'), findsOneWidget);
     expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
     expect(find.text('Backup_02-02-26_09-30-15pm.lcbak'), findsOneWidget);
 
@@ -1485,14 +1485,14 @@ void main() {
       await pumpScreen(tester);
 
       await tapAction(tester, 'Restore from Backup');
-      expect(find.text('Choose the backup to restore'), findsOneWidget);
+      expect(find.text('Choose the Backup File'), findsOneWidget);
 
       await tester.tap(find.byKey(const ValueKey('backup-files-button')));
       await tester.pumpAndSettle();
 
       // The window closed on the picked file and the restore used that file, not
       // one of the folder's rows.
-      expect(find.text('Choose the backup to restore'), findsNothing);
+      expect(find.text('Choose the Backup File'), findsNothing);
       expect(find.text('Restore complete'), findsOneWidget);
       expect(find.text('3 records restored.'), findsOneWidget);
     },
@@ -1516,7 +1516,7 @@ void main() {
 
     // A cancelled picker is not a cancelled restore: the folder list is still
     // there to choose from, and nothing was imported.
-    expect(find.text('Choose the backup to restore'), findsOneWidget);
+    expect(find.text('Choose the Backup File'), findsOneWidget);
     expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
     expect(find.text('Restore complete'), findsNothing);
   });

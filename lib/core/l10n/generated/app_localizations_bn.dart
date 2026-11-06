@@ -2737,7 +2737,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার যোগ করা আদালতের ক্যাটেগরি, আদালতের নাম, পদক্ষেপ, মামলার ধরন ও পক্ষগুলো';
 
   @override
-  String get settingsManageAccount_deleteDataConfirm => 'নির্বাচিত মুছুন';
+  String get settingsManageAccount_deleteDataConfirm => 'নির্বাচিত ফাইল মুছুন';
 
   @override
   String get settingsManageAccount_deleteDataConfirmPhrase => 'delete my data';
@@ -3033,7 +3033,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsBackupRestore_chooseBackupTitle =>
-      'পুনরুদ্ধারের জন্য ব্যাকআপ নির্বাচন করুন';
+      'ব্যাকআপ ফাইল নির্বাচন করুন';
 
   @override
   String get settingsBackupRestore_recommended => 'প্রস্তাবিত';

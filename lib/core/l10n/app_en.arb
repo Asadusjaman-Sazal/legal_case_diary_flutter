@@ -1492,7 +1492,7 @@
   "settingsOnlineSync_syncOnToast": "Sync is on again.",
   "@@_section_settingsBackupRestore": "SETTINGS - BACKUP & RESTORE  |  lib/features/settings/presentation/backup_restore_screen.dart",
   "settingsBackupRestore_title": "Backup & Restore",
-  "settingsBackupRestore_chooseBackupTitle": "Choose the backup to restore",
+  "settingsBackupRestore_chooseBackupTitle": "Choose the Backup File",
   "settingsBackupRestore_recommended": "Recommended",
   "backupScheduled_skipNoticeTitle": "Automatic backup skipped",
   "backupScheduled_skipNoticeBody": "Backups are encrypted with a password only you know, so the automatic backup cannot run. Open Legal Case Diary and back up manually.",

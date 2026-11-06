@@ -5244,7 +5244,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupRestore_chooseBackupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose the backup to restore'**
+  /// **'Choose the Backup File'**
   String get settingsBackupRestore_chooseBackupTitle;
 
   /// No description provided for @settingsBackupRestore_recommended.

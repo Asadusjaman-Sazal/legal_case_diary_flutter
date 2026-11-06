@@ -473,7 +473,9 @@ class _OverdueDatesScreenState extends ConsumerState<OverdueDatesScreen> {
           child: Text(
             // Pre-seeded courts store their English name, so the heading is
             // resolved through the seed lookup to follow the language.
-            context.l10n.seedLabel(
+            // The heading shortens the five long Bengali words so the
+            // court name fits on one line; the card keeps the full name.
+            context.l10n.courtHeadingLabel(
               group.court.id,
               fallbackEn: group.court.courtName,
             ),

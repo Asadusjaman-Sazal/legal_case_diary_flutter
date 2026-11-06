@@ -469,7 +469,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
             // Pre-seeded courts store their English name, so the title is
             // resolved through the seed label lookup to follow the active
             // language; a court the user added keeps the name they typed.
-            context.l10n.seedLabel(
+            // The heading shortens the five long Bengali words so the
+            // court name fits on one line; the card keeps the full name.
+            context.l10n.courtHeadingLabel(
               group.court.id,
               fallbackEn: group.court.courtName,
             ),

@@ -4,6 +4,34 @@ import '../../core/constants/pre_seeded_data.dart' as seed;
 import 'app_strings.dart';
 import 'generated/app_localizations.dart';
 
+/// Words shortened **only** in the court heading above case cards, where a full
+/// Bengali court name does not fit on one line: সহকারি→সহঃ, সিনিয়র→সিনিঃ,
+/// জুডিসিয়াল→জুডিঃ, ম্যাজিস্ট্রেট→ম্যাজিঃ, অতিরিক্ত→অতিঃ.
+///
+/// Bengali "ya" is written both precomposed and decomposed in the seed data, so
+/// both spellings are listed and a name shortens however it was written.
+const Map<String, String> _courtHeadingShortenings = <String, String>{
+  'সহকারি': 'সহঃ',
+  '\u09b8\u09bf\u09a8\u09bf\u09df\u09b0': 'সিনিঃ',
+  '\u09b8\u09bf\u09a8\u09bf\u09af\u09bc\u09b0': 'সিনিঃ',
+  '\u099c\u09c1\u09a1\u09bf\u09b8\u09bf\u09df\u09be\u09b2': 'জুডিঃ',
+  '\u099c\u09c1\u09a1\u09bf\u09b8\u09bf\u09af\u09bc\u09be\u09b2': 'জুডিঃ',
+  'ম্যাজিস্ট\u09cdরেট': 'ম্যাজিঃ',
+  'অতিরিক্ত': 'অতিঃ',
+};
+
+/// The heading form of a court name: [label] with those five words shortened.
+///
+/// Used only by the court heading above the case cards. A card's own court
+/// field, the court lists, the dropdown, print and exports keep the full name.
+String shortenCourtHeading(String label) {
+  var shortened = label;
+  for (final entry in _courtHeadingShortenings.entries) {
+    shortened = shortened.replaceAll(entry.key, entry.value);
+  }
+  return shortened;
+}
+
 /// Central, hierarchical, screen-grouped access to the generated [AppLocalizations].
 ///
 /// WARNING: This file is manually maintained. The generate_l10n.py script
@@ -53,6 +81,16 @@ class AppTranslations {
       if (map.containsKey(stableId)) return map[stableId]!;
     }
     return fallbackEn;
+  }
+
+  /// The court label as drawn in the heading above case cards.
+  ///
+  /// Bengali court names are shortened there ([shortenCourtHeading]); English
+  /// ones are left as they are. Only the Overdue Dates, Daily Cause List and
+  /// Upcoming Cases headings use this.
+  String courtHeadingLabel(String stableId, {String fallbackEn = ''}) {
+    final label = seedLabel(stableId, fallbackEn: fallbackEn);
+    return _loc.localeName.startsWith('bn') ? shortenCourtHeading(label) : label;
   }
 
   /// Resolves a law category's stable ID to its heading in the active language.

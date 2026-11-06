@@ -240,6 +240,61 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('the court title shortens the five long Bengali words', (
+    WidgetTester tester,
+  ) async {
+    // The heading above the cards abbreviates those five words so a full court
+    // name fits one line; every other surface keeps the full name.
+    final seed = allSeedCourts.firstWhere(
+      (court) =>
+          lowerCourtCategoryIds.contains(court.courtCategoryId) &&
+          court.courtNameBn.contains('অতিরিক্ত'),
+    );
+    final category = seedCategoryById[seed.courtCategoryId]!;
+    await db
+        .into(db.courtCategories)
+        .insert(
+          CourtCategoriesCompanion(
+            id: Value(category.id),
+            nameKey: Value(category.nameKey),
+            courtLevel: Value(category.courtLevel),
+            orderIndex: Value(category.orderIndex),
+            updatedAt: const Value(1),
+          ),
+        );
+    await db
+        .into(db.courts)
+        .insert(
+          CourtsCompanion(
+            id: Value(seed.id),
+            courtName: Value(seed.courtNameEn),
+            higherLowerCourts: Value(seed.higherLowerCourts),
+            courtCategoryId: Value(seed.courtCategoryId),
+            orderIndex: const Value(1),
+            updatedAt: const Value(1),
+          ),
+        );
+    await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('DCL-SHORT'),
+        caseType: const Value('Civil Suit'),
+        courtId: Value(seed.id),
+        onBehalfId: const Value(roleId),
+        petitioner: const Value('Md. Rahim Uddin'),
+        respondent: const Value('Bangladesh Government'),
+        nextDate: Value(AppDateUtils.bangladeshTodayStartOfDay()),
+      ),
+    );
+    await pumpScreen(tester, locale: const Locale('bn'));
+
+    final shortened = seed.courtNameBn.replaceAll('অতিরিক্ত', 'অতিঃ');
+    expect(shortened, isNot(seed.courtNameBn));
+    expect(find.text(shortened), findsOneWidget);
+    expect(find.text(seed.courtNameBn), findsNothing);
+
+    await unmount(tester);
+  });
+
   testWidgets('court hearing counts use Bengali digits', (
     WidgetTester tester,
   ) async {

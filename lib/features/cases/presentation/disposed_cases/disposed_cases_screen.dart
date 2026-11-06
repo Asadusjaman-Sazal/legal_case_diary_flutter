@@ -460,6 +460,11 @@ class _DisposedCaseCard extends StatelessWidget {
           // L1: Step/Result (light-gray) left, "Disposed:" right.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            // The chip stays elastic, but any width it does not need goes
+            // before the date block rather than after it, so a short step
+            // leaves "Disposed:" at the card's right edge (user request,
+            // 0.0.814). A long chip uses its room and the 8 px gap remains.
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // A long step list must never push "Disposed:" off the card, so
               // the chip takes only the room left over and shows the rest as "…".

@@ -580,6 +580,43 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets("a short step keeps Disposed at the card's right edge", (
+    WidgetTester tester,
+  ) async {
+    // The left-packed row left the label beside a short chip; the user
+    // asked for it always at the right, whatever the step's length.
+    tester.view.physicalSize = const Size(412, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await seedCase(
+      id: 'SHORT-STEP',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      lastStep: 'Disposed',
+    );
+
+    await pumpScreen(tester, const DisposedCasesScreen());
+
+    final card = find.byKey(const ValueKey('case-card-SHORT-STEP'));
+    final cardRect = tester.getRect(card);
+    final disposed = tester.getRect(find.text('Disposed:'));
+    expect(
+      disposed.right,
+      closeTo(cardRect.right - AppSpacing.cardPadding, 0.5),
+    );
+    // The chip itself stays at the left edge, so the width between them is
+    // what the row distributes, not a chip stretched across the card.
+    final chip = tester.getRect(find.text('Disposed'));
+    expect(
+      chip.left,
+      closeTo(
+        cardRect.left + AppSpacing.cardPadding + AppSpacing.sm,
+        0.5,
+      ),
+    );
+
+    await unmount(tester);
+  });
+
   testWidgets('the grouped lists keep their headings and number their rows', (
     WidgetTester tester,
   ) async {

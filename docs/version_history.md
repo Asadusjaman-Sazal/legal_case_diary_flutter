@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.813 - Case Detail header: 50 percent more space between the court icon and the court name, 4 px to 6 px.
+Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at the right edge when the step is short.
 --------------------------------------
 
 ## Version History Log:
@@ -827,3 +827,4 @@ Version: 0.0.810 - Choose the Backup File lists every file in Download/LegalCase
 Version: 0.0.811 - Delete Selected now opens a non-dismissible Please Wait window until the deletion finishes, with no action, barrier or back button able to close it.
 Version: 0.0.812 - Centred every shared pop-over window title in the frame itself, so no window restates the alignment and all geometry stays unchanged.
 Version: 0.0.813 - Case Detail header: 50 percent more space between the court icon and the court name, 4 px to 6 px.
+Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at the right edge when the step is short.

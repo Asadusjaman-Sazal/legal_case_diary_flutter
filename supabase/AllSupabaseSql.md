@@ -765,7 +765,7 @@ values
   ('step-district_courts_civil-hearing', 'district_courts_civil', 'Hearing', 18, false, false, null, null, 1767225600000, 1, null, false, null),
   ('step-district_courts_civil-petition_hearing', 'district_courts_civil', 'Petition Hearing', 19, false, false, null, null, 1767225600000, 1, null, false, null),
   ('step-district_courts_civil-adr', 'district_courts_civil', 'ADR', 20, false, false, null, null, 1767225600000, 1, null, false, null),
-  ('step-district_courts_civil-rafa_nam_submission', 'district_courts_civil', 'Rafa Nam Submission', 21, false, false, null, null, 1767225600000, 1, null, false, null),
+  ('step-district_courts_civil-rafa_nam_submission', 'district_courts_civil', 'Compromise Petition', 21, false, false, null, null, 1767225600000, 1, null, false, null),
   ('step-district_courts_civil-compromise', 'district_courts_civil', 'Compromise', 22, false, false, null, null, 1767225600000, 1, null, false, null),
   ('step-district_courts_civil-framing_of_issue', 'district_courts_civil', 'Framing of Issue', 23, false, false, null, null, 1767225600000, 1, null, false, null),
   ('step-district_courts_civil-step_for_section_30', 'district_courts_civil', 'Step for Section 30', 24, false, false, null, null, 1767225600000, 1, null, false, null),

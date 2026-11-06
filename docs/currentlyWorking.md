@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — The Rafa Nam Submission step is now Compromise Petition — COMPLETE (0.0.801)
+
+- **What was asked.** In Steps, *Rafa Nam Submission* should read *Compromise Petition*.
+- **What changed.** That one step (district civil courts, order 21) now reads **Compromise Petition** in English and **আপোষ দরখাস্ত** in Bengali, using the list's own words for compromise and petition. Its internal id is untouched, so cases, history rows, server rows and backups stay attached to the same step; nothing else in the Steps list moved or renamed. The generated server seed and its single SQL record were regenerated from the app's constants, so the phone and the server still describe the same step.
+- **A case recorded before the rename.** Such a case stores the old name in its steps field, so the old name is registered as a retired name of the new step: those cases now read *Compromise Petition* under English and *আপোষ দরখাস্ত* under বাংলা instead of showing the retired text. Cases recorded after this version store the new name.
+- **Proof.** `seed_data_test.dart` gains *the compromised step reads Compromise Petition in both languages* — both labels, the unchanged id and the retired-name lookup in both languages. That file plus the Supabase seed-parity and SQL-record tests pass (**44 tests**), and `flutter analyze` is clean.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-06 — A long Step list no longer pushes "Disposed:" off the card — COMPLETE (0.0.800)
 
 - **What was reported.** On the Disposed Cases card, a case whose Steps field holds several steps made the step chip too wide: it pushed the "Disposed:" label and its date past the card's right edge, so the row overflowed.

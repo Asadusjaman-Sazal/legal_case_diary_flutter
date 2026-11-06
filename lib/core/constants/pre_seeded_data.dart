@@ -2529,10 +2529,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
         labelBn: '৮৯(ক)',
         orderIndex: 20,
       ),
+      // Renamed at the user's request (0.0.801). The id keeps the step's
+      // first slug so every case and server row already saved against this
+      // step stays attached to it; only the label the lawyer reads changed.
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Rafa Nam Submission')),
-        labelEn: 'Rafa Nam Submission',
-        labelBn: 'রফা-নামা দাখিল',
+        labelEn: 'Compromise Petition',
+        labelBn: 'আপোষ দরখাস্ত',
         orderIndex: 21,
       ),
       SeedOption(
@@ -19880,6 +19883,16 @@ final Map<String, Map<String, String>> stepLabelBnByCourtCategory =
       ),
     );
 
+/// English names a step carried before it was renamed → its current name.
+///
+/// A case stores its steps by name, so a case recorded before a rename would
+/// otherwise show the retired name — untranslated under বাংলা, because the
+/// token is no longer one of the step's labels. Each retired name is registered
+/// as a token of the current label, which is why both token maps resolve it.
+const Map<String, String> stepRetiredNames = <String, String>{
+  'Rafa Nam Submission': 'Compromise Petition',
+};
+
 /// Every representation a stored step token can take → its Bengali label.
 ///
 /// A case stores its steps by *name*, but rows written by older builds or by a
@@ -19903,6 +19916,13 @@ Map<String, String> _stepLabelsByToken(Map<String, String> labelById) {
       byToken.putIfAbsent(token, () => label);
       byToken.putIfAbsent(token.toLowerCase(), () => label);
     }
+  }
+  for (final retired in stepRetiredNames.entries) {
+    final current =
+        byToken[retired.value] ?? byToken[retired.value.toLowerCase()];
+    if (current == null) continue;
+    byToken.putIfAbsent(retired.key, () => current);
+    byToken.putIfAbsent(retired.key.toLowerCase(), () => current);
   }
   return Map<String, String>.unmodifiable(byToken);
 }

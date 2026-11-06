@@ -21,7 +21,7 @@ Ex Parte | একতরফা শুনানী
 Hearing | শুনানী
 Petition Hearing | দরখাস্ত শুনানী
 ADR | ৮৯(ক)
-Rafa Nam Submission | রফা-নামা দাখিল
+Compromise Petition | আপোষ দরখাস্ত
 Compromise | আপোষ মিমাংসা
 Framing of Issue | ইস্যু গঠন
 Step for Section 30 | ৩০ ধারায় তদ্বির

@@ -142,6 +142,20 @@ void main() {
       ]);
     });
 
+    test('the compromised step reads Compromise Petition in both languages', () {
+      // Renamed at the user's request (0.0.801). The id keeps its first slug so
+      // every case and server row saved against this step stays attached to it.
+      const id = 'step-district_courts_civil-rafa_nam_submission';
+      expect(stepIdsByCategory[districtCourtsCivilId], contains(id));
+      expect(stepLabelEn[id], 'Compromise Petition');
+      expect(stepLabelBn[id], 'আপোষ দরখাস্ত');
+
+      // A case recorded before the rename still reads as the new name in both
+      // languages instead of falling back to the retired English text.
+      expect(stepLabelEnByToken['Rafa Nam Submission'], 'Compromise Petition');
+      expect(stepLabelBnByToken['Rafa Nam Submission'], 'আপোষ দরখাস্ত');
+    });
+
     test('all 8 divisions exist', () {
       expect(allDivisionIds.length, 8);
       expect(divisionLabelEn.length, 8);

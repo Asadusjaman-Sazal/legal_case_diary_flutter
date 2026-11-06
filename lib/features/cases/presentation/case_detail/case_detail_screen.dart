@@ -684,7 +684,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
                 padding: EdgeInsets.only(top: _courtGlyphTopInset(context)),
                 child: const Icon(Icons.account_balance, size: 18),
               ),
-              const SizedBox(width: AppSpacing.xs),
+              // 50 % more than the shared 4 px inline gap (user request,
+              // 0.0.813): the court name starts 6 px from the glyph.
+              const SizedBox(width: AppSpacing.xs * 1.5),
               Expanded(
                 child: Text(
                   _courtLabel(context, court),

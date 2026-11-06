@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import 'reference_library.dart';
 
@@ -99,6 +100,8 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final tags = referenceTags(_row.tags);
+    // The icon resolves the stored statute; the line shows its label in the
+    // active language.
     final statute = _row.statute?.trim() ?? '';
     final parties = _row.parties?.trim() ?? '';
     final actions = _actionsRow(l);
@@ -142,7 +145,9 @@ class _ReferenceDetailScreenState extends State<ReferenceDetailScreen> {
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
-                      statute.isEmpty ? '—' : statute,
+                      statute.isEmpty
+                          ? '—'
+                          : context.l10n.lawName(statute),
                       key: const ValueKey('reference-detail-law'),
                       style: AppTypography.bodyLg.copyWith(
                         color: statute.isEmpty

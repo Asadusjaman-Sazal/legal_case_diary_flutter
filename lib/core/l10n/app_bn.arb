@@ -919,7 +919,7 @@
   "lawCategory_familyPersonalLaw": "পরিবার ও ব্যক্তিগত আইন",
   "lawCategory_criminalLaw": "ফৌজদারি আইন",
   "lawCategory_taxFinance": "কর ও অর্থায়ন",
-  "lawCategory_labourEverydayRegulation": "শ্রম, কোম্পানী ইত্যাদি",
+  "lawCategory_labourEverydayRegulation": "শ্রম, কোম্পানি ইত্যাদি",
   "lawCategory_other": "অন্যান্য",
   "@@_section_seedOnBehalf": "SEED DATA - ON BEHALF  |  seed data labels - on-behalf roles",
   "onBehalf_plaintiff": "বাদী",

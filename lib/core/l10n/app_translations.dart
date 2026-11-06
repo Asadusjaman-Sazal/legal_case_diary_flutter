@@ -177,6 +177,23 @@ class AppTranslations {
         .join(',');
   }
 
+  /// Resolves a stored law name to the label of the active language.
+  ///
+  /// A reference stores its law as text (`case_references.statute`), and the
+  /// seeded list mixes English and বাংলা names, so every law surface would
+  /// otherwise show that mixture under both languages. Each built-in’s two
+  /// labels live in [seed.seedLawLabels]; the lookup accepts the stored name or
+  /// either label, which also covers a reference saved under an older seed
+  /// spelling. A name no built-in owns is user text and is returned unchanged.
+  String lawName(String storedName) {
+    final name = storedName.trim();
+    if (name.isEmpty) return storedName;
+    final tokens = _loc.localeName.startsWith('bn')
+        ? seed.lawLabelBnByToken
+        : seed.lawLabelEnByToken;
+    return tokens[name] ?? tokens[name.toLowerCase()] ?? storedName;
+  }
+
   /// Labels an on-behalf role by its stable ID.
   ///
   /// Falls back to [storedName] for a role the user added themselves, and

@@ -3,8 +3,8 @@
 /// Two levels, exactly like the court list it sits beside: the six law
 /// categories first (`criminal_law`, `family_personal_law`, …), then the names
 /// inside the one that was tapped. The category headings translate through
-/// [AppTranslations.lawCategoryName], so বাংলা readers see six বাংলা headings
-/// while each law keeps the name it was seeded with.
+/// [AppTranslations.lawCategoryName]; each built-in law name also follows the
+/// active language (0.0.815), while a name the user added stays as typed.
 ///
 /// A built-in name may be reordered but never renamed or deleted; only a name
 /// the user or their firm added carries Edit and Delete, which is the same rule
@@ -215,7 +215,10 @@ class _LawList extends StatelessWidget {
               Icons.drag_indicator,
               color: AppColors.tertiary,
             ),
-            title: Text(law.name, style: AppTypography.bodyLg),
+            title: Text(
+              context.l10n.lawName(law.name),
+              style: AppTypography.bodyLg,
+            ),
             // A built-in law is part of the app's shared vocabulary: it keeps
             // its name and cannot be removed from here (user request). Only a
             // name the user added can be edited or deleted.

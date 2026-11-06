@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at the right edge when the step is short.
+Version: 0.0.815 - Built-in law names now switch between English and Bengali in the picker, Law Names, both reference libraries and citation views.
 --------------------------------------
 
 ## Version History Log:
@@ -828,3 +828,4 @@ Version: 0.0.811 - Delete Selected now opens a non-dismissible Please Wait windo
 Version: 0.0.812 - Centred every shared pop-over window title in the frame itself, so no window restates the alignment and all geometry stays unchanged.
 Version: 0.0.813 - Case Detail header: 50 percent more space between the court icon and the court name, 4 px to 6 px.
 Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at the right edge when the step is short.
+Version: 0.0.815 - Built-in law names now switch between English and Bengali in the picker, Law Names, both reference libraries and citation views.

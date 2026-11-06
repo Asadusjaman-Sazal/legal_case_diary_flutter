@@ -230,4 +230,40 @@ void main() {
       expect(bn.onBehalfLabel('onbehalf-gone', null), isNull);
     });
   });
+
+  group('lawName (a law stored by name)', () {
+    Future<AppTranslations> translations(Locale locale) async =>
+        AppTranslations(await AppLocalizations.delegate.load(locale));
+
+    test('shows every built-in law in the active language', () async {
+      final bn = await translations(const Locale('bn'));
+      final en = await translations(const Locale('en'));
+      for (final law in seedLaws) {
+        final labels = seedLawLabels[law.id];
+        expect(labels, isNotNull, reason: law.id);
+        expect(bn.lawName(law.name), labels![1], reason: law.id);
+        expect(en.lawName(law.name), labels[0], reason: law.id);
+        // The two labels differ, so the assertions above mean something.
+        expect(labels[1], isNot(labels[0]), reason: law.id);
+      }
+    });
+
+    test('resolves a law stored in the other language', () async {
+      final bn = await translations(const Locale('bn'));
+      final en = await translations(const Locale('en'));
+      // Some seeded rows store their Bengali label, so English needs the
+      // reverse lookup; the picker can also save either label later.
+      for (final law in seedLaws) {
+        final labels = seedLawLabels[law.id]!;
+        expect(bn.lawName(labels[0]), labels[1], reason: law.id);
+        expect(en.lawName(labels[1]), labels[0], reason: law.id);
+      }
+    });
+
+    test('leaves a name the user added alone', () async {
+      final bn = await translations(const Locale('bn'));
+      expect(bn.lawName('My Own Law, 2026'), 'My Own Law, 2026');
+      expect(bn.lawName(''), '');
+    });
+  });
 }

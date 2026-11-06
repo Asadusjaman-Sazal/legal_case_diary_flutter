@@ -1924,7 +1924,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get lawCategory_taxFinance => 'কর ও অর্থায়ন';
 
   @override
-  String get lawCategory_labourEverydayRegulation => 'শ্রম, কোম্পানী ইত্যাদি';
+  String get lawCategory_labourEverydayRegulation => 'শ্রম, কোম্পানি ইত্যাদি';
 
   @override
   String get lawCategory_other => 'অন্যান্য';

@@ -338,7 +338,7 @@ class ReferenceLawList extends StatelessWidget {
               key: ValueKey('law-row-${row.key}'),
               title: row.label.isEmpty
                   ? l.caseReferenceScreen_noStatute
-                  : row.label,
+                  : context.l10n.lawName(row.label),
               onTap: () => onOpen(row.key),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -397,7 +397,9 @@ class ReferenceLawHeader extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            label,
+            // Hosts pass the stored statute key, so the header follows the
+            // active language without changing what a law page matches.
+            context.l10n.lawName(label),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleMd.copyWith(
@@ -698,7 +700,7 @@ class _ReferenceCardState extends State<ReferenceCard> {
                 if (row.statute != null && row.statute!.isNotEmpty) ...[
                   const SizedBox(height: _lineGap),
                   Text(
-                    row.statute!,
+                    context.l10n.lawName(row.statute!),
                     style: AppTypography.bodyMd.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),

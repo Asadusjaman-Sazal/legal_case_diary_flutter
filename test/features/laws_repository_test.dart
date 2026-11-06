@@ -114,6 +114,20 @@ void main() {
       );
     });
 
+    test('every built-in law carries both display labels', () {
+      expect(seedLawLabels, hasLength(seedLaws.length));
+      for (final law in seedLaws) {
+        final labels = seedLawLabels[law.id];
+        expect(labels, isNotNull, reason: law.id);
+        expect(labels![0].trim(), isNotEmpty, reason: law.id);
+        expect(labels[1].trim(), isNotEmpty, reason: law.id);
+        expect(labels[0], isNot(labels[1]), reason: law.id);
+        // The stored name is one of the two, so both lookups must resolve it.
+        expect(lawLabelEnByToken[law.name], labels[0], reason: law.id);
+        expect(lawLabelBnByToken[law.name], labels[1], reason: law.id);
+      }
+    });
+
     test('a typed name is custom, lands last and queues an insert', () async {
       final id = await repo.insert(
         const LawsCompanion(

@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
@@ -130,7 +131,8 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
   /// It stays a plain name rather than an id because `case_references.statute`
   /// has always held text: an existing reference keeps whatever it was saved
   /// with, including a name the list has never heard of, and the window keeps
-  /// showing it until the user picks a different one.
+  /// showing it until the user picks a different one. The box and the picker
+  /// display the active language; the stored value stays as it is.
   String? _statute;
 
   /// True while the window's save runs, so Save cannot be pressed twice.
@@ -431,7 +433,9 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
               ),
             ),
             child: Text(
-              hasStatute ? _statute!.trim() : l.caseReferenceScreen_chooseLaw,
+              hasStatute
+                  ? context.l10n.lawName(_statute!.trim())
+                  : l.caseReferenceScreen_chooseLaw,
               style: AppTypography.bodyLg.copyWith(
                 color: hasStatute
                     ? AppColors.onBackground

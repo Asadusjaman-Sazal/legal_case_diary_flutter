@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — Built-in law names follow the app language — COMPLETE (0.0.815)
+
+- **What was asked.** The law list should show every law correctly in English and Bengali, using the supplied EN/BN labels. The Bengali category heading should read "শ্রম, কোম্পানি ইত্যাদি", not "কোম্পানী".
+- **What changed.** Every built-in law now has an English and a Bengali label. The list, the law picker, the reference library, citation cards, the citation detail and the form box show the label for the active language; a law the user added still shows exactly as typed. The stored law names are untouched, so existing references and sync keep working. The Labour category heading uses the corrected spelling.
+- **Scope.** Translation and display only: no data migration, server SQL, layout or behaviour change. The picker also finds a law by either language while searching.
+- **Proof.** New cases check all 57 label pairs in both languages, a law stored in the other language, and an unknown user name; the focused law/reference suites pass (36) and `flutter analyze` is clean. No mockup is owed because nothing moved. No phone run: the visible result is still worth one look in both languages.
+
+
 ### 2026-11-06 — Disposed Cases card keeps "Disposed:" at the right edge — COMPLETE (0.0.814)
 
 - **What was asked.** In the Disposed Cases screen's case card, the Steps part should stay elastic, but the "Disposed: <date>" block must always sit on the right side and must not slide left when the step is short.

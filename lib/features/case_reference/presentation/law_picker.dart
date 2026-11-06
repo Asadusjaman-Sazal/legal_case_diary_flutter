@@ -137,7 +137,16 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
     final filtered = query.isEmpty
         ? widget.laws
         : widget.laws
-              .where((law) => law.name.toLowerCase().contains(query))
+              // A Bengali user may type either language while searching,
+              // so the stored name and its active-language label both match.
+              .where(
+                (law) =>
+                    law.name.toLowerCase().contains(query) ||
+                    context.l10n
+                        .lawName(law.name)
+                        .toLowerCase()
+                        .contains(query),
+              )
               .toList(growable: false);
     return groupLaws(filtered);
   }
@@ -266,8 +275,8 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
             AppSpacing.xs,
           ),
           child: Text(
-            // The heading translates; the law names themselves do not (the
-            // seeded list mixes English and বাংলা). An unknown or blank id
+            // The heading and every built-in name follow the active language;
+            // a name the user added stays as typed. An unknown or blank id
             // resolves to Other rather than to a machine key.
             context.l10n.lawCategoryName(group.categoryId),
             // The heading takes the law names' old size and weight (user
@@ -287,7 +296,7 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
           ListTile(
             key: ValueKey('law-option-${law.id}'),
             title: Text(
-              law.name,
+              context.l10n.lawName(law.name),
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge?.copyWith(fontSize: 14),

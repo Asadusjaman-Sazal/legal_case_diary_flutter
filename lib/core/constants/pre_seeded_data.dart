@@ -19749,6 +19749,271 @@ final List<SeedLaw> seedLaws = <SeedLaw>[
   ),
 ];
 
+/// The English and Bengali display labels of the 57 built-in laws, keyed by
+/// their stable ID (user request, 0.0.815).
+///
+/// `laws.name` is what a row was seeded or saved with, because a case
+/// reference stores that text and an upgrade must not rewrite it. This table
+/// is display-only: it lets the picker, the Law Names list, both reference
+/// libraries and a citation show every built-in in the active language even
+/// though the stored list mixes English and বাংলা names. English comes first,
+/// Bengali second. A name the user added has no row here and is shown exactly
+/// as typed.
+const Map<String, List<String>> seedLawLabels = <String, List<String>>{
+  'law-constitution-of-the-peoples-republic-of-bangladesh': <String>[
+    'The Constitution of the People’s Republic of Bangladesh',
+    'গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধান',
+  ],
+  'law-civil-courts-act-1887': <String>[
+    'The Civil Courts Act, 1887',
+    'দেওয়ানি আদালত আইন, ১৮৮৭',
+  ],
+  'law-general-clauses-act-1897': <String>[
+    'The General Clauses Act, 1897',
+    'জেনারেল ক্লজেস এ্যাক্ট,১৮৯৭',
+  ],
+  'law-notaries-ordinance-1961': <String>[
+    'The Notaries Ordinance, 1961',
+    'নোটারি অধ্যাদেশ, ১৯৬১',
+  ],
+  'law-code-of-civil-procedure-1908': <String>[
+    'The Code of Civil Procedure, 1908',
+    'দেওয়ানি কার্যবিধি, ১৯০৮',
+  ],
+  'law-court-fees-act-1870': <String>[
+    'The Court Fees Act, 1870',
+    'কোর্ট ফিস আইন, ১৮৭০',
+  ],
+  'law-evidence-act-1872': <String>[
+    'The Evidence Act, 1872',
+    'সাক্ষ্য আইন, ১৮৭২',
+  ],
+  'law-limitation-act-1908': <String>[
+    'The Limitation Act, 1908',
+    'তামাদি আইন, ১৯০৮',
+  ],
+  'law-oaths-act-1873': <String>[
+    'The Oaths Act, 1873',
+    'শপথ আইন, ১৮৭৩',
+  ],
+  'law-specific-relief-act-1877': <String>[
+    'The Specific Relief Act, 1877',
+    'সুনির্দিষ্ট প্রতিকার আইন, ১৮৭৭',
+  ],
+  'law-suits-valuation-act-1887': <String>[
+    'The Suits Valuation Act, 1887',
+    'মামলা মূল্যায়ন আইন, ১৮৮৭',
+  ],
+  'law-acquisition-and-requisition-of-immovable-property-act-2017': <String>[
+    'The Acquisition and Requisition of Immovable Property Act, 2017',
+    'স্থাবর সম্পত্তি অধিগ্রহণ ও হুকুমদখল আইন, ২০১৭',
+  ],
+  'law-arbitration-act-2001': <String>[
+    'The Arbitration Act, 2001',
+    'সালিশ আইন, ২০০১',
+  ],
+  'law-contract-act-1872': <String>[
+    'The Contract Act, 1872',
+    'চুক্তি আইন, ১৮৭২',
+  ],
+  'law-non-agricultural-tenancy-act-1949': <String>[
+    'The Non-Agricultural Tenancy Act, 1949 (East Bengal Act)',
+    'অকৃষি প্রজাস্বত্ব আইন, ১৯৪৯',
+  ],
+  'law-partnership-act-1932': <String>[
+    'The Partnership Act, 1932',
+    'অংশীদারী কারবার আইন, ১৯৩২',
+  ],
+  'law-registration-act-1908': <String>[
+    'The Registration Act, 1908',
+    'রেজিস্ট্রেশন আইন, ১৯০৮',
+  ],
+  'law-sale-of-goods-act-1930': <String>[
+    'The Sale of Goods Act, 1930',
+    'পণ্য বিক্রয় আইন, ১৯৩০',
+  ],
+  'law-stamp-act-1899': <String>[
+    'The Stamp Act, 1899',
+    'স্ট্যাম্প আইন, ১৮৯৯',
+  ],
+  'law-state-acquisition-and-tenancy-act-1950': <String>[
+    'The State Acquisition and Tenancy Act, 1950 (East Bengal Act)',
+    'রাষ্ট্রীয় অধিগ্রহণ ও প্রজাস্বত্ব আইন, ১৯৫০',
+  ],
+  'law-succession-act-1925': <String>[
+    'The Succession Act, 1925',
+    'উত্তরাধিকার আইন, ১৯২৫',
+  ],
+  'law-transfer-of-property-act-1882': <String>[
+    'The Transfer of Property Act, 1882',
+    'সম্পত্তি হস্তান্তর আইন, ১৮৮২',
+  ],
+  'law-trusts-act-1882': <String>[
+    'The Trusts Act, 1882',
+    'ট্রাস্ট আইন, ১৮৮২',
+  ],
+  'law-immovable-property-requisition-act-1988': <String>[
+    'The Requisition of Movable Property Act, 1988',
+    'অস্থাবর সম্পত্তি হুকুমদখল আইন, ১৯৮৮',
+  ],
+  'law-vested-property-return-act-2001': <String>[
+    'The Vested Property Return Act, 2001',
+    'অর্পিত সম্পত্তি প্রত্যর্পণ আইন, ২০০১',
+  ],
+  'law-power-of-attorney-act-2012': <String>[
+    'The Power of Attorney Act, 2012',
+    'পাওয়ার অব অ্যাটর্নি আইন, ২০১২',
+  ],
+  'law-christian-marriage-act-1872': <String>[
+    'The Christian Marriage Act, 1872',
+    'খ্রিস্টান বিবাহ আইন, ১৮৭২',
+  ],
+  'law-dissolution-of-muslim-marriages-act-1939': <String>[
+    'The Dissolution of Muslim Marriages Act, 1939',
+    'মুসলিম বিবাহ বিচ্ছেদ আইন, ১৯৩৯',
+  ],
+  'law-guardians-and-wards-act-1890': <String>[
+    'The Guardians and Wards Act, 1890',
+    'অভিভাবক ও প্রতিপাল্য আইন, ১৮৯০',
+  ],
+  'law-muslim-family-laws-ordinance-1961': <String>[
+    'The Muslim Family Laws Ordinance, 1961',
+    'মুসলিম পারিবারিক আইন অধ্যাদেশ, ১৯৬১',
+  ],
+  'law-muslim-marriages-and-divorces-registration-act-1974': <String>[
+    'The Muslim Marriages and Divorces (Registration) Act, 1974',
+    'মুসলিম বিবাহ ও তালাক (নিবন্ধন) আইন, ১৯৭৪',
+  ],
+  'law-family-courts-act-2023': <String>[
+    'The Family Courts Act, 2023',
+    'পারিবারিক আদালত আইন, ২০২৩',
+  ],
+  'law-child-marriage-restraint-act-2017': <String>[
+    'The Child Marriage Restraint Act, 2017',
+    'বাল্যবিবাহ নিরোধ আইন, ২০১৭',
+  ],
+  'law-dowry-prohibition-act-2018': <String>[
+    'The Dowry Prohibition Act, 2018',
+    'যৌতুক নিরোধ আইন, ২০১৮',
+  ],
+  'law-hindu-marriage-registration-act-2012': <String>[
+    'The Hindu Marriage Registration Act, 2012',
+    'হিন্দু বিবাহ নিবন্ধন আইন, ২০১২',
+  ],
+  'law-arms-act-1878': <String>[
+    'The Arms Act, 1878',
+    'অস্ত্র আইন, ১৮৭৮',
+  ],
+  'law-code-of-criminal-procedure-1898': <String>[
+    'The Code of Criminal Procedure, 1898',
+    'ফৌজদারি কার্যবিধি, ১৮৯৮',
+  ],
+  'law-money-laundering-prevention-act-2012': <String>[
+    'The Money Laundering Prevention Act, 2012',
+    'মানিলন্ডারিং প্রতিরোধ আইন, ২০১২',
+  ],
+  'law-negotiable-instruments-act-1881': <String>[
+    'The Negotiable Instruments Act, 1881',
+    'হস্তান্তরযোগ্য দলিল আইন, ১৮৮১',
+  ],
+  'law-penal-code-1860': <String>[
+    'The Penal Code, 1860',
+    'দণ্ডবিধি, ১৮৬০',
+  ],
+  'law-special-powers-act-1974': <String>[
+    'The Special Powers Act, 1974',
+    'বিশেষ ক্ষমতা আইন, ১৯৭৪',
+  ],
+  'law-money-loan-court-act-2003': <String>[
+    'The Money Loan Court Act, 2003',
+    'অর্থ ঋণ আদালত আইন, ২০০৩',
+  ],
+  'law-acid-offence-prevention-act-2002': <String>[
+    'The Acid Crime Control Act, 2002',
+    'এসিড অপরাধ দমন আইন, ২০০২',
+  ],
+  'law-anti-corruption-commission-act-2004': <String>[
+    'The Anti-Corruption Commission Act, 2004',
+    'দুর্নীতি দমন কমিশন আইন, ২০০৪',
+  ],
+  'law-women-and-children-repression-prevention-act-2000': <String>[
+    'The Women and Children Repression Prevention Act, 2000',
+    'নারী ও শিশু নির্যাতন দমন আইন, ২০০০',
+  ],
+  'law-environment-court-act-2010': <String>[
+    'The Environment Court Act, 2010',
+    'পরিবেশ আদালত আইন, ২০১০',
+  ],
+  'law-narcotics-control-act-2018': <String>[
+    'The Narcotics Control Act, 2018',
+    'মাদকদ্রব্য নিয়ন্ত্রণ আইন, ২০১৮',
+  ],
+  'law-anti-terrorism-act-2009': <String>[
+    'The Anti-Terrorism Act, 2009',
+    'সন্ত্রাস বিরোধী আইন, ২০০৯',
+  ],
+  'law-cyber-protection-act-2026': <String>[
+    'The Cyber Protection Act, 2026',
+    'সাইবার সুরক্ষা আইন, ২০২৬',
+  ],
+  'law-income-tax-act-2023': <String>[
+    'The Income-tax Act, 2023',
+    'আয়কর আইন, ২০২৩',
+  ],
+  'law-customs-act-2023': <String>[
+    'The Customs Act, 2023',
+    'কাস্টমস আইন, ২০২৩',
+  ],
+  'law-vat-and-supplementary-duty-act-2012': <String>[
+    'The Value Added Tax and Supplementary Duty Act, 2012',
+    'মূল্য সংযোজন কর ও সম্পূরক শুল্ক আইন, ২০১২',
+  ],
+  'law-waqfs-ordinance-1962': <String>[
+    'The Waqfs Ordinance, 1962 (East Pakistan Ordinance)',
+    'ওয়াক্‌ফ অধ্যাদেশ, ১৯৬২',
+  ],
+  'law-companies-act-1994': <String>[
+    'The Companies Act, 1994',
+    'কোম্পানি আইন, ১৯৯৪',
+  ],
+  'law-bangladesh-labour-act-2006': <String>[
+    'The Bangladesh Labour Act, 2006',
+    'বাংলাদেশ শ্রম আইন, ২০০৬',
+  ],
+  'law-insurance-act-2010': <String>[
+    'The Insurance Act, 2010',
+    'বীমা আইন, ২০১০',
+  ],
+  'law-consumer-rights-protection-act-2009': <String>[
+    'The Consumers\' Right Protection Act, 2009',
+    'ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯',
+  ],
+};
+
+/// Every stored or display form of a built-in law → its Bengali label.
+final Map<String, String> lawLabelBnByToken = _lawLabelsByToken(1);
+
+/// Every stored or display form of a built-in law → its English label.
+final Map<String, String> lawLabelEnByToken = _lawLabelsByToken(0);
+
+Map<String, String> _lawLabelsByToken(int index) {
+  final byToken = <String, String>{};
+  for (final law in seedLaws) {
+    final labels = seedLawLabels[law.id];
+    if (labels == null) continue;
+    final label = labels[index];
+    // A reference may hold the stored name or either display label, so all
+    // three resolve; case-insensitive English still resolves too.
+    for (final token in <String>[law.name, labels[0], labels[1]]) {
+      for (final form in <String>[token, token.trim(), token.toLowerCase()]) {
+        if (form.isEmpty) continue;
+        byToken.putIfAbsent(form, () => label);
+      }
+    }
+  }
+  return Map<String, String>.unmodifiable(byToken);
+}
+
 // ---------------------------------------------------------------------------
 // Disposed steps
 // ---------------------------------------------------------------------------

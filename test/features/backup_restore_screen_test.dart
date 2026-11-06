@@ -103,6 +103,24 @@ class _FakeBackupGateway implements BackupFileGateway {
   }
 }
 
+/// A fake folder gateway: the phone's own index, and the picker it opens.
+class _FakeFolderGateway implements BackupFolderGateway {
+  /// Files the phone's index reports; empty means "no index on this host".
+  List<File> indexed = const [];
+
+  /// What the folder picker answers; a null file means the user backed out.
+  ({bool available, PickedBackupFile? file}) openResult = (
+    available: true,
+    file: null,
+  );
+
+  @override
+  Future<List<File>> list() async => indexed;
+
+  @override
+  Future<({bool available, PickedBackupFile? file})> open() async => openResult;
+}
+
 /// A recorded folder sink that returns a real folder path without disk I/O.
 ///
 /// The real [BackupFolderSink] does async disk writes, which never complete
@@ -225,6 +243,7 @@ void main() {
   late AppDatabase db;
   late SharedPreferences prefs;
   late _FakeBackupGateway gateway;
+  late _FakeFolderGateway folderGateway;
   late RecordingShareService shareService;
   late FakeBackupScheduler backupScheduler;
   late Directory tempDir;
@@ -240,6 +259,7 @@ void main() {
     prefs = await SharedPreferences.getInstance();
     db = AppDatabase(NativeDatabase.memory());
     gateway = _FakeBackupGateway();
+    folderGateway = _FakeFolderGateway();
     shareService = RecordingShareService();
     backupScheduler = FakeBackupScheduler();
     // The share flow keeps its courier copy through `path_provider`; every
@@ -289,6 +309,7 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           backupFileGatewayProvider.overrideWithValue(gateway),
+          backupFolderGatewayProvider.overrideWithValue(folderGateway),
           backupFolderDirectoryProvider.overrideWithValue(() async => folder),
           backupFolderSinkProvider.overrideWithValue(folderSink),
           backupSchedulerProvider.overrideWithValue(backupScheduler),
@@ -1394,6 +1415,9 @@ void main() {
     // Both files are listed in the popup, and the popup replaces the platform
     // picker for the folder's own backups.
     expect(find.text('Choose the Backup File'), findsOneWidget);
+    // The window names the folder it read, so a missing file can be traced to a
+    // folder rather than guessed at.
+    expect(find.byKey(const ValueKey('backup-folder-path')), findsOneWidget);
     expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
     expect(find.text('Backup_02-02-26_09-30-15pm.lcbak'), findsOneWidget);
 
@@ -1452,7 +1476,7 @@ void main() {
     expect(find.text('3 records restored.'), findsOneWidget);
   });
 
-  testWidgets('Files shows the diary folder and every backup it holds', (
+  testWidgets('Files opens the folder picker and restores its choice', (
     tester,
   ) async {
     await placeInFolder(
@@ -1461,28 +1485,25 @@ void main() {
     await placeInFolder(
       _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
     );
-    // A backup the user copied into the folder under a name of their own: the
-    // phone's file manager shows it, so the window must too.
-    await placeInFolder(_legacyBackup(name: 'Copy of backup.lcbak', notes: 4));
-    // A file the folder scan cannot see, as if it were downloaded or emailed.
-    gateway.picked = _legacyBackup(name: 'delivered-by-email.lcbak', notes: 3);
+    // The folder picker's answer: a backup kept anywhere the user browsed to.
+    folderGateway.openResult = (
+      available: true,
+      file: _legacyBackup(name: 'delivered-by-email.lcbak', notes: 3),
+    );
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
     expect(find.text('Choose the Backup File'), findsOneWidget);
-    expect(find.text('Copy of backup.lcbak'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('backup-files-button')));
     await tester.pumpAndSettle();
 
-    // Files re-reads that same folder and never opens the platform picker: the
-    // window stays, the folder's files stay, and nothing was restored.
-    expect(find.text('Choose the Backup File'), findsOneWidget);
-    expect(find.text('Copy of backup.lcbak'), findsOneWidget);
-    expect(find.text('Restore complete'), findsNothing);
+    // The picker's file is what gets restored, not one of the folder's rows.
+    expect(find.text('Restore complete'), findsOneWidget);
+    expect(find.text('3 records restored.'), findsOneWidget);
   });
 
-  testWidgets('Files creates the diary folder again when it has gone', (
+  testWidgets('the phone index adds a backup the folder scan misses', (
     tester,
   ) async {
     await placeInFolder(
@@ -1491,19 +1512,43 @@ void main() {
     await placeInFolder(
       _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
     );
-    gateway.picked = null;
+    // Known to the phone's index but outside this test's directory scan, which
+    // is exactly the split the user saw: a file manager shows it, the scan does
+    // not. The window must list the union.
+    final automatic = File(p.join(tempDir.path, 'AutomaticBackup.lcbak'))
+      ..writeAsBytesSync(
+        _legacyBackup(name: 'AutomaticBackup.lcbak', notes: 3).bytes,
+      );
+    folderGateway.indexed = [automatic];
     await pumpScreen(tester);
 
     await tapAction(tester, 'Restore from Backup');
-    Directory(folder.path).deleteSync(recursive: true);
 
+    expect(find.text('Choose the Backup File'), findsOneWidget);
+    expect(find.text('AutomaticBackup.lcbak'), findsOneWidget);
+  });
+
+  testWidgets('cancelling the folder picker keeps the backup list open', (
+    tester,
+  ) async {
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_01-02-26_09-30-15am.lcbak', notes: 2),
+    );
+    await placeInFolder(
+      _legacyBackup(name: 'Backup_02-02-26_09-30-15pm.lcbak', notes: 3),
+    );
+    folderGateway.openResult = (available: true, file: null);
+    await pumpScreen(tester);
+
+    await tapAction(tester, 'Restore from Backup');
     await tester.tap(find.byKey(const ValueKey('backup-files-button')));
     await tester.pumpAndSettle();
 
-    // The diary always has its folder: Files makes it again rather than leaving
-    // the window pointing at nothing.
-    expect(Directory(folder.path).existsSync(), isTrue);
+    // A cancelled picker is not a cancelled restore: the folder list is still
+    // there to choose from, and nothing was imported.
     expect(find.text('Choose the Backup File'), findsOneWidget);
+    expect(find.text('Backup_01-02-26_09-30-15am.lcbak'), findsOneWidget);
+    expect(find.text('Restore complete'), findsNothing);
   });
 
   testWidgets('an empty or missing folder falls back to the platform picker', (

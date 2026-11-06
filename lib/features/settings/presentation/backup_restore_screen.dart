@@ -539,57 +539,50 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
   /// Finds the backup(s) the restore should use, dialog-free.
   ///
   /// One backup in the folder restores directly. Several are offered in a
-  /// choice dialog, whose **Files** action re-opens that same folder and shows
-  /// what is in it now. Android's system picker cannot be opened at a folder —
-  /// its intent carries no start location — so the folder's own list is the only
-  /// honest answer to "open the diary folder". The platform picker is still the
-  /// fallback when the folder holds no backup at all, so a container mailed to
-  /// the user can still be restored.
+  /// choice dialog, whose **Files** action opens the system document picker **at**
+  /// the diary folder — the host channel sets `EXTRA_INITIAL_URI`, the only start
+  /// location Android's picker honours. The folder scan is the shortcut; the
+  /// picker is the door for a backup kept anywhere else.
   ///
   /// Files are read synchronously: a backup is a few megabytes at most, and this
   /// keeps the folder path free of the async I/O a widget test's fake clock
   /// cannot complete.
   Future<({PickedBackupFile? file, bool fromFolder})>
   _pickFromFolderOrPicker() async {
-    final directory = await ref.read(backupFolderDirectoryProvider)();
-    final files = await listBackupFiles(directory);
-    if (files.length == 1) {
-      final bytes = files.single.readAsBytesSync();
+    final entries = await _readFolderEntries();
+    if (entries.length == 1) {
+      final file = entries.single.file;
       return (
         file: PickedBackupFile(
-          name: p.basename(files.single.path),
-          path: files.single.path,
-          bytes: bytes,
+          name: p.basename(file.path),
+          path: file.path,
+          bytes: file.readAsBytesSync(),
         ),
         fromFolder: true,
       );
     }
-    if (files.length > 1) {
+    if (entries.length > 1) {
       if (!mounted) return (file: null, fromFolder: true);
-      // Each row carries what the user needs to tell two backups apart: when
-      // the file was last written and how big it is, beside its name. Stamped
-      // here, once, so the window never reads the disk while it builds.
-      //
       // The window answers with where the file came from as well as the file:
-      // a folder row is a folder choice, so a refusal later offers "choose
-      // another" for it.
+      // a folder row is a folder choice, while Files is the picker, so a refusal
+      // later offers "choose another" only for the former.
       final choice =
           await showDialog<({PickedBackupFile? file, bool fromFolder})>(
             context: context,
             builder: (_) => _BackupFilePickerDialog(
-              entries: _entriesFor(files),
+              entries: entries,
               onPick: (File f) async => PickedBackupFile(
                 name: p.basename(f.path),
                 path: f.path,
                 bytes: f.readAsBytesSync(),
               ),
-              onRefresh: _readFolderEntries,
+              onBrowse: _browseForBackup,
             ),
           );
       // The choice was cancelled; nothing to restore.
       return choice ?? (file: null, fromFolder: true);
     }
-    // The folder is missing, empty or holds no app backup: ask the platform.
+    // The folder is missing, empty or holds no backup: ask the platform.
     final picked = await ref.read(backupFileGatewayProvider).pick();
     return (
       file: (picked == null || !mounted) ? null : picked,
@@ -633,7 +626,40 @@ class _BackupRestoreScreenState extends ConsumerState<BackupRestoreScreen> {
         debugPrint('Backup folder unavailable: $error $stack');
       }
     }
-    return _entriesFor(await listBackupFiles(directory));
+    // Two views of one folder: the phone's own index (what the file manager and
+    // DocumentsUI show) and a direct directory scan. They can disagree after a
+    // rename, and a backup only one of them can see is still a backup the user
+    // has, so the list is their union by absolute path.
+    final indexed = await ref.read(backupFolderGatewayProvider).list();
+    final scanned = await listBackupFiles(directory);
+    final seen = <String>{};
+    final files = <File>[
+      for (final file in [...indexed, ...scanned])
+        if (seen.add(file.path)) file,
+    ];
+    return _entriesFor(files);
+  }
+
+  /// Opens the system document picker at the diary folder.
+  ///
+  /// Android's picker takes no start location from `file_picker`, but the standard
+  /// document picker honours `EXTRA_INITIAL_URI`, which the host sets after it
+  /// creates the folder. On a platform with no host channel (tests, desktop) the
+  /// app's own picker remains the door.
+  Future<PickedBackupFile?> _browseForBackup() async {
+    if (!mounted) return null;
+    final host = await ref.read(backupFolderGatewayProvider).open();
+    if (!mounted) return null;
+    if (host.available) return host.file;
+    try {
+      return await ref.read(backupFileGatewayProvider).pick();
+    } catch (error, stack) {
+      debugPrint('Backup source unavailable: $error $stack');
+      _showMessage(
+        AppLocalizations.of(context).settingsBackupRestore_errorOpenFile,
+      );
+      return null;
+    }
   }
 
   /// The user-facing message for one engine refusal.
@@ -873,47 +899,28 @@ String _formatFileSize(int bytes) {
 /// [PickedBackupFile] the platform picker would have produced, so the rest of
 /// the restore flow is unchanged. Under the name the row prints the file's date
 /// and time and its size, so two `Backup_…` names can be told apart at a glance.
-/// **Files** re-reads the diary folder — the one place the app keeps backups —
-/// and refreshes the rows in place. Android's system picker cannot be opened at a
-/// folder, so the folder's own list is the door here; the picker is only the
-/// fallback when the folder holds no backup at all.
+/// **Files** opens the system document picker at the diary folder, so a backup
+/// kept anywhere else — or one the folder scan cannot see — can still be chosen.
 ///
 /// It is built on the shared frame (rule 17): corner, width range, height cap
 /// and the centred 112 x 48 action pair all come from `AppDialogMetrics` / the
 /// shared frame, so it reads like every other pop-over. Only the file rows are
 /// its own.
-class _BackupFilePickerDialog extends StatefulWidget {
+class _BackupFilePickerDialog extends StatelessWidget {
   /// The backup files to choose from, pre-sorted, with their stamps.
   final List<_BackupEntry> entries;
 
   /// Reads one chosen file into an opened backup.
   final Future<PickedBackupFile> Function(File file) onPick;
 
-  /// Re-reads the diary folder for the **Files** action.
-  final Future<List<_BackupEntry>> Function() onRefresh;
+  /// Opens the folder's picker; null when the user closes it.
+  final Future<PickedBackupFile?> Function() onBrowse;
 
   const _BackupFilePickerDialog({
     required this.entries,
     required this.onPick,
-    required this.onRefresh,
+    required this.onBrowse,
   });
-
-  @override
-  State<_BackupFilePickerDialog> createState() =>
-      _BackupFilePickerDialogState();
-}
-
-class _BackupFilePickerDialogState extends State<_BackupFilePickerDialog> {
-  /// The rows on screen; replaced when **Files** re-reads the folder.
-  late List<_BackupEntry> _entries = widget.entries;
-
-  /// Shows what the diary folder holds now, in case a backup was added since
-  /// the window opened.
-  Future<void> _showFolder() async {
-    final entries = await widget.onRefresh();
-    if (!mounted) return;
-    setState(() => _entries = entries);
-  }
 
   /// The row's supporting line: the file's date and time, then its size.
   ///
@@ -937,8 +944,21 @@ class _BackupFilePickerDialogState extends State<_BackupFilePickerDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Which folder this list is: the one place the app keeps backups. A
+          // file the phone shows that is missing here is then a folder the app
+          // did not read, not a file the list quietly dropped.
+          Text(
+            p.dirname(entries.first.file.path),
+            key: const ValueKey('backup-folder-path'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
           // Newest first, so the backup a user most likely wants is on top.
-          for (final entry in _entries)
+          for (final entry in entries)
             ListTile(
               key: ValueKey('backup-file-${p.basename(entry.file.path)}'),
               title: Text(
@@ -956,7 +976,7 @@ class _BackupFilePickerDialogState extends State<_BackupFilePickerDialog> {
                 ),
               ),
               onTap: () async {
-                final opened = await widget.onPick(entry.file);
+                final opened = await onPick(entry.file);
                 if (context.mounted) {
                   Navigator.of(context).pop((file: opened, fromFolder: true));
                 }
@@ -965,8 +985,8 @@ class _BackupFilePickerDialogState extends State<_BackupFilePickerDialog> {
         ],
       ),
       // Two equal-weight actions on one centred line, the Exit App window's
-      // own pair rule. **Files** stays in the window: it re-reads the diary
-      // folder, so the list is refreshed rather than replaced.
+      // own pair rule. **Files** leaves the window open when the picker is
+      // cancelled, so the folder list is still there to choose from.
       actions: (dialogContext) => [
         AppDialogAction(
           label: l.sharedActions_cancel,
@@ -975,7 +995,14 @@ class _BackupFilePickerDialogState extends State<_BackupFilePickerDialog> {
         AppDialogAction(
           label: l.imageSource_files,
           key: const ValueKey('backup-files-button'),
-          onPressed: _showFolder,
+          onPressed: () async {
+            final browsed = await onBrowse();
+            if (browsed != null && dialogContext.mounted) {
+              Navigator.of(
+                dialogContext,
+              ).pop((file: browsed, fromFolder: false));
+            }
+          },
         ),
       ],
     );

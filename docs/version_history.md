@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.808 - Choose the Backup File lists every backup in the diary folder whatever its name, drops Recommended, and Files re-opens that folder instead of the platform picker.
+Version: 0.0.810 - Choose the Backup File lists every file in Download/LegalCaseDiary and shows the folder path, so no listing rule can hide a backup.
 --------------------------------------
 
 ## Version History Log:
@@ -822,3 +822,5 @@ Version: 0.0.805 - Court titles on Overdue Dates, Daily Cause List and Upcoming 
 Version: 0.0.806 - Narayanganj: the Siddhirganj and Fatulla court is now Senior Civil Judge Sadar and the Port court is Bandar, with a short form in the three card titles.
 Version: 0.0.807 - Backup picker now reads Choose the Backup File and its Bengali says the backup file; the delete-data Bengali action says files, with English Delete Selected unchanged.
 Version: 0.0.808 - Choose the Backup File lists every backup in the diary folder whatever its name, drops Recommended, and Files re-opens that folder instead of the platform picker.
+Version: 0.0.809 - Restore lists the union of Android's file index and the folder scan, and Files opens the document picker at Download/LegalCaseDiary.
+Version: 0.0.810 - Choose the Backup File lists every file in Download/LegalCaseDiary and shows the folder path, so no listing rule can hide a backup.

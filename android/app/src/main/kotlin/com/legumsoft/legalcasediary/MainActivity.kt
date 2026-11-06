@@ -1,5 +1,6 @@
 package com.legumsoft.legalcasediary
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
@@ -8,11 +9,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.PowerManager
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
+import java.io.IOException
 import java.security.MessageDigest
 
 /**
@@ -31,6 +35,9 @@ import java.security.MessageDigest
 // needs a FragmentActivity host, and its theme must be an AppCompat theme
 // (see styles.xml) or older devices crash on launch.
 class MainActivity : FlutterFragmentActivity() {
+    /// The folder picker's pending reply, held until the picker answers.
+    private var pendingBackupPick: MethodChannel.Result? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
@@ -44,6 +51,7 @@ class MainActivity : FlutterFragmentActivity() {
         configureAppExitChannel(flutterEngine)
         configurePublicDownloadsChannel(flutterEngine)
         configureAppInstallChannel(flutterEngine)
+        configureBackupFolderChannel(flutterEngine)
     }
 
     /**
@@ -239,6 +247,162 @@ class MainActivity : FlutterFragmentActivity() {
             }
     }
 
+    /**
+     * The diary folder's own channel: the phone's index of `Download/LegalCaseDiary`
+     * and a document picker that *starts* in that folder.
+     *
+     * Android's picker takes no start location — `file_picker`'s `initialDirectory`
+     * is ignored by the platform — but the standard document picker honours
+     * `DocumentsContract.EXTRA_INITIAL_URI`, so this is the only way to open the
+     * user where they asked to be. The listing answers from MediaStore, the same
+     * index the file manager and DocumentsUI read, and then adds whatever a direct
+     * directory listing sees: after a rename the two views can disagree, and a
+     * backup one of them has lost is still a backup the user can see.
+     */
+    private fun configureBackupFolderChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, BACKUP_FOLDER_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "list" -> result.success(listDiaryFolder())
+                    "open" -> openDiaryFolderPicker(result)
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /// The diary's backup folder under the public Downloads directory.
+    private fun diaryFolder(): File = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "LegalCaseDiary"
+    )
+
+    /**
+     * Every file the phone knows in the diary folder, as path/size/modified.
+     *
+     * MediaStore's Downloads index comes first, because it is what the phone's own
+     * file manager and DocumentsUI read; a plain directory listing is added after,
+     * because the app's files are always on disk even when the index has not caught
+     * up. Merged by absolute path, so a file found twice is one row. No name or
+     * extension rule: the restore engine decides what can be opened, and a filter
+     * here already hid a backup the user could see.
+     */
+    @Suppress("DEPRECATION")
+    private fun listDiaryFolder(): List<Map<String, Any?>> {
+        val folder = diaryFolder()
+        if (!folder.exists()) folder.mkdirs()
+        val found = LinkedHashMap<String, Map<String, Any?>>()
+
+        fun add(file: File) {
+            if (!file.isFile) return
+            found[file.absolutePath] = mapOf(
+                "path" to file.absolutePath,
+                "size" to file.length(),
+                "modified" to file.lastModified()
+            )
+        }
+
+        folder.listFiles()?.forEach { add(it) }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val projection = arrayOf(
+                MediaStore.Downloads.DISPLAY_NAME,
+                MediaStore.Downloads.SIZE,
+                MediaStore.Downloads.DATE_MODIFIED,
+                MediaStore.Downloads.DATA,
+                MediaStore.Downloads.RELATIVE_PATH
+            )
+            runCatching {
+                contentResolver.query(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    projection,
+                    "${MediaStore.Downloads.RELATIVE_PATH} LIKE ?",
+                    arrayOf("Download/LegalCaseDiary%"),
+                    null
+                )?.use { cursor ->
+                    val dataAt = cursor.getColumnIndexOrThrow(MediaStore.Downloads.DATA)
+                    val sizeAt = cursor.getColumnIndexOrThrow(MediaStore.Downloads.SIZE)
+                    val modifiedAt = cursor.getColumnIndexOrThrow(
+                        MediaStore.Downloads.DATE_MODIFIED
+                    )
+                    while (cursor.moveToNext()) {
+                        val path = cursor.getString(dataAt) ?: continue
+                        val file = File(path)
+                        if (!file.isFile) continue
+                        found[file.absolutePath] = mapOf(
+                            "path" to file.absolutePath,
+                            "size" to cursor.getLong(sizeAt),
+                            // MediaStore counts seconds; the app counts millis.
+                            "modified" to cursor.getLong(modifiedAt) * 1000L
+                        )
+                    }
+                }
+            }
+        }
+        return found.values.toList()
+    }
+
+    /**
+     * Opens the system document picker at the diary folder.
+     *
+     * The folder is created first, so the picker always has somewhere to land even
+     * on a first run. The reply is `{name, bytes}` for the chosen file, or null
+     * when the user backs out; the Dart window stays open on a null.
+     */
+    private fun openDiaryFolderPicker(result: MethodChannel.Result) {
+        if (pendingBackupPick != null) {
+            result.error("busy", "A folder picker is already open", null)
+            return
+        }
+        val folder = diaryFolder()
+        if (!folder.exists()) folder.mkdirs()
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra(
+                DocumentsContract.EXTRA_INITIAL_URI,
+                DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents",
+                    "primary:Download/LegalCaseDiary"
+                )
+            )
+        }
+        pendingBackupPick = result
+        startActivityForResult(intent, PICK_BACKUP_REQUEST)
+    }
+
+    /// The document picker's answer, read back into the waiting Dart call.
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != PICK_BACKUP_REQUEST) return
+        val pending = pendingBackupPick ?: return
+        pendingBackupPick = null
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null) {
+            pending.success(null)
+            return
+        }
+        runCatching {
+            val name = queryDisplayName(uri) ?: "backup"
+            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw IOException("The chosen file could not be read")
+            pending.success(mapOf("name" to name, "bytes" to bytes))
+        }.onFailure { pending.error("read_failed", it.message, null) }
+    }
+
+    /// The chosen file's display name, asked of its document provider.
+    private fun queryDisplayName(uri: Uri): String? = runCatching {
+        contentResolver.query(
+            uri,
+            arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+            null,
+            null,
+            null
+        )?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+    }.getOrNull()
+
     /** True when this app is exempt from battery optimization ("Unrestricted"). */
     private fun isIgnoringBatteryOptimizations(): Boolean {
         val power = getSystemService(Context.POWER_SERVICE) as? PowerManager
@@ -257,5 +421,11 @@ class MainActivity : FlutterFragmentActivity() {
 
         /// The in-app update install channel (`lib/features/settings/presentation/app_install.dart`).
         const val INSTALL_CHANNEL = "com.legumsoft.legalcasediary/app_install"
+
+        /// The diary folder channel (`BackupFolderGateway`).
+        const val BACKUP_FOLDER_CHANNEL = "com.legumsoft.legalcasediary/backup_folder"
+
+        /// Request code for the diary-folder document picker.
+        const val PICK_BACKUP_REQUEST = 4711
     }
 }

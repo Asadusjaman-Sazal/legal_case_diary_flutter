@@ -1,8 +1,8 @@
-/// The rules that decide which files in the diary folder a restore can open.
+/// What a restore lists from the diary folder.
 ///
-/// A restore lists every `.lcbak` container and `.xlsx` workbook in the folder,
-/// whatever the file is called, so a backup the user renamed or copied in is not
-/// hidden. Anything else in the folder — a photo, a note — is ignored.
+/// Every file is listed, whatever its name or extension: the folder is the app's
+/// own backup home, and the restore engine — not the listing rule — decides what
+/// can be opened. A name rule hid a real backup before, so there is none.
 library;
 
 import 'dart:io';
@@ -28,26 +28,29 @@ void main() {
   /// Writes an empty file with [name] into the temp folder.
   void seed(String name) => File(p.join(dir.path, name)).writeAsBytesSync([]);
 
-  test('listBackupFiles lists every backup, whatever it is called', () async {
+  test('listBackupFiles lists every file in the folder', () async {
     seed(automaticBackupFileName);
     seed('Backup_20-09-26_11-06-07am.lcbak');
     // A backup copied, downloaded or renamed by the user: the phone's file
     // manager shows it, so the restore list must too.
     seed('Copy of backup.lcbak');
     seed('EXPORT.XLSX');
+    seed('automatic-backup.json');
     seed('holiday-photo.jpg');
-    seed('notes.txt');
-    seed('not-a-backup.lcbak.txt');
 
     final listed = [
       for (final f in await listBackupFiles(dir)) p.basename(f.path),
     ];
 
-    expect(listed, hasLength(4));
+    // Nothing is filtered by name or extension: the folder is the app's own,
+    // and a file that cannot be restored is refused by the engine, not hidden.
+    expect(listed, hasLength(6));
     expect(listed, contains(automaticBackupFileName));
     expect(listed, contains('Backup_20-09-26_11-06-07am.lcbak'));
     expect(listed, contains('Copy of backup.lcbak'));
     expect(listed, contains('EXPORT.XLSX'));
+    expect(listed, contains('automatic-backup.json'));
+    expect(listed, contains('holiday-photo.jpg'));
   });
 
   test('an atomic write replaces the fixed file and leaves no temp', () async {

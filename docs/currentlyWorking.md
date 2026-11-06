@@ -1,5 +1,21 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — Every file is listed, and the window names the folder — COMPLETE (0.0.810)
+
+- **What the user reported.** Files now opens the folder, but the automatic backup is still absent from Choose the Backup File.
+- **What was established.** Neither the stamp pattern, the `.lcbak`/`.xlsx` extension rule, nor the MediaStore union surfaced the file. Rather than invent a third guess about its name or location, the list stops filtering entirely: every regular file in the diary folder is offered, and the existing restore validation refuses a file that is not a backup.
+- **The fix.** `listBackupFiles` and the host channel return every file; the dialog prints the absolute path of the folder it read, so if the automatic file is in a different folder the user and we can see that immediately.
+- **Proof.** Gateway test (all six seeded files listed), screen test for the path line, `flutter analyze` clean, Kotlin compiled with Gradle. No phone run: the user's actual folder and path line remain the device check.
+
+
+### 2026-11-06 — The restore list reads the phone index, and Files opens the folder — COMPLETE (0.0.809)
+
+- **What the user reported.** The automatic backup is visible in the phone's file manager but not in Choose the Backup File; the Files button did nothing on press.
+- **What was established.** The app listed the folder with `Directory.listSync()`, while the phone's file manager and the system picker read Android's MediaStore/DocumentsUI index. The two views can disagree after a rename, which is how a file the user can see stays invisible to one of them; the earlier extension-only rule did not help because the file was never in the scan's result at all.
+- **The fix.** A host channel lists MediaStore's `Download/LegalCaseDiary` backups and the directory, and the window lists the union by absolute path. Files now opens the system document picker *at* the folder (`EXTRA_INITIAL_URI`), creating the folder first, so the button visibly does something and a backup the scan cannot see can still be restored.
+- **Proof.** Folder-union and Files/cancel widget tests; `flutter analyze` clean; Kotlin compiled with Gradle. No phone run: the actual MediaStore rows on the user's device, and how DocumentsUI lands on the folder, remain the device check.
+
+
 ### 2026-11-06 — The backup list shows every file, and Files re-opens the folder — COMPLETE (0.0.808)
 
 - **What was asked.** Remove the Recommended chip; make the Files button always open `Download/LegalCaseDiary`, creating it if missing; and make the list show the manual and the automatic backups together, as the phone's file manager does.

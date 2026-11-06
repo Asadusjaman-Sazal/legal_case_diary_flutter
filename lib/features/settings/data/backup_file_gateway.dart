@@ -270,33 +270,22 @@ class BackupFolderFirstSink implements BackupArchiveSink {
   }
 }
 
-/// Lists the backups in [dir] — every one of them — sorted by path.
+/// Lists every file in [dir], sorted by path.
 ///
-/// A file counts as a backup when it is one of the two formats a restore can
-/// open: the `.lcbak` container or the `.xlsx` workbook. The name used to have
-/// to match the app's own stamp pattern, which hid a real backup the user had
-/// renamed, copied or downloaded into the folder — a file the phone's own file
-/// manager showed and the app would not. The extension is all the restore engine
-/// reads, so it is all this rule reads.
+/// The folder is the app's own backup folder, and the restore engine validates
+/// whatever is chosen — so **no name rule here**. Two narrower rules (the app's
+/// stamp pattern, then the `.lcbak`/`.xlsx` extension) still left the user's
+/// automatic backup unlisted while the phone's file manager showed it, and a
+/// listing rule cannot prove a file is not a backup without opening it. A file
+/// that cannot be restored is refused by the engine with its own message.
 ///
 /// The sort orders a restore by path, which is timestamp-ordered for the names
 /// the app chooses for itself.
 Future<List<File>> listBackupFiles(Directory dir) async {
   final entries = dir.existsSync()
-      ? dir.listSync().whereType<File>()
+      ? dir.listSync().whereType<File>().toList()
       : <File>[];
-  final backups = <File>[
-    for (final f in entries)
-      if (isBackupFilePath(f.path)) f,
-  ]..sort((a, b) => a.path.compareTo(b.path));
-  return backups;
-}
-
-/// Whether [path] is a file a restore can open: a `.lcbak` container or an
-/// `.xlsx` workbook, in either case of extension.
-bool isBackupFilePath(String path) {
-  final lower = path.toLowerCase();
-  return lower.endsWith('.lcbak') || lower.endsWith('.xlsx');
+  return entries..sort((a, b) => a.path.compareTo(b.path));
 }
 
 /// The diary folder backups live in; tests override it with a temp directory.
@@ -307,6 +296,74 @@ final backupFolderDirectoryProvider = Provider<Future<Directory> Function()>(
 /// Provider for the backup file dialogs; tests override it with a fake.
 final backupFileGatewayProvider = Provider<BackupFileGateway>(
   (ref) => const FilePickerBackupGateway(),
+);
+
+/// The host's own view of the diary folder.
+///
+/// A plain directory scan and the phone's file index can disagree after a rename:
+/// the file manager shows a backup the app's listing does not. The host lists
+/// MediaStore's Downloads index and the directory and merges them, so the restore
+/// window shows every backup the phone knows. It also opens the system document
+/// picker **at** the diary folder — the picker honours `EXTRA_INITIAL_URI`, which
+/// is the only start location Android offers.
+class BackupFolderGateway {
+  /// Creates the gateway.
+  const BackupFolderGateway();
+
+  static const MethodChannel _channel = MethodChannel(
+    'com.legumsoft.legalcasediary/backup_folder',
+  );
+
+  /// The backup files the phone knows in the diary folder.
+  ///
+  /// Empty when there is no host channel (tests, desktop), so the caller keeps its
+  /// own directory scan in that case.
+  Future<List<File>> list() async {
+    try {
+      final rows = await _channel.invokeListMethod<Object?>('list') ?? const [];
+      final files = <File>[];
+      for (final row in rows) {
+        if (row is Map && row['path'] is String) {
+          files.add(File(row['path'] as String));
+        }
+      }
+      return files;
+    } on MissingPluginException {
+      return const [];
+    } on PlatformException {
+      return const [];
+    }
+  }
+
+  /// Opens the system picker at the diary folder.
+  ///
+  /// [available] is false when the host has no such channel, so the caller can
+  /// fall back to the plain picker; [file] is null when the user backed out.
+  Future<({bool available, PickedBackupFile? file})> open() async {
+    try {
+      final row = await _channel.invokeMapMethod<String, Object?>('open');
+      if (row == null) return (available: true, file: null);
+      final name = row['name'];
+      final bytes = row['bytes'];
+      return (
+        available: true,
+        file: PickedBackupFile(
+          name: name is String ? name : 'backup',
+          path: null,
+          bytes: bytes is Uint8List ? bytes : Uint8List(0),
+        ),
+      );
+    } on MissingPluginException {
+      return (available: false, file: null);
+    } on PlatformException {
+      return (available: false, file: null);
+    }
+  }
+}
+
+/// The host folder gateway; tests override it with a fake.
+final backupFolderGatewayProvider = Provider<BackupFolderGateway>(
+  (ref) => const BackupFolderGateway(),
 );
 
 /// The folder sink for backup actions; tests override it with a fake.

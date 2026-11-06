@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.811 - Delete Selected now opens a non-dismissible Please Wait window until the deletion finishes, with no action, barrier or back button able to close it.
+Version: 0.0.812 - Centred every shared pop-over window title in the frame itself, so no window restates the alignment and all geometry stays unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -825,3 +825,4 @@ Version: 0.0.808 - Choose the Backup File lists every backup in the diary folder
 Version: 0.0.809 - Restore lists the union of Android's file index and the folder scan, and Files opens the document picker at Download/LegalCaseDiary.
 Version: 0.0.810 - Choose the Backup File lists every file in Download/LegalCaseDiary and shows the folder path, so no listing rule can hide a backup.
 Version: 0.0.811 - Delete Selected now opens a non-dismissible Please Wait window until the deletion finishes, with no action, barrier or back button able to close it.
+Version: 0.0.812 - Centred every shared pop-over window title in the frame itself, so no window restates the alignment and all geometry stays unchanged.

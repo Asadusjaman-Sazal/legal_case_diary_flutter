@@ -445,4 +445,25 @@ void main() {
     expect(withdraw.width, closeTo(cancel.width, 0.5));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('every title is centred by the frame', (tester) async {
+    await pumpHost(
+      tester,
+      surface: const Size(412, 800),
+      title: const Text('Delete this note?'),
+      actions: shortPair,
+    );
+
+    // The title paints centred, and its box spans the title area, so the
+    // alignment is visible rather than merely inherited metadata.
+    final title = find.text('Delete this note?');
+    expect(
+      DefaultTextStyle.of(tester.element(title)).textAlign,
+      TextAlign.center,
+    );
+    expect(
+      tester.getSize(title).width,
+      greaterThan(tester.getSize(_card()).width * 0.6),
+    );
+  });
 }

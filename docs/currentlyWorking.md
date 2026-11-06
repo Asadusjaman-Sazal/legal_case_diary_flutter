@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — Every shared pop-over title is centred — COMPLETE (0.0.812)
+
+- **What was asked.** The title inside the shared pop-over window must be centred.
+- **The change.** The shared frame now centres the caller's title itself, so every window on `showAppDialog`, `showAppConfirmDialog`, `showAppNoticeDialog` and `AppDialogFrame` gets it at once — including the new Please Wait window and the Delete Data tick list. A window that sets its own alignment still wins, and the windows that draw their own body (Invite Code, Join a Firm, the passphrase windows and the rest) keep the alignment they paint.
+- **Nothing else moved.** Corner, width range, height cap, action size, gap and every inset are unchanged.
+- **Proof.** The shared frame's test file gained a case that reads the title's effective alignment (centred) and its box width (it spans the title area, so the centring is visible); the shared-frame, deletion-wait and app-lock suites pass and `flutter analyze` is clean. No phone run: the look on a device remains a check.
+
+
 ### 2026-11-06 — Delete Selected now waits behind a mandatory window — COMPLETE (0.0.811)
 
 - **What was asked.** While selected data is being deleted, show a mandatory waiting screen saying *Please wait: your data is currently being deleted.* until the deletion finishes, so the app cannot be closed mid-run or mistaken for doing nothing.

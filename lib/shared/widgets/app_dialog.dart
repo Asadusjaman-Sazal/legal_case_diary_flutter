@@ -147,7 +147,15 @@ class AppDialogFrame extends StatelessWidget {
             maxWidth: resolved.panelMax,
             maxHeight: resolved.maxHeight,
           ),
-          title: title,
+          // The shared frame centres every title (user request, 0.0.812):
+          // a window names its title, the frame owns its alignment, so a
+          // plain title cannot arrive left-aligned by accident. A window's
+          // own explicit `textAlign` still wins, and `AppContentDialogFrame`
+          // bodies keep the alignment they draw themselves.
+          title: DefaultTextStyle.merge(
+            textAlign: TextAlign.center,
+            child: title,
+          ),
           content: content,
           titlePadding: titlePadding,
           contentPadding: contentPadding,

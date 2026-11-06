@@ -18,6 +18,8 @@ const Map<String, String> _courtHeadingShortenings = <String, String>{
   '\u099c\u09c1\u09a1\u09bf\u09b8\u09bf\u09af\u09bc\u09be\u09b2': 'জুডিঃ',
   'ম্যাজিস্ট\u09cdরেট': 'ম্যাজিঃ',
   'অতিরিক্ত': 'অতিঃ',
+  '\u09a8\u09be\u09b0\u09be\u09df\u09a3\u0997\u099e\u09cd\u099c': 'নাঃগঞ্জ',
+  '\u09a8\u09be\u09b0\u09be\u09af\u09bc\u09a3\u0997\u099e\u09cd\u099c': 'নাঃগঞ্জ',
 };
 
 /// The heading form of a court name: [label] with those five words shortened.
@@ -30,6 +32,22 @@ String shortenCourtHeading(String label) {
     shortened = shortened.replaceAll(entry.key, entry.value);
   }
   return shortened;
+}
+
+/// Courts whose heading above the cards reads differently from their full name.
+///
+/// Value: the English heading, then the Bengali one, before the word shortening
+/// in [shortenCourtHeading] runs.
+const Map<String, List<String>> _courtHeadingOverrides = <String, List<String>>{
+  'court-lower_courts-dhaka-narayanganj-district_courts_civil-senior_civil_judge_2nd_court_siddhirganj_and_fatulla_narayanganj': <String>['Senior Civil Judge Sadar, Narayanganj', 'সিনিয়র সিভিল জজ সদর আদালত, নারায়ণগঞ্জ'],
+};
+
+/// The heading form of [stableId] when that court has its own wording, or
+/// `null` when the seed label is used as it stands.
+String? courtHeadingOverride(String stableId, {required bool bengali}) {
+  final heading = _courtHeadingOverrides[stableId];
+  if (heading == null) return null;
+  return bengali ? heading[1] : heading[0];
 }
 
 /// Central, hierarchical, screen-grouped access to the generated [AppLocalizations].
@@ -89,8 +107,11 @@ class AppTranslations {
   /// ones are left as they are. Only the Overdue Dates, Daily Cause List and
   /// Upcoming Cases headings use this.
   String courtHeadingLabel(String stableId, {String fallbackEn = ''}) {
+    final isBengali = _loc.localeName.startsWith('bn');
+    final own = courtHeadingOverride(stableId, bengali: isBengali);
+    if (own != null) return isBengali ? shortenCourtHeading(own) : own;
     final label = seedLabel(stableId, fallbackEn: fallbackEn);
-    return _loc.localeName.startsWith('bn') ? shortenCourtHeading(label) : label;
+    return isBengali ? shortenCourtHeading(label) : label;
   }
 
   /// Resolves a law category's stable ID to its heading in the active language.

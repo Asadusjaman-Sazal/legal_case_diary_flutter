@@ -22,6 +22,10 @@ void main() {
         shortenCourtHeading('অতিরিক্ত জেলা জজ ১ম আদালত, ঢাকা'),
         'অতিঃ জেলা জজ ১ম আদালত, ঢাকা',
       );
+      expect(
+        shortenCourtHeading('নারায়ণগঞ্জ জেলা জজ আদালত'),
+        'নাঃগঞ্জ জেলা জজ আদালত',
+      );
     });
 
     test('shortens the deed form of Bengali ya too', () {
@@ -33,6 +37,18 @@ void main() {
         shortenCourtHeading('জুডিসি\u09af\u09bc\u09beল ম্যাজিস্ট্রেট আদালত'),
         'জুডিঃ ম্যাজিঃ আদালত',
       );
+      expect(
+        shortenCourtHeading('নারা\u09af\u09bcণগঞ্জ জেলা জজ আদালত'),
+        'নাঃগঞ্জ জেলা জজ আদালত',
+      );
+    });
+
+    test('a court can bring its own heading wording', () {
+      const id = 'court-lower_courts-dhaka-narayanganj-district_courts_civil-senior_civil_judge_2nd_court_siddhirganj_and_fatulla_narayanganj';
+      expect(courtHeadingOverride(id, bengali: false), 'Senior Civil Judge Sadar, Narayanganj');
+      expect(courtHeadingOverride(id, bengali: true), 'সিনিয়র সিভিল জজ সদর আদালত, নারায়ণগঞ্জ');
+      expect(shortenCourtHeading(courtHeadingOverride(id, bengali: true)!), 'সিনিঃ সিভিল জজ সদর আদালত, নাঃগঞ্জ');
+      expect(courtHeadingOverride('court-unknown', bengali: true), isNull);
     });
 
     test('leaves English names and every other word alone', () {

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.804 - Overdue Dates, Daily Cause List and Upcoming Cases: the court title above the cards shortens five long Bengali words so the full court name fits one line.
+Version: 0.0.806 - Narayanganj: the Siddhirganj and Fatulla court is now Senior Civil Judge Sadar and the Port court is Bandar, with a short form in the three card titles.
 --------------------------------------
 
 ## Version History Log:
@@ -818,3 +818,5 @@ Version: 0.0.801 - Steps: the Rafa Nam Submission step now reads Compromise Peti
 Version: 0.0.802 - Courts: the District Judge Court (Civil) and Sessions Judge Court (Criminal) lists drop and Sessions from their names in both languages, with court ids unchanged.
 Version: 0.0.803 - Courts: the joint courts in the civil and criminal judge lists now read Joint District Judge and Joint Sessions Judge in both languages.
 Version: 0.0.804 - Overdue Dates, Daily Cause List and Upcoming Cases: the court title above the cards shortens five long Bengali words so the full court name fits one line.
+Version: 0.0.805 - Court titles on Overdue Dates, Daily Cause List and Upcoming Cases: Narayanganj is now shortened to Naa:ganj too, alongside the five earlier words.
+Version: 0.0.806 - Narayanganj: the Siddhirganj and Fatulla court is now Senior Civil Judge Sadar and the Port court is Bandar, with a short form in the three card titles.

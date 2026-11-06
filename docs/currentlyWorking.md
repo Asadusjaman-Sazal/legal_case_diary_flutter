@@ -1,11 +1,22 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
-### 2026-11-06 — The court title above the cards shortens five Bengali words — COMPLETE (0.0.804)
+### 2026-11-06 — Two Narayanganj courts renamed; the Sadar one gets a short heading — COMPLETE (0.0.806)
 
-- **What was asked.** The court title above the cards on **Overdue Dates**, **Daily Cause List** and **Upcoming Cases** cuts a full Bengali court name off, so it should abbreviate five words — সহকারি→সহঃ, সিনিয়র→সিনিঃ, জুডিসিয়াল→জুডিঃ, ম্যাজিস্ট্রেট→ম্যাজিঃ, অতিরিক্ত→অতিঃ — and only there.
+- **What was asked.** `Senior Civil Judge 2nd Court, Siddhirganj and Fatulla, Narayanganj` should become `Senior Civil Judge Sadar (Sadar, Fatulla and Siddhirganj), Narayanganj`, and its court title above the cards should be the short `Senior Civil Judge Sadar, Narayanganj` / `সিনিঃ সিভিল জজ সদর আদালত, নাঃগঞ্জ`; `Civil Judge Court, Port, Narayanganj` should become `Civil Judge Court, Bandar, Narayanganj`.
+- **What changed.** Both seed names in the District Judge Court (Civil) list, with the Bengali the user gave for the Sadar court (the Port court's Bengali was already `বন্দর`). The three card screens show the Sadar court's short heading; everything else keeps the full name.
+- **What did not move.** Both courts keep their internal id (the Sadar one still carries the old slug), so existing cases, hearings, print and backups stay attached; the server seed and `AllSupabaseSql.md` were regenerated.
+- **How the short heading is built.** One per-court override keyed by court id sits beside the Bengali word shortening, so the heading is data, not a text edit at render time.
+- **Proof.** `seed_data_test.dart` pins both new names, both old names gone and the unchanged id; `court_heading_label_test.dart` pins the override's English and Bengali heading and its shortened form. Seed, seed-parity and `AllSupabaseSql` tests plus the heading tests pass, and `flutter analyze` is clean.
+- **Not checked.** No device screenshot, so the heading's one-line fit was not looked at on a phone.
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
+
+### 2026-11-06 — The court title above the cards shortens six Bengali words — COMPLETE (0.0.805)
+
+- **What was asked.** The court title above the cards on **Overdue Dates**, **Daily Cause List** and **Upcoming Cases** cuts a full Bengali court name off, so it should abbreviate six words — সহকারি→সহঃ, সিনিয়র→সিনিঃ, জুডিসিয়াল→জুডিঃ, ম্যাজিস্ট্রেট→ম্যাজিঃ, অতিরিক্ত→অতিঃ, নারায়ণগঞ্জ→নাঃগঞ্জ — and only there.
 - **What changed.** That title now shows the short words (e.g. `অতিঃ জেলা জজ ১ম আদালত, ঢাকা`); nothing else was shortened. The rule lives in one helper (`shortenCourtHeading()` and `AppTranslations.courtHeadingLabel()`) that only the three headings call, so the card's own court field, the court lists, the dropdown, Case Detail, print and exports keep the full name, and English names are never touched.
 - **Bengali spelling.** The seed writes Bengali "ya" two ways, so both spellings are in the map and a name shortens however it was written.
-- **Proof.** `court_heading_label_test.dart` covers all five words, both spellings, an English name and an unrelated Bengali name; *the court title shortens the five long Bengali words* in `daily_cause_list_test.dart` renders বাংলা with a seeded `অতিরিক্ত …` court and fails if the title keeps the full name. `flutter analyze` is clean.
+- **Proof.** `court_heading_label_test.dart` covers all six words, both spellings, an English name and an unrelated Bengali name; *the court title shortens the five long Bengali words* in `daily_cause_list_test.dart` renders বাংলা with a seeded `অতিরিক্ত …` court and fails if the title keeps the full name. `flutter analyze` is clean.
 - **Not checked.** No device screenshot was taken, so the fit itself was not looked at on a phone.
 - **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
 

@@ -188,6 +188,26 @@ void main() {
     );
   });
 
+  test('the Narayanganj civil courts carry their new names', () {
+    final names = lowerCourtNames
+        .where((court) => court.courtCategoryId == districtCourtsCivilId)
+        .map((court) => court.courtNameEn)
+        .toSet();
+    const sadar = 'Senior Civil Judge Sadar (Sadar, Fatulla and Siddhirganj), Narayanganj';
+    expect(names, contains(sadar));
+    expect(names, contains('Civil Judge Court, Bandar, Narayanganj'));
+    expect(
+      names,
+      isNot(contains('Senior Civil Judge 2nd Court, Siddhirganj and Fatulla, Narayanganj')),
+    );
+    expect(names, isNot(contains('Civil Judge Court, Port, Narayanganj')));
+    // The ids keep their original slug, so an existing case stays attached.
+    expect(
+      lowerCourtNames.firstWhere((court) => court.courtNameEn == sadar).id,
+      'court-lower_courts-dhaka-narayanganj-district_courts_civil-senior_civil_judge_2nd_court_siddhirganj_and_fatulla_narayanganj',
+    );
+  });
+
   test('the compromised step reads Compromise Petition in both languages', () {
       // Renamed at the user's request (0.0.801). The id keeps its first slug so
       // every case and server row saved against this step stays attached to it.

@@ -142,7 +142,53 @@ void main() {
       ]);
     });
 
-    test('the compromised step reads Compromise Petition in both languages', () {
+    test('the civil and criminal district judge courts carry their new names', () {
+    // Bengali "ya" is written both precomposed and decomposed in the seed, so labels are folded
+    // before they are compared.
+    String fold(String value) => value.replaceAll('\u09df', '\u09af\u09bc');
+    Iterable<String> names(String category, bool bengali) => lowerCourtNames
+        .where((court) => court.courtCategoryId == category)
+        .map((court) => bengali ? fold(court.courtNameBn) : court.courtNameEn);
+
+    final civil = names(districtCourtsCivilId, false).toSet();
+    final criminal = names(districtSessionsCriminalId, false).toSet();
+    final civilBn = names(districtCourtsCivilId, true).toSet();
+    final criminalBn = names(districtSessionsCriminalId, true).toSet();
+
+    expect(civil, contains('District Judge Court, Faridpur'));
+    expect(civil, contains("District Judge's Court, Dhaka"));
+    expect(civil, contains('Additional District Judge 1st Court, Faridpur'));
+    expect(civil, contains('Additional District Judge 12th Court, Gazipur'));
+    expect(civil, contains('Joint District Judge 1st Court, Faridpur'));
+    expect(civil, contains('Joint District Judge 4th Court, Dhaka'));
+    expect(civil, contains('Joint District Judge 5th Court, Dhaka'));
+    expect(criminal, contains('Sessions Judge Court, Faridpur'));
+    expect(criminal, contains("Sessions Judge's Court, Dhaka"));
+    expect(criminal, contains('Additional Sessions Judge 1st Court, Faridpur'));
+    expect(criminal, contains('Additional Sessions Judge 12th Court, Gazipur'));
+    expect(criminal, contains('Joint Sessions Judge 1st Court, Faridpur'));
+    expect(criminal, contains('Joint Sessions Judge Additional Court, Dhaka'));
+    expect(civilBn, contains(fold('জেলা জজ আদালত, ফরিদপুর')));
+    expect(civilBn, contains(fold('অতিরিক্ত জেলা জজ ১ম আদালত, ফরিদপুর')));
+    expect(civilBn, contains(fold('যুগ্ম জেলা জজ ১ম আদালত, ফরিদপুর')));
+    expect(criminalBn, contains(fold('দায়রা জজ আদালত, ফরিদপুর')));
+    expect(criminalBn, contains(fold('অতিরিক্ত দায়রা জজ ১ম আদালত, ফরিদপুর')));
+    expect(criminalBn, contains(fold('যুগ্ম দায়রা জজ ১ম আদালত, ফরিদপুর')));
+
+    // The bankruptcy court carries no ordinal, so it keeps the shipped name, and it is the only
+    // judge-court row in either list that still says "and Sessions Judge".
+    expect(
+      civil.followedBy(criminal).where((name) => name.contains('and Sessions Judge')),
+      {'Additional District and Sessions Judge Bankruptcy Court, Dhaka'},
+    );
+    expect(civil.where((name) => name.startsWith('District and Sessions')), isEmpty);
+    expect(
+      civilBn.followedBy(criminalBn).where((name) => name.contains(fold('জেলা ও দায়রা'))),
+      hasLength(2),
+    );
+  });
+
+  test('the compromised step reads Compromise Petition in both languages', () {
       // Renamed at the user's request (0.0.801). The id keeps its first slug so
       // every case and server row saved against this step stays attached to it.
       const id = 'step-district_courts_civil-rafa_nam_submission';

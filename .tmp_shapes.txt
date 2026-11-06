@@ -1,0 +1,110 @@
+1	districtCourtsCivilId	Additional District and Sessions Judge 01st Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 02nd Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 03rd Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 04th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 05th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 06th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 07th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৭ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 08th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৮ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 09th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৯ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 10th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ১০ম আদালত, ঢাকা
+1	districtCourtsCivilId	Additional District and Sessions Judge 1st Court, Faridpur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 1st Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 1st Court, Gopalganj	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+1	districtCourtsCivilId	Additional District and Sessions Judge 1st Court, Madaripur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 1st Court, Manikganj	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+1	districtCourtsCivilId	Additional District and Sessions Judge 2nd Court, Faridpur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 2nd Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 2nd Court, Gopalganj	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+1	districtCourtsCivilId	Additional District and Sessions Judge 2nd Court, Madaripur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 2nd Court, Manikganj	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+1	districtCourtsCivilId	Additional District and Sessions Judge 3rd Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, গাজীপুর
+1	districtCourtsCivilId	Additional District and Sessions Judge 4th Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, গাজীপুর
+1	districtCourtsCivilId	District and Sessions Judge Court, Faridpur	জেলা ও দায়রা জজ আদালত, ফরিদপুর
+1	districtCourtsCivilId	District and Sessions Judge Court, Gazipur	জেলা ও দায়রা জজ আদালত, গাজীপুর
+1	districtCourtsCivilId	District and Sessions Judge Court, Gopalganj	জেলা ও দায়রা জজ আদালত, গোপালগঞ্জ
+1	districtCourtsCivilId	District and Sessions Judge Court, Kishoregonj	জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+1	districtCourtsCivilId	District and Sessions Judge Court, Madaripur	জেলা ও দায়রা জজ আদালত, মাদারীপুর
+1	districtCourtsCivilId	District and Sessions Judge Court, Manikganj	জেলা ও দায়রা জজ আদালত, মানিকগঞ্জ
+1	districtCourtsCivilId	District and Sessions Judge Court, Narayanganj	জেলা ও দায়রা জজ আদালত, নারায়ণগঞ্জ
+1	districtCourtsCivilId	District and Sessions Judge\'s Court, Dhaka	জেলা ও দায়রা জজ আদালত, ঢাকা
+1	districtCourtsCivilId	Join District and Sessions Judge, 1st Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ১ম আদালত, ঢাকা
+1	districtCourtsCivilId	Join District and Sessions Judge, 2nd Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ২য় আদালত, ঢাকা
+1	districtCourtsCivilId	Join District and Sessions Judge, 3rd Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৩য় আদালত, ঢাকা
+1	districtCourtsCivilId	Join District and Sessions Judge, 4th, Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৪র্থ আদালত, ঢাকা
+1	districtCourtsCivilId	Join District and Sessions Judge, 5th Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৫ম আদালত, ঢাকা
+1	districtCourtsCivilId	Joint District Judge (Finance) Court, Narayanganj	যুগ্ম জেলা জজ (অর্থঋণ) আদালত, নারায়ণগঞ্জ
+1	districtCourtsCivilId	Joint District Judge 2nd Court, Narayanganj	যুগ্ম জেলা জজ ২য় আদালত, নারায়ণগঞ্জ
+1	districtCourtsCivilId	Joint District Judge Additional Court, Narayanganj	যুগ্ম জেলা জজ অতিরিক্ত আদালত, নারায়ণগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 15th Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ ১৫তম আদালত, ঢাকা
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Gopalganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Kishoregonj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Madaripur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Manikganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 1st Court, Narayanganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Gopalganj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Kishoregonj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Madaripur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge 2nd Court, Manikganj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+1	districtCourtsCivilId	Joint District and Sessions Judge 3rd Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
+1	districtCourtsCivilId	Joint District and Sessions Judge Additional Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, ঢাকা
+1	districtCourtsCivilId	Joint District and Sessions Judge Additional Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, গাজীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 01st Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 02nd Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 03rd Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 04th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 05th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৫ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 06th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৬ষ্ঠ আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 07th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৭ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 08th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৮ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 09th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ৯ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 10th Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ১০ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Additional District and Sessions Judge 1st Court, Faridpur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 1st Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 1st Court, Gopalganj	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+1	districtSessionsCriminalId	Additional District and Sessions Judge 1st Court, Madaripur	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 1st Court, Manikganj	অতিরিক্ত জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+1	districtSessionsCriminalId	Additional District and Sessions Judge 2nd Court, Faridpur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 2nd Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 2nd Court, Gopalganj	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+1	districtSessionsCriminalId	Additional District and Sessions Judge 2nd Court, Madaripur	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 2nd Court, Manikganj	অতিরিক্ত জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+1	districtSessionsCriminalId	Additional District and Sessions Judge 3rd Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ৩য় আদালত, গাজীপুর
+1	districtSessionsCriminalId	Additional District and Sessions Judge 4th Court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ৪র্থ আদালত, গাজীপুর
+1	districtSessionsCriminalId	District and Sessions Judge Court, Faridpur	জেলা ও দায়রা জজ আদালত, ফরিদপুর
+1	districtSessionsCriminalId	District and Sessions Judge Court, Gazipur	জেলা ও দায়রা জজ আদালত, গাজীপুর
+1	districtSessionsCriminalId	District and Sessions Judge Court, Gopalganj	জেলা ও দায়রা জজ আদালত, গোপালগঞ্জ
+1	districtSessionsCriminalId	District and Sessions Judge Court, Kishoregonj	জেলা ও দায়রা জজ আদালত, কিশোরগঞ্জ
+1	districtSessionsCriminalId	District and Sessions Judge Court, Madaripur	জেলা ও দায়রা জজ আদালত, মাদারীপুর
+1	districtSessionsCriminalId	District and Sessions Judge Court, Manikganj	জেলা ও দায়রা জজ আদালত, মানিকগঞ্জ
+1	districtSessionsCriminalId	District and Sessions Judge Court, Narayanganj	জেলা ও দায়রা জজ আদালত, নারায়ণগঞ্জ
+1	districtSessionsCriminalId	District and Sessions Judge\'s Court, Dhaka	জেলা ও দায়রা জজ আদালত, ঢাকা
+1	districtSessionsCriminalId	Join District and Sessions Judge, 1st Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ১ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Join District and Sessions Judge, 2nd Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ২য় আদালত, ঢাকা
+1	districtSessionsCriminalId	Join District and Sessions Judge, 3rd Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৩য় আদালত, ঢাকা
+1	districtSessionsCriminalId	Join District and Sessions Judge, 4th, Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৪র্থ আদালত, ঢাকা
+1	districtSessionsCriminalId	Join District and Sessions Judge, 5th Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ, ৫ম আদালত, ঢাকা
+1	districtSessionsCriminalId	Joint District and Sessions Judge 15th Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ ১৫তম আদালত, ঢাকা
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, ফরিদপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গাজীপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Gopalganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, গোপালগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Kishoregonj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, কিশোরগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Madaripur	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মাদারীপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Manikganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, মানিকগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 1st Court, Narayanganj	যুগ্ম জেলা ও দায়রা জজ ১ম আদালত, নারায়ণগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, ফরিদপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গাজীপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Gopalganj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, গোপালগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Kishoregonj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, কিশোরগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Madaripur	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মাদারীপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge 2nd Court, Manikganj	যুগ্ম জেলা ও দায়রা জজ ২য় আদালত, মানিকগঞ্জ
+1	districtSessionsCriminalId	Joint District and Sessions Judge 3rd Court, Faridpur	যুগ্ম জেলা ও দায়রা জজ ৩য় আদালত, ফরিদপুর
+1	districtSessionsCriminalId	Joint District and Sessions Judge Additional Court, Dhaka	যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, ঢাকা
+1	districtSessionsCriminalId	Joint District and Sessions Judge Additional Court, Gazipur	যুগ্ম জেলা ও দায়রা জজ অতিরিক্ত আদালত, গাজীপুর
+1	districtSessionsCriminalId	Joint Sessions Judge 2nd Court, Narayanganj	যুগ্ম দায়রা জজ ২য় আদালত, নারায়ণগঞ্জ
+1	districtSessionsCriminalId	Joint Sessions Judge 3rd (Finance) Court, Narayanganj	যুগ্ম দায়রা জজ ৩য় (অর্থঋণ) আদালত, নারায়ণগঞ্জ
+1	districtSessionsCriminalId	Joint Sessions Judge 4th Court, Narayanganj	যুগ্ম দায়রা জজ ৪র্থ আদালত, নারায়ণগঞ্জ

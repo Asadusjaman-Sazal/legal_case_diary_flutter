@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.801 - Steps: the Rafa Nam Submission step now reads Compromise Petition in both languages, and cases saved before the rename show the new name too.
+Version: 0.0.803 - Courts: the joint courts in the civil and criminal judge lists now read Joint District Judge and Joint Sessions Judge in both languages.
 --------------------------------------
 
 ## Version History Log:
@@ -815,3 +815,5 @@ Version: 0.0.798 - Case Detail: the courthouse glyph now sits beside the first l
 Version: 0.0.799 - Devices screen: the slot line and the owner/associate section counts now use Bengali digits, matching the dates already there.
 Version: 0.0.800 - Disposed Cases: a long Step list now ends in ... instead of pushing the Disposed label and date off the card.
 Version: 0.0.801 - Steps: the Rafa Nam Submission step now reads Compromise Petition in both languages, and cases saved before the rename show the new name too.
+Version: 0.0.802 - Courts: the District Judge Court (Civil) and Sessions Judge Court (Criminal) lists drop and Sessions from their names in both languages, with court ids unchanged.
+Version: 0.0.803 - Courts: the joint courts in the civil and criminal judge lists now read Joint District Judge and Joint Sessions Judge in both languages.

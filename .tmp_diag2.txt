@@ -1,0 +1,6 @@
+en=False	bn=True	Additional District and sessions judge 21th court,Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ২১তম আদালত, ঢাকা
+en=False	bn=True	Additional District and Sessions Judge Bankruptcy Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ দেউলিয়া আদালত, ঢাকা
+en=False	bn=True	Additional District and sessions judge 21th court,Dhaka	অতিরিক্ত জেলা ও দায়রা জজ ২১তম আদালত, ঢাকা
+en=False	bn=True	Additional District and Sessions Judge Bankruptcy Court, Dhaka	অতিরিক্ত জেলা ও দায়রা জজ দেউলিয়া আদালত, ঢাকা
+en=False	bn=True	Additional District and sessions judge 12th court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত, গাজীপুর
+en=False	bn=True	Additional District and sessions judge 12th court, Gazipur	অতিরিক্ত জেলা ও দায়রা জজ ১২তম আদালত, গাজীপুর

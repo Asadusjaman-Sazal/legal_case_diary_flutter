@@ -1,0 +1,34 @@
+13	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge Bankruptcy Court, Dhaka	len=528
+121	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge Bankruptcy Court, Dhaka	len=538
+177	cat=districtSessionsCriminalId	en=False	slug=Enforced Disappearance Prevention and Redressal Tribunal, Dhaka	len=538
+264	cat=chiefMetropolitanMagistrateId	en=False	slug=NONE	len=633
+265	cat=chiefMetropolitanMagistrateId	en=False	slug=NONE	len=633
+266	cat=chiefMetropolitanMagistrateId	en=False	slug=NONE	len=621
+272	cat=chiefMetropolitanMagistrateId	en=False	slug=Special Metropolitan Magistrate P1st Court, Palli Bidyut, Dhaka	len=573
+273	cat=chiefMetropolitanMagistrateId	en=False	slug=Special Metropolitan Magistrate P2nd Court, Palli Bidyut, Dhaka	len=573
+417	cat=chiefJudicialMagistrateId	en=False	slug=Additional Chief Judicial Magistrate Court, faridpur, Faridpur	len=554
+623	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 1st Court, Kishoregonj	len=549
+624	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 2nd Court, Kishoregonj	len=549
+625	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 3rd Court, Kishoregonj	len=549
+626	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 4th Court, Kishoregonj	len=551
+627	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 5th Court, Kishoregonj	len=549
+647	cat=districtCourtsCivilId	en=False	slug=Civil Judge Court, Kuliyarchar, (Bajitpur Chowki), Kishoregonj	len=561
+661	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 1st Court, Kishoregonj	len=559
+662	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 2nd Court, Kishoregonj	len=559
+663	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 3rd Court, Kishoregonj	len=559
+664	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 4th Court, Kishoregonj	len=561
+665	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 5th Court, Kishoregonj	len=559
+691	cat=chiefJudicialMagistrateId	en=False	slug=Special Magistrate, Environmental and Forest Court, Kishorganj	len=566
+855	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 1st Court, Narayanganj	len=550
+856	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 2nd Court, Narayanganj	len=550
+857	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 3rd Court, Narayanganj	len=550
+858	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 4th Court, Narayanganj	len=552
+859	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 5th Court, Narayanganj	len=550
+860	cat=districtCourtsCivilId	en=False	slug=Additional District and Sessions Judge 6th Court, Narayanganj	len=552
+865	cat=districtCourtsCivilId	en=False	slug=NONE	len=592
+883	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 1st Court, Narayanganj	len=560
+884	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 2nd Court, Narayanganj	len=560
+885	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 3rd Court, Narayanganj	len=560
+886	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 4th Court, Narayanganj	len=562
+887	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 5th Court, Narayanganj	len=560
+888	cat=districtSessionsCriminalId	en=False	slug=Additional District and Sessions Judge 6th Court, Narayanganj	len=562

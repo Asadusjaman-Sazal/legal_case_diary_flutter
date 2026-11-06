@@ -2763,6 +2763,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার ডেটা মোছা যায়নি। আবার চেষ্টা করুন।';
 
   @override
+  String get settingsManageAccount_deleteDataWaitTitle =>
+      'অনুগ্রহ করে অপেক্ষা করুন';
+
+  @override
+  String get settingsManageAccount_deleteDataWaitBody =>
+      'আপনার ডেটা এখন মুছে ফেলা হচ্ছে।';
+
+  @override
   String get settingsManageAccount_dangerZone => 'সতর্কতা';
 
   @override

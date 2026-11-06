@@ -4785,6 +4785,18 @@ abstract class AppLocalizations {
   /// **'Your data could not be deleted. Please try again.'**
   String get settingsManageAccount_deleteDataFailed;
 
+  /// No description provided for @settingsManageAccount_deleteDataWaitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please Wait'**
+  String get settingsManageAccount_deleteDataWaitTitle;
+
+  /// No description provided for @settingsManageAccount_deleteDataWaitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is currently being deleted.'**
+  String get settingsManageAccount_deleteDataWaitBody;
+
   /// No description provided for @settingsManageAccount_dangerZone.
   ///
   /// In en, this message translates to:

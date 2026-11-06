@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — Delete Selected now waits behind a mandatory window — COMPLETE (0.0.811)
+
+- **What was asked.** While selected data is being deleted, show a mandatory waiting screen saying *Please wait: your data is currently being deleted.* until the deletion finishes, so the app cannot be closed mid-run or mistaken for doing nothing.
+- **The change.** The shared `runDataDeletionFlow` (Manage Account's two cards and Backup & Restore's restore guard) now opens a non-dismissible window before it reads the service. The window owns the run and closes with its result, so it cannot outlive the deletion; a failed run closes it as well, and the existing result message follows.
+- **Frame and dismissal.** It is a centred pop-over on the shared frame (rule 17), with a spinner and one sentence, no actions, barrier dismissal off and `PopScope(canPop: false)`; back cannot close it. Bengali and English strings were added and the localizations regenerated.
+- **Proof.** New widget tests: a pending run shows the title and body and back does not close the window; a failing run still closes it. The deletion service suite is unchanged and passes; `flutter analyze` clean. No phone run: the window's look on a device remains a check.
+
+
 ### 2026-11-06 — Every file is listed, and the window names the folder — COMPLETE (0.0.810)
 
 - **What the user reported.** Files now opens the folder, but the automatic backup is still absent from Choose the Backup File.

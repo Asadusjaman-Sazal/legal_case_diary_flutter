@@ -2757,6 +2757,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your data could not be deleted. Please try again.';
 
   @override
+  String get settingsManageAccount_deleteDataWaitTitle => 'Please Wait';
+
+  @override
+  String get settingsManageAccount_deleteDataWaitBody =>
+      'Your data is currently being deleted.';
+
+  @override
   String get settingsManageAccount_dangerZone => 'Danger Zone';
 
   @override

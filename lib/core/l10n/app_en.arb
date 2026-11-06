@@ -1364,6 +1364,8 @@
   "settingsManageAccount_deleteDataNeedsConnection": "Connect to the internet to delete your cloud data. Nothing has been deleted.",
   "settingsManageAccount_deleteDataFirmRefused": "You are part of a firm, so your diary is shared with it. Ask the firm owner to remove you before deleting your data.",
   "settingsManageAccount_deleteDataFailed": "Your data could not be deleted. Please try again.",
+  "settingsManageAccount_deleteDataWaitTitle": "Please Wait",
+  "settingsManageAccount_deleteDataWaitBody": "Your data is currently being deleted.",
   "settingsManageAccount_dangerZone": "Danger Zone",
   "settingsManageAccount_deleted": "Your account has been deleted.",
   "settingsManageAccount_deleteDialogTitle": "Delete Account?",

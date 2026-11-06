@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../data/data_deletion_service.dart';
 import 'data_deletion_dialog.dart';
+import 'data_deletion_wait_window.dart';
 import 'delete_data_confirm_screen.dart';
 
 /// Runs the Delete Data flow: refusals, tick list, typed screen, deletion.
@@ -21,7 +22,9 @@ import 'delete_data_confirm_screen.dart';
 /// account's copies); [online] and [firmMode] are the live answers the caller
 /// watched, handed in rather than re-read, because a lazily-taken first
 /// snapshot answers "unknown". [onWorking] brackets the service run only, so a
-/// caller can answer the tap with a spinner the way Logout does.
+/// caller can answer the tap with a spinner the way Logout does; the mandatory
+/// wait window is opened here, by the flow itself, so no entry point can start
+/// a deletion without it.
 ///
 /// Returns the result, or null when nothing was deleted — a refusal or a
 /// cancellation, each already reported where the user can see it.
@@ -67,14 +70,15 @@ Future<DataDeletionResult?> runDataDeletionFlow(
   onWorking?.call(true);
   DataDeletionResult result;
   try {
-    final service = await ref.read(dataDeletionServiceProvider.future);
-    result = await service.delete(scope: scope, cloud: cloud);
-  } on Object {
-    // The service reports its own failures, so this is the provider itself
-    // being unreadable — the same sentence either way, and nothing deleted.
-    result = const DataDeletionResult(
-      counts: <DataDeletionCategory, int>{},
-      failed: true,
+    // The wait window owns the whole run, the provider read included, and it
+    // cannot be dismissed: the deletion is never left running behind a screen
+    // the user has closed, and never looks like nothing happened.
+    result = await showDataDeletionWaitWindow(
+      context,
+      run: () async {
+        final service = await ref.read(dataDeletionServiceProvider.future);
+        return service.delete(scope: scope, cloud: cloud);
+      },
     );
   } finally {
     // Clear the spinner whatever the outcome, so a failure never leaves the

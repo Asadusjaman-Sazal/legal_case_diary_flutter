@@ -539,6 +539,47 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a long step list clips instead of pushing Disposed off the card', (
+    WidgetTester tester,
+  ) async {
+    // A phone-width card: the step chip used to take its full intrinsic width,
+    // so a case whose Steps field holds several steps pushed "Disposed:" and
+    // its date past the card's right edge and overflowed. The chip now takes
+    // only the room left over and ends in "...".
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const steps =
+        'Disposed,Argument,Framing of Issues,Sending Records to Appellate Court';
+    await seedCase(
+      id: 'LONG-STEPS',
+      nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 86400000,
+      lastStep: steps,
+    );
+
+    await pumpScreen(tester, const DisposedCasesScreen());
+
+    final card = find.byKey(const ValueKey('case-card-LONG-STEPS'));
+    expect(card, findsOneWidget);
+    final chip = find.text(steps);
+    expect(chip, findsOneWidget);
+    // The chip is one clipped line, not a block that widens the row...
+    final chipText = tester.widget<Text>(chip);
+    expect(chipText.maxLines, 1);
+    expect(chipText.overflow, TextOverflow.ellipsis);
+    // ...so "Disposed:" keeps its place inside the card...
+    final cardRect = tester.getRect(card);
+    final disposed = tester.getRect(find.text('Disposed:'));
+    expect(
+      disposed.right,
+      lessThanOrEqualTo(cardRect.right - AppSpacing.cardPadding + 0.5),
+    );
+    // ...and the chip stops before it instead of running underneath.
+    expect(tester.getRect(chip).right, lessThanOrEqualTo(disposed.left));
+
+    await unmount(tester);
+  });
+
   testWidgets('the grouped lists keep their headings and number their rows', (
     WidgetTester tester,
   ) async {

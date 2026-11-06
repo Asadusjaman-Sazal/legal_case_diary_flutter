@@ -69,6 +69,7 @@ Exact same screen/logic as All Cases **except**: no KPI summary, no Court Name/C
 4. **Card layout — match `disposedCases\code.html` exactly (this card is structurally different from the other list cards; do not reuse the standard list card):**
    - **Outcome chip:** a small rounded, tinted status chip above the case number showing the disposal outcome (mockup examples: `SETTLED` green-tinted, `DISMISSED` red/error-tinted). Derived from `last_step` (or AD/HCD `result`); tint by outcome family.
    - **Top-right block:** a `Disposed:` label with the `next_date` (the date the case was disposed) directly beneath it.
+   - **Long step lists (0.0.800, bug report):** a case whose Steps field holds several steps made the outcome chip wider than the card, pushing the top-right `Disposed:` block past the right edge. The chip now takes only the room that block leaves and its text ends in "...", so the `Disposed:` label and its date keep their place at any width.
    - **Case number:** `case_type` & `case_number` in the case-number style, beneath the chip.
    - **Parties:** `petitioner` vs `respondent` in title style.
    - **Final result / Note box:** `notes_results` shown inside the mockup's styled quote box — italic text with a left accent border (`border-l-4`), rounded, on a subtle container fill.

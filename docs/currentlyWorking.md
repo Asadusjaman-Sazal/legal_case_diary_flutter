@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — A long Step list no longer pushes "Disposed:" off the card — COMPLETE (0.0.800)
+
+- **What was reported.** On the Disposed Cases card, a case whose Steps field holds several steps made the step chip too wide: it pushed the "Disposed:" label and its date past the card's right edge, so the row overflowed.
+- **What changed.** The chip now takes only the room the "Disposed:" block leaves and its text ends in "...", so the label and its date keep their place at any card width. Only the Disposed Cases card was touched: the other case cards, the table view and the printout are unchanged.
+- **Proof.** `case_list_view_mode_test.dart` gains *a long step list clips instead of pushing Disposed off the card*: a 360 pt-wide phone surface, a four-step Steps field on a disposed case, and assertions that the chip is one clipped line, that its right edge stops before the "Disposed:" label, and that the label stays inside the card. The file passes **44 tests** and `flutter analyze` is clean. The mockup's chip carries the same clipping classes (rule 9).
+- **Next.** The user's next request; the backup export-list test remains the only known pre-existing red.
+
 ### 2026-11-03 — Refused deletes and restores no longer leave blocked work — COMPLETE (0.0.797)
 
 - **What was reported.** After *Delete Local & Cloud Data* and a restore, every Pending Sync entry was **Blocked** with “The server refused this change. Last Error: The row no longer exists on the server.” The entries were the deletes queued for rows the server had never received (the first restore pre-dated the queue fix); the restore's own inserts were not among them.

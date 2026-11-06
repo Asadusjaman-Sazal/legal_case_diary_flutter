@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.799 - Devices screen: the slot line and the owner/associate section counts now use Bengali digits, matching the dates already there.
+Version: 0.0.800 - Disposed Cases: a long Step list now ends in ... instead of pushing the Disposed label and date off the card.
 --------------------------------------
 
 ## Version History Log:
@@ -813,3 +813,4 @@ Version: 0.0.796 - Excel restore now queues every imported case, history, note a
 Version: 0.0.797 - Deleting a row the server never had no longer queues a delete that blocks for ever, and a restore clears stale queued changes for the tables it replaces.
 Version: 0.0.798 - Case Detail: the courthouse glyph now sits beside the first line of a two-line court name instead of centred between the lines.
 Version: 0.0.799 - Devices screen: the slot line and the owner/associate section counts now use Bengali digits, matching the dates already there.
+Version: 0.0.800 - Disposed Cases: a long Step list now ends in ... instead of pushing the Disposed label and date off the card.

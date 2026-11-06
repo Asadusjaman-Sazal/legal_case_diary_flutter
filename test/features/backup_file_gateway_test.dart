@@ -1,10 +1,8 @@
-/// The rules that decide which files in the diary folder are the app's own.
+/// The rules that decide which files in the diary folder a restore can open.
 ///
-/// A restore lists the folder through [backupFileNamePattern], so every name the
-/// app has written must be recognised. The automatic backup uses one fixed
-/// name, written through a temporary file and renamed into place, so it
-/// replaces itself without a sweep; a manual backup keeps its timestamped name
-/// and is never touched.
+/// A restore lists every `.lcbak` container and `.xlsx` workbook in the folder,
+/// whatever the file is called, so a backup the user renamed or copied in is not
+/// hidden. Anything else in the folder — a photo, a note — is ignored.
 library;
 
 import 'dart:io';
@@ -30,58 +28,27 @@ void main() {
   /// Writes an empty file with [name] into the temp folder.
   void seed(String name) => File(p.join(dir.path, name)).writeAsBytesSync([]);
 
-  group('backupFileNamePattern', () {
-    test('accepts a manual backup', () {
-      expect(
-        backupFileNamePattern.hasMatch('Backup_20-09-26_11-06-07am'),
-        isTrue,
-      );
-    });
+  test('listBackupFiles lists every backup, whatever it is called', () async {
+    seed(automaticBackupFileName);
+    seed('Backup_20-09-26_11-06-07am.lcbak');
+    // A backup copied, downloaded or renamed by the user: the phone's file
+    // manager shows it, so the restore list must too.
+    seed('Copy of backup.lcbak');
+    seed('EXPORT.XLSX');
+    seed('holiday-photo.jpg');
+    seed('notes.txt');
+    seed('not-a-backup.lcbak.txt');
 
-    test('accepts the fixed automatic backup, so a restore can list it', () {
-      // The whole point of the automatic copy is that it can be restored; a
-      // name the listing rule rejects would make it invisible.
-      expect(backupFileNamePattern.hasMatch('AutomaticBackup'), isTrue);
-    });
+    final listed = [
+      for (final f in await listBackupFiles(dir)) p.basename(f.path),
+    ];
 
-    test('accepts the timestamped automatic names older releases wrote', () {
-      // They stay restorable even though the current job replaces one fixed
-      // file.
-      expect(
-        backupFileNamePattern.hasMatch('AutomaticBackup_20-09-26_11-06-07am'),
-        isTrue,
-      );
-    });
-
-    test('rejects anything else', () {
-      for (final name in const <String>[
-        'AutomaticBackup_20-09-26_11-06-07', // no am/pm
-        'AutomaticBackup_2-09-26_11-06-07am', // unpadded
-        'Automatic_20-09-26_11-06-07am', // wrong stem
-        'MyBackup_20-09-26_11-06-07am', // not the app's
-        'AutomaticBackup_20-09-26_11-06-07am (1)', // a copy
-      ]) {
-        expect(backupFileNamePattern.hasMatch(name), isFalse, reason: name);
-      }
-    });
+    expect(listed, hasLength(4));
+    expect(listed, contains(automaticBackupFileName));
+    expect(listed, contains('Backup_20-09-26_11-06-07am.lcbak'));
+    expect(listed, contains('Copy of backup.lcbak'));
+    expect(listed, contains('EXPORT.XLSX'));
   });
-
-  test(
-    'listBackupFiles finds an automatic backup beside a manual one',
-    () async {
-      seed(automaticBackupFileName);
-      seed('Backup_20-09-26_11-06-07am.lcbak');
-      seed('holiday-photo.jpg');
-
-      final listed = [
-        for (final f in await listBackupFiles(dir)) p.basename(f.path),
-      ];
-
-      expect(listed, hasLength(2));
-      expect(listed, contains(automaticBackupFileName));
-      expect(listed, contains('Backup_20-09-26_11-06-07am.lcbak'));
-    },
-  );
 
   test('an atomic write replaces the fixed file and leaves no temp', () async {
     final sink = BackupFolderSink(

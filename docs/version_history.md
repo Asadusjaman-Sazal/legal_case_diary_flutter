@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.807 - Backup picker now reads Choose the Backup File and its Bengali says the backup file; the delete-data Bengali action says files, with English Delete Selected unchanged.
+Version: 0.0.808 - Choose the Backup File lists every backup in the diary folder whatever its name, drops Recommended, and Files re-opens that folder instead of the platform picker.
 --------------------------------------
 
 ## Version History Log:
@@ -821,3 +821,4 @@ Version: 0.0.804 - Overdue Dates, Daily Cause List and Upcoming Cases: the court
 Version: 0.0.805 - Court titles on Overdue Dates, Daily Cause List and Upcoming Cases: Narayanganj is now shortened to Naa:ganj too, alongside the five earlier words.
 Version: 0.0.806 - Narayanganj: the Siddhirganj and Fatulla court is now Senior Civil Judge Sadar and the Port court is Bandar, with a short form in the three card titles.
 Version: 0.0.807 - Backup picker now reads Choose the Backup File and its Bengali says the backup file; the delete-data Bengali action says files, with English Delete Selected unchanged.
+Version: 0.0.808 - Choose the Backup File lists every backup in the diary folder whatever its name, drops Recommended, and Files re-opens that folder instead of the platform picker.

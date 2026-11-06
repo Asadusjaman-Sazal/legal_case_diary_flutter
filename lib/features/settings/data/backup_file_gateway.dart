@@ -15,7 +15,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'backup_repository.dart';
@@ -271,48 +270,34 @@ class BackupFolderFirstSink implements BackupArchiveSink {
   }
 }
 
-/// Lists the backup files in [dir], sorted by name ascending.
+/// Lists the backups in [dir] — every one of them — sorted by path.
 ///
-/// A file counts as a backup when its name matches the app's own default file
-/// name — so the folder does not confuse a PDF or a photo left here with a
-/// backup, while still accepting every file this app wrote. The sort orders a
-/// restore by file name, which is timestamp-ordered because the app's default
-/// names are.
+/// A file counts as a backup when it is one of the two formats a restore can
+/// open: the `.lcbak` container or the `.xlsx` workbook. The name used to have
+/// to match the app's own stamp pattern, which hid a real backup the user had
+/// renamed, copied or downloaded into the folder — a file the phone's own file
+/// manager showed and the app would not. The extension is all the restore engine
+/// reads, so it is all this rule reads.
+///
+/// The sort orders a restore by path, which is timestamp-ordered for the names
+/// the app chooses for itself.
 Future<List<File>> listBackupFiles(Directory dir) async {
   final entries = dir.existsSync()
       ? dir.listSync().whereType<File>()
       : <File>[];
   final backups = <File>[
     for (final f in entries)
-      if (_isBackupFileName(p.basename(f.path))) f,
+      if (isBackupFilePath(f.path)) f,
   ]..sort((a, b) => a.path.compareTo(b.path));
   return backups;
 }
 
-/// Whether a file name is one the app itself would have chosen for a backup.
-///
-/// Accepts both saved formats a restore can open — the `.lcbak` container and
-/// the `.xlsx` workbook — under the same `Backup_dd-mm-yy_hh-mm-ssam/pm` stem.
-bool _isBackupFileName(String name) {
-  for (final ext in const ['.lcbak', '.xlsx']) {
-    if (name.endsWith(ext)) {
-      return backupFileNamePattern.hasMatch(
-        name.substring(0, name.length - ext.length),
-      );
-    }
-  }
-  return false;
+/// Whether [path] is a file a restore can open: a `.lcbak` container or an
+/// `.xlsx` workbook, in either case of extension.
+bool isBackupFilePath(String path) {
+  final lower = path.toLowerCase();
+  return lower.endsWith('.lcbak') || lower.endsWith('.xlsx');
 }
-
-/// Matches the fixed automatic name, a manual `Backup_…` stamp, and the
-/// timestamped `AutomaticBackup_…` names older releases wrote.
-///
-/// A restore lists the folder through this rule, so every name the app has
-/// written must be recognised — including the old timestamped automatic files,
-/// which stay restorable even though the current job replaces one fixed file.
-final RegExp backupFileNamePattern = RegExp(
-  r'^(?:AutomaticBackup|(?:Automatic)?Backup_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:am|pm))$',
-);
 
 /// The diary folder backups live in; tests override it with a temp directory.
 final backupFolderDirectoryProvider = Provider<Future<Directory> Function()>(

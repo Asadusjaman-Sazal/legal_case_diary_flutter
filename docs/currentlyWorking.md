@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-06 — The backup list shows every file, and Files re-opens the folder — COMPLETE (0.0.808)
+
+- **What was asked.** Remove the Recommended chip; make the Files button always open `Download/LegalCaseDiary`, creating it if missing; and make the list show the manual and the automatic backups together, as the phone's file manager does.
+- **Why a backup could go missing.** The list accepted a file only when its name matched the app's own timestamped pattern. A genuine backup with any other name — renamed, copied, or downloaded into the folder — was filtered out even though it sat beside the others. The rule is now the extension alone: `.lcbak` and `.xlsx` files are listed, photos and notes are not.
+- **Files.** Android's system picker takes no start location, so it cannot be opened at the diary folder. Files now re-reads that folder and refreshes the window, creating the folder when it is gone; the picker remains the fallback when the folder holds no backup at all.
+- **Proof.** The gateway listing test seeds a renamed copy, an upper-case workbook, the automatic file and two non-backups, and expects the four backups; the screen suite covers the folder list, Files refreshing it, and the folder being recreated. `flutter analyze` clean.
+- **Not checked.** No phone run: the device folder itself and how the window looks were not observed.
+
+
 ### 2026-11-06 — Two labels reworded — COMPLETE (0.0.807)
 
 - **What was asked.** The backup picker should read `Choose the Backup File` / `ব্যাকআপ ফাইল নির্বাচন করুন`, and the delete-data confirmation's Bengali action should read `নির্বাচিত ফাইল মুছুন`; the English `Delete Selected` stays as it is.

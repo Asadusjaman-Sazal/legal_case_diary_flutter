@@ -196,6 +196,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyCauseListScreen_selectMonth => 'Select Month';
 
   @override
+  String get dailyCauseListScreen_select => 'Select';
+
+  @override
   String get dailyCauseListScreen_noPhone => 'No phone number for this case.';
 
   @override

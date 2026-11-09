@@ -144,6 +144,152 @@ void main() {
       expect(find.text(l.sharedActions_close), findsOneWidget);
     });
 
+    testWidgets(
+      'the Month/Year view has Close and Select, and Close returns to the grid',
+      (WidgetTester tester) async {
+        final today = AppDateUtils.bangladeshTodayStartOfDay();
+        final todayCivil = AppDateUtils.bangladeshDateTime(today);
+        final monthLabel = intl.DateFormat(
+          'MMMM',
+        ).format(DateTime(todayCivil.year, todayCivil.month, 1));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CalendarPickerDialog(
+                initialDate: today,
+                hearingCounts: const {},
+                onDateSelected: (_) {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text(monthLabel));
+        await tester.pumpAndSettle();
+        final l = AppLocalizations.of(
+          tester.element(find.byType(Dialog).first),
+        );
+
+        expect(find.byType(ListWheelScrollView), findsNWidgets(2));
+        expect(find.text(l.sharedActions_close), findsOneWidget);
+        final closeButton = tester.widget<OutlinedButton>(
+          find.widgetWithText(OutlinedButton, l.sharedActions_close),
+        );
+        expect(
+          closeButton.style?.foregroundColor?.resolve(<WidgetState>{}),
+          Colors.white,
+        );
+        expect(find.text(l.dailyCauseListScreen_select), findsOneWidget);
+
+        await tester.tap(find.text(l.sharedActions_close));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ListWheelScrollView), findsNothing);
+        expect(find.byType(CalendarPickerDialog), findsOneWidget);
+        expect(find.text(monthLabel), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Select applies the spun month and year and returns to the grid',
+      (WidgetTester tester) async {
+        final today = AppDateUtils.bangladeshTodayStartOfDay();
+        final todayCivil = AppDateUtils.bangladeshDateTime(today);
+        final targetMonth =
+            todayCivil.month == 12 ? 1 : todayCivil.month + 1;
+        final targetYear = todayCivil.month == 12
+            ? todayCivil.year + 1
+            : todayCivil.year;
+        final targetMonthLabel = intl.DateFormat(
+          'MMMM',
+        ).format(DateTime(targetYear, targetMonth, 1));
+        final targetDate = AppDateUtils.bangladeshCivilDateEpoch(
+          targetYear,
+          targetMonth,
+          15,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CalendarPickerDialog(
+                initialDate: today,
+                hearingCounts: <int, int>{today: 2, targetDate: 4},
+                onDateSelected: (_) {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          find.text(
+            intl.DateFormat(
+              'MMMM',
+            ).format(DateTime(todayCivil.year, todayCivil.month, 1)),
+          ),
+        );
+        await tester.pumpAndSettle();
+        columnOf(tester, monthYearPickerYearColumnKey)
+            .jumpToItem(targetYear - 1900);
+        await tester.pumpAndSettle();
+        columnOf(tester, monthYearPickerMonthColumnKey)
+            .jumpToItem(targetMonth - 1);
+        await tester.pumpAndSettle();
+        expect(find.text('Total Hearings: 4'), findsOneWidget);
+
+        final l = AppLocalizations.of(
+          tester.element(find.byType(Dialog).first),
+        );
+        await tester.tap(find.text(l.dailyCauseListScreen_select));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ListWheelScrollView), findsNothing);
+        expect(find.text(targetMonthLabel), findsOneWidget);
+        expect(find.text('Total Hearings: 4'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'the Month/Year footer speaks Bengali',
+      (WidgetTester tester) async {
+        final today = AppDateUtils.bangladeshTodayStartOfDay();
+        final todayCivil = AppDateUtils.bangladeshDateTime(today);
+        final monthLabel = intl.DateFormat(
+          'MMMM',
+          'bn',
+        ).format(DateTime(todayCivil.year, todayCivil.month, 1));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('bn'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: CalendarPickerDialog(
+                initialDate: today,
+                hearingCounts: const {},
+                onDateSelected: (_) {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text(monthLabel));
+        await tester.pumpAndSettle();
+
+        expect(find.text('বন্ধ করুন'), findsOneWidget);
+        expect(find.text('নির্বাচন করুন'), findsOneWidget);
+      },
+    );
+
     testWidgets('Total Hearings counts the visible month only, not all dates', (
       WidgetTester tester,
     ) async {

@@ -1,5 +1,22 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-09 — The Month/Year Close text is white — COMPLETE (0.0.817)
+
+- **What was asked.** The Close button in the calendar's Month/Year view should have white text.
+- **What changed.** The button is the app's black outlined button; its local text override was the dark primary colour, so it now uses the app's white on-primary colour. The black fill, border, shape, labels and actions are unchanged.
+- **Proof.** The existing Close/Select widget test now also checks the button's resolved text colour is white; the calendar picker suite passes 13 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run: the rendered colour remains a device look.
+
+
+### 2026-11-09 — The Month/Year calendar view has Close and Select — COMPLETE (0.0.816)
+
+- **What was asked.** While the Daily Cause List calendar's Month/Year selector is open, the single Close button closed the whole calendar. It should instead show Close, which returns to the calendar, and Select, which applies the chosen month and year. Every Bengali Close button should read "বন্ধ করুন".
+- **What changed.** The Month/Year view now has two actions: Close goes back to the day grid without closing the calendar, and Select applies the month and year shown by the wheel and returns to the day grid. The day view keeps one Close that still closes the calendar. Tapping a month row still confirms immediately.
+- **Wording.** The new Select label is "Select" / "নির্বাচন করুন". The two Bengali Close values that were still "বন্ধ" — the shared Close and the Case Details Close — now read "বন্ধ করুন"; the recovery-lock and paywall Close actions already did.
+- **Proof.** Three new widget tests cover the two buttons, Close returning to the day grid, Select applying a spun month and year, and the Bengali footer. The calendar picker suite passes 13 tests and `flutter analyze` is clean. No mockup draws this footer, so none changed.
+- **Not checked.** No phone run: the two-button fit and the final look remain a device check.
+
+
 ### 2026-11-06 — Built-in law names follow the app language — COMPLETE (0.0.815)
 
 - **What was asked.** The law list should show every law correctly in English and Bengali, using the supplied EN/BN labels. The Bengali category heading should read "শ্রম, কোম্পানি ইত্যাদি", not "কোম্পানী".

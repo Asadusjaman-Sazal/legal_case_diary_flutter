@@ -452,6 +452,12 @@ abstract class AppLocalizations {
   /// **'Select Month'**
   String get dailyCauseListScreen_selectMonth;
 
+  /// No description provided for @dailyCauseListScreen_select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get dailyCauseListScreen_select;
+
   /// No description provided for @dailyCauseListScreen_noPhone.
   ///
   /// In en, this message translates to:

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.815 - Built-in law names now switch between English and Bengali in the picker, Law Names, both reference libraries and citation views.
+Version: 0.0.817 - Month/Year Close button text is now white on its black fill; only the text colour changed.
 --------------------------------------
 
 ## Version History Log:
@@ -829,3 +829,5 @@ Version: 0.0.812 - Centred every shared pop-over window title in the frame itsel
 Version: 0.0.813 - Case Detail header: 50 percent more space between the court icon and the court name, 4 px to 6 px.
 Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at the right edge when the step is short.
 Version: 0.0.815 - Built-in law names now switch between English and Bengali in the picker, Law Names, both reference libraries and citation views.
+Version: 0.0.816 - Calendar Month/Year view now has Close and Select buttons, and Bengali Close button labels were updated to the full wording.
+Version: 0.0.817 - Month/Year Close button text is now white on its black fill; only the text colour changed.

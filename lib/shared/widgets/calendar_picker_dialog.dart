@@ -8,7 +8,9 @@
 /// the day grid's month, or — while the Month/Year columns are open — the month
 /// the wheel is pointing at, so the header follows the spin before any tap. The
 /// total is summed from the per-date hearing counts. Used only on the Daily
-/// Cause List screen (per the design plan).
+/// Cause List screen (per the design plan). The footer follows the view: the
+/// day grid's Close dismisses the calendar, while the Month/Year view offers
+/// Close (back to the day grid) and Select (apply the wheel's pair).
 ///
 /// Every month or year the Month | Year columns move to plays the bundled gear
 /// tick at a **soft feedback volume** — the same `gear_click.wav` the
@@ -200,6 +202,16 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
     });
   }
 
+  /// Confirms the pair the columns are showing and returns to the day grid.
+  ///
+  /// The wheel reports every move through [_previewMonth]; before it has
+  /// moved, the columns are still on [_focusedMonth], which is what Select
+  /// applies.
+  void _confirmMonthYear() {
+    final target = _previewMonth ?? _focusedMonth;
+    _pickMonthYear(target.month, target.year);
+  }
+
   /// Opens the month/year columns, or closes them back to the day grid. Both
   /// columns appear together, whichever header opened them.
   void _toggleMonthYear() => setState(() {
@@ -245,6 +257,14 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
       )] ??
               0;
     }
+
+    final primaryButtonStyle = ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.sm),
+      ),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -390,7 +410,8 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
                 ),
         ),
         const SizedBox(height: AppSpacing.md),
-        // Close button (black background, white text — matches app theme).
+        // Footer: the day grid's Close dismisses the calendar. In the Month/Year
+        // view, Close returns to the day grid and Select confirms the wheel.
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.md,
@@ -398,21 +419,48 @@ class _BadgeCalendarGridState extends State<_BadgeCalendarGrid> {
             AppSpacing.md,
             AppSpacing.md,
           ),
-          child: SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+          child: _mode == _PickerMode.monthYear
+              ? Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 52,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.onPrimary,
+                            side: BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(AppSpacing.sm),
+                            ),
+                          ),
+                          onPressed: _toggleMonthYear,
+                          child: Text(l.sharedActions_close),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          style: primaryButtonStyle,
+                          onPressed: _confirmMonthYear,
+                          child: Text(l.dailyCauseListScreen_select),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: primaryButtonStyle,
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l.sharedActions_close),
+                  ),
                 ),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l.sharedActions_close),
-            ),
-          ),
         ),
       ],
     );

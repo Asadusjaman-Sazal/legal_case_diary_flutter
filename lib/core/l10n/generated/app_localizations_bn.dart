@@ -195,6 +195,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dailyCauseListScreen_selectMonth => 'মাস নির্বাচন';
 
   @override
+  String get dailyCauseListScreen_select => 'নির্বাচন করুন';
+
+  @override
   String get dailyCauseListScreen_noPhone => 'এই মামলার কোনো ফোন নম্বর নেই।';
 
   @override
@@ -250,7 +253,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseDetailsScreen_editCase => 'মামলা সম্পাদনা';
 
   @override
-  String get caseDetailsScreen_close => 'বন্ধ';
+  String get caseDetailsScreen_close => 'বন্ধ করুন';
 
   @override
   String get caseDetailsScreen_onBehalfOf => 'পক্ষে';
@@ -1809,7 +1812,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sharedActions_update => 'আপডেট';
 
   @override
-  String get sharedActions_close => 'বন্ধ';
+  String get sharedActions_close => 'বন্ধ করুন';
 
   @override
   String get sharedActions_yes => 'হ্যাঁ';

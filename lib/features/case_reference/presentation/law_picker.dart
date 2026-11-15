@@ -23,6 +23,7 @@ import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/text_field_context_menu.dart';
 
 /// The live law list, watched by the picker's two hosts.
 ///
@@ -180,6 +181,7 @@ class _LawPickerDialogState extends State<_LawPickerDialog> {
                     child: TextField(
                       key: const ValueKey('law-picker-search'),
                       controller: _searchController,
+                      contextMenuBuilder: buildTextFieldContextMenu,
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
                         hintText: l.customDropdown_search,

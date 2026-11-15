@@ -24,6 +24,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/text_field_context_menu.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../payments/presentation/lapse_allowance_ui.dart';
 import '../../settings/data/premium_access.dart';
@@ -111,11 +112,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       final stored = storedItems ?? const <NoteItem>[];
       for (final item in stored) {
         _todoRows.add(
-          _TodoRow(
-            text: item.text,
-            done: item.done,
-            order: _nextItemOrder++,
-          ),
+          _TodoRow(text: item.text, done: item.done, order: _nextItemOrder++),
         );
       }
       // A brand-new to-do opens ready to type, like Keep's own empty list.
@@ -197,9 +194,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       // `body` mirrors the item texts for the title+body search; the checklist
       // itself is `items`. A text note keeps `items` null, which is what makes
       // it a text note.
-      body: Value(
-        _isTodo ? noteItemsAsBody(items) : body,
-      ),
+      body: Value(_isTodo ? noteItemsAsBody(items) : body),
       items: Value(_isTodo ? encodeNoteItems(items) : null),
     );
 
@@ -431,6 +426,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
                       children: [
                         TextField(
                           controller: _titleController,
+                          contextMenuBuilder: buildTextFieldContextMenu,
                           readOnly: !_editing,
                           showCursor: _editing,
                           decoration: InputDecoration(
@@ -512,6 +508,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   /// The mockup's Note field: a plain multi-line body with no input chrome.
   Widget _bodyField(BuildContext context, AppLocalizations l) => TextField(
     controller: _bodyController,
+    contextMenuBuilder: buildTextFieldContextMenu,
     readOnly: !_editing,
     showCursor: _editing,
     decoration: InputDecoration(
@@ -603,6 +600,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             key: ValueKey('todo-item-$index'),
             controller: row.controller,
             focusNode: row.focusNode,
+            contextMenuBuilder: buildTextFieldContextMenu,
             readOnly: !_editing,
             showCursor: _editing,
             decoration: InputDecoration(

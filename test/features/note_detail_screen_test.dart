@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
@@ -47,5 +48,40 @@ void main() {
       title.decoration?.hintStyle?.fontFamily,
       AppTypography.titleLg.fontFamily,
     );
+  });
+
+  testWidgets('the note fields offer Paste on a long press', (tester) async {
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.getData') {
+        return <String, dynamic>{'text': 'Pasted note'};
+      }
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(app(const NoteDetailScreen()));
+    await tester.pumpAndSettle();
+
+    final noteFields = fields(tester);
+    expect(noteFields, hasLength(2));
+    expect(
+      noteFields.where((field) => field.contextMenuBuilder == null),
+      isEmpty,
+    );
+
+    await tester.longPress(find.byType(TextField).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Paste'), findsOneWidget);
+    await tester.tap(find.text('Paste'));
+    await tester.pumpAndSettle();
+
+    expect(fields(tester)[0].controller!.text, 'Pasted note');
   });
 }

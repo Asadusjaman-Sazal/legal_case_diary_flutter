@@ -4,6 +4,7 @@ library;
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -648,6 +649,60 @@ void main() {
       expect(preference?.offsets, '[1]');
     },
   );
+
+  testWidgets('the Quick Update text fields offer Paste on a long press', (
+    WidgetTester tester,
+  ) async {
+    final id = await caseRepository.insertCase(
+      CasesCompanion(
+        caseNumber: const Value('PASTE-1'),
+        petitioner: const Value('Alice'),
+        respondent: const Value('Bob'),
+        courtId: Value(courtId),
+        caseType: const Value('Civil Suit'),
+        onBehalfId: Value(onBehalfId),
+        nextDate: Value(DateTime(2026, 8, 5).millisecondsSinceEpoch),
+      ),
+    );
+    final current = (await caseRepository.getById(id))!;
+
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.getData') {
+        return <String, dynamic>{'text': 'Pasted update note'};
+      }
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await tester.pumpWidget(
+      appScope(QuickUpdateCaseDialog(currentCase: current)),
+    );
+    await tester.pumpAndSettle();
+
+    final updateFields = tester.widgetList<TextField>(find.byType(TextField));
+    expect(updateFields, isNotEmpty);
+    expect(
+      updateFields.where((field) => field.contextMenuBuilder == null),
+      isEmpty,
+    );
+
+    final noteField = find.byKey(const ValueKey('quick-update-note'));
+    await tester.ensureVisible(noteField);
+    await tester.pumpAndSettle();
+    await tester.longPress(noteField);
+    await tester.pumpAndSettle();
+    expect(find.text('Paste'), findsOneWidget);
+    await tester.tap(find.text('Paste'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<TextField>(noteField).controller!.text,
+      'Pasted update note',
+    );
+  });
 
   testWidgets('the Quick Update day offsets carry Bengali digits', (
     WidgetTester tester,

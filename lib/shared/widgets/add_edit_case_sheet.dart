@@ -48,6 +48,7 @@ import '../../features/settings/data/local/steps_dao.dart';
 import '../../shared/providers/database_provider.dart';
 import 'custom_dropdown.dart';
 import 'date_picker_helper.dart';
+import 'text_field_context_menu.dart';
 
 String _seedLabel(BuildContext context, String id, String fallbackEn) =>
     context.l10n.seedLabel(id, fallbackEn: fallbackEn);
@@ -1278,53 +1279,16 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
-  /// Builds the form menu from Flutter's standard items and replaces only
-  /// Paste, so every text box keeps the normal actions and always gets Paste.
-  Widget _textFieldContextMenu(
-    BuildContext context,
-    EditableTextState editableTextState, {
-    bool normalizePhone = false,
-  }) {
-    final items = List<ContextMenuButtonItem>.of(
-      editableTextState.contextMenuButtonItems,
-    );
-    final pasteIndex = items.indexWhere(
-      (item) => item.type == ContextMenuButtonType.paste,
-    );
-    final paste = ContextMenuButtonItem(
-      onPressed: normalizePhone
-          ? () => _pastePartyPhone(editableTextState)
-          : () => editableTextState.pasteText(SelectionChangedCause.toolbar),
-      type: ContextMenuButtonType.paste,
-    );
-    if (pasteIndex >= 0) {
-      items[pasteIndex] = items[pasteIndex].copyWith(
-        onPressed: paste.onPressed,
-      );
-    } else if (!editableTextState.widget.readOnly) {
-      final shareIndex = items.indexWhere(
-        (item) => item.type == ContextMenuButtonType.share,
-      );
-      final selectAllIndex = items.indexWhere(
-        (item) => item.type == ContextMenuButtonType.selectAll,
-      );
-      final insertAt = shareIndex >= 0
-          ? shareIndex
-          : (selectAllIndex >= 0 ? selectAllIndex : items.length);
-      items.insert(insertAt, paste);
-    }
-    return AdaptiveTextSelectionToolbar.buttonItems(
-      anchors: editableTextState.contextMenuAnchors,
-      buttonItems: items,
-    );
-  }
-
   /// Keeps the standard selection menu but routes Paste through the phone
   /// normalizer, so a copied +88/88/0088 number lands as national digits.
   Widget _partyPhoneContextMenu(
     BuildContext context,
     EditableTextState editableTextState,
-  ) => _textFieldContextMenu(context, editableTextState, normalizePhone: true);
+  ) => buildTextFieldContextMenu(
+    context,
+    editableTextState,
+    onPaste: _pastePartyPhone,
+  );
 
   /// Pastes a clipboard number into the field after removing formatting and
   /// a country-code prefix.
@@ -1389,7 +1353,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       contextMenuBuilder:
           contextMenuBuilder ??
           (context, editableTextState) =>
-              _textFieldContextMenu(context, editableTextState),
+              buildTextFieldContextMenu(context, editableTextState),
       maxLines: maxLines,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
@@ -2279,6 +2243,7 @@ class _QuickUpdateCaseDialogState extends ConsumerState<QuickUpdateCaseDialog> {
           controller: controller,
           enabled: enabled,
           maxLines: maxLines,
+          contextMenuBuilder: buildTextFieldContextMenu,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             fillColor: isEmpty ? AppColors.surface : AppColors.surfaceVariant,

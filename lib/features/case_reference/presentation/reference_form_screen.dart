@@ -20,6 +20,7 @@ import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../database/app_database.dart';
+import '../../../shared/widgets/text_field_context_menu.dart';
 import '../../settings/presentation/edit_court_steps/next_order_index.dart';
 import 'law_name_dialog.dart';
 import 'law_picker.dart';
@@ -374,6 +375,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
         _fieldLabel(label),
         TextField(
           controller: controller,
+          contextMenuBuilder: buildTextFieldContextMenu,
           maxLines: maxLines,
           style: AppTypography.bodyLg,
           decoration: InputDecoration(
@@ -502,6 +504,7 @@ class _ReferenceFormScreenState extends ConsumerState<ReferenceFormScreen> {
             builder: (context, controller, _) => TextField(
               key: const ValueKey('reference-form-tags'),
               controller: _tags,
+              contextMenuBuilder: buildTextFieldContextMenu,
               style: AppTypography.bodyLg,
               decoration: InputDecoration(
                 filled: true,

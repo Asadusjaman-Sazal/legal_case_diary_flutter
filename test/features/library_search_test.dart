@@ -10,6 +10,7 @@ library;
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -647,6 +648,53 @@ void main() {
     // With no law chosen it is reachable under No statute, as before.
     expect(find.text('No statute'), findsOneWidget);
 
+    await unmount(tester);
+  });
+
+  testWidgets('the Case Reference form offers Paste in every text field', (
+    tester,
+  ) async {
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.getData') {
+        return <String, dynamic>{'text': 'Pasted citation'};
+      }
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await pumpLibrary(tester, const CaseReferenceScreen());
+    await tester.tap(find.byType(FloatingActionButton));
+    await settle(tester);
+
+    final formFields = tester.widgetList<TextField>(find.byType(TextField));
+    expect(formFields, isNotEmpty);
+    expect(
+      formFields.where((field) => field.contextMenuBuilder == null),
+      isEmpty,
+    );
+
+    final citation = find.byKey(
+      const ValueKey('reference-form-citation'),
+    );
+    final citationField = find.descendant(
+      of: citation,
+      matching: find.byType(TextField),
+    );
+    await tester.ensureVisible(citationField);
+    await settle(tester);
+    await tester.longPress(citationField);
+    await settle(tester);
+    expect(find.text('Paste'), findsOneWidget);
+    await tester.tap(find.text('Paste'));
+    await settle(tester);
+
+    expect(
+      tester.widget<TextField>(citationField).controller!.text,
+      'Pasted citation',
+    );
     await unmount(tester);
   });
 

@@ -28,6 +28,7 @@ import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_flow.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_navigation_drawer.dart';
+import '../../../shared/widgets/text_field_context_menu.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
 import '../../../shared/widgets/sync_button.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
@@ -422,6 +423,7 @@ class ScopedSearchBar extends StatelessWidget {
       ),
       child: TextField(
         controller: field,
+        contextMenuBuilder: buildTextFieldContextMenu,
         autofocus: true,
         onChanged: onChanged,
         // A touch anywhere outside the field drops focus, which hides the

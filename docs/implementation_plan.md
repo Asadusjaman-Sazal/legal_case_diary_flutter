@@ -1383,6 +1383,8 @@ Alerts and display parameters are configured via `Settings > View Settings` and 
 
 ### 12. App-Wide Systems & Configuration
 
+- **The shared Paste menu reaches Update, Notes and Case Reference (0.0.821, user request):** every text box in those screens now uses `lib/shared/widgets/text_field_context_menu.dart`, which keeps Flutter's standard menu items and replaces only Paste. The helper inserts Paste even before Flutter's clipboard check reports a pasteable clipboard, so it no longer goes missing on the first long press. The Add/Edit Case phone field keeps its numeric normalizer; every other field uses the standard paste action. The same helper is used by the Add/Edit Case form, Quick Update, the Note editor, the Case Reference form, the law picker and law-name dialog, and the shared Notes/Case Reference search bar. Proven by *the note fields offer Paste on a long press* (2 note tests), *the Quick Update text fields offer Paste on a long press*, *the Case Reference form offers Paste in every text field* (the full Case Reference suite passes 18), and the existing Add/Edit form suite (19); `flutter analyze` is clean. No mockup change: the screens look the same.
+
 ### 12.1. Unified Search Strategy (Global & Contextual)
 - **Case, Notes & References Search:** Every case listing (Active, Upcoming, Disposed, Overdue), Notes listing, and Case Reference page includes a prominent search bar.
   - Search runs Drift database queries using case-insensitive `LIKE` patterns or Full-Text Search (FTS) indices.

@@ -21,6 +21,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/pre_seeded_data.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/app_dialog_actions.dart';
+import '../../../shared/widgets/text_field_context_menu.dart';
 
 /// What the window collected: the typed name and the chosen category.
 class LawNameDraft {
@@ -46,6 +47,7 @@ String _dropdownCategoryId(String? categoryId) {
       ? id
       : seedLawCategories.first.id;
 }
+
 Future<LawNameDraft?> showLawNameDialog(
   BuildContext context, {
   bool editing = false,
@@ -144,6 +146,7 @@ class _LawNameFormState extends State<_LawNameForm> {
           TextFormField(
             key: const ValueKey('law-name-field'),
             controller: _nameController,
+            contextMenuBuilder: buildTextFieldContextMenu,
             autofocus: true,
             style: AppTypography.bodyLg,
             decoration: InputDecoration(

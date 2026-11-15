@@ -34,6 +34,54 @@ Future<void> pullCaseListToSync(
 /// [Case] rows, filled by `CaseRepository.searchScoped`.
 typedef ScopedCaseSearch = ScopedSearch<Case>;
 
+/// The one search state shared by every case-list screen.
+///
+/// A case list is rebuilt when the user switches tabs, so its own `State` cannot
+/// carry an open bar or its query to the next list. This provider is app-scoped:
+/// opening the bar and typing once keeps the query for every case list, while
+/// each screen still runs that query against its own scoped dataset.
+class CaseListSearchState {
+  /// Whether the shared search bar is open.
+  final bool isOpen;
+
+  /// The text in the shared search bar.
+  final String query;
+
+  /// Creates a search state; closed and empty by default.
+  const CaseListSearchState({this.isOpen = false, this.query = ''});
+}
+
+/// Owns the shared case-list search state.
+class CaseListSearchNotifier extends Notifier<CaseListSearchState> {
+  @override
+  CaseListSearchState build() => const CaseListSearchState();
+
+  /// Opens the bar without discarding a query already in it.
+  void open() {
+    if (state.isOpen) return;
+    state = CaseListSearchState(isOpen: true, query: state.query);
+  }
+
+  /// Closes the bar and clears the query, restoring every list's full dataset.
+  void close() {
+    if (!state.isOpen && state.query.isEmpty) return;
+    state = const CaseListSearchState();
+  }
+
+  /// Records a typed query. Ignored while the bar is closed.
+  void setQuery(String query) {
+    if (!state.isOpen || state.query == query) return;
+    state = CaseListSearchState(isOpen: true, query: query);
+  }
+}
+
+/// The app-scoped case-list search state, deliberately not auto-disposed: it
+/// must outlive the screen the user is leaving.
+final caseListSearchProvider =
+    NotifierProvider<CaseListSearchNotifier, CaseListSearchState>(
+      CaseListSearchNotifier.new,
+    );
+
 /// Centred empty state for a case list.
 ///
 /// A scoped search that hides every row says so instead of looking like an

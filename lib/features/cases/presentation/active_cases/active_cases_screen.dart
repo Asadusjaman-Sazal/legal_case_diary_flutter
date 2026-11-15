@@ -58,9 +58,8 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   Object? _error;
   bool _loading = true;
 
-  // Scoped search state (plan §12.1): the query filters this screen's own
-  // non-disposed dataset only.
-  bool _isSearching = false;
+  // The open search and its query are shared across case lists, so a switch
+  // keeps them; the query still filters this screen's non-disposed rows only.
   final TextEditingController _searchController = TextEditingController();
 
   /// The screen's live scoped search (plan §12.1), restricted to the
@@ -70,7 +69,18 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
   @override
   void initState() {
     super.initState();
+    _restoreSharedSearch();
     _loadCases();
+  }
+
+  /// Shows the query left by another case list and applies it to this screen's
+  /// own dataset when the user arrives with the shared search still open.
+  void _restoreSharedSearch() {
+    final shared = ref.read(caseListSearchProvider);
+    _searchController.text = shared.query;
+    if (shared.isOpen && shared.query.trim().isNotEmpty) {
+      unawaited(_applySharedSearch(shared));
+    }
   }
 
   @override
@@ -79,16 +89,21 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     super.dispose();
   }
 
-  /// Opens/closes the scoped search bar; closing clears the query so the list
-  /// comes back whole.
+  /// Opens/closes the shared search bar. Closing clears the query for every case
+  /// list, so each one comes back whole.
   void _toggleSearch() {
-    setState(() {
-      _isSearching = !_isSearching;
-      if (!_isSearching) {
-        _searchController.clear();
-        unawaited(_search.run(''));
-      }
-    });
+    final notifier = ref.read(caseListSearchProvider.notifier);
+    if (ref.read(caseListSearchProvider).isOpen) {
+      notifier.close();
+    } else {
+      notifier.open();
+    }
+  }
+
+  /// Applies the shared search state to this screen's own dataset.
+  Future<void> _applySharedSearch(CaseListSearchState search) async {
+    await _search.run(search.isOpen ? search.query : '');
+    if (mounted) setState(() {});
   }
 
   /// Runs one query through the Drift LIKE path, scoped to the active dataset.
@@ -100,10 +115,10 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     );
   }
 
-  /// Types into the bar: the query goes to SQL, then the list rebuilds.
-  Future<void> _onSearchChanged(String query) async {
-    await _search.run(query);
-    if (mounted) setState(() {});
+  /// Types into the bar: the shared state changes, and every mounted case list
+  /// applies the same query to its own dataset.
+  void _onSearchChanged(String query) {
+    ref.read(caseListSearchProvider.notifier).setQuery(query);
   }
 
   /// The rows the list shows: the query's own result while one is in force,
@@ -131,7 +146,9 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
       });
       // A reload can change the dataset under an open search, so the query is
       // re-run rather than answered from stale rows.
-      if (_search.isActive) await _onSearchChanged(_searchController.text);
+      if (_search.isActive) {
+        await _applySharedSearch(ref.read(caseListSearchProvider));
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -203,13 +220,26 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     // The compact ↔ extended choice is stored per screen, so this list can be
     // a table while another case list stays a card list.
     final extended = watchCaseListExtendedView(ref, CaseListScreenId.active);
+    final search = ref.watch(caseListSearchProvider);
+    ref.listen<CaseListSearchState>(caseListSearchProvider, (previous, next) {
+      if (previous?.isOpen == next.isOpen && previous?.query == next.query) {
+        return;
+      }
+      if (_searchController.text != next.query) {
+        _searchController.value = TextEditingValue(
+          text: next.query,
+          selection: TextSelection.collapsed(offset: next.query.length),
+        );
+      }
+      unawaited(_applySharedSearch(next));
+    });
     return CasesScreenModal(
       title: l.activeCasesScreen_title,
       onSync: () => pullCaseListToSync(ref, _loadCases),
       documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,
-      isSearching: _isSearching,
+      isSearching: search.isOpen,
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
@@ -218,7 +248,12 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
         compact: compact,
       ),
       isCompactView: !extended,
-      body: _buildBody(context, l, extended: extended),
+      body: _buildBody(
+        context,
+        l,
+        extended: extended,
+        isSearching: search.isOpen,
+      ),
     );
   }
 
@@ -226,6 +261,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     BuildContext context,
     AppLocalizations l, {
     required bool extended,
+    required bool isSearching,
   }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
@@ -246,7 +282,7 @@ class _ActiveCasesScreenState extends ConsumerState<ActiveCasesScreen> {
     if (visible.isEmpty) {
       return CaseListEmptyState(
         placeholder: l.activeCasesScreen_empty,
-        isSearching: _isSearching,
+        isSearching: isSearching,
         hasAnyCase: _cases.isNotEmpty,
         onRefresh: () => pullCaseListToSync(ref, _loadCases),
       );

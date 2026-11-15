@@ -74,9 +74,8 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   /// navigation until the app is closed or the user picks another date.
   late int _selectedDate;
 
-  // Scoped search state (plan §12.1): the query filters the selected date's
-  // hearings only.
-  bool _isSearching = false;
+  // The open search and its query are shared across case lists, so a switch
+  // keeps them; the query still filters the selected date's hearings only.
   final TextEditingController _searchController = TextEditingController();
 
   /// The screen's live scoped search (plan §12.1), restricted to the selected
@@ -87,7 +86,18 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
   void initState() {
     super.initState();
     _selectedDate = ref.read(dailyCauseListSelectedDateProvider);
+    _restoreSharedSearch();
     _loadCases();
+  }
+
+  /// Shows the query left by another case list and applies it to the selected
+  /// day's hearings when the user arrives with the shared search still open.
+  void _restoreSharedSearch() {
+    final shared = ref.read(caseListSearchProvider);
+    _searchController.text = shared.query;
+    if (shared.isOpen && shared.query.trim().isNotEmpty) {
+      unawaited(_applySharedSearch(shared));
+    }
   }
 
   @override
@@ -96,16 +106,21 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     super.dispose();
   }
 
-  /// Opens/closes the scoped search bar; closing clears the query so the day's
-  /// hearings come back whole.
+  /// Opens/closes the shared search bar. Closing clears the query for every case
+  /// list, so each one comes back whole.
   void _toggleSearch() {
-    setState(() {
-      _isSearching = !_isSearching;
-      if (!_isSearching) {
-        _searchController.clear();
-        unawaited(_search.run(''));
-      }
-    });
+    final notifier = ref.read(caseListSearchProvider.notifier);
+    if (ref.read(caseListSearchProvider).isOpen) {
+      notifier.close();
+    } else {
+      notifier.open();
+    }
+  }
+
+  /// Applies the shared search state to this screen's own dataset.
+  Future<void> _applySharedSearch(CaseListSearchState search) async {
+    await _search.run(search.isOpen ? search.query : '');
+    if (mounted) setState(() {});
   }
 
   /// Runs one query through the Drift LIKE path, scoped to the selected day.
@@ -121,10 +136,10 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     );
   }
 
-  /// Types into the bar: the query goes to SQL, then the list rebuilds.
-  Future<void> _onSearchChanged(String query) async {
-    await _search.run(query);
-    if (mounted) setState(() {});
+  /// Types into the bar: the shared state changes, and every mounted case list
+  /// applies the same query to its own dataset.
+  void _onSearchChanged(String query) {
+    ref.read(caseListSearchProvider.notifier).setQuery(query);
   }
 
   /// The rows the list shows: the query's own result while one is in force,
@@ -156,7 +171,9 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       });
       // A day change or a reload moves the dataset under an open search, so the
       // query is re-run rather than answered from the previous day's rows.
-      if (_search.isActive) await _onSearchChanged(_searchController.text);
+      if (_search.isActive) {
+        await _applySharedSearch(ref.read(caseListSearchProvider));
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -293,13 +310,26 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
       ref,
       CaseListScreenId.dailyCauseList,
     );
+    final search = ref.watch(caseListSearchProvider);
+    ref.listen<CaseListSearchState>(caseListSearchProvider, (previous, next) {
+      if (previous?.isOpen == next.isOpen && previous?.query == next.query) {
+        return;
+      }
+      if (_searchController.text != next.query) {
+        _searchController.value = TextEditingValue(
+          text: next.query,
+          selection: TextSelection.collapsed(offset: next.query.length),
+        );
+      }
+      unawaited(_applySharedSearch(next));
+    });
     return CasesScreenModal(
       title: l.dailyCauseListScreen_title,
       onSync: () => pullCaseListToSync(ref, _loadCases),
       documentBuilder: () => _printDocument(context),
       onAddCase: _openAddCase,
       onSearch: _toggleSearch,
-      isSearching: _isSearching,
+      isSearching: search.isOpen,
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(
@@ -320,7 +350,14 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
             ),
             onOpenCalendar: _openCalendarPicker,
           ),
-          Expanded(child: _buildBody(context, l, extended: extended)),
+          Expanded(
+            child: _buildBody(
+              context,
+              l,
+              extended: extended,
+              isSearching: search.isOpen,
+            ),
+          ),
         ],
       ),
     );
@@ -330,6 +367,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     BuildContext context,
     AppLocalizations l, {
     required bool extended,
+    required bool isSearching,
   }) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
@@ -346,7 +384,7 @@ class _DailyCauseListScreenState extends ConsumerState<DailyCauseListScreen> {
     if (groups.isEmpty) {
       return CaseListEmptyState(
         placeholder: l.dailyCauseListScreen_noHearings,
-        isSearching: _isSearching,
+        isSearching: isSearching,
         hasAnyCase: _cases.isNotEmpty,
         onRefresh: () => pullCaseListToSync(ref, _loadCases),
       );

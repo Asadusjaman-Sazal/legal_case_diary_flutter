@@ -80,6 +80,16 @@
 
 The user reported the header search button on the case screens did nothing, so item 1 was pulled forward for all six case screens (item 1's five plus the Daily Cause List). It meets item 1's dataset rule and field set, but it does **not** use the Drift `LIKE` path item 1 specifies: the shared `matchesCaseQuery` matcher in `lib/features/cases/presentation/case_search.dart` filters the rows each screen already loaded, which is the same field set as `CasesDao.search`. `CasesDao.search` / `CaseRepository.search` therefore remain unused — swapping the matcher for the DAO query is the only work item 1 still owes here. Items 2-6 (Notes/Reference/Settings wiring, pagination, DAO field-set tests) are untouched.
 
+### Case-list search follows the user across lists (0.0.818, user request)
+
+Opening the header search on one case list and typing a query now leaves the bar open with that
+query when the user switches to another case list (All, Active, Upcoming, Overdue, Disposed or
+Daily Cause List). The destination runs the same query against its own scoped dataset, so one input
+searches whichever list is on screen; closing the bar clears it everywhere. The app-scoped
+`caseListSearchProvider` in `case_search.dart` holds only the open state and text; each screen keeps
+its own `ScopedCaseSearch` and controller. Proven by *an open search and its query follow the user
+between case screens*; the case-list search suite passes 12 tests and `flutter analyze` is clean.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Replace `represented party phone (`petitioner_phone` or `respondent_phone`)` with explicit petitioner_phone/respondent_phone and select the represented party through on_behalf_id.

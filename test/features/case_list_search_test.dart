@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
+import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/core/services/local_identity_service.dart';
 import 'package:legal_case_diary/core/utils/date_utils.dart';
 import 'package:legal_case_diary/core/utils/on_behalf_side.dart';
@@ -197,10 +198,11 @@ void main() {
     };
   }
 
-  Future<void> pumpScreen(
+  Future<GoRouter> pumpScreen(
     WidgetTester tester,
     Widget Function() screen, {
     Locale locale = const Locale('en'),
+    List<GoRoute> extraRoutes = const [],
   }) async {
     // A tall viewport, so the lazily-built lists render every seeded card: a
     // "must be hidden" assertion would otherwise pass merely because the card
@@ -210,7 +212,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     final router = GoRouter(
-      routes: [GoRoute(path: '/', builder: (context, state) => screen())],
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => screen()),
+        ...extraRoutes,
+      ],
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
@@ -241,6 +246,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    return router;
   }
 
   /// Unmounts before the test ends so no screen timer outlives the body.
@@ -641,6 +647,43 @@ void main() {
 
     await unmount(tester);
   });
+
+  testWidgets(
+    'an open search and its query follow the user between case screens',
+    (tester) async {
+      final ids = await seedDatasets();
+      final router = await pumpScreen(
+        tester,
+        AllCasesScreen.new,
+        extraRoutes: [
+          GoRoute(
+            path: AppRoutes.activeCases,
+            builder: (context, state) => const ActiveCasesScreen(),
+          ),
+        ],
+      );
+
+      final l = stringsOf(tester, find.byType(AllCasesScreen));
+      await tester.tap(find.byTooltip(l.casesModal_search));
+      await tester.pumpAndSettle();
+      await search(tester, 'rahim');
+
+      // Switch to another case list: the bar and the query must arrive with it.
+      router.go(AppRoutes.activeCases);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ActiveCasesScreen), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller?.text,
+        'rahim',
+      );
+      expect(find.byKey(ValueKey('case-card-${ids['Rahim']}')), findsOneWidget);
+      expect(find.byKey(ValueKey('case-card-${ids['Karim']}')), findsNothing);
+
+      await unmount(tester);
+    },
+  );
 
   testWidgets('an empty case list can still be pulled down to sync', (
     tester,

@@ -85,7 +85,8 @@ enum SyncState {
 /// [onSearch] — called when the user taps the search icon, and by the search
 ///   bar's close (x); the host screen toggles its own search state with it.
 /// [isSearching] — when true the shell renders the scoped search bar under the
-///   header; the host screen owns the state so it can filter its own dataset.
+///   header. The case-list hosts share one open/query state so a search survives
+///   switching lists, and each host still filters its own dataset.
 /// [searchController] — query text of the open search bar.
 /// [onSearchChanged] — called on every keystroke so the host can rebuild.
 /// [onViewToggle] — called with `true` for compact, `false` for extended; when

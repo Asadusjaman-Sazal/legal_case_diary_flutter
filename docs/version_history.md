@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.817 - Month/Year Close button text is now white on its black fill; only the text colour changed.
+Version: 0.0.818 - Case-list search now stays open with its query when switching case screens, filtering each screen's own data.
 --------------------------------------
 
 ## Version History Log:
@@ -831,3 +831,4 @@ Version: 0.0.814 - Disposed Cases card: the Disposed label and date now stay at 
 Version: 0.0.815 - Built-in law names now switch between English and Bengali in the picker, Law Names, both reference libraries and citation views.
 Version: 0.0.816 - Calendar Month/Year view now has Close and Select buttons, and Bengali Close button labels were updated to the full wording.
 Version: 0.0.817 - Month/Year Close button text is now white on its black fill; only the text colour changed.
+Version: 0.0.818 - Case-list search now stays open with its query when switching case screens, filtering each screen's own data.

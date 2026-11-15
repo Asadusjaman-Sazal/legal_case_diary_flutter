@@ -1,5 +1,17 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-09 — Case-list search now follows the user across case screens — COMPLETE (0.0.818)
+
+- **What was asked.** Keep the search button open with its keywords while the user moves between
+  case screens, so one input can search every case screen.
+- **What changed.** The open state and query are now shared by All Cases, Active, Upcoming, Overdue,
+  Disposed and Daily Cause List. Type once, switch lists, and the bar is still open with the same
+  text; each list applies that query to its own dataset. Closing the bar clears the query everywhere.
+- **Proof.** A new widget test searches All Cases, switches to Active Cases, and checks the bar, text
+  and filtered rows survive. The case-list search suite passes 12 tests and `flutter analyze` is
+  clean.
+- **Not checked.** No phone run; the visual continuity is covered by the widget test, not a device.
+
 ### 2026-11-09 — The Month/Year Close text is white — COMPLETE (0.0.817)
 
 - **What was asked.** The Close button in the calendar's Month/Year view should have white text.

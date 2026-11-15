@@ -312,10 +312,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String caseDetailsScreen_daysRemaining(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'আর $count দিন বাকি',
+      other: 'আর $countString দিন বাকি',
       one: 'আর ১ দিন বাকি',
       zero: 'আর ০ দিন বাকি',
     );

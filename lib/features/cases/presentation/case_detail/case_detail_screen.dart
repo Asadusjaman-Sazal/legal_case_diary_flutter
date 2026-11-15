@@ -455,7 +455,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   ).format(AppDateUtils.bangladeshDateTime(epochMs)).toUpperCase();
 
   String _formatHighlightDate(AppLocalizations l, int epochMs) => DateFormat(
-    'd MMM y, EEEE',
+    'd MMMM y, EEEE',
     l.localeName,
   ).format(AppDateUtils.bangladeshDateTime(epochMs));
 
@@ -1411,7 +1411,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
           Text(
             _formatHighlightDate(l, nextDate),
             key: const ValueKey('case-detail-next-date-value'),
-            style: AppTypography.headlineLg.copyWith(
+            // One type step above the step line below it (`titleMd`), and a
+            // full month name so the date reads "15 November 2026".
+            style: AppTypography.titleLg.copyWith(
               color: white,
               fontWeight: FontWeight.w800,
             ),

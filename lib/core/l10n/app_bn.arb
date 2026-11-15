@@ -131,7 +131,8 @@
       "description": "পরবর্তী তারিখের হাইলাইট কার্ডে দেখানো কাউন্টডাউন।",
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.822 - Case-list search now keeps the keyboard closed when the user dismissed it before switching case screens.
+Version: 0.0.823 - Case Detail's Next Date card now writes remaining days in Bengali digits and shows the full month at one type step above the step line.
 --------------------------------------
 
 ## Version History Log:
@@ -836,3 +836,4 @@ Version: 0.0.819 - The Party Phone No. field now shows the normal Paste menu and
 Version: 0.0.820 - Every Add/Edit Case text box now offers Paste in its long-press menu; the phone field still normalizes +88/88/0088 numbers.
 Version: 0.0.821 - Update, Note and Case Reference text boxes now use the shared long-press Paste menu, including their search bars.
 Version: 0.0.822 - Case-list search now keeps the keyboard closed when the user dismissed it before switching case screens.
+Version: 0.0.823 - Case Detail's Next Date card now writes remaining days in Bengali digits and shows the full month at one type step above the step line.

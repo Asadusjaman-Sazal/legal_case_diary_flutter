@@ -9,6 +9,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -401,6 +402,38 @@ void main() {
       final note = tester.getRect(find.text('(Ok)'));
       expect(note.top, closeTo(step.top, 0.5));
       expect(note.left, greaterThan(step.right));
+    });
+
+    testWidgets(
+      'the Next Date value is one type step above the step and spells the month out',
+      (WidgetTester tester) async {
+        final nextMs = AppDateUtils.bangladeshTodayStartOfDay() + 5 * 86400000;
+        final caseId = await seedCase(lastStep: 'Filing', nextDateMs: nextMs);
+        await pumpDetail(tester, caseId);
+
+        final value = tester.widget<Text>(
+          find.byKey(const ValueKey('case-detail-next-date-value')),
+        );
+        final step = tester.widget<Text>(find.text('Filing'));
+        expect(value.style?.fontSize, 20);
+        expect(step.style?.fontSize, 16);
+
+        final date = AppDateUtils.bangladeshDateTime(nextMs);
+        expect(value.data, DateFormat('d MMMM y, EEEE', 'en').format(date));
+        expect(value.data, contains(DateFormat('MMMM', 'en').format(date)));
+      },
+    );
+
+    testWidgets('the remaining-days count uses Bengali numerals', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() + 5 * 86400000,
+      );
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      expect(find.text('আর ৫ দিন বাকি'), findsOneWidget);
+      expect(find.text('আর 5 দিন বাকি'), findsNothing);
     });
 
     testWidgets('a long history note drops under the step', (

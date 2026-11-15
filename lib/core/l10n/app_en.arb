@@ -152,7 +152,8 @@
       "description": "Countdown shown on the Next Date highlight card.",
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

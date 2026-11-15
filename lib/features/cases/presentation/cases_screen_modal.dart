@@ -88,8 +88,13 @@ enum SyncState {
 /// [isSearching] — when true the shell renders the scoped search bar under the
 ///   header. The case-list hosts share one open/query state so a search survives
 ///   switching lists, and each host still filters its own dataset.
+/// [searchAutofocus] — whether the open bar asks for the keyboard when it mounts.
+///   Case lists pass the shared keyboard state, so a keyboard the user put away
+///   stays away when they switch lists.
 /// [searchController] — query text of the open search bar.
 /// [onSearchChanged] — called on every keystroke so the host can rebuild.
+/// [onSearchKeyboardVisibilityChanged] — reports the field's keyboard state so
+///   the host can remember it for the next case list.
 /// [onViewToggle] — called with `true` for compact, `false` for extended; when
 ///   null the header shows no view toggle at all (libraries without a case
 ///   list). The host owns the stored mode through `case_list_view_mode.dart`.
@@ -113,8 +118,10 @@ class CasesScreenModal extends ConsumerWidget {
   final VoidCallback? onSync;
   final VoidCallback? onSearch;
   final bool isSearching;
+  final bool searchAutofocus;
   final TextEditingController? searchController;
   final ValueChanged<String>? onSearchChanged;
+  final ValueChanged<bool>? onSearchKeyboardVisibilityChanged;
   final void Function(bool compact)? onViewToggle;
   final bool isCompactView;
   final bool showFab;
@@ -150,8 +157,10 @@ class CasesScreenModal extends ConsumerWidget {
     this.onSync,
     this.onSearch,
     this.isSearching = false,
+    this.searchAutofocus = true,
     this.searchController,
     this.onSearchChanged,
+    this.onSearchKeyboardVisibilityChanged,
     this.onViewToggle,
     this.isCompactView = true,
     this.showFab = true,
@@ -277,6 +286,9 @@ class CasesScreenModal extends ConsumerWidget {
                   controller: searchController,
                   onChanged: onSearchChanged,
                   onClose: onSearch,
+                  autofocus: searchAutofocus,
+                  onKeyboardVisibilityChanged:
+                      onSearchKeyboardVisibilityChanged,
                 ),
               // Phase 10: silent unless a lapsed account is over its allowance.
               LapseAllowanceBanner(kind: lapseKind),
@@ -398,22 +410,80 @@ class CasesScreenModal extends ConsumerWidget {
 ///
 /// The host screen owns the query: this only renders the field and reports
 /// changes, so the search stays scoped to that screen's own dataset.
-class ScopedSearchBar extends StatelessWidget {
+class ScopedSearchBar extends StatefulWidget {
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClose;
+
+  /// Whether the field asks for the keyboard when this bar is built.
+  final bool autofocus;
+
+  /// Reports the on-screen keyboard's state. A closed keyboard must stay closed
+  /// when the next case list rebuilds this shared bar.
+  final ValueChanged<bool>? onKeyboardVisibilityChanged;
 
   const ScopedSearchBar({
     required this.controller,
     this.onChanged,
     this.onClose,
+    this.autofocus = true,
+    this.onKeyboardVisibilityChanged,
     super.key,
   });
 
   @override
+  State<ScopedSearchBar> createState() => _ScopedSearchBarState();
+}
+
+class _ScopedSearchBarState extends State<ScopedSearchBar>
+    with WidgetsBindingObserver {
+  late final FocusNode _focusNode;
+  late bool _keyboardVisible;
+
+  @override
+  void initState() {
+    super.initState();
+    _keyboardVisible = widget.autofocus;
+    _focusNode = FocusNode()..addListener(_onFocusChanged);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Losing focus (a touch outside, or a programmatic unfocus) puts the
+  /// keyboard away, so the next list must not bring it back.
+  void _onFocusChanged() {
+    if (!_focusNode.hasFocus) _reportKeyboard(false);
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (!mounted) return;
+    // Metrics arrive before the next layout, so read the settled inset after
+    // the frame instead of a value that is still changing.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _reportKeyboard(View.of(context).viewInsets.bottom > 0);
+    });
+  }
+
+  void _reportKeyboard(bool visible) {
+    if (_keyboardVisible == visible) return;
+    _keyboardVisible = visible;
+    widget.onKeyboardVisibilityChanged?.call(visible);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _focusNode
+      ..removeListener(_onFocusChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final field = controller;
+    final field = widget.controller;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -424,8 +494,9 @@ class ScopedSearchBar extends StatelessWidget {
       child: TextField(
         controller: field,
         contextMenuBuilder: buildTextFieldContextMenu,
-        autofocus: true,
-        onChanged: onChanged,
+        focusNode: _focusNode,
+        autofocus: widget.autofocus,
+        onChanged: widget.onChanged,
         // A touch anywhere outside the field drops focus, which hides the
         // on-screen keyboard while the search stays open.
         onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
@@ -441,8 +512,8 @@ class ScopedSearchBar extends StatelessWidget {
             tooltip: l.sharedActions_close,
             onPressed: () {
               field?.clear();
-              onChanged?.call('');
-              onClose?.call();
+              widget.onChanged?.call('');
+              widget.onClose?.call();
             },
           ),
         ),

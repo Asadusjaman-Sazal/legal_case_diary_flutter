@@ -685,6 +685,45 @@ void main() {
     },
   );
 
+  testWidgets('a keyboard dismissed before switching lists stays dismissed', (
+    tester,
+  ) async {
+    await seedDatasets();
+    final router = await pumpScreen(
+      tester,
+      AllCasesScreen.new,
+      extraRoutes: [
+        GoRoute(
+          path: AppRoutes.activeCases,
+          builder: (context, state) => const ActiveCasesScreen(),
+        ),
+      ],
+    );
+
+    final l = stringsOf(tester, find.byType(AllCasesScreen));
+    await tester.tap(find.byTooltip(l.casesModal_search));
+    await tester.pumpAndSettle();
+
+    final firstField = tester.widget<EditableText>(find.byType(EditableText));
+    expect(firstField.focusNode.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+
+    // The system Back gesture puts the keyboard away. The search stays open,
+    // and the next list must not ask for the keyboard again.
+    firstField.focusNode.unfocus();
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    router.go(AppRoutes.activeCases);
+    await tester.pumpAndSettle();
+
+    final secondField = tester.widget<EditableText>(find.byType(EditableText));
+    expect(secondField.focusNode.hasFocus, isFalse);
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    await unmount(tester);
+  });
+
   testWidgets('an empty case list can still be pulled down to sync', (
     tester,
   ) async {

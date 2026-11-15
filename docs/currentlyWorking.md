@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-15 — A dismissed search keyboard stays dismissed — COMPLETE (0.0.822)
+
+- **What was asked.** When the case-list search bar is open and the user has closed the keyboard with Back, switching to another case screen must not open the keyboard again.
+- **What changed.** The shared search state now remembers whether the keyboard was up. The search field reports focus loss and the keyboard's real inset; each of the six case lists uses that value for the next screen's initial focus. A keyboard left up still follows the user.
+- **Proof.** New test *a keyboard dismissed before switching lists stays dismissed* passes; the case-list search suite passes 13 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the behaviour is covered by widget tests, not a device.
+
 ### 2026-11-15 — Paste menu reaches Update, Notes and Case Reference — COMPLETE (0.0.821)
 
 - **What was asked.** Apply the shared long-press Paste menu to every text box in the Update, Note and Case Reference screens.

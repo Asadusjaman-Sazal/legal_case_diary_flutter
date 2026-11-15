@@ -249,6 +249,9 @@ class _DisposedCasesScreenState extends ConsumerState<DisposedCasesScreen> {
       onHelp: () => showDisposedHelpDialog(context),
       onSearch: _toggleSearch,
       isSearching: search.isOpen,
+      searchAutofocus: search.keyboardVisible,
+      onSearchKeyboardVisibilityChanged: (visible) =>
+          ref.read(caseListSearchProvider.notifier).setKeyboardVisible(visible),
       searchController: _searchController,
       onSearchChanged: _onSearchChanged,
       onViewToggle: (compact) => setCaseListViewMode(

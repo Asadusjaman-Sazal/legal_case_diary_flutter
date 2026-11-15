@@ -115,6 +115,10 @@ The five list screens no longer use their own heading as the empty state — a h
 
 **The titles are untouched.** The messages are new keys rather than renamed `*_title` values, because those titles are also each screen's header and its print title — renaming them was the defect an earlier working-tree edit introduced, when *No Active Case* and *No Cases in Upcoming Dates* became two screens' headings. **Daily Cause List is unchanged** — the request named the five others, and that screen already showed a real message (*No hearings scheduled for this date.*, `dailyCauseListScreen_noHearings`), which is the pattern the five now follow. A scoped search that hides every row still reads *No results found.* on all of them (`sharedDialogs_noResults`) — the empty message exists for the case where nothing is being filtered out. No mockup draws an empty list, so none was changed (rule 9). `test/features/case_list_search_test.dart` gained one case over all five screens (pumping each with no cases seeded and asserting its own message), which fails if any screen goes back to its title.
 
+### Keyboard state across case lists (0.0.822, user request)
+
+The shared search bar used to mount with `autofocus: true`, so a keyboard the user had closed with the system Back gesture opened again on the next case list. `CaseListSearchState` now records `keyboardVisible`; `ScopedSearchBar` reports both focus loss and the settled `viewInsets.bottom`, and every case-list host passes the shared value into the next screen's `searchAutofocus`. The search itself still stays open with its query. Proven by *a keyboard dismissed before switching lists stays dismissed* in `test/features/case_list_search_test.dart`; the suite passes 13 tests and `flutter analyze` is clean. No mockup changed.
+
 ## Alignment Addendum (Implementation Plan Revision 2.4)
 
 - Every list search is constrained to that screen's existing dataset/filter before applying the text query.

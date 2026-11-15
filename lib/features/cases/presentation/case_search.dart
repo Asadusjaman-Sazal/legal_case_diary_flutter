@@ -47,8 +47,19 @@ class CaseListSearchState {
   /// The text in the shared search bar.
   final String query;
 
+  /// Whether the on-screen keyboard was up in the search bar the user left.
+  ///
+  /// Switching lists rebuilds the bar, so the next list reads this instead of
+  /// always asking for focus: a keyboard dismissed with the system Back gesture
+  /// stays dismissed across the switch.
+  final bool keyboardVisible;
+
   /// Creates a search state; closed and empty by default.
-  const CaseListSearchState({this.isOpen = false, this.query = ''});
+  const CaseListSearchState({
+    this.isOpen = false,
+    this.query = '',
+    this.keyboardVisible = false,
+  });
 }
 
 /// Owns the shared case-list search state.
@@ -59,7 +70,11 @@ class CaseListSearchNotifier extends Notifier<CaseListSearchState> {
   /// Opens the bar without discarding a query already in it.
   void open() {
     if (state.isOpen) return;
-    state = CaseListSearchState(isOpen: true, query: state.query);
+    state = CaseListSearchState(
+      isOpen: true,
+      query: state.query,
+      keyboardVisible: true,
+    );
   }
 
   /// Closes the bar and clears the query, restoring every list's full dataset.
@@ -71,7 +86,22 @@ class CaseListSearchNotifier extends Notifier<CaseListSearchState> {
   /// Records a typed query. Ignored while the bar is closed.
   void setQuery(String query) {
     if (!state.isOpen || state.query == query) return;
-    state = CaseListSearchState(isOpen: true, query: query);
+    state = CaseListSearchState(
+      isOpen: true,
+      query: query,
+      keyboardVisible: state.keyboardVisible,
+    );
+  }
+
+  /// Remembers whether the search field's keyboard is up, so the next case
+  /// list can open with the same keyboard state instead of forcing it open.
+  void setKeyboardVisible(bool visible) {
+    if (!state.isOpen || state.keyboardVisible == visible) return;
+    state = CaseListSearchState(
+      isOpen: true,
+      query: state.query,
+      keyboardVisible: visible,
+    );
   }
 }
 

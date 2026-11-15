@@ -1278,61 +1278,53 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
-  /// Keeps the standard selection menu but routes Paste through the phone
-  /// normalizer, so a copied +88/88/0088 number lands as national digits.
-  Widget _partyPhoneContextMenu(
+  /// Builds the form menu from Flutter's standard items and replaces only
+  /// Paste, so every text box keeps the normal actions and always gets Paste.
+  Widget _textFieldContextMenu(
     BuildContext context,
-    EditableTextState editableTextState,
-  ) {
-    final items = <ContextMenuButtonItem>[
-      if (editableTextState.cutEnabled)
-        ContextMenuButtonItem(
-          onPressed: () =>
-              editableTextState.cutSelection(SelectionChangedCause.toolbar),
-          type: ContextMenuButtonType.cut,
-        ),
-      if (editableTextState.copyEnabled)
-        ContextMenuButtonItem(
-          onPressed: () =>
-              editableTextState.copySelection(SelectionChangedCause.toolbar),
-          type: ContextMenuButtonType.copy,
-        ),
-      if (editableTextState.pasteEnabled)
-        ContextMenuButtonItem(
-          onPressed: () => _pastePartyPhone(editableTextState),
-          type: ContextMenuButtonType.paste,
-        ),
-      if (editableTextState.shareEnabled)
-        ContextMenuButtonItem(
-          onPressed: () =>
-              editableTextState.shareSelection(SelectionChangedCause.toolbar),
-          type: ContextMenuButtonType.share,
-        ),
-      if (editableTextState.selectAllEnabled)
-        ContextMenuButtonItem(
-          onPressed: () =>
-              editableTextState.selectAll(SelectionChangedCause.toolbar),
-          type: ContextMenuButtonType.selectAll,
-        ),
-      if (editableTextState.lookUpEnabled)
-        ContextMenuButtonItem(
-          onPressed: () =>
-              editableTextState.lookUpSelection(SelectionChangedCause.toolbar),
-          type: ContextMenuButtonType.lookUp,
-        ),
-      if (editableTextState.searchWebEnabled)
-        ContextMenuButtonItem(
-          onPressed: () => editableTextState.searchWebForSelection(
-            SelectionChangedCause.toolbar,
-          ),
-          type: ContextMenuButtonType.searchWeb,
-        ),
-    ];
+    EditableTextState editableTextState, {
+    bool normalizePhone = false,
+  }) {
+    final items = List<ContextMenuButtonItem>.of(
+      editableTextState.contextMenuButtonItems,
+    );
+    final pasteIndex = items.indexWhere(
+      (item) => item.type == ContextMenuButtonType.paste,
+    );
+    final paste = ContextMenuButtonItem(
+      onPressed: normalizePhone
+          ? () => _pastePartyPhone(editableTextState)
+          : () => editableTextState.pasteText(SelectionChangedCause.toolbar),
+      type: ContextMenuButtonType.paste,
+    );
+    if (pasteIndex >= 0) {
+      items[pasteIndex] = items[pasteIndex].copyWith(
+        onPressed: paste.onPressed,
+      );
+    } else if (!editableTextState.widget.readOnly) {
+      final shareIndex = items.indexWhere(
+        (item) => item.type == ContextMenuButtonType.share,
+      );
+      final selectAllIndex = items.indexWhere(
+        (item) => item.type == ContextMenuButtonType.selectAll,
+      );
+      final insertAt = shareIndex >= 0
+          ? shareIndex
+          : (selectAllIndex >= 0 ? selectAllIndex : items.length);
+      items.insert(insertAt, paste);
+    }
     return AdaptiveTextSelectionToolbar.buttonItems(
       anchors: editableTextState.contextMenuAnchors,
       buttonItems: items,
     );
   }
+
+  /// Keeps the standard selection menu but routes Paste through the phone
+  /// normalizer, so a copied +88/88/0088 number lands as national digits.
+  Widget _partyPhoneContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) => _textFieldContextMenu(context, editableTextState, normalizePhone: true);
 
   /// Pastes a clipboard number into the field after removing formatting and
   /// a country-code prefix.
@@ -1394,7 +1386,10 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       enabled: enabled,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      contextMenuBuilder: contextMenuBuilder,
+      contextMenuBuilder:
+          contextMenuBuilder ??
+          (context, editableTextState) =>
+              _textFieldContextMenu(context, editableTextState),
       maxLines: maxLines,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(

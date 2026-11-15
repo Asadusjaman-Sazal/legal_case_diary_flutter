@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.819 - The Party Phone No. field now shows the normal Paste menu and normalizes pasted +88/88/0088 numbers to national digits.
+Version: 0.0.820 - Every Add/Edit Case text box now offers Paste in its long-press menu; the phone field still normalizes +88/88/0088 numbers.
 --------------------------------------
 
 ## Version History Log:
@@ -833,3 +833,4 @@ Version: 0.0.816 - Calendar Month/Year view now has Close and Select buttons, an
 Version: 0.0.817 - Month/Year Close button text is now white on its black fill; only the text colour changed.
 Version: 0.0.818 - Case-list search now stays open with its query when switching case screens, filtering each screen's own data.
 Version: 0.0.819 - The Party Phone No. field now shows the normal Paste menu and normalizes pasted +88/88/0088 numbers to national digits.
+Version: 0.0.820 - Every Add/Edit Case text box now offers Paste in its long-press menu; the phone field still normalizes +88/88/0088 numbers.

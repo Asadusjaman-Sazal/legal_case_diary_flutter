@@ -930,9 +930,6 @@ void main() {
         if (call.method == 'Clipboard.getData') {
           return <String, dynamic>{'text': clipboardText};
         }
-        if (call.method == 'Clipboard.hasStrings') {
-          return <String, dynamic>{'value': true};
-        }
         return null;
       });
       addTearDown(
@@ -966,6 +963,47 @@ void main() {
         await tester.pumpAndSettle();
         expect(controller.text, entry.value);
       }
+    });
+
+    testWidgets('every text field uses the shared long-press menu', (
+      WidgetTester tester,
+    ) async {
+      final messenger = tester.binding.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.getData') {
+          return <String, dynamic>{'text': 'Pasted petitioner'};
+        }
+        return null;
+      });
+      addTearDown(
+        () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(lookupData: AddEditCaseLookupData()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final fields = tester.widgetList<TextField>(find.byType(TextField));
+      expect(fields, isNotEmpty);
+      expect(
+        fields.where((field) => field.contextMenuBuilder == null),
+        isEmpty,
+      );
+
+      final petitioner = find.byKey(const ValueKey('add-edit-petitioner'));
+      await tester.ensureVisible(petitioner);
+      await tester.pumpAndSettle();
+      await tester.longPress(petitioner);
+      await tester.pumpAndSettle();
+      expect(find.text('Paste'), findsOneWidget);
+      await tester.tap(find.text('Paste'));
+      await tester.pumpAndSettle();
+
+      final controller = tester.widget<TextFormField>(petitioner).controller!;
+      expect(controller.text, 'Pasted petitioner');
     });
   });
 }

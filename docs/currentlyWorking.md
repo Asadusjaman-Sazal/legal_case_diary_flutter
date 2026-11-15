@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-15 — Paste is available in every Add/Edit Case text box — COMPLETE (0.0.820)
+
+- **What was reported.** The Paste option could be missing after a long press, and only the phone field had the custom menu.
+- **What changed.** Every text box in the Add/Edit Case form now builds its menu from Flutter's standard items and replaces only Paste. Paste is added even while Flutter's clipboard check is still unknown; the phone field keeps its number cleanup, and all other actions stay standard.
+- **Proof.** New test *every text field uses the shared long-press menu* checks every text box uses the menu and pastes into a normal field; the phone test now runs without a clipboard-status mock. The form test file passes 19 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the menu is covered by widget tests, not a device.
+
 ### 2026-11-15 — Party Phone No. pastes a normalized number — COMPLETE (0.0.819)
 
 - **What was asked.** Long-pressing the client mobile number field should show the normal Paste menu, not paste immediately, and a pasted country-code number should become the national number.

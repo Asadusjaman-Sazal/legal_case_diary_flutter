@@ -326,6 +326,7 @@ UI Design: Follow mockup_html_screens\dailyCauseList\code.html for the design. T
     - **Petitioner** (title), Name of the Petitioner, Lead Counsel of Petitioner (from `petitioner_lead_counsel`)
     - **Respondent** (title), Name of the Respondent, Lead Counsel of Respondent (from `respondent_lead_counsel`)
     - **Phone & Message buttons** sit on the represented side only, using the case's single `party_phone` (see Resolved Design Clarifications); the opponent side is shown disabled with the reason
+    - **(0.0.824, user request)** The Defendant/বিবাদী party title now uses the app's black (`AppColors.secondary`) instead of `AppColors.error`; its person glyph, the party name, lead counsel and phone row are unchanged.
   - **Line 5 — Case Description KanBan Card:**
     - **Case Title & Remark** (title)
     - Two text boxes: `case_title_and_section` (Sections or Case Title) and `case_remarks` (Remarks or Case Summary)

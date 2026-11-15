@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
+import 'package:legal_case_diary/core/constants/app_colors.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/core/providers/repository_providers.dart';
@@ -434,6 +435,20 @@ void main() {
 
       expect(find.text('আর ৫ দিন বাকি'), findsOneWidget);
       expect(find.text('আর 5 দিন বাকি'), findsNothing);
+    });
+
+    testWidgets('the Respondent title is black', (WidgetTester tester) async {
+      final caseId = await seedCase(nextDateMs: null);
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      final title = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('case-detail-party-respondent')),
+          matching: find.text('বিবাদী'),
+        ),
+      );
+      expect(title.style?.color, AppColors.secondary);
+      expect(title.style?.color, isNot(AppColors.error));
     });
 
     testWidgets('a long history note drops under the step', (

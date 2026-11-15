@@ -829,7 +829,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> {
   }) {
     final titleColor = side == PartySide.petitioner
         ? AppColors.secondary
-        : AppColors.error;
+        : AppColors.secondary;
     final trimmedCounsel = counsel?.trim();
     final trimmedPhone = isClient ? phone?.trim() : null;
     return Column(

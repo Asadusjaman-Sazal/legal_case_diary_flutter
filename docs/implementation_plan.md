@@ -254,6 +254,8 @@ A full-screen modal sheet for adding a new case or editing an existing one.
 - **50-case free limit:** Before inserting in add mode, call `CasesDao.getNonDeletedCaseCount()`. If count >= 50 AND `isPremium == false` (from `SettingsRepository`), block the save and navigate to `PaywallScreen`.
 - **Case history:** On edit save, if `nextDate`, `lastStep`, or `notesResults` changed, save the previous values as a new `CaseHistoryData` entry via `CaseHistoryDao.insertHistoryEntry()`.
 
+**Party phone paste (0.0.819, user request):** long-pressing the Party Phone No. field opens the normal text-selection menu; its Paste action reads the clipboard, removes spaces and dashes, strips a leading `+88`, `88` or `0088`, and inserts the national number, so `+8801712345678` becomes `01712345678`. The other standard menu actions keep their normal behaviour; only Paste is routed through this normalizer. No mockup change is owed because the screen itself is unchanged. Proven by *long press offers Paste and normalizes a phone number* in `test/shared/widgets/add_edit_case_sheet_test.dart`.
+
 ### 2. Daily Cause List Screen
 - **Design Reference:** Must use `legal_case_diary_flutter\mockup_html_screens\dailyCauseList\code.html` file to design the UI of the screen's body. For the App header and bottom nav bar, use the reusable `cases_screen_modal.dart` modal.
 - **Source of Truth:** Uses cases fetched from the "All Cases" dataset, filtering for cases scheduled for today.

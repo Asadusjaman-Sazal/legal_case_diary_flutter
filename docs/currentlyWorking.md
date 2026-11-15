@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-15 — Party Phone No. pastes a normalized number — COMPLETE (0.0.819)
+
+- **What was asked.** Long-pressing the client mobile number field should show the normal Paste menu, not paste immediately, and a pasted country-code number should become the national number.
+- **What changed.** The field keeps its normal text-selection menu and routes Paste through a normalizer: spaces, dashes and a leading `+88`, `88` or `0088` are removed. `+8801712345678` becomes `01712345678`.
+- **Proof.** New widget test *long press offers Paste and normalizes a phone number* covers the menu and all three prefixes; the form test file passes 18 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the menu is covered by the widget test, not a device.
+
 ### 2026-11-09 — Case-list search now follows the user across case screens — COMPLETE (0.0.818)
 
 - **What was asked.** Keep the search button open with its keywords while the user moves between

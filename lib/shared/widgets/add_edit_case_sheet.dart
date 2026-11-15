@@ -1267,6 +1267,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
                   keyboardType: TextInputType.phone,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   enabled: enabled,
+                  contextMenuBuilder: _partyPhoneContextMenu,
                   showInputLabel: false,
                 ),
               ),
@@ -1277,6 +1278,88 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     );
   }
 
+  /// Keeps the standard selection menu but routes Paste through the phone
+  /// normalizer, so a copied +88/88/0088 number lands as national digits.
+  Widget _partyPhoneContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    final items = <ContextMenuButtonItem>[
+      if (editableTextState.cutEnabled)
+        ContextMenuButtonItem(
+          onPressed: () =>
+              editableTextState.cutSelection(SelectionChangedCause.toolbar),
+          type: ContextMenuButtonType.cut,
+        ),
+      if (editableTextState.copyEnabled)
+        ContextMenuButtonItem(
+          onPressed: () =>
+              editableTextState.copySelection(SelectionChangedCause.toolbar),
+          type: ContextMenuButtonType.copy,
+        ),
+      if (editableTextState.pasteEnabled)
+        ContextMenuButtonItem(
+          onPressed: () => _pastePartyPhone(editableTextState),
+          type: ContextMenuButtonType.paste,
+        ),
+      if (editableTextState.shareEnabled)
+        ContextMenuButtonItem(
+          onPressed: () =>
+              editableTextState.shareSelection(SelectionChangedCause.toolbar),
+          type: ContextMenuButtonType.share,
+        ),
+      if (editableTextState.selectAllEnabled)
+        ContextMenuButtonItem(
+          onPressed: () =>
+              editableTextState.selectAll(SelectionChangedCause.toolbar),
+          type: ContextMenuButtonType.selectAll,
+        ),
+      if (editableTextState.lookUpEnabled)
+        ContextMenuButtonItem(
+          onPressed: () =>
+              editableTextState.lookUpSelection(SelectionChangedCause.toolbar),
+          type: ContextMenuButtonType.lookUp,
+        ),
+      if (editableTextState.searchWebEnabled)
+        ContextMenuButtonItem(
+          onPressed: () => editableTextState.searchWebForSelection(
+            SelectionChangedCause.toolbar,
+          ),
+          type: ContextMenuButtonType.searchWeb,
+        ),
+    ];
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: items,
+    );
+  }
+
+  /// Pastes a clipboard number into the field after removing formatting and
+  /// a country-code prefix.
+  Future<void> _pastePartyPhone(EditableTextState editableTextState) async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted || !editableTextState.mounted) return;
+    final digits = _normalizePartyPhoneDigits(data?.text ?? '');
+    if (digits == null) {
+      editableTextState.hideToolbar();
+      return;
+    }
+    final current = editableTextState.textEditingValue;
+    final selection = current.selection;
+    final start = selection.isValid ? selection.start : current.text.length;
+    final end = selection.isValid ? selection.end : current.text.length;
+    final updated = current.copyWith(
+      text: current.text.replaceRange(start, end, digits),
+      selection: TextSelection.collapsed(offset: start + digits.length),
+      composing: TextRange.empty,
+    );
+    editableTextState.userUpdateTextEditingValue(
+      updated,
+      SelectionChangedCause.toolbar,
+    );
+    editableTextState.hideToolbar();
+  }
+
   Widget _textField({
     required Key key,
     required String label,
@@ -1284,6 +1367,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
     required bool enabled,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
+    Widget Function(BuildContext, EditableTextState)? contextMenuBuilder,
     int maxLines = 1,
     bool showInputLabel = true,
   }) {
@@ -1310,6 +1394,7 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
       enabled: enabled,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      contextMenuBuilder: contextMenuBuilder,
       maxLines: maxLines,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
@@ -1863,13 +1948,19 @@ class _AddEditCaseSheetState extends ConsumerState<AddEditCaseSheet> {
   String _composeCaseNumber() => _caseNumberController.text.trim();
 
   String? _completePartyPhone() {
-    var digits = _partyPhoneController.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.isEmpty) return null;
-    // The visible field is the portion after the immutable +88 prefix. Also
-    // normalize pasted 88-prefixed input so it cannot become +8888....
-    if (digits.startsWith('88')) digits = digits.substring(2);
-    if (digits.isEmpty) return null;
-    return '+88$digits';
+    final digits = _normalizePartyPhoneDigits(_partyPhoneController.text);
+    return digits == null ? null : '+88$digits';
+  }
+
+  /// Keeps only the national digits and removes a pasted country code.
+  String? _normalizePartyPhoneDigits(String raw) {
+    var digits = raw.replaceAll(RegExp(r'\D'), '');
+    if (digits.startsWith('0088')) {
+      digits = digits.substring(4);
+    } else if (digits.startsWith('88')) {
+      digits = digits.substring(2);
+    }
+    return digits.isEmpty ? null : digits;
   }
 
   String? _emptyToNull(String value) =>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
@@ -918,6 +919,53 @@ void main() {
       final style = notification.style!;
       expect(style.backgroundColor?.resolve({}), Colors.transparent);
       expect(style.foregroundColor?.resolve({}), Colors.black);
+    });
+
+    testWidgets('long press offers Paste and normalizes a phone number', (
+      WidgetTester tester,
+    ) async {
+      var clipboardText = '+880 1712-345678';
+      final messenger = tester.binding.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.getData') {
+          return <String, dynamic>{'text': clipboardText};
+        }
+        if (call.method == 'Clipboard.hasStrings') {
+          return <String, dynamic>{'value': true};
+        }
+        return null;
+      });
+      addTearDown(
+        () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+      );
+
+      await tester.pumpWidget(
+        _localizedApp(
+          const AddEditCaseSheet(lookupData: AddEditCaseLookupData()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final phoneField = find.byKey(const ValueKey('add-edit-party-phone'));
+      await tester.ensureVisible(phoneField);
+      await tester.pumpAndSettle();
+      final controller = tester.widget<TextFormField>(phoneField).controller!;
+
+      for (final entry in <String, String>{
+        '+880 1712-345678': '01712345678',
+        '88 01712-345678': '01712345678',
+        '0088 01712-345678': '01712345678',
+      }.entries) {
+        clipboardText = entry.key;
+        controller.clear();
+        await tester.pump();
+        await tester.longPress(phoneField);
+        await tester.pumpAndSettle();
+        expect(find.text('Paste'), findsOneWidget);
+        await tester.tap(find.text('Paste'));
+        await tester.pumpAndSettle();
+        expect(controller.text, entry.value);
+      }
     });
   });
 }

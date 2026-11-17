@@ -220,6 +220,171 @@ class AdminUnconfirmedAccount {
 /// lists it nor deletes it; named here only so the UI can word the same number.
 const int adminUnconfirmedMinAgeHours = 72;
 
+/// One purchase or cancellation in an active account's subscription ledger.
+///
+/// The Active Users page shows the five newest entries the server returns. A
+/// cancellation has `cancelled` in [status]; a purchase keeps its own pending,
+/// approved or rejected status.
+class AdminSubscriptionEntry {
+  /// Creates one ledger entry.
+  const AdminSubscriptionEntry({
+    required this.planKey,
+    required this.status,
+    this.amount,
+    this.at,
+  });
+
+  /// The plan key, or empty when a cancellation could not name one.
+  final String planKey;
+
+  /// The amount in BDT, when the ledger recorded one.
+  final int? amount;
+
+  /// `pending`, `approved`, `rejected` or `cancelled`.
+  final String status;
+
+  /// When this entry happened: approval time for an approved purchase, the
+  /// submission time for any other purchase, and the cancellation time for a
+  /// cancellation.
+  final DateTime? at;
+
+  /// Reads one entry of `admin_list_verified_accounts()`'s history array.
+  factory AdminSubscriptionEntry.fromJson(Map<String, dynamic> json) =>
+      AdminSubscriptionEntry(
+        planKey: json['plan_key'] as String? ?? '',
+        amount: (json['amount'] as num?)?.toInt(),
+        status: json['status'] as String? ?? 'pending',
+        at: AdminPaymentRequest._instant(json['at']),
+      );
+}
+
+/// One confirmed account on the Active Users page.
+///
+/// The server returns every account whose e-mail is confirmed, oldest first. The
+/// card carries the profile's own identity, the chamber's name and the member's
+/// role, the later of sign-in and device heartbeat, the live entitlement and
+/// effective tier, the account's own work counts, its active-device summary and
+/// the newest five ledger entries — one read for the whole page.
+class AdminActiveUser {
+  /// Creates an active-account row.
+  const AdminActiveUser({
+    required this.id,
+    required this.fullName,
+    required this.barAssociation,
+    required this.email,
+    required this.mobileNo,
+    required this.firmName,
+    required this.role,
+    required this.currentTier,
+    required this.planActive,
+    required this.caseCount,
+    required this.noteCount,
+    required this.referenceCount,
+    required this.deviceCount,
+    required this.platforms,
+    required this.subscriptionHistory,
+    this.joinedAt,
+    this.lastActiveAt,
+    this.planExpiry,
+    this.currentPlanKey,
+  });
+
+  /// The account's `auth.users` id.
+  final String id;
+
+  /// Profile → Full Name, or empty when the account has not filled it in.
+  final String fullName;
+
+  /// The bar association from the profile.
+  final String barAssociation;
+
+  /// The profile's mirrored login e-mail.
+  final String email;
+
+  /// The mobile number from the profile.
+  final String mobileNo;
+
+  /// The chamber's name, or empty for an individual.
+  final String firmName;
+
+  /// `individual`, `owner`, `associate` or `viewer`.
+  final String role;
+
+  /// The effective tier in force: the chamber's for a member, otherwise the
+  /// account's own.
+  final String currentTier;
+
+  /// The newest approved purchase of [currentTier], or null when no purchase
+  /// names the plan in force.
+  final String? currentPlanKey;
+
+  /// Whether entitlement is live, using the same 48-hour grace as the app.
+  final bool planActive;
+
+  /// When the account joined, from `auth.users.created_at`.
+  final DateTime? joinedAt;
+
+  /// The later of the server's last sign-in and the newest device heartbeat.
+  final DateTime? lastActiveAt;
+
+  /// The expiry of the plan in force, or null for a free account.
+  final DateTime? planExpiry;
+
+  /// The account's own live cases.
+  final int caseCount;
+
+  /// The account's own live notes.
+  final int noteCount;
+
+  /// The account's own live references.
+  final int referenceCount;
+
+  /// Devices that still hold a slot.
+  final int deviceCount;
+
+  /// Platforms of the active devices, sorted by the server.
+  final List<String> platforms;
+
+  /// The five newest purchase and cancellation entries, newest first.
+  final List<AdminSubscriptionEntry> subscriptionHistory;
+
+  /// True when the account is not in a chamber.
+  bool get isIndividual => firmName.isEmpty;
+
+  /// Reads one row of `admin_list_verified_accounts()`'s jsonb array.
+  factory AdminActiveUser.fromJson(Map<String, dynamic> json) =>
+      AdminActiveUser(
+        id: json['id'] as String? ?? '',
+        fullName: json['full_name'] as String? ?? '',
+        barAssociation: json['bar_association'] as String? ?? '',
+        email: json['email'] as String? ?? '',
+        mobileNo: json['mobile_no'] as String? ?? '',
+        firmName: json['firm_name'] as String? ?? '',
+        role: json['role'] as String? ?? 'individual',
+        currentTier: json['current_tier'] as String? ?? 'free',
+        currentPlanKey: json['current_plan_key'] as String?,
+        planActive: json['plan_active'] as bool? ?? false,
+        joinedAt: AdminPaymentRequest._instant(json['joined_at']),
+        lastActiveAt: AdminPaymentRequest._instant(json['last_active_at']),
+        planExpiry: AdminPaymentRequest._instant(json['plan_expiry']),
+        caseCount: (json['case_count'] as num?)?.toInt() ?? 0,
+        noteCount: (json['note_count'] as num?)?.toInt() ?? 0,
+        referenceCount: (json['reference_count'] as num?)?.toInt() ?? 0,
+        deviceCount: (json['device_count'] as num?)?.toInt() ?? 0,
+        platforms:
+            (json['platforms'] as List?)?.whereType<String>().toList(
+              growable: false,
+            ) ??
+            const <String>[],
+        subscriptionHistory:
+            (json['subscription_history'] as List?)
+                ?.whereType<Map<String, dynamic>>()
+                .map(AdminSubscriptionEntry.fromJson)
+                .toList(growable: false) ??
+            const <AdminSubscriptionEntry>[],
+      );
+}
+
 /// One citation in the server-wide reference library.
 ///
 /// The Admin Panel's own row shape: it is the table's row without the
@@ -315,6 +480,10 @@ abstract class AdminRepository {
   /// Rejects [submissionId] with [note]; returns null on success or why not.
   Future<AdminActionFailure?> reject(String submissionId, {String? note});
 
+  /// Every confirmed account, oldest account first, with its plan, work,
+  /// active devices and newest five ledger entries.
+  Future<List<AdminActiveUser>> listActiveUsers();
+
   /// Every account that never confirmed its address, at least
   /// [adminUnconfirmedMinAgeHours] hours old, newest first.
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts();
@@ -394,6 +563,16 @@ class SupabaseAdminRepository implements AdminRepository {
     } on Object catch (error) {
       return _failureFromError(error);
     }
+  }
+
+  @override
+  Future<List<AdminActiveUser>> listActiveUsers() async {
+    final response = await _client.rpc('admin_list_verified_accounts');
+    if (response is! List) return const <AdminActiveUser>[];
+    return response
+        .whereType<Map<String, dynamic>>()
+        .map(AdminActiveUser.fromJson)
+        .toList(growable: false);
   }
 
   @override
@@ -523,6 +702,10 @@ class UnavailableAdminRepository implements AdminRepository {
     String submissionId, {
     String? note,
   }) async => AdminActionFailure.notAnAdmin;
+
+  @override
+  Future<List<AdminActiveUser>> listActiveUsers() async =>
+      const <AdminActiveUser>[];
 
   @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>

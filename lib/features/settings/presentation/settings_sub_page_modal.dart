@@ -33,7 +33,7 @@ class SettingsSubPageModal extends StatelessWidget {
 
   /// Whether this page gets the premium pull-to-sync gesture.
   ///
-  /// The two admin sub-pages and Backup & Restore opt out: the former already
+  /// The admin sub-pages and Backup & Restore opt out: the former already
   /// own a pull that syncs and reloads their server lists, and a sync during a
   /// running backup or restore must not be possible by accident.
   final bool pullToSync;

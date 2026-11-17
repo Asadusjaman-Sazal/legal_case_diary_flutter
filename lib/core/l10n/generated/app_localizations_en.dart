@@ -1513,6 +1513,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminPanel_title => 'Admin Panel';
 
   @override
+  String get adminPanel_activeUsers => 'Active Users';
+
+  @override
+  String get adminPanel_activeUsersSubtitle =>
+      'Every Account That Confirmed Its Email';
+
+  @override
+  String get adminPanel_activeUsersTitle => 'Active Users';
+
+  @override
+  String get adminPanel_activeUsersEmpty =>
+      'No account has confirmed its email yet.';
+
+  @override
+  String get adminPanel_activeUsersLoadFailed =>
+      'The active users could not be loaded.';
+
+  @override
+  String get adminPanel_barAssociation => 'Bar Association';
+
+  @override
+  String get adminPanel_email => 'Email';
+
+  @override
+  String get adminPanel_mobileNumber => 'Mobile Number';
+
+  @override
+  String get adminPanel_accountType => 'Account Type';
+
+  @override
+  String get adminPanel_individual => 'Individual';
+
+  @override
+  String get adminPanel_firmName => 'Firm Name';
+
+  @override
+  String get adminPanel_role => 'Role';
+
+  @override
+  String get adminPanel_joined => 'Joined';
+
+  @override
+  String get adminPanel_lastActive => 'Last Active';
+
+  @override
+  String get adminPanel_currentPlan => 'Current Plan';
+
+  @override
+  String get adminPanel_planStatus => 'Plan Status';
+
+  @override
+  String get adminPanel_planActive => 'Active';
+
+  @override
+  String get adminPanel_planLapsed => 'Lapsed';
+
+  @override
+  String get adminPanel_planNone => 'No Active Plan';
+
+  @override
+  String get adminPanel_planExpiry => 'Expiry';
+
+  @override
+  String get adminPanel_usage => 'Usage';
+
+  @override
+  String get adminPanel_cases => 'Cases';
+
+  @override
+  String get adminPanel_notes => 'Notes';
+
+  @override
+  String get adminPanel_references => 'References';
+
+  @override
+  String get adminPanel_activeDevices => 'Active Devices';
+
+  @override
+  String get adminPanel_platforms => 'Platforms';
+
+  @override
+  String get adminPanel_lastFiveHistory => 'Last 5 Subscription History';
+
+  @override
+  String get adminPanel_platformAndroid => 'Android';
+
+  @override
+  String get adminPanel_platformIos => 'iOS';
+
+  @override
+  String get adminPanel_platformWindows => 'Windows';
+
+  @override
+  String get adminPanel_platformUnknown => 'Unknown';
+
+  @override
   String get adminPanel_paymentRequests => 'Payment Requests';
 
   @override

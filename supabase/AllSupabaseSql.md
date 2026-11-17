@@ -132,6 +132,7 @@ checks that roll back) and the read-only counts
 | 0.0.784 | 2026-11-01 | `20261101120000_district_case_types.sql` | Case types can belong to one district (user request). `public.case_types` gains a nullable `district` and `name_bn`; the seven built-in Narayanganj CJM types are inserted with both names and the district, while every existing row stays global with both columns null. The division is derived from the district and is never stored. No policy or function list changes: `push_changes` is column-generic and the reference-table RLS already treats built-in rows as the shared baseline. |
 | 0.0.785 | 2026-11-01 | `20261101140000_district_case_type_names_hyphen.sql` | The seven built-in Narayanganj CJM case types take the trailing hyphen every other built-in type carries, in both languages (user correction). Only those labels change; the user-modified guard keeps an edited row and a tombstone is not revived. |
 | 0.0.789 | 2026-11-01 | `20261101160000_dissolve_scope_owner_write.sql` | A dissolved chambers owner can write what it inherited (bug fix). The dissolve already lets the owner read rows it took over through `scope_owner_id`, but the UPDATE policies and `sync_can_write` never included that owner, so the owner could not edit or delete an inherited row: a Delete Data run was rejected and the live row came back on the next pull. The twelve ledger tables UPDATE policies and `sync_can_write` now allow the scope owner and stop the old author while a scope owner exists; the RPC also refuses an INSERT that names the server-owned scope column. |
+| 0.0.835 | 2026-11-17 | `20261117100000_admin_active_users.sql` | The Admin Panel gains Active Users (user request). `admin_list_verified_accounts()` is one admin-gated SECURITY DEFINER read over every confirmed account that still exists, oldest first: profile identity and chamber role, the later of sign-in and device heartbeat, the effective tier and its 48-hour grace (the chambers plan for a member), the accounts own non-deleted case, note and reference counts, its active devices and platforms, and the five newest purchase/cancellation ledger entries. No table read is opened to clients and nothing is written. |
 | — | 2026-10-25 | `supabase/manual/storage_policies.sql` | Manual: The eight storage policies for the profile-picture and chamber-logo buckets. `storage.objects` is owned by `supabase_storage_admin`, which the migration role is not a member of, so these are created once in the Supabase Storage policy editor instead. |
 
 ## Bootstrap — Applier Bookkeeping (before the first apply)
@@ -22426,6 +22427,249 @@ $$;
 
 comment on function public.sync_can_write(text, jsonb, text) is
   'The write verdict for push_changes: an insert is the caller''s own and may not name scope_owner_id; an update/delete is the author''s while the row has no scope owner and no other firm, a chamber member''s through can_edit/can_delete, or the dissolve''s scope owner''s. Mirrors the RLS write policies for the twelve ledger tables that carry scope_owner_id.';
+```
+
+## App Version 0.0.835 — Admin Panel — Active Users
+
+### 0.0.835 · `20261117100000_admin_active_users.sql`
+
+> **Created 2026-11-17.** The Admin Panel gains Active Users (user request). `admin_list_verified_accounts()` is one admin-gated SECURITY DEFINER read over every confirmed account that still exists, oldest first: profile identity and chamber role, the later of sign-in and device heartbeat, the effective tier and its 48-hour grace (the chambers plan for a member), the accounts own non-deleted case, note and reference counts, its active devices and platforms, and the five newest purchase/cancellation ledger entries. No table read is opened to clients and nothing is written.
+
+```sql
+-- Admin Panel — Active Users (0.0.835).
+--
+-- The Admin Panel's newest page lists every account whose e-mail address is
+-- confirmed and whose `auth.users` row still exists, oldest account first. A
+-- deleted account cannot appear: deleting the auth row cascades the profile, and
+-- this function reads the auth row as its anchor. There is deliberately no
+-- activity window — an account that confirmed its address belongs here even if
+-- it has not opened the app for months.
+--
+-- One call returns the whole page: identity and contact fields, the chamber's
+-- name and the member's role, joining and last-active instants, the current
+-- plan, its expiry and whether entitlement is live, the account's own work
+-- counts, its active-device summary, and the five newest entries of its
+-- subscription ledger. The server caps the ledger at five, so the client never
+-- makes one request per card.
+--
+-- What "last active" means: this app has no "online now" flag. The later of the
+-- server's `auth.users.last_sign_in_at` and the newest device heartbeat
+-- (`user_devices.last_seen_at`, including a device that has since been revoked)
+-- is the last evidence of the account being used. The page never claims more.
+--
+-- What "current plan" means: the 48-hour grace and effective tier are the app's
+-- existing rules. `has_sync_entitlement()` supplies the live/lapsed answer, while
+-- the effective tier comes from the chamber for a member and from the profile for
+-- an individual. The plan key is the newest **approved** purchase of that tier
+-- by the account that pays for it — the chamber owner for a member — so a queued
+-- discount or a pending upgrade is not shown as the current plan.
+--
+-- Work counts are the account's own non-deleted rows only, never the chamber's
+-- shared work. Device count and platforms are the active slots only; the
+-- heartbeat behind `last_active_at` may come from a revoked device, because it
+-- is still evidence that the account was used.
+--
+-- No table, policy or grant is widened. The function is SECURITY DEFINER,
+-- admin-gated in its own body, executable by `authenticated` only, and performs
+-- no writes. Applied once to `lsthasywrdrhuuxnykau` after
+-- `supabase/tests/admin_active_users_test.sql` proved the contract.
+
+create or replace function public.admin_list_verified_accounts()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = pg_catalog, public
+as $$
+begin
+  -- A grant to `authenticated` is shared by every signed-in account, so the
+  -- registry itself decides whether this caller may read the page.
+  if not public.is_admin() then
+    raise exception 'admin_required' using errcode = '42501';
+  end if;
+
+  return (
+    with accounts as (
+      select
+        u.id,
+        coalesce(p.full_name, '') as full_name,
+        coalesce(p.bar_association, '') as bar_association,
+        coalesce(nullif(p.email, ''), u.email, '') as email,
+        coalesce(p.mobile_no, '') as mobile_no,
+        coalesce(nullif(p.role, ''), 'individual') as role,
+        f.name as firm_name,
+        u.created_at as joined_at,
+        u.last_sign_in_at,
+        -- The tier in force: a member holds the chamber's, an individual their
+        -- own. `effective_tier` already accounts for a waiting downgrade.
+        case
+          when p.firm_id is not null then
+            public.effective_tier(f.tier, f.tier_pending, f.tier_pending_from)
+          else
+            public.effective_tier(p.tier, p.tier_pending, p.tier_pending_from)
+        end as effective_tier,
+        case
+          when p.firm_id is not null then f.subscription_expiry
+          else p.subscription_expiry
+        end as plan_expiry,
+        -- Who pays for the running plan: the chamber owner for a member, the
+        -- account itself for an individual.
+        case
+          when p.firm_id is not null then f.owner_id
+          else u.id
+        end as plan_owner_id
+      from auth.users u
+      left join public.profiles p on p.id = u.id
+      left join public.firms f on f.id = p.firm_id
+      where u.email_confirmed_at is not null
+    ),
+    with_plan as (
+      select
+        a.*,
+        current_plan.plan_type as current_plan_key
+      from accounts a
+      left join lateral (
+        select s.plan_type
+        from public.payment_submissions s
+        where s.user_id = a.plan_owner_id
+          and s.status = 'approved'
+          and (
+            case
+              when s.plan_type in (
+                'monthly', 'quarterly', 'half_yearly', 'annual',
+                'starter_monthly', 'starter_quarterly',
+                'starter_half_yearly', 'starter_annual'
+              ) then 'starter'
+              when s.plan_type in (
+                'pro_monthly', 'pro_quarterly',
+                'pro_half_yearly', 'pro_annual'
+              ) then 'pro'
+              when s.plan_type in (
+                'firm_monthly', 'firm_quarterly',
+                'firm_half_yearly', 'firm_annual'
+              ) then 'firm'
+              when s.plan_type in (
+                'firm_plus_quarterly',
+                'firm_plus_half_yearly',
+                'firm_plus_annual'
+              ) then 'firm_plus'
+              when s.plan_type in (
+                'enterprise_quarterly',
+                'enterprise_half_yearly',
+                'enterprise_annual'
+              ) then 'enterprise'
+              else null
+            end
+          ) = a.effective_tier
+        order by coalesce(s.approved_at, s.submitted_at) desc nulls last
+        limit 1
+      ) current_plan on true
+    )
+    select coalesce(
+      jsonb_agg(
+        jsonb_build_object(
+          'id', a.id,
+          'full_name', a.full_name,
+          'bar_association', a.bar_association,
+          'email', a.email,
+          'mobile_no', a.mobile_no,
+          'firm_name', a.firm_name,
+          'role', a.role,
+          'joined_at', a.joined_at,
+          'last_active_at', greatest(a.last_sign_in_at, devices.last_seen_at),
+          'current_tier', a.effective_tier,
+          'current_plan_key', a.current_plan_key,
+          'plan_active', public.has_sync_entitlement(a.id),
+          'plan_expiry', a.plan_expiry,
+          'case_count', (
+            select pg_catalog.count(*)
+            from public.cases c
+            where c.user_id = a.id and not c.is_deleted
+          ),
+          'note_count', (
+            select pg_catalog.count(*)
+            from public.notes n
+            where n.user_id = a.id and not n.is_deleted
+          ),
+          'reference_count', (
+            select pg_catalog.count(*)
+            from public.case_references r
+            where r.user_id = a.id and not r.is_deleted
+          ),
+          'device_count', coalesce(devices.active_device_count, 0),
+          'platforms', coalesce(devices.platforms, '[]'::jsonb),
+          'subscription_history', coalesce(history.entries, '[]'::jsonb)
+        )
+        order by a.joined_at asc, a.id asc
+      ),
+      '[]'::jsonb
+    )
+    from with_plan a
+    left join lateral (
+      select
+        count(*) filter (where d.revoked_at is null) as active_device_count,
+        -- A revoked device's last heartbeat still proves the account was used,
+        -- which is why this maximum is taken across every device row.
+        max(d.last_seen_at) as last_seen_at,
+        coalesce(
+          jsonb_agg(distinct d.platform order by d.platform)
+            filter (where d.revoked_at is null),
+          '[]'::jsonb
+        ) as platforms
+      from public.user_devices d
+      where d.user_id = a.id
+    ) devices on true
+    left join lateral (
+      select coalesce(
+        jsonb_agg(
+          jsonb_build_object(
+            'plan_key', ledger.plan_key,
+            'amount', ledger.amount,
+            'status', ledger.status,
+            'at', ledger.entry_at
+          )
+          order by ledger.entry_at desc nulls last
+        ),
+        '[]'::jsonb
+      ) as entries
+      from (
+        select
+          s.plan_type as plan_key,
+          s.amount,
+          s.status,
+          case
+            when s.status = 'approved'
+              then coalesce(s.approved_at, s.submitted_at)
+            else s.submitted_at
+          end as entry_at
+        from public.payment_submissions s
+        where s.user_id = a.id
+        union all
+        select
+          sc.plan_type as plan_key,
+          sc.amount,
+          'cancelled' as status,
+          sc.cancelled_at as entry_at
+        from public.subscription_cancellations sc
+        where sc.user_id = a.id
+        order by entry_at desc nulls last
+        limit 5
+      ) ledger
+    ) history on true
+  );
+end;
+$$;
+
+comment on function public.admin_list_verified_accounts() is
+  'Admin-only list of every account whose e-mail is confirmed, oldest account first. Each row carries its profile identity and chamber role, the later of last sign-in and newest device heartbeat, the live entitlement and effective tier (the chamber''s plan for a member), the account''s own non-deleted work counts, its active-device summary, and the five newest purchase/cancellation ledger entries. No writes and no widened RLS.';
+
+-- Supabase's default privileges grant EXECUTE directly to `anon` and
+-- `authenticated`; re-assert the intended grant explicitly, as the other admin
+-- queries do. A signed-in account still passes through `is_admin()` above.
+revoke all on function public.admin_list_verified_accounts()
+  from public, anon;
+grant execute on function public.admin_list_verified_accounts()
+  to authenticated;
 ```
 
 ## Manual SQL — Applied Outside The Migration Tool

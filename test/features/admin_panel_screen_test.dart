@@ -1,11 +1,12 @@
 /// Admin Panel tests — Task 22 / 0.0.459.
 ///
-/// The panel is now a **menu**: two [SettingsMenuCard] rows opening pages of
+/// The panel is now a **menu**: four [SettingsMenuCard] rows opening pages of
 /// their own, keeping the case screens' header (hamburger, Sync Status badge,
-/// Sync button). These pin what only the panel itself can promise — the two
+/// Sync button). These pin what only the panel itself can promise — the four
 /// entries and where they go, the header shape, and the bottom-bar gate. The
 /// pages themselves are pinned by their own suites
 /// (`admin_payment_requests_screen_test.dart`,
+/// `admin_active_users_screen_test.dart`,
 /// `admin_unconfirmed_accounts_screen_test.dart`).
 library;
 
@@ -29,11 +30,14 @@ import 'package:legal_case_diary/sync/sync_status_providers.dart';
 class _FakeAdminRepository implements AdminRepository {
   _FakeAdminRepository({
     List<AdminPaymentRequest>? rows,
+    List<AdminActiveUser>? activeUsers,
     List<AdminUnconfirmedAccount>? accounts,
   }) : rows = rows ?? <AdminPaymentRequest>[],
+       activeUsers = activeUsers ?? <AdminActiveUser>[],
        accounts = accounts ?? <AdminUnconfirmedAccount>[];
 
   final List<AdminPaymentRequest> rows;
+  final List<AdminActiveUser> activeUsers;
   final List<AdminUnconfirmedAccount> accounts;
 
   /// Reads the page asked the repository for, so an open can be told apart
@@ -60,6 +64,9 @@ class _FakeAdminRepository implements AdminRepository {
     String submissionId, {
     String? note,
   }) async => null;
+
+  @override
+  Future<List<AdminActiveUser>> listActiveUsers() async => activeUsers;
 
   @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async {
@@ -96,6 +103,25 @@ AdminPaymentRequest _pending(String id) => AdminPaymentRequest(
   status: 'pending',
   submittedAt: DateTime(2026, 10, 1),
   fullName: 'Adv. Sarah Islam',
+);
+
+/// One confirmed account for the Active Users count.
+AdminActiveUser _active(String id) => AdminActiveUser(
+  id: id,
+  fullName: 'Adv. Active $id',
+  barAssociation: '',
+  email: 'active-$id@example.test',
+  mobileNo: '',
+  firmName: '',
+  role: 'individual',
+  currentTier: 'free',
+  planActive: false,
+  caseCount: 0,
+  noteCount: 0,
+  referenceCount: 0,
+  deviceCount: 0,
+  platforms: const <String>[],
+  subscriptionHistory: const <AdminSubscriptionEntry>[],
 );
 
 /// One account that never confirmed its address.
@@ -182,20 +208,22 @@ void main() {
     expect(find.text('at $marker'), findsOneWidget, reason: marker);
   }
 
-  testWidgets('offers the three pages the panel holds', (tester) async {
+  testWidgets('offers the four pages the panel holds', (tester) async {
     await pump(tester, _FakeAdminRepository());
 
-    expect(find.byType(SettingsMenuCard), findsNWidgets(3));
+    expect(find.byType(SettingsMenuCard), findsNWidgets(4));
     final cards = tester
         .widgetList<SettingsMenuCard>(find.byType(SettingsMenuCard))
         .toList();
     expect(cards.map((card) => card.title), <String>[
       'Payment Requests',
+      'Active Users',
       'Non-verified Accounts',
       'Server-wide Case Reference',
     ]);
     expect(cards.map((card) => card.subtitle), <String>[
       'Approve Or Reject Submitted Payments',
+      'Every Account That Confirmed Its Email',
       'Sign-Ups Unconfirmed For Over 72 Hours',
       'Citations Every Account Can Read',
     ]);
@@ -206,6 +234,14 @@ void main() {
       tester,
       marker: '/admin-panel/payment-requests',
       title: 'Payment Requests',
+    );
+  });
+
+  testWidgets('the Active Users entry opens its own page', (tester) async {
+    await opensPage(
+      tester,
+      marker: '/admin-panel/active-users',
+      title: 'Active Users',
     );
   });
 
@@ -226,7 +262,7 @@ void main() {
       tester,
       _FakeAdminRepository(
         // Two pending payments (the third is already decided, so it must not
-        // count) and three abandoned sign-ups.
+        // count), four confirmed accounts and three abandoned sign-ups.
         rows: [
           _pending('1'),
           _pending('2'),
@@ -243,6 +279,7 @@ void main() {
             approvedAt: DateTime(2026, 10, 2),
           ),
         ],
+        activeUsers: [_active('a'), _active('b'), _active('c'), _active('d')],
         accounts: [_unconfirmed('a'), _unconfirmed('b'), _unconfirmed('c')],
       ),
     );
@@ -256,7 +293,8 @@ void main() {
       expect(card.trailing, isA<Text>());
     }
     expect((cards[0].trailing as Text).data, '2', reason: 'pending payments');
-    expect((cards[1].trailing as Text).data, '3', reason: 'unconfirmed');
+    expect((cards[1].trailing as Text).data, '4', reason: 'active users');
+    expect((cards[2].trailing as Text).data, '3', reason: 'unconfirmed');
   });
 
   testWidgets('re-reads both counts every time the panel opens', (
@@ -264,6 +302,7 @@ void main() {
   ) async {
     final repo = _FakeAdminRepository(
       rows: [_pending('1')],
+      activeUsers: [_active('a')],
       accounts: [_unconfirmed('a')],
     );
     final visible = ValueNotifier<bool>(true);
@@ -296,18 +335,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(_count(tester, 0), '1');
     expect(_count(tester, 1), '1');
+    expect(_count(tester, 2), '1');
 
     // Close the panel, let work arrive, then open it again: the counts must be
     // the server's new answer, not the lists it cached on the first visit.
     visible.value = false;
     await tester.pumpAndSettle();
     repo.rows.add(_pending('2'));
+    repo.activeUsers.add(_active('b'));
     repo.accounts.add(_unconfirmed('b'));
     visible.value = true;
     await tester.pumpAndSettle();
 
     expect(_count(tester, 0), '2');
     expect(_count(tester, 1), '2');
+    expect(_count(tester, 2), '2');
   });
 
   testWidgets('the panel can be pulled down to sync', (tester) async {
@@ -390,6 +432,7 @@ void main() {
 
     expect(find.text('অ্যাডমিন প্যানেল'), findsOneWidget);
     expect(find.text('পেমেন্ট আবেদন'), findsOneWidget);
+    expect(find.text('সক্রিয় ব্যবহারকারী'), findsOneWidget);
     expect(find.text('যাচাইবিহীন অ্যাকাউন্ট'), findsOneWidget);
   });
 

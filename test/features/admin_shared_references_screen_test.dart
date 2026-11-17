@@ -84,6 +84,10 @@ class _FakeAdminRepository implements AdminRepository {
   }) async => null;
 
   @override
+  Future<List<AdminActiveUser>> listActiveUsers() async =>
+      const <AdminActiveUser>[];
+
+  @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
       const <AdminUnconfirmedAccount>[];
 

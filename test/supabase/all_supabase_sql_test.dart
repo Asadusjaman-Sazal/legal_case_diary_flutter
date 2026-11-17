@@ -57,8 +57,10 @@ void main() {
       );
       expect(
         onDisk.length,
-        91,
+        92,
         reason:
+            'Active Users (2026-11-17) added one file: the admin-only '
+            'confirmed-account read. '
             'The dissolve scope-owner write fix (2026-11-01) added one file: '
             'the owner can now write the rows it inherited. '
             'District-scoped case types (2026-11-01) added one file: the two '

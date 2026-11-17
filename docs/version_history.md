@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.834 - The Case Reference law header now has a bare back icon under the menu button; the Server-wide page is unchanged.
+Version: 0.0.835 - The Admin Panel gains Active Users: every confirmed account, oldest first, with plans, usage, devices and the last five subscription entries.
 --------------------------------------
 
 ## Version History Log:
@@ -848,3 +848,4 @@ Version: 0.0.831 - Offline edits now sync when the connection returns even if th
 Version: 0.0.832 - Case Reference screens now filter citations by clickable tags, and the law header is centred, has no back arrow and shows Bengali counts.
 Version: 0.0.833 - Case Reference tags wrap to two lines with expand and collapse arrows, and the law header now uses the page background.
 Version: 0.0.834 - The Case Reference law header now has a bare back icon under the menu button; the Server-wide page is unchanged.
+Version: 0.0.835 - The Admin Panel gains Active Users: every confirmed account, oldest first, with plans, usage, devices and the last five subscription entries.

@@ -136,13 +136,14 @@
 <!-- Task 23's Admin Panel. This is the reference for
      lib/features/admin/presentation/admin_panel_screen.dart.
 
-     The panel is a **menu**: three shared Settings sub-menu rows, each opening
+     The panel is a **menu**: four shared Settings sub-menu rows, each opening
      a page of its own. It used to render the payment queue itself; that queue
      now lives on the *Payment Requests* page
-     (admin_payment_requests_screen.dart), *Non-verified Accounts*
-     (admin_unconfirmed_accounts_screen.dart) is the second page, and
+     (admin_payment_requests_screen.dart), *Active Users*
+     (admin_active_users_screen.dart) lists every confirmed account, *Non-verified
+     Accounts* (admin_unconfirmed_accounts_screen.dart) follows it, and
      *Server-wide Case Reference* (admin_shared_references_screen.dart) is the
-     third: the citation library every account reads, which the admin publishes
+     fourth: the citation library every account reads, which the admin publishes
      to from there.
 
      The frame is the signed-in admin's own: the case screens' header with the
@@ -180,7 +181,7 @@
     <span class="w-1"></span>
   </header>
 
-  <!-- Body: the three pages the panel holds. -->
+  <!-- Body: the four pages the panel holds. -->
   <div class="flex-1 px-edge-margin pt-md pb-xl flex flex-col gap-gutter">
 
     <!-- Payment Requests: the queue, with its Pending and Resolved sections. -->
@@ -191,6 +192,18 @@
         <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Approve Or Reject Submitted Payments</span>
       </span>
       <span class="font-title-md text-title-md text-on-surface-variant">2</span>
+    </button>
+
+    <!-- Active Users: every account that confirmed its address and still exists,
+         oldest first. The count is every such account, not a queue; this page is
+         a directory, not a set of items waiting for a decision. -->
+    <button class="bg-surface border border-surface-container rounded-xl p-md flex items-center text-left active:opacity-80">
+      <span class="material-symbols-outlined text-primary text-[28px]">people_alt</span>
+      <span class="ml-md flex-1 flex flex-col">
+        <span class="font-body-lg text-body-lg text-on-surface">Active Users</span>
+        <span class="mt-xs font-body-sm text-body-sm text-on-surface-variant">Every Account That Confirmed Its Email</span>
+      </span>
+      <span class="font-title-md text-title-md text-on-surface-variant">24</span>
     </button>
 
     <!-- Non-verified Accounts: the sign-ups that never confirmed their address

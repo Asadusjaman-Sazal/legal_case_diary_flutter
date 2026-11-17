@@ -1518,6 +1518,102 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminPanel_title => 'অ্যাডমিন প্যানেল';
 
   @override
+  String get adminPanel_activeUsers => 'সক্রিয় ব্যবহারকারী';
+
+  @override
+  String get adminPanel_activeUsersSubtitle =>
+      'যেসব অ্যাকাউন্ট ইমেইল নিশ্চিত করেছে';
+
+  @override
+  String get adminPanel_activeUsersTitle => 'সক্রিয় ব্যবহারকারী';
+
+  @override
+  String get adminPanel_activeUsersEmpty =>
+      'এখনও কোনো অ্যাকাউন্ট ইমেইল নিশ্চিত করেনি।';
+
+  @override
+  String get adminPanel_activeUsersLoadFailed =>
+      'সক্রিয় ব্যবহারকারীদের তথ্য লোড করা যায়নি।';
+
+  @override
+  String get adminPanel_barAssociation => 'বার অ্যাসোসিয়েশন';
+
+  @override
+  String get adminPanel_email => 'ইমেইল';
+
+  @override
+  String get adminPanel_mobileNumber => 'মোবাইল নম্বর';
+
+  @override
+  String get adminPanel_accountType => 'অ্যাকাউন্টের ধরন';
+
+  @override
+  String get adminPanel_individual => 'ব্যক্তিগত';
+
+  @override
+  String get adminPanel_firmName => 'ফার্মের নাম';
+
+  @override
+  String get adminPanel_role => 'ভূমিকা';
+
+  @override
+  String get adminPanel_joined => 'যোগদান';
+
+  @override
+  String get adminPanel_lastActive => 'সর্বশেষ সক্রিয়';
+
+  @override
+  String get adminPanel_currentPlan => 'বর্তমান প্ল্যান';
+
+  @override
+  String get adminPanel_planStatus => 'প্ল্যানের অবস্থা';
+
+  @override
+  String get adminPanel_planActive => 'সক্রিয়';
+
+  @override
+  String get adminPanel_planLapsed => 'মেয়াদোত্তীর্ণ';
+
+  @override
+  String get adminPanel_planNone => 'কোনো সক্রিয় প্ল্যান নেই';
+
+  @override
+  String get adminPanel_planExpiry => 'মেয়াদ শেষ';
+
+  @override
+  String get adminPanel_usage => 'ব্যবহার';
+
+  @override
+  String get adminPanel_cases => 'মামলা';
+
+  @override
+  String get adminPanel_notes => 'নোট';
+
+  @override
+  String get adminPanel_references => 'রেফারেন্স';
+
+  @override
+  String get adminPanel_activeDevices => 'সক্রিয় ডিভাইস';
+
+  @override
+  String get adminPanel_platforms => 'প্ল্যাটফর্ম';
+
+  @override
+  String get adminPanel_lastFiveHistory => 'সর্বশেষ ৫টি সাবস্ক্রিপশন ইতিহাস';
+
+  @override
+  String get adminPanel_platformAndroid => 'অ্যান্ড্রয়েড';
+
+  @override
+  String get adminPanel_platformIos => 'আইওএস';
+
+  @override
+  String get adminPanel_platformWindows => 'উইন্ডোজ';
+
+  @override
+  String get adminPanel_platformUnknown => 'অজানা';
+
+  @override
   String get adminPanel_paymentRequests => 'পেমেন্ট আবেদন';
 
   @override

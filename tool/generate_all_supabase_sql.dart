@@ -1242,6 +1242,21 @@ const List<LedgerSection> _sections = <LedgerSection>[
         'while a scope owner exists; the RPC also refuses an INSERT that names '
         'the server-owned scope column.',
   ),
+  LedgerSection(
+    file: '20261117100000_admin_active_users.sql',
+    version: '0.0.835',
+    label:
+        'The Admin Panel gains Active Users (user request). '
+        '`admin_list_verified_accounts()` is one admin-gated SECURITY DEFINER '
+        'read over every confirmed account that still exists, oldest first: '
+        'profile identity and chamber role, the later of sign-in and device '
+        'heartbeat, the effective tier and its 48-hour grace (the chamber'
+        's plan for a member), the account'
+        's own non-deleted case, note and reference counts, its active '
+        'devices and platforms, and the five newest purchase/cancellation '
+        'ledger entries. No table read is opened to clients and nothing is '
+        'written.',
+  ),
 ];
 
 /// One SQL file that the migration role cannot run, applied through the
@@ -1279,6 +1294,7 @@ const List<ManualSection> _manualSections = <ManualSection>[
 /// Heading text per version group, so the groups read as phases rather than as
 /// bare version numbers.
 const Map<String, String> _groupTitles = <String, String>{
+  '0.0.835': 'Admin Panel — Active Users',
   '0.0.789': 'Chamber Dissolve — The Owner Can Write What It Inherited',
   '0.0.785': 'Case Types — The Trailing Hyphen',
   '0.0.784': 'Case Types — District-Scoped Types',

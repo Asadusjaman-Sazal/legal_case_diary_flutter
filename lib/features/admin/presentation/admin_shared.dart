@@ -1,9 +1,9 @@
-/// Pieces shared by the Admin Panel's two sub-pages.
+/// Pieces shared by the Admin Panel's sub-pages.
 ///
-/// Both pages load their whole list from the server and filter it in memory, so
-/// neither needs the case screens' `ScopedSearch` runner (which re-runs a
-/// database query per keystroke) — what they share is the rule for "does this
-/// card match", the search field, the load-failed panel and the date wording.
+/// The pages load their whole list from the server and filter it in memory, so
+/// none needs the case screens' `ScopedSearch` runner (which re-runs a database
+/// query per keystroke) — what they share is the rule for "does this card
+/// match", the search field, the load-failed panel and the date wording.
 library;
 
 import 'package:flutter/material.dart';
@@ -36,7 +36,7 @@ bool adminTextMatches(String query, Iterable<String?> fields) {
   return false;
 }
 
-/// The search box the two sub-pages show while the header's search button is on.
+/// The search box the sub-pages show while the header's search button is on.
 class AdminSearchField extends StatelessWidget {
   /// The controller the screen owns.
   final TextEditingController controller;
@@ -112,7 +112,7 @@ class AdminNoResults extends StatelessWidget {
   );
 }
 
-/// "Could not load · Try Again", shared by both admin sub-pages.
+/// "Could not load · Try Again", shared by the admin sub-pages.
 class AdminLoadFailed extends StatelessWidget {
   /// Localized failure message.
   final String message;
@@ -159,7 +159,7 @@ class AdminLoadFailed extends StatelessWidget {
 }
 
 /// The same shared sync button the case screens and the panel header carry, for
-/// the two sub-pages' own headers.
+/// the sub-pages' own headers.
 ///
 /// It reads the live sync providers itself, so a header that shows it does not
 /// have to plumb five values through — the panel's `_AdminHeader` predates this

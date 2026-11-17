@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/presentation/admin_active_users_screen.dart';
 import '../../features/admin/presentation/admin_panel_screen.dart';
 import '../../features/admin/presentation/admin_shared_references_screen.dart';
 import '../../features/admin/presentation/admin_payment_requests_screen.dart';
@@ -109,8 +110,9 @@ class AppRoutes {
   /// nothing to an account the server has not confirmed as an admin.
   static const String adminPanel = '/admin-panel';
 
-  /// The panel's two sub-pages (0.0.459), pushed from its menu.
+  /// The panel's sub-pages, pushed from its menu.
   static const String adminPaymentRequests = '/admin-panel/payment-requests';
+  static const String adminActiveUsers = '/admin-panel/active-users';
   static const String adminUnverifiedAccounts =
       '/admin-panel/unverified-accounts';
   static const String adminSharedReferences =
@@ -624,6 +626,10 @@ final List<RouteBase> _shellRoutes = [
   GoRoute(
     path: AppRoutes.adminPaymentRequests,
     builder: (context, state) => const AdminPaymentRequestsScreen(),
+  ),
+  GoRoute(
+    path: AppRoutes.adminActiveUsers,
+    builder: (context, state) => const AdminActiveUsersScreen(),
   ),
   GoRoute(
     path: AppRoutes.adminUnverifiedAccounts,

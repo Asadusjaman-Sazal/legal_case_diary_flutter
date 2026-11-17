@@ -150,6 +150,10 @@ class _FakeAdmin implements AdminRepository {
   /// One unconfirmed account per signed-in account, so a leak is visible here
   /// too — the panel's badge counts these alongside the pending payments.
   @override
+  Future<List<AdminActiveUser>> listActiveUsers() async =>
+      const <AdminActiveUser>[];
+
+  @override
   Future<List<AdminUnconfirmedAccount>> listUnconfirmedAccounts() async =>
       account.signedIn
       ? <AdminUnconfirmedAccount>[

@@ -39,6 +39,18 @@ final adminPaymentRequestsProvider = FutureProvider<List<AdminPaymentRequest>>((
   return ref.watch(adminRepositoryProvider).listPaymentRequests();
 });
 
+/// Every confirmed account, oldest account first.
+///
+/// The Active Users page's list; empty for a non-admin, like the payment list,
+/// so a queued read from an account that has lost the grant shows nothing.
+final adminActiveUsersProvider = FutureProvider<List<AdminActiveUser>>((
+  ref,
+) async {
+  final isAdmin = await ref.watch(adminStatusProvider.future);
+  if (!isAdmin) return const <AdminActiveUser>[];
+  return ref.watch(adminRepositoryProvider).listActiveUsers();
+});
+
 /// Every account that never confirmed its address, newest first.
 ///
 /// The Non-verified Accounts page's list; empty for a non-admin, like the
@@ -81,6 +93,14 @@ final adminPendingPaymentsProvider = Provider<int>(
           ?.where((request) => request.isPending)
           .length ??
       0,
+);
+
+/// The confirmed accounts the Active Users page lists.
+///
+/// The panel's Active Users row counts this; 0 while loading, failed or for a
+/// non-admin, like the other panel counts.
+final adminActiveUsersCountProvider = Provider<int>(
+  (ref) => ref.watch(adminActiveUsersProvider).value?.length ?? 0,
 );
 
 /// The accounts that never confirmed their address.

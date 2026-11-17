@@ -1,16 +1,14 @@
-/// The Admin Panel: a menu of the two things an administrator manages.
+/// The Admin Panel: a menu of the work an administrator manages.
 ///
 /// Task 22, reshaped. It used to render the payment queue itself; now it is a
 /// sub-menu — the same [SettingsMenuCard] rows the Account & Profile menu uses —
-/// and each row opens a page of its own: **Payment Requests** (the queue, with
-/// its Pending and Resolved sections) and **Non-verified Accounts** (the
-/// sign-ups that never confirmed their address, so abandoned ones can be
-/// cleaned up).
+/// and each row opens a page of its own: **Payment Requests**, **Active Users**,
+/// **Non-verified Accounts** and **Server-wide Case Reference**.
 ///
 /// The panel keeps the case screens' header — a hamburger that opens the side
 /// menu, the Sync Status badge and the Sync button — rather than the back arrow
 /// a Settings sub-page wears, because this is a **top-level destination**: it is
-/// in the side menu and a bottom-navigation tab. The two sub-pages are pushed on
+/// in the side menu and a bottom-navigation tab. The sub-pages are pushed on
 /// top of it and do carry a back arrow.
 library;
 
@@ -38,7 +36,7 @@ import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_viewmodel.dart';
 import 'admin_viewmodel.dart';
 
-/// The administrator's menu: the two sets of work the panel holds.
+/// The administrator's menu: the work the panel holds.
 class AdminPanelScreen extends ConsumerStatefulWidget {
   const AdminPanelScreen({super.key});
 
@@ -50,12 +48,13 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
   @override
   void initState() {
     super.initState();
-    // Fresh counts on every open (user request): both lists are cached server
+    // Fresh counts on every open (user request): the lists are cached server
     // reads, so without this the panel could show what it saw at the last pull.
     // After the first frame, so the providers are not touched mid-build.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ref.invalidate(adminPaymentRequestsProvider);
+      ref.invalidate(adminActiveUsersProvider);
       ref.invalidate(adminUnconfirmedAccountsProvider);
       ref.invalidate(adminSharedReferencesProvider);
     });
@@ -102,16 +101,18 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
         child: _AdminHeader(title: l.adminPanel_title),
       ),
       // Pull down to sync (user request): the same forced drain with the delta
-      // pull the header button runs, and then a re-read of both lists, so a
-      // payment or a sign-up that landed while the panel was open appears
-      // without a trip to Settings.
+      // pull the header button runs, and then a re-read of the lists, so a
+      // payment, account or citation that landed while the panel was open
+      // appears without a trip to Settings.
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(syncServiceProvider).retryNow();
           ref.invalidate(adminPaymentRequestsProvider);
+          ref.invalidate(adminActiveUsersProvider);
           ref.invalidate(adminUnconfirmedAccountsProvider);
           ref.invalidate(adminSharedReferencesProvider);
           await ref.read(adminPaymentRequestsProvider.future);
+          await ref.read(adminActiveUsersProvider.future);
           await ref.read(adminUnconfirmedAccountsProvider.future);
           await ref.read(adminSharedReferencesProvider.future);
         },
@@ -131,6 +132,14 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
               // request) — the same shape the two payment sections use.
               trailing: countTrailing(ref.watch(adminPendingPaymentsProvider)),
               onTap: () => context.push(AppRoutes.adminPaymentRequests),
+            ),
+            const SizedBox(height: AppSpacing.gutter),
+            SettingsMenuCard(
+              icon: Icons.people_alt_outlined,
+              title: l.adminPanel_activeUsers,
+              subtitle: l.adminPanel_activeUsersSubtitle,
+              trailing: countTrailing(ref.watch(adminActiveUsersCountProvider)),
+              onTap: () => context.push(AppRoutes.adminActiveUsers),
             ),
             const SizedBox(height: AppSpacing.gutter),
             SettingsMenuCard(

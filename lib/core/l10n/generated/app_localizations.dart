@@ -2637,6 +2637,192 @@ abstract class AppLocalizations {
   /// **'Admin Panel'**
   String get adminPanel_title;
 
+  /// No description provided for @adminPanel_activeUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get adminPanel_activeUsers;
+
+  /// No description provided for @adminPanel_activeUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every Account That Confirmed Its Email'**
+  String get adminPanel_activeUsersSubtitle;
+
+  /// No description provided for @adminPanel_activeUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get adminPanel_activeUsersTitle;
+
+  /// No description provided for @adminPanel_activeUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No account has confirmed its email yet.'**
+  String get adminPanel_activeUsersEmpty;
+
+  /// No description provided for @adminPanel_activeUsersLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The active users could not be loaded.'**
+  String get adminPanel_activeUsersLoadFailed;
+
+  /// No description provided for @adminPanel_barAssociation.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Association'**
+  String get adminPanel_barAssociation;
+
+  /// No description provided for @adminPanel_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get adminPanel_email;
+
+  /// No description provided for @adminPanel_mobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get adminPanel_mobileNumber;
+
+  /// No description provided for @adminPanel_accountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get adminPanel_accountType;
+
+  /// No description provided for @adminPanel_individual.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual'**
+  String get adminPanel_individual;
+
+  /// No description provided for @adminPanel_firmName.
+  ///
+  /// In en, this message translates to:
+  /// **'Firm Name'**
+  String get adminPanel_firmName;
+
+  /// No description provided for @adminPanel_role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminPanel_role;
+
+  /// No description provided for @adminPanel_joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get adminPanel_joined;
+
+  /// No description provided for @adminPanel_lastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Active'**
+  String get adminPanel_lastActive;
+
+  /// No description provided for @adminPanel_currentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Plan'**
+  String get adminPanel_currentPlan;
+
+  /// No description provided for @adminPanel_planStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan Status'**
+  String get adminPanel_planStatus;
+
+  /// No description provided for @adminPanel_planActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminPanel_planActive;
+
+  /// No description provided for @adminPanel_planLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Lapsed'**
+  String get adminPanel_planLapsed;
+
+  /// No description provided for @adminPanel_planNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Active Plan'**
+  String get adminPanel_planNone;
+
+  /// No description provided for @adminPanel_planExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry'**
+  String get adminPanel_planExpiry;
+
+  /// No description provided for @adminPanel_usage.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage'**
+  String get adminPanel_usage;
+
+  /// No description provided for @adminPanel_cases.
+  ///
+  /// In en, this message translates to:
+  /// **'Cases'**
+  String get adminPanel_cases;
+
+  /// No description provided for @adminPanel_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get adminPanel_notes;
+
+  /// No description provided for @adminPanel_references.
+  ///
+  /// In en, this message translates to:
+  /// **'References'**
+  String get adminPanel_references;
+
+  /// No description provided for @adminPanel_activeDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Devices'**
+  String get adminPanel_activeDevices;
+
+  /// No description provided for @adminPanel_platforms.
+  ///
+  /// In en, this message translates to:
+  /// **'Platforms'**
+  String get adminPanel_platforms;
+
+  /// No description provided for @adminPanel_lastFiveHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 5 Subscription History'**
+  String get adminPanel_lastFiveHistory;
+
+  /// No description provided for @adminPanel_platformAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android'**
+  String get adminPanel_platformAndroid;
+
+  /// No description provided for @adminPanel_platformIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS'**
+  String get adminPanel_platformIos;
+
+  /// No description provided for @adminPanel_platformWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows'**
+  String get adminPanel_platformWindows;
+
+  /// No description provided for @adminPanel_platformUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get adminPanel_platformUnknown;
+
   /// No description provided for @adminPanel_paymentRequests.
   ///
   /// In en, this message translates to:

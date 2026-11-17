@@ -59,8 +59,10 @@ void main() {
 
       expect(
         versions,
-        hasLength(91),
+        hasLength(92),
         reason:
+            'Active Users (2026-11-17) added one file: the admin-only '
+            'confirmed-account read. '
             'The dissolve scope-owner write fix (2026-11-01) added one file: '
             'the owner can now write the rows it inherited. '
             'The trailing hyphen correction (2026-11-01) added one file: the '
@@ -182,7 +184,7 @@ void main() {
 
       expect(
         versions.toSet(),
-        hasLength(91),
+        hasLength(92),
         reason: 'versions must be unique',
       );
       expect(
@@ -191,7 +193,7 @@ void main() {
         reason: 'apply order is version order',
       );
       expect(versions.first, '20260929100000');
-      expect(versions.last, '20261101160000');
+      expect(versions.last, '20261117100000');
 
       // Nothing on disk is skipped or invented: the tool applies the folder.
       final onDisk =

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Tag chips and a centred law header — COMPLETE (0.0.832)
+
+- **What was asked.** Both Case Reference screens should show clickable tag chips at the top, filter the cards when a chip is tapped, use official plus user tags on the user screen and official tags only on the Server-wide page, centre the law-name sub-header, remove its back arrow, and use Bengali digits for its count.
+- **What changed.** The law list now has a horizontal tag strip. A chip shows only the cards carrying that exact tag; tapping it again returns the law list. Case Reference combines the user's tags with the official library's tags, while Server-wide uses official tags only. The strip is first-level only, and a law's page shows the law name centred with a localized count and no back arrow. The system back gesture returns from a tag filter or a law page; the Server-wide page also keeps its app-bar back.
+- **Proof.** New widget tests cover both tag sources, chip filtering, hiding the strip inside a law, no back arrow, a centred header, Bengali count digits, and back behaviour. The two focused suites pass (31 tests); `flutter analyze` is clean.
+- **Not checked.** No phone or screenshot check; the layout is covered by widget geometry assertions, not a visual device run.
+
 ### 2026-11-17 — Offline edits sync when the connection returns — COMPLETE (0.0.831)
 
 - **What was asked.** Changes saved offline did not sync until the app was closed and reopened. Find the cause, fix it, and add a regression test.

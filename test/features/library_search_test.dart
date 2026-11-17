@@ -76,6 +76,13 @@ void main() {
       'evidence',
       'trial',
     ]);
+    final row = ReferenceRow.admin(
+      id: 'ref',
+      referenceAndPageNo: '45 DLR (AD) 1',
+      tags: 'Bail, evidence',
+    );
+    expect(referenceHasTag(row, 'bail'), isTrue);
+    expect(referenceHasTag(row, 'bai'), isFalse);
   });
 
   /// Pumps a bounded number of frames.
@@ -107,7 +114,11 @@ void main() {
   ];
 
   /// Pumps one library with the app's providers, router and localizations.
-  Future<void> pumpLibrary(WidgetTester tester, Widget screen) async {
+  Future<void> pumpLibrary(
+    WidgetTester tester,
+    Widget screen, {
+    Locale locale = const Locale('en'),
+  }) async {
     final router = GoRouter(
       routes: [GoRoute(path: '/', builder: (_, _) => screen)],
     );
@@ -118,7 +129,8 @@ void main() {
         child: MaterialApp.router(
           // The app's own theme, so `titleMedium` resolves to the semibold face
           // the empty state is expected to borrow from the case lists.
-          theme: AppTheme.lightTheme(const Locale('en')),
+          theme: AppTheme.lightTheme(locale),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           routerConfig: router,
@@ -355,11 +367,143 @@ void main() {
       expect(find.textContaining('46 DLR'), findsOneWidget);
       expect(find.textContaining('12 BLC'), findsNothing);
 
-      // The arrow returns to the law list.
-      await tester.tap(find.byKey(const ValueKey('law-back')));
+      // The system back gesture returns to the law list.
+      await tester.binding.handlePopRoute();
       await settle(tester);
       expect(find.text('The Penal Code, 1860'), findsOneWidget);
       expect(find.textContaining('45 DLR'), findsNothing);
+
+      await unmount(tester);
+    },
+  );
+
+  testWidgets(
+    'tag chips use official and own tags, and a chip filters the cards',
+    (tester) async {
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        statute: 'The Penal Code, 1860',
+        tags: 'bail, evidence',
+      );
+      await seedReference(
+        'ref-2',
+        '12 BLC 99',
+        'Partition.',
+        statute: 'The Code of Civil Procedure, 1908',
+        tags: 'writ',
+      );
+      await db
+          .into(db.sharedCaseReferences)
+          .insert(
+            SharedCaseReferencesCompanion.insert(
+              id: 'official-1',
+              referenceAndPageNo: '29 DLR (AD) 69',
+              statute: const Value('The Penal Code, 1860'),
+              titleAndDescription: const Value('Detention limits.'),
+              tags: const Value('bail'),
+            ),
+          );
+      await pumpLibrary(tester, const CaseReferenceScreen());
+
+      // The strip is above the law list and carries the user's tags beside the
+      // official library's tags.
+      expect(find.byKey(const ValueKey('reference-tag-bar')), findsOneWidget);
+      for (final tag in ['bail', 'evidence', 'writ']) {
+        expect(
+          find.byKey(ValueKey('reference-tag-filter-$tag')),
+          findsOneWidget,
+          reason: 'missing the $tag chip',
+        );
+      }
+
+      // A selected tag replaces the law rows with only the matching cards,
+      // official and own together.
+      await tester.tap(find.byKey(const ValueKey('reference-tag-filter-bail')));
+      await settle(tester);
+      expect(find.textContaining('45 DLR'), findsOneWidget);
+      expect(find.textContaining('29 DLR'), findsOneWidget);
+      expect(find.textContaining('12 BLC'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+        findsNothing,
+      );
+
+      // Tapping the chip again clears the filter and brings the laws back.
+      await tester.tap(find.byKey(const ValueKey('reference-tag-filter-bail')));
+      await settle(tester);
+      expect(
+        find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+        findsOneWidget,
+      );
+
+      // A law's card page is a narrowed view, so the tags stay on the first
+      // level only (user request).
+      await tester.tap(find.text('The Penal Code, 1860'));
+      await settle(tester);
+      expect(find.byKey(const ValueKey('reference-tag-bar')), findsNothing);
+
+      await unmount(tester);
+    },
+  );
+
+  testWidgets(
+    'the law header is centred, has no back arrow and counts in Bengali',
+    (tester) async {
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        statute: 'The Penal Code, 1860',
+      );
+      await seedReference(
+        'ref-2',
+        '46 DLR (AD) 2',
+        'Bail conditions.',
+        statute: 'The Penal Code, 1860',
+      );
+      await pumpLibrary(
+        tester,
+        const CaseReferenceScreen(),
+        locale: const Locale('bn'),
+      );
+
+      // The law-row count already uses Bengali digits.
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+          matching: find.text('২'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+      );
+      await settle(tester);
+
+      expect(find.byKey(const ValueKey('law-back')), findsNothing);
+      expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('law-header-count')))
+            .data,
+        '২',
+      );
+      final header = tester.getRect(find.byKey(const ValueKey('law-header')));
+      final name = tester.getCenter(
+        find.byKey(const ValueKey('law-header-name')),
+      );
+      expect(name.dx, closeTo(header.center.dx, 0.5));
+
+      // The system back gesture is the way out of the law page.
+      await tester.binding.handlePopRoute();
+      await settle(tester);
+      expect(
+        find.byKey(const ValueKey('law-row-The Penal Code, 1860')),
+        findsOneWidget,
+      );
 
       await unmount(tester);
     },
@@ -411,7 +555,7 @@ void main() {
     // Inside the law.
     await tester.tap(find.text('The Penal Code, 1860'));
     await settle(tester);
-    expect(find.byKey(const ValueKey('law-back')), findsOneWidget);
+    expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
     expect(find.textContaining('45 DLR'), findsOneWidget);
 
     // Leave for another bottom-nav screen, then come back.
@@ -421,7 +565,7 @@ void main() {
     await settle(tester);
 
     // Still inside the same law, not the law list.
-    expect(find.byKey(const ValueKey('law-back')), findsOneWidget);
+    expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
     expect(find.textContaining('45 DLR'), findsOneWidget);
     expect(find.text('Criminal Law'), findsNothing);
 
@@ -676,9 +820,7 @@ void main() {
       isEmpty,
     );
 
-    final citation = find.byKey(
-      const ValueKey('reference-form-citation'),
-    );
+    final citation = find.byKey(const ValueKey('reference-form-citation'));
     final citationField = find.descendant(
       of: citation,
       matching: find.byType(TextField),

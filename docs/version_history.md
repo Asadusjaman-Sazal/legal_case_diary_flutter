@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.831 - Offline edits now sync when the connection returns even if the device check failed while the app was opened offline.
+Version: 0.0.832 - Case Reference screens now filter citations by clickable tags, and the law header is centred, has no back arrow and shows Bengali counts.
 --------------------------------------
 
 ## Version History Log:
@@ -845,3 +845,4 @@ Version: 0.0.828 - The Edit Court/Steps menu now reads Court Categories and plac
 Version: 0.0.829 - In Backup & Restore, the Disable button is now inactive and gray while encryption is already off.
 Version: 0.0.830 - The disabled Disable button in Backup & Restore now has a gray fill and muted text instead of blue.
 Version: 0.0.831 - Offline edits now sync when the connection returns even if the device check failed while the app was opened offline.
+Version: 0.0.832 - Case Reference screens now filter citations by clickable tags, and the law header is centred, has no back arrow and shows Bengali counts.

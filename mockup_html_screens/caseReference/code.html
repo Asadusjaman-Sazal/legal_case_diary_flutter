@@ -163,6 +163,14 @@
        content row. The header's search reads the whole library — any matching
        reference card is listed whatever law it is filed under. -->
   <div class="flex-1 overflow-y-auto">
+    <!-- Tag strip (user request): every tag used by the user's own citations and
+         the official library, as clickable chips. A chip replaces the law rows
+         with only the matching reference cards; tapping it again clears it. -->
+    <div class="flex gap-sm overflow-x-auto px-md pt-sm pb-xs">
+      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">bail</button>
+      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">evidence</button>
+      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">writ</button>
+    </div>
     <p class="px-md pt-sm pb-xs font-label-lg text-body-lg font-bold text-on-surface-variant">Criminal Law</p>
     <div class="px-md">
       <div class="mb-sm bg-surface border border-surface-container rounded-xl flex items-center p-md min-h-[76px]">
@@ -196,19 +204,16 @@
     </div>
   </div>
 
-  <!-- Level 2, opened by a law row: a back arrow, the law's name in the header
-       row, and that law's own count. Its references are the same cards as
-       before — citation and statute chips, the 3-dot menu, section / article,
-       description, and the comments note box — and the + adds a citation to
-       this law already selected. Hidden here because level 1 is showing. -->
+  <!-- Level 2, opened by a law row: the law's name as a centred sub-header and
+       its own count, with no back arrow of its own (user request); the screen's
+       header or the system back gesture returns to the law list. The tag strip
+       is first-level only. Its references are the same cards as before, and
+       the + adds a citation to this law already selected. Hidden here because
+       level 1 is showing. -->
   <div class="hidden flex-1 flex-col">
-    <div class="bg-surface-container-lowest flex items-center">
-      <button aria-label="Back" class="w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
-        <span class="material-symbols-outlined">arrow_back</span>
-      </button>
-      <span class="flex-1 truncate font-title-md text-title-md text-on-background">The Penal Code, 1860</span>
-      <span class="font-body-sm text-body-sm text-tertiary">4</span>
-      <span class="w-md"></span>
+    <div class="relative bg-surface-container-lowest flex items-center justify-center px-12 py-sm">
+      <span class="truncate text-center font-title-md text-title-md text-on-background">The Penal Code, 1860</span>
+      <span class="absolute right-md font-body-sm text-body-sm text-tertiary">4</span>
     </div>
     <div class="flex-1 p-md flex flex-col gap-md">
 

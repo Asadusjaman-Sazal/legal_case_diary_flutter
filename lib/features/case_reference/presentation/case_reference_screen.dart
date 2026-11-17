@@ -47,6 +47,9 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
 
+  /// The tag chip narrowing the law list, or null while the laws show.
+  String? _selectedTag;
+
   /// The screen's live scoped search (Task 14 Phase 5, plan §12.1): the query
   /// runs as a Drift `LIKE` query across the reference's five text fields rather
   /// than filtering the rows this screen happened to have loaded.
@@ -67,6 +70,9 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
+      // Search reads the whole library; a tag filter is the other browsing
+      // mode, so entering or leaving search starts from the plain list.
+      _selectedTag = null;
       if (!_isSearching) {
         _searchController.clear();
         unawaited(_search.run(''));
@@ -109,16 +115,31 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     // bottom-nav tab and coming back reopens the same law (user report).
     ref.read(caseReferenceOpenLawProvider.notifier).open(law);
     setState(() {
+      _selectedTag = null;
       _isSearching = false;
       _searchController.clear();
     });
     await _search.run('');
   }
 
-  /// Returns to the law list, from the page's back arrow or the system gesture.
+  /// Returns to the law list, from the system back gesture or the screen's
+  /// existing navigation.
   Future<void> _closeLaw() async {
     ref.read(caseReferenceOpenLawProvider.notifier).close();
     setState(() {
+      _selectedTag = null;
+      _isSearching = false;
+      _searchController.clear();
+    });
+    await _search.run('');
+  }
+
+  /// Selects [tag], or clears it when that chip is already selected.
+  Future<void> _selectTag(String tag) async {
+    setState(() {
+      _selectedTag = _selectedTag?.toLowerCase() == tag.toLowerCase()
+          ? null
+          : tag;
       _isSearching = false;
       _searchController.clear();
     });
@@ -384,6 +405,22 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
     ];
     final allowance = ref.watch(writeAllowanceProvider).value;
     final law = ref.watch(caseReferenceOpenLawProvider);
+    final tagOptions = tagVocabulary(rows.map((row) => row.tags));
+    // Keep a selected chip visible even if the last citation carrying it was
+    // just edited away, so the filter can always be cleared.
+    final tags = <String>[
+      if (_selectedTag != null &&
+          !tagOptions.any(
+            (tag) => tag.toLowerCase() == _selectedTag!.toLowerCase(),
+          ))
+        _selectedTag!,
+      ...tagOptions,
+    ];
+    final tagRows = _selectedTag == null
+        ? null
+        : rows
+              .where((row) => referenceHasTag(row, _selectedTag!))
+              .toList(growable: false);
     // A query reads the whole library, whichever level was being shown; closing
     // the bar or clearing the query brings the level back.
     final searching = _isSearching && _searchController.text.trim().isNotEmpty;
@@ -411,20 +448,43 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
               onRefresh: _onRefresh,
             )
           : law == null
-          ? ReferenceLawList(
-              sections: lawSectionsFor(
-                ref.watch(lawListProvider).value ?? const <Law>[],
-                rows,
-              ),
-              onOpen: _openLawReferences,
-              onRefresh: _onRefresh,
+          ? Column(
+              children: [
+                if (tags.isNotEmpty)
+                  ReferenceTagBar(
+                    tags: tags,
+                    selectedTag: _selectedTag,
+                    onSelected: _selectTag,
+                  ),
+                Expanded(
+                  child: tagRows == null
+                      ? ReferenceLawList(
+                          sections: lawSectionsFor(
+                            ref.watch(lawListProvider).value ?? const <Law>[],
+                            rows,
+                          ),
+                          onOpen: _openLawReferences,
+                          onRefresh: _onRefresh,
+                        )
+                      : ReferenceList(
+                          isSearching: false,
+                          references: tagRows,
+                          totalCount: rows.length,
+                          emptyMessage: l.sharedDialogs_noResults,
+                          writableReferenceIds: allowance?.writableReferenceIds,
+                          onOpen: _openDetail,
+                          onDelete: _confirmDelete,
+                          onTogglePin: _togglePin,
+                          onRefresh: _onRefresh,
+                        ),
+                ),
+              ],
             )
           : Column(
               children: [
                 ReferenceLawHeader(
                   label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
                   count: lawRows.length,
-                  onBack: _closeLaw,
                 ),
                 Expanded(
                   child: ReferenceList(
@@ -456,7 +516,11 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
       onSearchChanged: _onSearchChanged,
       // The hardware back on a law's page returns to the law list rather than
       // offering to close the app; on the law list it keeps the exit window.
-      onBack: law == null ? null : _closeLaw,
+      onBack: law != null
+          ? _closeLaw
+          : _selectedTag == null
+          ? null
+          : () => _selectTag(_selectedTag!),
       onAddCase: () => _openSheet(initialStatute: law),
       body: behavior,
     );

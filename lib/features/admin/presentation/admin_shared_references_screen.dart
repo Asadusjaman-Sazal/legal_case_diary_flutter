@@ -55,6 +55,9 @@ class _AdminSharedReferencesScreenState
   final TextEditingController _search = TextEditingController();
   String _query = '';
 
+  /// The official tag chip narrowing the law list, or null while the laws show.
+  String? _selectedTag;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +78,7 @@ class _AdminSharedReferencesScreenState
   void _toggleSearch() {
     setState(() {
       _isSearching = !_isSearching;
+      _selectedTag = null;
       if (!_isSearching) {
         _search.clear();
         _query = '';
@@ -85,6 +89,7 @@ class _AdminSharedReferencesScreenState
   void _showLaw(String law) {
     setState(() {
       _openLaw = law;
+      _selectedTag = null;
       _isSearching = false;
       _search.clear();
       _query = '';
@@ -94,6 +99,19 @@ class _AdminSharedReferencesScreenState
   void _closeLaw() {
     setState(() {
       _openLaw = null;
+      _selectedTag = null;
+      _isSearching = false;
+      _search.clear();
+      _query = '';
+    });
+  }
+
+  /// Selects [tag], or clears it when that chip is already selected.
+  void _selectTag(String tag) {
+    setState(() {
+      _selectedTag = _selectedTag?.toLowerCase() == tag.toLowerCase()
+          ? null
+          : tag;
       _isSearching = false;
       _search.clear();
       _query = '';
@@ -346,6 +364,10 @@ class _AdminSharedReferencesScreenState
           _closeLaw();
           return;
         }
+        if (_selectedTag != null) {
+          _selectTag(_selectedTag!);
+          return;
+        }
         final navigator = Navigator.of(context);
         if (navigator.canPop()) {
           navigator.pop();
@@ -360,6 +382,10 @@ class _AdminSharedReferencesScreenState
         onBack: () {
           if (_openLaw != null) {
             _closeLaw();
+            return;
+          }
+          if (_selectedTag != null) {
+            _selectTag(_selectedTag!);
             return;
           }
           Navigator.of(context).maybePop();
@@ -410,6 +436,22 @@ class _AdminSharedReferencesScreenState
             ];
             final byId = {for (final row in rows) row.id: row};
             final law = _openLaw;
+            final tagOptions = tagVocabulary(all.map((row) => row.tags));
+            // Keep a selected chip visible if the last citation carrying it was
+            // deleted, so the filter can always be cleared.
+            final tags = <String>[
+              if (_selectedTag != null &&
+                  !tagOptions.any(
+                    (tag) => tag.toLowerCase() == _selectedTag!.toLowerCase(),
+                  ))
+                _selectedTag!,
+              ...tagOptions,
+            ];
+            final tagRows = _selectedTag == null
+                ? null
+                : all
+                      .where((row) => referenceHasTag(row, _selectedTag!))
+                      .toList(growable: false);
             // A query reads the whole library, whichever level is showing, as
             // on the user's own Case Reference screen (user request).
             final searching = _isSearching && _query.trim().isNotEmpty;
@@ -445,11 +487,35 @@ class _AdminSharedReferencesScreenState
                 onRefresh: _reload,
               );
             } else if (law == null) {
-              body = ReferenceLawList(
-                sections: lawSectionsFor(laws, all),
-                emptyMessage: l.adminSharedRefs_empty,
-                onOpen: _showLaw,
-                onRefresh: _reload,
+              body = Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (tags.isNotEmpty)
+                    ReferenceTagBar(
+                      tags: tags,
+                      selectedTag: _selectedTag,
+                      onSelected: _selectTag,
+                    ),
+                  Expanded(
+                    child: tagRows == null
+                        ? ReferenceLawList(
+                            sections: lawSectionsFor(laws, all),
+                            emptyMessage: l.adminSharedRefs_empty,
+                            onOpen: _showLaw,
+                            onRefresh: _reload,
+                          )
+                        : ReferenceList(
+                            isSearching: false,
+                            references: tagRows,
+                            totalCount: all.length,
+                            emptyMessage: l.sharedDialogs_noResults,
+                            onOpen: _openDetail,
+                            onDelete: (row) => _confirmDelete(byId[row.id]!),
+                            onTogglePin: null,
+                            onRefresh: _reload,
+                          ),
+                  ),
+                ],
               );
             } else {
               final lawRows = all
@@ -461,7 +527,6 @@ class _AdminSharedReferencesScreenState
                   ReferenceLawHeader(
                     label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
                     count: lawRows.length,
-                    onBack: () async => _closeLaw(),
                   ),
                   Expanded(
                     child: ReferenceList(

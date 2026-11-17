@@ -16,6 +16,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/pre_seeded_data.dart';
 import '../../../core/l10n/app_translations.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../database/app_database.dart';
 import '../../../shared/widgets/read_only_lock.dart';
 import '../../settings/presentation/settings_menu_card.dart';
@@ -204,6 +205,83 @@ List<String> tagVocabulary(Iterable<String?> tagTexts) {
   return List<String>.unmodifiable(tags);
 }
 
+/// Whether [row] carries [tag], ignoring case but not matching part of a tag.
+bool referenceHasTag(ReferenceRow row, String tag) {
+  final wanted = tag.toLowerCase();
+  return referenceTags(row.tags).any((value) => value.toLowerCase() == wanted);
+}
+
+/// The clickable tag strip above a library's law list.
+///
+/// Only the first level shows it: a law's card page is a narrowed view, and its
+/// own sub-header is the thing the reader should follow. Tapping the selected
+/// chip again clears the filter through [onSelected].
+class ReferenceTagBar extends StatelessWidget {
+  /// Creates the strip from [tags], with [selectedTag] highlighted.
+  const ReferenceTagBar({
+    required this.tags,
+    required this.selectedTag,
+    required this.onSelected,
+    super.key,
+  });
+
+  final List<String> tags;
+  final String? selectedTag;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    key: const ValueKey('reference-tag-bar'),
+    height: 52,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      itemCount: tags.length,
+      separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
+      itemBuilder: (context, index) {
+        final tag = tags[index];
+        final selected = selectedTag?.toLowerCase() == tag.toLowerCase();
+        return Center(
+          child: Semantics(
+            button: true,
+            selected: selected,
+            child: Material(
+              key: ValueKey('reference-tag-filter-${tag.toLowerCase()}'),
+              color: selected
+                  ? AppColors.secondaryContainer
+                  : AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                onTap: () => onSelected(tag),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.gutter,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Text(
+                    tag,
+                    style: AppTypography.labelMd.copyWith(
+                      color: selected
+                          ? AppColors.onSecondaryContainer
+                          : AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
 /// The library's first level: every law that holds references, under its
 /// category, in the law list's order.
 ///
@@ -344,7 +422,7 @@ class ReferenceLawList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${row.count}',
+                    AppDateUtils.formatDigits(row.count, l.localeName),
                     style: AppTypography.bodySm.copyWith(
                       color: AppColors.tertiary,
                     ),
@@ -370,51 +448,59 @@ class ReferenceLawList extends StatelessWidget {
   }
 }
 
-/// A law's page header: back to the law list, the law's name, and its count.
+/// A law's page header: its name centred, with its count at the right.
+///
+/// The back control lives outside this header (the Server-wide page's app bar)
+/// or in the system gesture, never here (user request), so the law name can take
+/// the middle of the line.
 class ReferenceLawHeader extends StatelessWidget {
   /// Creates the header.
   const ReferenceLawHeader({
     required this.label,
     required this.count,
-    required this.onBack,
     super.key,
   });
 
   final String label;
   final int count;
-  final Future<void> Function() onBack;
 
   @override
-  Widget build(BuildContext context) => Container(
-    color: AppColors.surfaceContainerLowest,
-    child: Row(
-      children: [
-        IconButton(
-          key: const ValueKey('law-back'),
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: onBack,
-        ),
-        Expanded(
-          child: Text(
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Container(
+      key: const ValueKey('law-header'),
+      color: AppColors.surfaceContainerLowest,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 48,
+        vertical: AppSpacing.sm,
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            key: const ValueKey('law-header-name'),
             // Hosts pass the stored statute key, so the header follows the
             // active language without changing what a law page matches.
             context.l10n.lawName(label),
+            textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleMd.copyWith(
               color: AppColors.onBackground,
             ),
           ),
-        ),
-        Text(
-          '$count',
-          style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
-        ),
-        const SizedBox(width: AppSpacing.md),
-      ],
-    ),
-  );
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              key: const ValueKey('law-header-count'),
+              AppDateUtils.formatDigits(count, l.localeName),
+              style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Scrollable reference list; the search bar lives in the host above it.

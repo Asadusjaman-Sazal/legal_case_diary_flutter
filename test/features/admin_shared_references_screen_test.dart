@@ -217,6 +217,84 @@ void main() {
     expect(find.text('Saved'), findsNothing);
   });
 
+  testWidgets('official tags alone feed the chips and filter the cards', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      _FakeAdminRepository(
+        rows: [
+          _citation('o1', tags: 'bail, evidence'),
+          _citation(
+            'o2',
+            citation: '32 DLR (AD) 102',
+            statute: 'The Code of Criminal Procedure, 1898',
+            title: 'Writ petition.',
+            tags: 'writ',
+          ),
+        ],
+      ),
+    );
+
+    // The strip carries only tags found on the published rows.
+    expect(find.byKey(const ValueKey('reference-tag-bar')), findsOneWidget);
+    for (final tag in ['bail', 'evidence', 'writ']) {
+      expect(
+        find.byKey(ValueKey('reference-tag-filter-$tag')),
+        findsOneWidget,
+        reason: 'missing the $tag chip',
+      );
+    }
+
+    await tester.tap(find.byKey(const ValueKey('reference-tag-filter-bail')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('29 DLR'), findsOneWidget);
+    expect(find.textContaining('32 DLR'), findsNothing);
+    expect(find.text('Criminal Law'), findsNothing);
+
+    // Tapping the selected chip again returns the law rows.
+    await tester.tap(find.byKey(const ValueKey('reference-tag-filter-bail')));
+    await tester.pumpAndSettle();
+    expect(find.text('Criminal Law'), findsOneWidget);
+
+    // The law page hides the strip and no longer carries its own back arrow.
+    await tester.tap(find.text('The Penal Code, 1860'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('reference-tag-bar')), findsNothing);
+    expect(find.byKey(const ValueKey('law-back')), findsNothing);
+    expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
+
+    // The page's app-bar back returns to the law list, one level at a time.
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Criminal Law'), findsOneWidget);
+  });
+
+  testWidgets('publishing a citation sends it to the repository', (
+    tester,
+  ) async {
+    final repo = _FakeAdminRepository();
+    await pump(tester, repo);
+
+    await tester.tap(find.byKey(const ValueKey('admin-shared-add')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Official Reference'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('reference-form-citation')),
+      '45 DLR (AD) 1',
+    );
+    await tester.tap(find.byKey(const ValueKey('reference-form-save')));
+    await tester.pumpAndSettle();
+
+    expect(repo.saved, hasLength(1));
+    expect(repo.saved.single.referenceAndPageNo, '45 DLR (AD) 1');
+    // The page re-read the server rows after the save, so the new citation is
+    // now in its law list.
+    expect(find.textContaining('45 DLR'), findsNothing);
+    expect(find.text('Saved'), findsNothing);
+  });
+
   testWidgets('the official form reuses a tag and saves the case note', (
     tester,
   ) async {

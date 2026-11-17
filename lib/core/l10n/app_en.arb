@@ -162,7 +162,8 @@
       "description": "Count shown on the Next Date highlight card when the date has passed.",
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

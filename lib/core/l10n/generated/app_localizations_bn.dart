@@ -328,10 +328,14 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String caseDetailsScreen_daysAgo(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count দিন আগে',
+      other: '$countString দিন আগে',
       one: '১ দিন আগে',
     );
     return '$_temp0';

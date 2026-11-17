@@ -535,6 +535,18 @@ void main() {
       expect(find.text('Set Reminder'), findsNothing);
     });
 
+    testWidgets('the days-ago count uses Bengali numerals', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay() - 5 * 86400000,
+      );
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      expect(find.text('৫ দিন আগে'), findsOneWidget);
+      expect(find.text('5 দিন আগে'), findsNothing);
+    });
+
     testWidgets(
       'hides the phone when the role side is unknown and hides card without a date',
       (WidgetTester tester) async {

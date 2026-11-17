@@ -141,7 +141,8 @@
       "description": "গত হয়ে যাওয়া তারিখের হাইলাইট কার্ডে দেখানো গণনা।",
       "placeholders": {
           "count": {
-              "type": "int"
+              "type": "int",
+              "format": "decimalPattern"
           }
       }
   },

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-15 — The days-ago count uses Bengali numerals — COMPLETE (0.0.825)
+
+- **What was asked.** In the Case Detail screen, localize the **N Days Ago** count in Bengali, matching the remaining-days count.
+- **What changed.** The Previous Date card now formats its day count with the active language's digits, so Bengali reads *৫ দিন আগে* instead of using a Latin 5. Nothing else on the card changed.
+- **Proof.** New test *the days-ago count uses Bengali numerals* passes; the full Case Detail suite passes 30 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the count is covered by a widget test, not a device.
+
 ### 2026-11-15 — The Defendant title is black — COMPLETE (0.0.824)
 
 - **What was asked.** In the Case Detail screen, change the Defendant/বিবাদী text colour to black.

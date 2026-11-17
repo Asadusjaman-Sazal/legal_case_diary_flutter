@@ -829,17 +829,46 @@ void main() {
         find.byKey(const ValueKey('backup-encryption-disable')),
         findsOneWidget,
       );
+      // Encryption is off, so there is nothing to disable: the button is
+      // inactive and drawn in Flutter's gray disabled style.
+      final disable = find.byKey(
+        const ValueKey('backup-encryption-disable'),
+      );
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.descendant(of: disable, matching: find.byType(FilledButton)),
+            )
+            .onPressed,
+        isNull,
+      );
 
       // Enable stores it; Disable puts it back.
       await tester.tap(find.byKey(const ValueKey('backup-encryption-enable')));
       await tester.pumpAndSettle();
       expect(prefs.getBool(backupEncryptionEnabledKey), isTrue);
       expect(find.text('Encryption is currently on'), findsOneWidget);
+      expect(
+        tester
+            .widget<OutlinedButton>(
+              find.descendant(of: disable, matching: find.byType(OutlinedButton)),
+            )
+            .onPressed,
+        isNotNull,
+      );
 
       await tester.tap(find.byKey(const ValueKey('backup-encryption-disable')));
       await tester.pumpAndSettle();
       expect(prefs.getBool(backupEncryptionEnabledKey), isFalse);
       expect(find.text('Encryption is currently off'), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.descendant(of: disable, matching: find.byType(FilledButton)),
+            )
+            .onPressed,
+        isNull,
+      );
     },
   );
 

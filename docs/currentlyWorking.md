@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Backup encryption's Disable button is inactive when off — COMPLETE (0.0.829)
+
+- **What was asked.** On Settings > Backup & Restore only, in Encryption On Backup, disable and gray out **Disable** when encryption is already off.
+- **What changed.** The Disable half has no action while the preference is off, so Flutter draws it in the gray disabled style. It becomes active as soon as encryption is turned on. Nothing else on the screen changed.
+- **Proof.** The existing Encryption On Backup widget test now checks Disable is disabled off, enabled on, and disabled again after turning encryption off; `flutter analyze` is clean.
+- **Not checked.** No phone run; the button state is covered by the widget test, not a device.
+
 ### 2026-11-17 — The Edit Court/Steps menu reads Court Categories and puts Law Names last — COMPLETE (0.0.828)
 
 - **What was asked.** On Settings > Edit Court/Steps only, rename **Lower Court Categories** to **Court Categories**, and move **Law Names** below **Case Types, Step etc**.

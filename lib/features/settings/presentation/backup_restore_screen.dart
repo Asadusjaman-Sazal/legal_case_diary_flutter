@@ -1263,7 +1263,8 @@ class _BackupNote extends StatelessWidget {
 /// it — and the two choices sit on one line in the section's own button
 /// geometry. The current state is named in a short caption and the selected
 /// button is filled while the other is outlined, so which way the switch is set
-/// reads at a glance.
+/// reads at a glance. Disable is inactive and gray while encryption is already
+/// off, because there is nothing left to turn off.
 ///
 /// The why / cost / state copy is paragraph text, so the ARB holds it in sentence
 /// case; only the section's own heading, subtitle and button labels are Title Case.
@@ -1274,7 +1275,8 @@ class _EncryptionCard extends StatelessWidget {
   /// Turns encryption on; null while another action is running.
   final VoidCallback? onEnable;
 
-  /// Turns encryption off; null while another action is running.
+  /// Turns encryption off; null while another action is running or encryption
+  /// is already off.
   final VoidCallback? onDisable;
 
   const _EncryptionCard({
@@ -1326,7 +1328,7 @@ class _EncryptionCard extends StatelessWidget {
                   key: const ValueKey('backup-encryption-disable'),
                   label: l.settingsBackupRestore_encryptionDisable,
                   selected: !enabled,
-                  onPressed: onDisable,
+                  onPressed: enabled ? onDisable : null,
                 ),
               ),
             ],

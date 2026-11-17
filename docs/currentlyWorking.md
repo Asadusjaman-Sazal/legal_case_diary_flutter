@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — APK builds are manual again — COMPLETE (0.0.839)
+
+- **What was asked.** Keep the local commit part of the delivery rule, but drop the automatic debug and release APK builds after every successful task. Build APKs only when the user asks.
+- **What changed.** Rule 18 in `AGENTS.md` and `CLAUDE.md` is now **Every successful versioned task is committed locally; APKs are built only on request**. The local version-line commit, no-push rule and attribution footer stay. The explicit build instructions, Drive paths, verification and old-APK cleanup remain for when the user asks for APKs, but the rule now says plainly not to build them at the end of each task. Phase step 9 now commits only and says the same.
+- **Verification.** `flutter analyze` is clean and the version-log check passes. No APK was rebuilt for this change, by the new rule. The existing 0.0.838 debug and arm64 release APKs remain untouched.
+- **Not checked.** No APK build or phone install for this process-only change.
+
 ### 2026-11-17 — CLAUDE rules synced and old APK cleanup — COMPLETE (0.0.838)
 
 - **What was asked.** Remove the stale "Part A is strictly offline" rule from `CLAUDE.md` so it matches `AGENTS.md`, and make the APK delivery rule delete the previous debug and release builds whenever the new pair is saved.

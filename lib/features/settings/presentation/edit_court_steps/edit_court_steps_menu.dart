@@ -27,7 +27,7 @@ class EditCourtStepsMenu extends StatelessWidget {
         children: [
           SettingsMenuCard(
             icon: Icons.account_tree_outlined,
-            title: l.settingsEditCourtSteps_lowerCourtCategories,
+            title: l.settingsEditCourtSteps_courtCategories,
             subtitle: l.settingsEditCourtSteps_lowerCourtCategoriesSubtitle,
             onTap: () => context.push(AppRoutes.settingsLowerCourtCategories),
           ),
@@ -39,6 +39,13 @@ class EditCourtStepsMenu extends StatelessWidget {
             onTap: () => context.push(AppRoutes.settingsEditCourtNamesCategory),
           ),
           const SizedBox(height: AppSpacing.sm),
+          SettingsMenuCard(
+            icon: Icons.category_outlined,
+            title: l.settingsEditCourtSteps_editItemTypes,
+            subtitle: l.settingsEditCourtSteps_editItemTypesSubtitle,
+            onTap: () => context.push(AppRoutes.settingsCourtNamesSteps),
+          ),
+          const SizedBox(height: AppSpacing.sm),
           // The law names a case reference cites: six categories, the same
           // list the statute dropdown in the reference form offers.
           SettingsMenuCard(
@@ -46,13 +53,6 @@ class EditCourtStepsMenu extends StatelessWidget {
             title: l.settingsEditCourtSteps_lawNames,
             subtitle: l.settingsEditCourtSteps_lawNamesSubtitle,
             onTap: () => context.push(AppRoutes.settingsLawNames),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          SettingsMenuCard(
-            icon: Icons.category_outlined,
-            title: l.settingsEditCourtSteps_editItemTypes,
-            subtitle: l.settingsEditCourtSteps_editItemTypesSubtitle,
-            onTap: () => context.push(AppRoutes.settingsCourtNamesSteps),
           ),
         ],
       ),

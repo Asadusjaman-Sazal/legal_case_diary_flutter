@@ -1700,6 +1700,7 @@
   "settingsEditCourtSteps_courtNamesCategoriesSubtitle": "Supreme Court divisions and district lower courts",
   "settingsEditCourtSteps_lowerCourtCategories": "Lower Court Categories",
   "settingsEditCourtSteps_lowerCourtCategoriesSubtitle": "Divisions, districts and their court categories",
+  "settingsEditCourtSteps_courtCategories": "Court Categories",
   "settingsEditCourtSteps_lawNames": "Law Names",
   "settingsEditCourtSteps_lawNamesSubtitle": "The Acts and Ordinances a case reference cites",
   "@@_section_lawNames": "SETTINGS - LAW NAMES  |  lib/features/settings/presentation/edit_court_steps/law_list_screen.dart",

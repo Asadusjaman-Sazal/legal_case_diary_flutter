@@ -3469,6 +3469,9 @@ class AppLocalizationsBn extends AppLocalizations {
       'বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি';
 
   @override
+  String get settingsEditCourtSteps_courtCategories => 'আদালতের ক্যাটেগরি';
+
+  @override
   String get settingsEditCourtSteps_lawNames => 'আইনের নাম';
 
   @override

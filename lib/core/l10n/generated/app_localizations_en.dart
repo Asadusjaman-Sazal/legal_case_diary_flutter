@@ -3452,6 +3452,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Divisions, districts and their court categories';
 
   @override
+  String get settingsEditCourtSteps_courtCategories => 'Court Categories';
+
+  @override
   String get settingsEditCourtSteps_lawNames => 'Law Names';
 
   @override

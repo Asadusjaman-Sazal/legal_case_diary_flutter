@@ -5911,6 +5911,12 @@ abstract class AppLocalizations {
   /// **'Divisions, districts and their court categories'**
   String get settingsEditCourtSteps_lowerCourtCategoriesSubtitle;
 
+  /// No description provided for @settingsEditCourtSteps_courtCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Court Categories'**
+  String get settingsEditCourtSteps_courtCategories;
+
   /// No description provided for @settingsEditCourtSteps_lawNames.
   ///
   /// In en, this message translates to:

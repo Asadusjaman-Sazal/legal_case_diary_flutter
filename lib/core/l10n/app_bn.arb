@@ -1488,6 +1488,7 @@
   "settingsEditCourtSteps_courtNamesCategoriesSubtitle": "আপিল/হাই কোর্ট বিভাগ, নিম্ন আদালতের নাম",
   "settingsEditCourtSteps_lowerCourtCategories": "নিম্ন আদালতের ক্যাটেগরি",
   "settingsEditCourtSteps_lowerCourtCategoriesSubtitle": "বিভাগ, জেলা ও তাদের আদালতের ক্যাটেগরি",
+  "settingsEditCourtSteps_courtCategories": "আদালতের ক্যাটেগরি",
   "settingsEditCourtSteps_lawNames": "আইনের নাম",
   "settingsEditCourtSteps_lawNamesSubtitle": "কেস রেফারেন্সে উল্লিখিত আইন ও অধ্যাদেশসমূহ",
   "@@_section_lawNames": "SETTINGS - LAW NAMES  |  lib/features/settings/presentation/edit_court_steps/law_list_screen.dart",

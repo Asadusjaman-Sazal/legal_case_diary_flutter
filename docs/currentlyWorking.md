@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — The Edit Court/Steps menu reads Court Categories and puts Law Names last — COMPLETE (0.0.828)
+
+- **What was asked.** On Settings > Edit Court/Steps only, rename **Lower Court Categories** to **Court Categories**, and move **Law Names** below **Case Types, Step etc**.
+- **What changed.** The first card has its own menu-only label in both languages; the destination screen and Settings search keep their existing wording. The card order is now Court Categories, Court Names, Case Types, Step etc, then Law Names. The mockup follows.
+- **Proof.** New menu label and order test passes; localization-key and Settings-search tests pass (12), and `flutter analyze` is clean.
+- **Not checked.** No phone run; the menu is covered by a widget test, not a device.
+
 ### 2026-11-17 — A today hearing reads Today on the Next Date card — COMPLETE (0.0.827)
 
 - **What was asked.** In Case Detail > Next Date, when the count is zero days, show **Today / আজ** instead of **0 Days Remaining / আর ০ দিন বাকি**.

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Commit descriptions use the version log — COMPLETE (0.0.840)
+
+- **What was asked.** When committing a task, put the version-log line from `docs/version_history.md` in the commit description instead of the Codebuff attribution footer.
+- **What changed.** Rule 18 and phase step 9 in `AGENTS.md` and `CLAUDE.md` now say the commit subject is the version line and the commit description is the exact same `Version: X.Y.Z - <summary>` line recorded at the end of `docs/version_history.md`. The former `🤖 Generated with Codebuff` / `Co-Authored-By` footer is explicitly removed. The no-push rule and manual APK rule are unchanged.
+- **Verification.** `flutter analyze` is clean and the version-log check passes. This task's own 0.0.840 commit uses the new subject-plus-description format, with no AI footer. No APK is rebuilt for this process-only change.
+- **Not checked.** No APK build or phone install.
+
 ### 2026-11-17 — APK builds are manual again — COMPLETE (0.0.839)
 
 - **What was asked.** Keep the local commit part of the delivery rule, but drop the automatic debug and release APK builds after every successful task. Build APKs only when the user asks.

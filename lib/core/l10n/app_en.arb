@@ -350,6 +350,8 @@
   "caseReferenceScreen_titleAndDescription": "Case Summary & Decision",
   "caseReferenceScreen_commentsNotes": "Personal Notes",
   "caseReferenceScreen_tags": "Tags",
+  "caseReferenceScreen_showAllTags": "Show All Tags",
+  "caseReferenceScreen_showFewerTags": "Show Fewer Tags",
   "caseReferenceScreen_empty": "No references yet. Tap + to add one.",
   "caseReferenceScreen_noStatute": "No statute",
   "caseReferenceScreen_noLawReferences": "No references for this law yet",

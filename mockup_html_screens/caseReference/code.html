@@ -164,12 +164,22 @@
        reference card is listed whatever law it is filed under. -->
   <div class="flex-1 overflow-y-auto">
     <!-- Tag strip (user request): every tag used by the user's own citations and
-         the official library, as clickable chips. A chip replaces the law rows
-         with only the matching reference cards; tapping it again clears it. -->
-    <div class="flex gap-sm overflow-x-auto px-md pt-sm pb-xs">
-      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">bail</button>
-      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">evidence</button>
-      <button class="shrink-0 rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">writ</button>
+         the official library. The chips wrap; only the first two lines show,
+         with a down arrow at the left. Expanding shows every line and an up
+         arrow at the bottom right. A chip replaces the law rows with only the
+         matching reference cards; tapping it again clears it. -->
+    <div class="px-md pt-sm pb-xs">
+      <div class="flex flex-wrap gap-sm">
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">bail</button>
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">evidence</button>
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">writ</button>
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">appeal</button>
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">custody</button>
+        <button class="rounded-lg bg-surface-container-low px-gutter py-sm font-label-md text-label-md text-on-surface-variant">trial</button>
+      </div>
+      <button aria-label="Show All Tags" class="mt-sm w-8 h-8 flex items-center justify-center text-on-surface-variant active:opacity-70">
+        <span class="material-symbols-outlined text-[22px]">expand_more</span>
+      </button>
     </div>
     <p class="px-md pt-sm pb-xs font-label-lg text-body-lg font-bold text-on-surface-variant">Criminal Law</p>
     <div class="px-md">
@@ -211,7 +221,7 @@
        the + adds a citation to this law already selected. Hidden here because
        level 1 is showing. -->
   <div class="hidden flex-1 flex-col">
-    <div class="relative bg-surface-container-lowest flex items-center justify-center px-12 py-sm">
+    <div class="relative flex items-center justify-center px-12 py-sm">
       <span class="truncate text-center font-title-md text-title-md text-on-background">The Penal Code, 1860</span>
       <span class="absolute right-md font-body-sm text-body-sm text-tertiary">4</span>
     </div>

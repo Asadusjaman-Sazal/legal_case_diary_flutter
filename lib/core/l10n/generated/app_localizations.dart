@@ -1262,6 +1262,18 @@ abstract class AppLocalizations {
   /// **'Tags'**
   String get caseReferenceScreen_tags;
 
+  /// No description provided for @caseReferenceScreen_showAllTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All Tags'**
+  String get caseReferenceScreen_showAllTags;
+
+  /// No description provided for @caseReferenceScreen_showFewerTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Fewer Tags'**
+  String get caseReferenceScreen_showFewerTags;
+
   /// No description provided for @caseReferenceScreen_empty.
   ///
   /// In en, this message translates to:

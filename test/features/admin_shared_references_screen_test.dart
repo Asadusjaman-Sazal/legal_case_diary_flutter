@@ -263,6 +263,11 @@ void main() {
     expect(find.byKey(const ValueKey('reference-tag-bar')), findsNothing);
     expect(find.byKey(const ValueKey('law-back')), findsNothing);
     expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
+    expect(
+      tester.widget<Container>(find.byKey(const ValueKey('law-header'))).color,
+      isNull,
+      reason: 'the law header keeps the page background',
+    );
 
     // The page's app-bar back returns to the law list, one level at a time.
     await tester.tap(find.byType(BackButton));

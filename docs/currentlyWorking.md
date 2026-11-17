@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Wrapped tag chips and an unfilled law header — COMPLETE (0.0.833)
+
+- **What was asked.** The tag chips should wrap onto multiple lines instead of one sideways-scrolling line. Only two lines should show at first, with a down arrow at the left; expanding should reveal every tag and show an up arrow at the bottom right, which folds them back. The law-name header on a law’s cards should lose its white background.
+- **What changed.** The strip now measures and wraps the chips, shows two lines by default, and uses the same circular expander as the side menu. Expanding shows all lines with a right-aligned up arrow. The law header is transparent, so the page background shows through.
+- **Proof.** New widget coverage checks the two-line fold, both arrow positions, expansion and collapse, plus transparent headers on both screens. The focused suites pass (32 tests); `flutter analyze` is clean; the localization keys were regenerated in both languages.
+- **Not checked.** No phone or screenshot check; layout is covered by widget geometry assertions, not a visual device run.
+
 ### 2026-11-17 — Tag chips and a centred law header — COMPLETE (0.0.832)
 
 - **What was asked.** Both Case Reference screens should show clickable tag chips at the top, filter the cards when a chip is tapped, use official plus user tags on the user screen and official tags only on the Server-wide page, centre the law-name sub-header, remove its back arrow, and use Bengali digits for its count.

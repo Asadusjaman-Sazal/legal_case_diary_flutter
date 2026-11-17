@@ -308,6 +308,8 @@
   "caseReferenceScreen_titleAndDescription": "মামলার সারসংক্ষেপ ও সিদ্ধান্ত",
   "caseReferenceScreen_commentsNotes": "ব্যক্তিগত নোট",
   "caseReferenceScreen_tags": "ট্যাগ",
+  "caseReferenceScreen_showAllTags": "সব ট্যাগ দেখান",
+  "caseReferenceScreen_showFewerTags": "কম ট্যাগ দেখান",
   "caseReferenceScreen_empty": "এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।",
   "caseReferenceScreen_noStatute": "কোনো আইন নেই",
   "caseReferenceScreen_noLawReferences": "এই আইনের কোনো রেফারেন্স নেই",

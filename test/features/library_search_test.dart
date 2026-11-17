@@ -449,8 +449,71 @@ void main() {
   );
 
   testWidgets(
+    'tag lines hide after two lines, expand from the left and collapse from the right',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(400, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final manyTags = [
+        for (var i = 0; i < 30; i++) 'tag${i.toString().padLeft(2, '0')}',
+      ].join(', ');
+      await seedReference(
+        'ref-1',
+        '45 DLR (AD) 1',
+        'Bail guidelines.',
+        statute: 'The Penal Code, 1860',
+        tags: manyTags,
+      );
+      await pumpLibrary(tester, const CaseReferenceScreen());
+
+      final bar = find.byKey(const ValueKey('reference-tag-bar'));
+      final collapsedHeight = tester.getSize(bar).height;
+      expect(
+        find.byKey(const ValueKey('reference-tag-filter-tag00')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('reference-tag-filter-tag29')),
+        findsNothing,
+      );
+      final down = tester.getCenter(
+        find.byKey(const ValueKey('reference-tag-expand')),
+      );
+      expect(down.dx, lessThan(tester.getRect(bar).center.dx));
+
+      await tester.tap(find.byKey(const ValueKey('reference-tag-expand')));
+      await settle(tester);
+      expect(
+        find.byKey(const ValueKey('reference-tag-filter-tag29')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('reference-tag-expand')), findsNothing);
+      final up = tester.getCenter(
+        find.byKey(const ValueKey('reference-tag-collapse')),
+      );
+      expect(up.dx, greaterThan(tester.getRect(bar).center.dx));
+      expect(tester.getSize(bar).height, greaterThan(collapsedHeight));
+
+      await tester.tap(find.byKey(const ValueKey('reference-tag-collapse')));
+      await settle(tester);
+      expect(
+        find.byKey(const ValueKey('reference-tag-filter-tag29')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('reference-tag-expand')),
+        findsOneWidget,
+      );
+      expect(tester.getSize(bar).height, collapsedHeight);
+
+      await unmount(tester);
+    },
+  );
+
+  testWidgets(
     'the law header is centred, has no back arrow and counts in Bengali',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(400, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await seedReference(
         'ref-1',
         '45 DLR (AD) 1',
@@ -496,6 +559,13 @@ void main() {
         find.byKey(const ValueKey('law-header-name')),
       );
       expect(name.dx, closeTo(header.center.dx, 0.5));
+      expect(
+        tester
+            .widget<Container>(find.byKey(const ValueKey('law-header')))
+            .color,
+        isNull,
+        reason: 'the law header keeps the page background',
+      );
 
       // The system back gesture is the way out of the law page.
       await tester.binding.handlePopRoute();

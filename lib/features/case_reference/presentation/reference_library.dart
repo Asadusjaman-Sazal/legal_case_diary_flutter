@@ -8,6 +8,9 @@
 /// what makes the admin page a replica rather than a second design that drifts.
 library;
 
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -214,9 +217,11 @@ bool referenceHasTag(ReferenceRow row, String tag) {
 /// The clickable tag strip above a library's law list.
 ///
 /// Only the first level shows it: a law's card page is a narrowed view, and its
-/// own sub-header is the thing the reader should follow. Tapping the selected
-/// chip again clears the filter through [onSelected].
-class ReferenceTagBar extends StatelessWidget {
+/// own sub-header is the thing the reader should follow. Tags wrap onto as many
+/// lines as they need; only the first two show until the down arrow is pressed,
+/// then every tag shows with an up arrow at the bottom right. Tapping the
+/// selected chip again clears the filter through [onSelected].
+class ReferenceTagBar extends StatefulWidget {
   /// Creates the strip from [tags], with [selectedTag] highlighted.
   const ReferenceTagBar({
     required this.tags,
@@ -230,56 +235,169 @@ class ReferenceTagBar extends StatelessWidget {
   final ValueChanged<String> onSelected;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    key: const ValueKey('reference-tag-bar'),
-    height: 52,
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.xs,
-        AppSpacing.md,
-        AppSpacing.xs,
-      ),
-      itemCount: tags.length,
-      separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        final tag = tags[index];
-        final selected = selectedTag?.toLowerCase() == tag.toLowerCase();
-        return Center(
-          child: Semantics(
-            button: true,
-            selected: selected,
-            child: Material(
-              key: ValueKey('reference-tag-filter-${tag.toLowerCase()}'),
-              color: selected
-                  ? AppColors.secondaryContainer
-                  : AppColors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                onTap: () => onSelected(tag),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.gutter,
-                    vertical: AppSpacing.sm,
-                  ),
-                  child: Text(
-                    tag,
-                    style: AppTypography.labelMd.copyWith(
-                      color: selected
-                          ? AppColors.onSecondaryContainer
-                          : AppColors.onSurfaceVariant,
-                    ),
-                  ),
+  State<ReferenceTagBar> createState() => _ReferenceTagBarState();
+}
+
+class _ReferenceTagBarState extends State<ReferenceTagBar> {
+  /// The number of tag lines shown before the reader expands the strip.
+  static const int _collapsedLines = 2;
+
+  bool _expanded = false;
+
+  @override
+  void didUpdateWidget(covariant ReferenceTagBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A changed library starts folded again, so a tag edited away does not leave
+    // the strip permanently open.
+    if (!listEquals(oldWidget.tags, widget.tags)) _expanded = false;
+  }
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final width = math.max(0.0, constraints.maxWidth - AppSpacing.md * 2);
+      final rows = _rowsFor(context, width);
+      final hasHidden = rows.length > _collapsedLines;
+      final shown = _expanded ? rows : rows.take(_collapsedLines).toList();
+
+      return Padding(
+        key: const ValueKey('reference-tag-bar'),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.xs,
+          AppSpacing.md,
+          AppSpacing.xs,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final row in shown)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < row.length; i++) ...[
+                      if (i > 0) const SizedBox(width: AppSpacing.sm),
+                      _tagChip(context, row[i], width),
+                    ],
+                  ],
+                ),
+              ),
+            if (hasHidden)
+              Align(
+                alignment: _expanded
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: _expander(context),
+              ),
+          ],
+        ),
+      );
+    },
+  );
+
+  /// The tags split into lines of the available width, left to right.
+  ///
+  /// Measured with the same font the chip paints, so a tag never jumps to a new
+  /// line between the count and the layout.
+  List<List<String>> _rowsFor(BuildContext context, double width) {
+    final rows = <List<String>>[];
+    var row = <String>[];
+    var used = 0.0;
+    for (final tag in widget.tags) {
+      final tagWidth = math.min(_chipWidth(context, tag), width);
+      if (row.isNotEmpty && used + AppSpacing.sm + tagWidth > width) {
+        rows.add(row);
+        row = <String>[];
+        used = 0;
+      }
+      if (row.isNotEmpty) used += AppSpacing.sm;
+      row.add(tag);
+      used += tagWidth;
+    }
+    if (row.isNotEmpty) rows.add(row);
+    return rows;
+  }
+
+  double _chipWidth(BuildContext context, String tag) {
+    final painter = TextPainter(
+      text: TextSpan(text: tag, style: AppTypography.labelMd),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    return painter.width + AppSpacing.gutter * 2;
+  }
+
+  Widget _tagChip(BuildContext context, String tag, double maxWidth) {
+    final selected = widget.selectedTag?.toLowerCase() == tag.toLowerCase();
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        child: Material(
+          key: ValueKey('reference-tag-filter-${tag.toLowerCase()}'),
+          color: selected
+              ? AppColors.secondaryContainer
+              : AppColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            onTap: () => widget.onSelected(tag),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.gutter,
+                vertical: AppSpacing.sm,
+              ),
+              child: Text(
+                tag,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.labelMd.copyWith(
+                  color: selected
+                      ? AppColors.onSecondaryContainer
+                      : AppColors.onSurfaceVariant,
                 ),
               ),
             ),
           ),
-        );
-      },
-    ),
-  );
+        ),
+      ),
+    );
+  }
+
+  Widget _expander(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Semantics(
+      button: true,
+      expanded: _expanded,
+      child: Tooltip(
+        message: _expanded
+            ? l.caseReferenceScreen_showFewerTags
+            : l.caseReferenceScreen_showAllTags,
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            key: ValueKey(
+              _expanded ? 'reference-tag-collapse' : 'reference-tag-expand',
+            ),
+            customBorder: const CircleBorder(),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: Icon(
+                _expanded ? Icons.expand_less : Icons.expand_more,
+                size: 22,
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// The library's first level: every law that holds references, under its
@@ -469,7 +587,6 @@ class ReferenceLawHeader extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return Container(
       key: const ValueKey('law-header'),
-      color: AppColors.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(
         horizontal: 48,
         vertical: AppSpacing.sm,

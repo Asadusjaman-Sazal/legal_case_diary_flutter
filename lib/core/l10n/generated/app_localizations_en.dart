@@ -669,6 +669,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caseReferenceScreen_tags => 'Tags';
 
   @override
+  String get caseReferenceScreen_showAllTags => 'Show All Tags';
+
+  @override
+  String get caseReferenceScreen_showFewerTags => 'Show Fewer Tags';
+
+  @override
   String get caseReferenceScreen_empty =>
       'No references yet. Tap + to add one.';
 

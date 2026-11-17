@@ -669,6 +669,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get caseReferenceScreen_tags => 'ট্যাগ';
 
   @override
+  String get caseReferenceScreen_showAllTags => 'সব ট্যাগ দেখান';
+
+  @override
+  String get caseReferenceScreen_showFewerTags => 'কম ট্যাগ দেখান';
+
+  @override
   String get caseReferenceScreen_empty =>
       'এখনও কোনো রেফারেন্স নেই। যোগ করতে + ট্যাপ করুন।';
 

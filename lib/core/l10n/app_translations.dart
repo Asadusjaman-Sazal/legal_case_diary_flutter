@@ -5,19 +5,22 @@ import 'app_strings.dart';
 import 'generated/app_localizations.dart';
 
 /// Words shortened **only** in the court heading above case cards, where a full
-/// Bengali court name does not fit on one line: সহকারি→সহঃ, সিনিয়র→সিনিঃ,
-/// জুডিসিয়াল→জুডিঃ, ম্যাজিস্ট্রেট→ম্যাজিঃ, অতিরিক্ত→অতিঃ.
+/// Bengali court name does not fit on one line: সহকারি/সহকারী→সহঃ,
+/// সিনিয়র→সিনিঃ, জুডিসিয়াল→জুডিঃ, ম্যাজিস্ট্রেট→ম্যাজিঃ, অতিরিক্ত→অতিঃ,
+/// কমিশনার→কমিঃ.
 ///
 /// Bengali "ya" is written both precomposed and decomposed in the seed data, so
 /// both spellings are listed and a name shortens however it was written.
 const Map<String, String> _courtHeadingShortenings = <String, String>{
   'সহকারি': 'সহঃ',
+  'সহকারী': 'সহঃ',
   '\u09b8\u09bf\u09a8\u09bf\u09df\u09b0': 'সিনিঃ',
   '\u09b8\u09bf\u09a8\u09bf\u09af\u09bc\u09b0': 'সিনিঃ',
   '\u099c\u09c1\u09a1\u09bf\u09b8\u09bf\u09df\u09be\u09b2': 'জুডিঃ',
   '\u099c\u09c1\u09a1\u09bf\u09b8\u09bf\u09af\u09bc\u09be\u09b2': 'জুডিঃ',
   'ম্যাজিস্ট\u09cdরেট': 'ম্যাজিঃ',
   'অতিরিক্ত': 'অতিঃ',
+  'কমিশনার': 'কমিঃ',
   '\u09a8\u09be\u09b0\u09be\u09df\u09a3\u0997\u099e\u09cd\u099c': 'নাঃগঞ্জ',
   '\u09a8\u09be\u09b0\u09be\u09af\u09bc\u09a3\u0997\u099e\u09cd\u099c': 'নাঃগঞ্জ',
 };

@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-15 — Executive Magistrate court names use their full words — COMPLETE (0.0.826)
+
+- **What was asked.** In the Executive Magistrate & Other Courts category, replace **সহঃ** with **সহকারী** and **কমিঃ** with **কমিশনার** in every court name, but keep **সহঃ** and **কমিঃ** in the court heading above grouped case cards.
+- **What changed.** All 96 seeded AC (Land) names now read *সহকারী কমিশনার (ভূমি) …* in court lists, cards, print and pickers. The group heading on Overdue Dates, Daily Cause List and Upcoming Cases still shortens them to *সহঃ কমিঃ*. Court ids are unchanged, so no migration or data rewrite was needed.
+- **Proof.** New seed and heading tests pass; the Daily Cause List suite passes 18 tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the labels and headers are covered by tests, not a device.
+
 ### 2026-11-15 — The days-ago count uses Bengali numerals — COMPLETE (0.0.825)
 
 - **What was asked.** In the Case Detail screen, localize the **N Days Ago** count in Bengali, matching the remaining-days count.

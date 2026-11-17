@@ -208,6 +208,38 @@ void main() {
     );
   });
 
+  test('Executive Magistrate courts spell out Assistant Commissioner', () {
+    final courts = lowerCourtNames.where(
+      (court) => court.courtCategoryId == executiveMagistrateId,
+    );
+    expect(courts, isNotEmpty);
+
+    for (final court in courts) {
+      expect(
+        court.courtNameBn,
+        isNot(contains('সহঃ')),
+        reason: '${court.courtNameEn} keeps the heading-only abbreviation',
+      );
+      expect(
+        court.courtNameBn,
+        isNot(contains('কমিঃ')),
+        reason: '${court.courtNameEn} keeps the heading-only abbreviation',
+      );
+    }
+
+    final landCourts = courts.where(
+      (court) => court.courtNameEn.startsWith('AC (Land)'),
+    );
+    expect(landCourts, isNotEmpty);
+    for (final court in landCourts) {
+      expect(
+        court.courtNameBn,
+        startsWith('সহকারী কমিশনার (ভূমি)'),
+        reason: court.courtNameEn,
+      );
+    }
+  });
+
   test('the compromised step reads Compromise Petition in both languages', () {
       // Renamed at the user's request (0.0.801). The id keeps its first slug so
       // every case and server row saved against this step stays attached to it.

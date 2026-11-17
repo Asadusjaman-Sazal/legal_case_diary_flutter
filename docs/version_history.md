@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.825 - Case Detail now writes the Previous Date's N Days Ago count in Bengali digits, matching the remaining-days count.
+Version: 0.0.826 - Executive Magistrate court names now use সহকারী and কমিশনার in full, while the three grouped case headers keep সহঃ and কমিঃ.
 --------------------------------------
 
 ## Version History Log:
@@ -839,3 +839,4 @@ Version: 0.0.822 - Case-list search now keeps the keyboard closed when the user 
 Version: 0.0.823 - Case Detail's Next Date card now writes remaining days in Bengali digits and shows the full month at one type step above the step line.
 Version: 0.0.824 - Case Detail now shows the Defendant/বিবাদী title in black instead of red.
 Version: 0.0.825 - Case Detail now writes the Previous Date's N Days Ago count in Bengali digits, matching the remaining-days count.
+Version: 0.0.826 - Executive Magistrate court names now use সহকারী and কমিশনার in full, while the three grouped case headers keep সহঃ and কমিঃ.

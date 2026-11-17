@@ -1,14 +1,21 @@
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/core/constants/pre_seeded_data.dart';
 import 'package:legal_case_diary/core/l10n/app_translations.dart';
+import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 
-/// The heading above the case cards shortens five Bengali words and nothing
+/// The heading above the case cards shortens its Bengali words and nothing
 /// else; every other surface keeps the full court name.
 void main() {
   group('shortenCourtHeading', () {
-    test('shortens the five words the heading abbreviates', () {
+    test('shortens the words the heading abbreviates', () {
       expect(
         shortenCourtHeading('সহকারি কমিশনার (ভূমি), ঢাকা'),
-        'সহঃ কমিশনার (ভূমি), ঢাকা',
+        'সহঃ কমিঃ (ভূমি), ঢাকা',
+      );
+      expect(
+        shortenCourtHeading('সহকারী কমিশনার (ভূমি) আদাবর সার্কেল, ঢাকা'),
+        'সহঃ কমিঃ (ভূমি) আদাবর সার্কেল, ঢাকা',
       );
       expect(
         shortenCourtHeading('সিনিয়র সিভিল জজ আদালত, ঢাকা'),
@@ -49,6 +56,20 @@ void main() {
       expect(courtHeadingOverride(id, bengali: true), 'সিনিয়র সিভিল জজ সদর আদালত, নারায়ণগঞ্জ');
       expect(shortenCourtHeading(courtHeadingOverride(id, bengali: true)!), 'সিনিঃ সিভিল জজ সদর আদালত, নাঃগঞ্জ');
       expect(courtHeadingOverride('court-unknown', bengali: true), isNull);
+    });
+
+    test('an Executive Magistrate header shortens the full seed name', () {
+      final l = AppTranslations(
+        lookupAppLocalizations(const Locale('bn')),
+      );
+      final court = lowerCourtNames.firstWhere(
+        (court) =>
+            court.courtCategoryId == executiveMagistrateId &&
+            court.courtNameEn.startsWith('AC (Land)'),
+      );
+
+      expect(l.seedLabel(court.id), startsWith('সহকারী কমিশনার (ভূমি)'));
+      expect(l.courtHeadingLabel(court.id), startsWith('সহঃ কমিঃ (ভূমি)'));
     });
 
     test('leaves English names and every other word alone', () {

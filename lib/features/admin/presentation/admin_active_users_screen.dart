@@ -256,8 +256,7 @@ Color _historyStatusColor(String status) => switch (status) {
   _ => AppColors.tertiary,
 };
 
-/// The numbered cards in one bordered surface, with the app's hairline between
-/// rows.
+/// The numbered accounts, each in its own bordered card with a gap between.
 class _UserList extends StatelessWidget {
   final List<AdminActiveUser> users;
   final AppLocalizations l;
@@ -265,31 +264,18 @@ class _UserList extends StatelessWidget {
   const _UserList({required this.users, required this.l});
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      color: AppColors.surfaceContainerLowest,
-      borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
-      border: Border.all(color: AppColors.outlineVariant),
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-    child: Column(
-      children: [
-        for (var i = 0; i < users.length; i++) ...[
-          if (i > 0)
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.outlineVariant,
-            ),
-          _UserCard(
-            key: ValueKey('admin-active-user-${users[i].id}'),
-            user: users[i],
-            serial: i + 1,
-            l: l,
-          ),
-        ],
+  Widget build(BuildContext context) => Column(
+    children: [
+      for (var i = 0; i < users.length; i++) ...[
+        if (i > 0) const SizedBox(height: AppSpacing.gutter),
+        _UserCard(
+          key: ValueKey('admin-active-user-${users[i].id}'),
+          user: users[i],
+          serial: i + 1,
+          l: l,
+        ),
       ],
-    ),
+    ],
   );
 }
 
@@ -315,8 +301,13 @@ class _UserCard extends StatelessWidget {
         .map((platform) => _platformLabel(l, platform))
         .join(', ');
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppSpacing.sheetRadius),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.cardPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

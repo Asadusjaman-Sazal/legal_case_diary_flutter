@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Local commit and APK delivery rule — COMPLETE (0.0.837)
+
+- **What was asked.** For every successful version-bumped task, commit locally in the existing version-line style without pushing, then build and save both a debug APK and an arm64 release APK in `G:\My Drive\Software Development\Legal Case Diary\`. Both builds must use `tool/flutter_with_env.dart` so the Supabase and Google signup/login settings are compiled in. The same rule must be added to `AGENTS.md` and `CLAUDE.md`.
+- **What changed.** Both instruction files now carry hard rule 18 and phase-completion step 9: commit the versioned task locally with the existing attribution footer, never push or merge without permission, build debug and `--target-platform android-arm64` release APKs through the wrapper, save them as `Legal Case Diary v<version>-debug.apk` and `Legal Case Diary v<version>-release-arm64.apk`, and verify the saved copies. A missing `env.json` or release signing setup is a reportable blocker, never a reason to ship an offline or debug-signed release.
+- **Verification.** `flutter analyze` is clean and the version-log check passes. After the local commit, this task builds both APKs from the committed tree with the wrapper, saves them in the Drive folder, and verifies each copy against its build output; the sizes and checksums are in the final task report.
+- **Not checked.** No phone install or screenshot; the APK builds are verified as files, not by signing in on a device.
+
 ### 2026-11-17 — Active Users cards separated — COMPLETE (0.0.836)
 
 - **What was asked.** In the Active Users screen only, each user should have a separate card instead of one continuous card.

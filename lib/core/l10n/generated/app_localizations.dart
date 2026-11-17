@@ -659,7 +659,7 @@ abstract class AppLocalizations {
   /// Countdown shown on the Next Date highlight card.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{0 Days Remaining} =1{1 Day Remaining} other{{count} Days Remaining}}'**
+  /// **'{count, plural, =0{Today} =1{1 Day Remaining} other{{count} Days Remaining}}'**
   String caseDetailsScreen_daysRemaining(int count);
 
   /// Count shown on the Next Date highlight card when the date has passed.

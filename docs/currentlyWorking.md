@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — A today hearing reads Today on the Next Date card — COMPLETE (0.0.827)
+
+- **What was asked.** In Case Detail > Next Date, when the count is zero days, show **Today / আজ** instead of **0 Days Remaining / আর ০ দিন বাকি**.
+- **What changed.** The zero branch of the card's remaining-days plural now carries the word in English and Bengali. The card's title, date, step line and Set Reminder action are untouched, as is every other screen.
+- **Proof.** New English and Bengali widget tests pass; `case_detail_test.dart` has 32 passing tests and `flutter analyze` is clean.
+- **Not checked.** No phone run; the zero-day wording is covered by the widget tests.
+
 ### 2026-11-15 — Executive Magistrate court names use their full words — COMPLETE (0.0.826)
 
 - **What was asked.** In the Executive Magistrate & Other Courts category, replace **সহঃ** with **সহকারী** and **কমিঃ** with **কমিশনার** in every court name, but keep **সহঃ** and **কমিঃ** in the court heading above grouped case cards.

@@ -321,7 +321,7 @@ class AppLocalizationsBn extends AppLocalizations {
       locale: localeName,
       other: 'আর $countString দিন বাকি',
       one: 'আর ১ দিন বাকি',
-      zero: 'আর ০ দিন বাকি',
+      zero: 'আজ',
     );
     return '$_temp0';
   }

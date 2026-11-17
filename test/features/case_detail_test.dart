@@ -437,6 +437,30 @@ void main() {
       expect(find.text('আর 5 দিন বাকি'), findsNothing);
     });
 
+    testWidgets('a next date of today reads Today', (WidgetTester tester) async {
+      final caseId = await seedCase(
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay(),
+      );
+      await pumpDetail(tester, caseId);
+
+      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('0 Days Remaining'), findsNothing);
+      expect(find.text('Next Date'), findsOneWidget);
+    });
+
+    testWidgets('a next date of today reads আজ in Bengali', (
+      WidgetTester tester,
+    ) async {
+      final caseId = await seedCase(
+        nextDateMs: AppDateUtils.bangladeshTodayStartOfDay(),
+      );
+      await pumpDetail(tester, caseId, locale: const Locale('bn'));
+
+      expect(find.text('আজ'), findsOneWidget);
+      expect(find.text('আর ০ দিন বাকি'), findsNothing);
+      expect(find.text('পরবর্তী তারিখ'), findsOneWidget);
+    });
+
     testWidgets('the Respondent title is black', (WidgetTester tester) async {
       final caseId = await seedCase(nextDateMs: null);
       await pumpDetail(tester, caseId, locale: const Locale('bn'));

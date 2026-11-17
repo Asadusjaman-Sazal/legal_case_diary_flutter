@@ -320,7 +320,7 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$countString Days Remaining',
       one: '1 Day Remaining',
-      zero: '0 Days Remaining',
+      zero: 'Today',
     );
     return '$_temp0';
   }

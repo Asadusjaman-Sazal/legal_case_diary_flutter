@@ -126,7 +126,7 @@
   "caseDetailsScreen_noHistoryEntries": "এখনো কোনো কেস হিস্টোরি যুক্ত করা হয়নি।",
   "caseDetailsScreen_showHistory": "দেখুন",
   "caseDetailsScreen_hideHistory": "লুকান",
-  "caseDetailsScreen_daysRemaining": "{count, plural, =0{আর ০ দিন বাকি} =1{আর ১ দিন বাকি} other{আর {count} দিন বাকি}}",
+  "caseDetailsScreen_daysRemaining": "{count, plural, =0{আজ} =1{আর ১ দিন বাকি} other{আর {count} দিন বাকি}}",
   "@caseDetailsScreen_daysRemaining": {
       "description": "পরবর্তী তারিখের হাইলাইট কার্ডে দেখানো কাউন্টডাউন।",
       "placeholders": {

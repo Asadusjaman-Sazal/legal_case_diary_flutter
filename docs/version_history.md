@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.826 - Executive Magistrate court names now use সহকারী and কমিশনার in full, while the three grouped case headers keep সহঃ and কমিঃ.
+Version: 0.0.827 - The Next Date card now reads Today / আজ when the hearing is today instead of 0 Days Remaining / আর ০ দিন বাকি.
 --------------------------------------
 
 ## Version History Log:
@@ -840,3 +840,4 @@ Version: 0.0.823 - Case Detail's Next Date card now writes remaining days in Ben
 Version: 0.0.824 - Case Detail now shows the Defendant/বিবাদী title in black instead of red.
 Version: 0.0.825 - Case Detail now writes the Previous Date's N Days Ago count in Bengali digits, matching the remaining-days count.
 Version: 0.0.826 - Executive Magistrate court names now use সহকারী and কমিশনার in full, while the three grouped case headers keep সহঃ and কমিঃ.
+Version: 0.0.827 - The Next Date card now reads Today / আজ when the hearing is today instead of 0 Days Remaining / আর ০ দিন বাকি.

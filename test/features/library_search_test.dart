@@ -510,7 +510,7 @@ void main() {
   );
 
   testWidgets(
-    'the law header is centred, has no back arrow and counts in Bengali',
+    'the law header is centred, carries a bare back icon and counts in Bengali',
     (tester) async {
       await tester.binding.setSurfaceSize(const Size(400, 1000));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -546,8 +546,8 @@ void main() {
       );
       await settle(tester);
 
-      expect(find.byKey(const ValueKey('law-back')), findsNothing);
       expect(find.byKey(const ValueKey('law-header')), findsOneWidget);
+      expect(find.byKey(const ValueKey('law-back')), findsOneWidget);
       expect(
         tester
             .widget<Text>(find.byKey(const ValueKey('law-header-count')))
@@ -559,6 +559,18 @@ void main() {
         find.byKey(const ValueKey('law-header-name')),
       );
       expect(name.dx, closeTo(header.center.dx, 0.5));
+      // The bare icon sits on the name's line, directly under the app header's
+      // menu button, with no fill of its own.
+      final back = tester.getCenter(find.byKey(const ValueKey('law-back')));
+      final menu = tester.getCenter(find.byIcon(Icons.menu));
+      expect(back.dx, closeTo(menu.dx, 0.5));
+      expect(back.dy, greaterThan(menu.dy));
+      expect(back.dy, closeTo(name.dy, 0.5));
+      expect(
+        tester.widget<IconButton>(find.byKey(const ValueKey('law-back'))).style,
+        isNull,
+        reason: 'the back control draws only its icon',
+      );
       expect(
         tester
             .widget<Container>(find.byKey(const ValueKey('law-header')))
@@ -567,8 +579,8 @@ void main() {
         reason: 'the law header keeps the page background',
       );
 
-      // The system back gesture is the way out of the law page.
-      await tester.binding.handlePopRoute();
+      // The bare icon returns to the law list.
+      await tester.tap(find.byKey(const ValueKey('law-back')));
       await settle(tester);
       expect(
         find.byKey(const ValueKey('law-row-The Penal Code, 1860')),

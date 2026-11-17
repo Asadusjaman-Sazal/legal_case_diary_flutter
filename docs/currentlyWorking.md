@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — A bare back icon on the law cards page — COMPLETE (0.0.834)
+
+- **What was asked.** On the Case Reference screen only, the law-name header should get a back button at the far left, on the same line as the law name and directly under the app header’s menu button. It should have no background, just the icon.
+- **What changed.** The shared law header now accepts an optional back action; only the user’s Case Reference screen passes it. The icon is transparent, aligned exactly under the menu button, and returns to the law list. The Server-wide Case Reference page keeps its existing app-bar back and does not draw this icon.
+- **Proof.** The header test pins the icon’s x position against the menu button, its y position against the law name, its unfilled style, and its return tap. Both focused suites pass (32 tests); `flutter analyze` is clean.
+- **Not checked.** No phone or screenshot check; placement is covered by widget geometry assertions.
+
 ### 2026-11-17 — Wrapped tag chips and an unfilled law header — COMPLETE (0.0.833)
 
 - **What was asked.** The tag chips should wrap onto multiple lines instead of one sideways-scrolling line. Only two lines should show at first, with a down arrow at the left; expanding should reveal every tag and show an up arrow at the bottom right, which folds them back. The law-name header on a law’s cards should lose its white background.

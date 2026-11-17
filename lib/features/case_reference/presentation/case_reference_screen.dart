@@ -485,6 +485,7 @@ class _CaseReferenceScreenState extends ConsumerState<CaseReferenceScreen> {
                 ReferenceLawHeader(
                   label: law.isEmpty ? l.caseReferenceScreen_noStatute : law,
                   count: lawRows.length,
+                  onBack: _closeLaw,
                 ),
                 Expanded(
                   child: ReferenceList(

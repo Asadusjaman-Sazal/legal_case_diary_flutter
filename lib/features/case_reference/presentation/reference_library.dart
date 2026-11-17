@@ -568,50 +568,70 @@ class ReferenceLawList extends StatelessWidget {
 
 /// A law's page header: its name centred, with its count at the right.
 ///
-/// The back control lives outside this header (the Server-wide page's app bar)
-/// or in the system gesture, never here (user request), so the law name can take
-/// the middle of the line.
+/// The user's Case Reference screen passes [onBack], drawing a bare back icon at
+/// the far left under the app header's menu button. The Server-wide page leaves
+/// it null and keeps its app-bar back.
 class ReferenceLawHeader extends StatelessWidget {
   /// Creates the header.
   const ReferenceLawHeader({
     required this.label,
     required this.count,
+    this.onBack,
     super.key,
   });
 
   final String label;
   final int count;
 
+  /// Returns to the law list; null leaves the far-left slot empty.
+  final Future<void> Function()? onBack;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Container(
       key: const ValueKey('law-header'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 48,
-        vertical: AppSpacing.sm,
-      ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Text(
-            key: const ValueKey('law-header-name'),
-            // Hosts pass the stored statute key, so the header follows the
-            // active language without changing what a law page matches.
-            context.l10n.lawName(label),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.titleMd.copyWith(
-              color: AppColors.onBackground,
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 48,
+              vertical: AppSpacing.sm,
+            ),
+            child: Text(
+              key: const ValueKey('law-header-name'),
+              // Hosts pass the stored statute key, so the header follows the
+              // active language without changing what a law page matches.
+              context.l10n.lawName(label),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.titleMd.copyWith(
+                color: AppColors.onBackground,
+              ),
             ),
           ),
+          if (onBack != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                key: const ValueKey('law-back'),
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                icon: const Icon(Icons.arrow_back),
+                color: AppColors.primary,
+                onPressed: onBack,
+              ),
+            ),
           Align(
             alignment: Alignment.centerRight,
-            child: Text(
-              key: const ValueKey('law-header-count'),
-              AppDateUtils.formatDigits(count, l.localeName),
-              style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 48),
+              child: Text(
+                key: const ValueKey('law-header-count'),
+                AppDateUtils.formatDigits(count, l.localeName),
+                style: AppTypography.bodySm.copyWith(color: AppColors.tertiary),
+              ),
             ),
           ),
         ],

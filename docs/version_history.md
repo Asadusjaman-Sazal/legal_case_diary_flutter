@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.833 - Case Reference tags wrap to two lines with expand and collapse arrows, and the law header now uses the page background.
+Version: 0.0.834 - The Case Reference law header now has a bare back icon under the menu button; the Server-wide page is unchanged.
 --------------------------------------
 
 ## Version History Log:
@@ -847,3 +847,4 @@ Version: 0.0.830 - The disabled Disable button in Backup & Restore now has a gra
 Version: 0.0.831 - Offline edits now sync when the connection returns even if the device check failed while the app was opened offline.
 Version: 0.0.832 - Case Reference screens now filter citations by clickable tags, and the law header is centred, has no back arrow and shows Bengali counts.
 Version: 0.0.833 - Case Reference tags wrap to two lines with expand and collapse arrows, and the law header now uses the page background.
+Version: 0.0.834 - The Case Reference law header now has a bare back icon under the menu button; the Server-wide page is unchanged.

@@ -215,13 +215,16 @@
   </div>
 
   <!-- Level 2, opened by a law row: the law's name as a centred sub-header and
-       its own count, with no back arrow of its own (user request); the screen's
-       header or the system back gesture returns to the law list. The tag strip
+       its own count, with a bare back icon at the far left on the same line,
+       directly under the app header's menu button (user request). The tag strip
        is first-level only. Its references are the same cards as before, and
        the + adds a citation to this law already selected. Hidden here because
        level 1 is showing. -->
   <div class="hidden flex-1 flex-col">
     <div class="relative flex items-center justify-center px-12 py-sm">
+      <button aria-label="Back" class="absolute left-0 w-12 h-12 flex items-center justify-center text-primary active:opacity-70">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
       <span class="truncate text-center font-title-md text-title-md text-on-background">The Penal Code, 1860</span>
       <span class="absolute right-md font-body-sm text-body-sm text-tertiary">4</span>
     </div>

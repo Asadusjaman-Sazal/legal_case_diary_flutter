@@ -144,6 +144,13 @@ class SyncService {
   Timer? _pingTimer;
   DateTime _nextAttemptAt = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// Consecutive runs that could not verify this device's slot.
+  ///
+  /// Only this path's retry uses it, so a device-check outage backs off from
+  /// 30 seconds to 30 minutes instead of polling every minute. A readable gate
+  /// answer resets it.
+  int _deviceGateRetryAttempt = 0;
+
   /// Rows a Realtime ping asked for, waiting for the in-flight slot.
   final Set<SyncPing> _pendingPings = <SyncPing>{};
 
@@ -218,13 +225,52 @@ class SyncService {
   /// backend, which must keep syncing exactly as before. A state that cannot be
   /// read at all fails closed: pushing into an account whose device limit
   /// cannot be checked is how a refused device would still write.
+  ///
+  /// **A failure is re-checked, not remembered for the session.** Opening the
+  /// app offline left `deviceGateProvider` in an error that every later run read
+  /// as "do not sync" — so edits made offline waited for a restart. The failed
+  /// or unreadable answer now earns one fresh registration attempt before the
+  /// run is refused; only a still-unreadable answer schedules the backoff.
   Future<bool> _deviceMaySync() async {
+    DeviceGateState? gate;
     try {
-      final gate = await _ref.read(deviceGateProvider.future);
-      return gate.maySync || gate.status == DeviceGateStatus.unmanaged;
+      gate = await _ref.read(deviceGateProvider.future);
     } on Object {
+      gate = null;
+    }
+
+    // A gate that failed at launch (or answered "cannot tell") is re-asked
+    // here, which is what makes a reconnect repair an offline cold start. The
+    // sync runners are serialized, so this cannot race another drain's check.
+    if (gate == null ||
+        gate.status == DeviceGateStatus.unknown ||
+        gate.status == DeviceGateStatus.unregistered) {
+      try {
+        await _ref.read(deviceGateProvider.notifier).refresh(claim: true);
+      } on Object {
+        // The state below is still the answer; a failure is retried.
+      }
+      gate = _ref.read(deviceGateProvider).value;
+    }
+
+    if (gate == null ||
+        gate.status == DeviceGateStatus.unknown ||
+        gate.status == DeviceGateStatus.unregistered) {
+      _health()?.recordFailure();
+      _deviceGateRetryAttempt++;
+      _scheduleBackoff(
+        const SyncFailure(
+          'Could not verify this device.',
+          kind: SyncFailureKind.network,
+          retryable: true,
+        ),
+        _deviceGateRetryAttempt,
+      );
       return false;
     }
+
+    _deviceGateRetryAttempt = 0;
+    return gate.maySync || gate.status == DeviceGateStatus.unmanaged;
   }
 
   /// A Realtime ping asks for a micro pull of exactly the rows it names.

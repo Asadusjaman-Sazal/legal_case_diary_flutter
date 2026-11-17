@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — Offline edits sync when the connection returns — COMPLETE (0.0.831)
+
+- **What was asked.** Changes saved offline did not sync until the app was closed and reopened. Find the cause, fix it, and add a regression test.
+- **What was wrong.** If the app was opened without internet, the device-slot check failed and that failure stayed cached. Every later sync read it as “do not sync” and stopped without retrying. Reopening the app rebuilt the check online, which is why that worked.
+- **What changed.** The sync engine now re-checks a failed or unreadable device gate before refusing a run, then pushes the queued edit. If the check still cannot be read, it records a failure and retries on the normal 30 seconds → 30 minutes backoff instead of silently giving up. A genuinely revoked or over-limit device is still blocked.
+- **Proof.** New regression tests: an offline edit drains after reconnecting without a restart, and a reconnect asks the engine to sync. Both pass; `flutter analyze` is clean.
+- **Not checked.** No phone run; the repair is covered by service and trigger tests, not a device.
+
 ### 2026-11-17 — The disabled Backup encryption button is visibly gray — COMPLETE (0.0.830)
 
 - **What was asked.** The Disable button was disabled, but its background stayed blue, so it did not look disabled. Make it gray.

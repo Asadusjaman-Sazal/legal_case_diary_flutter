@@ -7,6 +7,8 @@
 /// half a socket test can see.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -71,6 +73,23 @@ class _TouchGate extends DeviceGateController {
   Future<void> touch({bool force = false}) async => touches.add(force);
 }
 
+/// A service that records what the scope asks it to do.
+class _CountingService extends SyncService {
+  _CountingService(super.ref);
+
+  /// Sync requests received.
+  int requests = 0;
+
+  @override
+  void requestSync({bool pull = false}) => requests++;
+}
+
+/// Sync is off for this probe; the reconnect listener still records its ask.
+class _OffSwitch extends SyncEnabledNotifier {
+  @override
+  bool build() => false;
+}
+
 /// Stands in for the device's preferences; the silent detector never reads it.
 late SharedPreferences _prefs;
 
@@ -86,12 +105,16 @@ void main() {
     WidgetTester tester,
     _FakeSocket socket, {
     List<Override> extra = const <Override>[],
+    Stream<bool>? onlineChanges,
+    SyncService Function(Ref ref)? service,
   }) async {
     final overrides = <Override>[
       ...extra,
       // The three facts that decide whether the channel may open at all.
       premiumAccessProvider.overrideWith((ref) async => true),
-      isOnlineProvider.overrideWith((ref) => Stream<bool>.value(true)),
+      isOnlineProvider.overrideWith(
+        (ref) => onlineChanges ?? Stream<bool>.value(true),
+      ),
       accountProfileProvider.overrideWith(
         (ref) => Stream<Profile?>.value(null),
       ),
@@ -109,7 +132,9 @@ void main() {
       // No transport, so the launch drain asks for nothing while this test is
       // about the channel rather than the workers.
       syncServiceProvider.overrideWith(
-        (ref) => SyncService(ref, transportOverride: () => null),
+        (ref) =>
+            service?.call(ref) ??
+            SyncService(ref, transportOverride: () => null),
       ),
     ];
 
@@ -145,6 +170,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(gate.touches, <bool>[true]);
+  });
+
+  testWidgets('a reconnect asks the engine to sync', (tester) async {
+    final online = StreamController<bool>();
+    addTearDown(online.close);
+    late _CountingService service;
+    await pumpScope(
+      tester,
+      _FakeSocket(),
+      onlineChanges: online.stream,
+      service: (ref) => service = _CountingService(ref),
+      extra: [syncEnabledProvider.overrideWith(_OffSwitch.new)],
+    );
+    final before = service.requests;
+
+    online.add(false);
+    await tester.pumpAndSettle();
+    online.add(true);
+    await tester.pumpAndSettle();
+
+    expect(service.requests, before + 1);
   });
 
   testWidgets('switching sync off closes the channel, and on reopens it', (

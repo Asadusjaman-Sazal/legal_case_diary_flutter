@@ -5,6 +5,7 @@
 /// tested as they ship.
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
@@ -12,8 +13,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
+import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/shared/providers/database_provider.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import 'package:legal_case_diary/sync/realtime_listener.dart';
@@ -95,6 +98,43 @@ class _FakeSocket implements RealtimeSocket {
   Future<void> unsubscribe() async {}
 }
 
+/// A device gate that fails at launch while offline, then answers on refresh.
+///
+/// This is the state the app reaches when it is opened with no connection: the
+/// diary opens on its local copy, but the gate's one launch check has already
+/// failed and used to stay failed for the rest of the session.
+class _RecoveringGate extends DeviceGateController {
+  /// Whether the server can be reached now.
+  bool online = false;
+
+  /// Refreshes asked for by the sync engine.
+  int refreshes = 0;
+
+  @override
+  Future<DeviceGateState> build() async {
+    if (!online) throw StateError('offline during the device check');
+    return const DeviceGateState(status: DeviceGateStatus.active);
+  }
+
+  @override
+  Future<void> refresh({bool claim = true}) async {
+    refreshes++;
+    if (!online) {
+      state = AsyncError(
+        StateError('still offline during the device check'),
+        StackTrace.current,
+      );
+      return;
+    }
+    state = const AsyncData(
+      DeviceGateState(status: DeviceGateStatus.active),
+    );
+  }
+
+  @override
+  Future<void> touch({bool force = false}) async {}
+}
+
 void main() {
   late AppDatabase db;
   late _FakeTransport transport;
@@ -109,26 +149,35 @@ void main() {
 
   tearDown(() => db.close());
 
-  ProviderContainer container({required bool entitled, required bool online}) {
-    final value = ProviderContainer(
-      overrides: <Override>[
-        databaseProvider.overrideWith((ref) async => db),
-        accountCacheUserIdProvider.overrideWithValue('user-1'),
-        accountProfileProvider.overrideWith((ref) => Stream.value(null)),
-        premiumAccessProvider.overrideWith((ref) async => entitled),
-        isOnlineProvider.overrideWith((ref) => Stream.value(online)),
-        syncServiceProvider.overrideWith(
-          (ref) => SyncService(ref, transportOverride: () => transport),
+  ProviderContainer container({
+    required bool entitled,
+    required bool online,
+    Stream<bool>? onlineChanges,
+    DeviceGateController? gate,
+  }) {
+    final overrides = <Override>[
+      databaseProvider.overrideWith((ref) async => db),
+      accountCacheUserIdProvider.overrideWithValue('user-1'),
+      accountProfileProvider.overrideWith((ref) => Stream.value(null)),
+      premiumAccessProvider.overrideWith((ref) async => entitled),
+      isOnlineProvider.overrideWith(
+        (ref) => onlineChanges ?? Stream.value(online),
+      ),
+      syncServiceProvider.overrideWith(
+        (ref) => SyncService(ref, transportOverride: () => transport),
+      ),
+      realtimeListenerProvider.overrideWith(
+        (ref) => RealtimeListener(
+          socket: socket,
+          topic: () => 'user:user-1',
+          onPings: (_) {},
         ),
-        realtimeListenerProvider.overrideWith(
-          (ref) => RealtimeListener(
-            socket: socket,
-            topic: () => 'user:user-1',
-            onPings: (_) {},
-          ),
-        ),
-      ],
-    );
+      ),
+    ];
+    if (gate != null) {
+      overrides.add(deviceGateProvider.overrideWith(() => gate));
+    }
+    final value = ProviderContainer(overrides: overrides);
     addTearDown(value.dispose);
     return value;
   }
@@ -172,6 +221,55 @@ void main() {
 
     expect(transport.calls, isEmpty);
   });
+
+  test(
+    'an offline edit syncs after reconnecting when the device check failed at launch',
+    () async {
+      await enqueue('c1');
+      final online = StreamController<bool>();
+      addTearDown(online.close);
+      final gate = _RecoveringGate();
+      final value = container(
+        entitled: true,
+        online: false,
+        onlineChanges: online.stream,
+        gate: gate,
+      );
+      final subscription = value.listen(isOnlineProvider, (previous, next) {});
+      addTearDown(subscription.close);
+      online.add(false);
+      await Future<void>.delayed(Duration.zero);
+
+      // The app was opened without a connection: the diary opened, but the
+      // device-slot check failed and its error was cached for this session.
+      try {
+        await value.read(deviceGateProvider.future);
+      } on Object {
+        // Expected: this is the launch failure the reconnect has to repair.
+      }
+      expect(value.read(deviceGateProvider).hasError, isTrue);
+
+      final service = value.read(syncServiceProvider);
+      await service.syncNow(force: true);
+      expect(transport.calls, isEmpty);
+      expect((await SyncQueueDao(db).getAll()).single.state, 'pending');
+      expect(gate.refreshes, 0, reason: 'offline stops before the gate');
+
+      // Internet returns. The trigger scope asks for a sync; the engine must
+      // re-check the gate instead of reusing its launch failure.
+      gate.online = true;
+      online.add(true);
+      await Future<void>.delayed(Duration.zero);
+      service.requestSync();
+      await Future<void>.delayed(
+        syncCoalescingWindow + const Duration(milliseconds: 100),
+      );
+
+      expect(gate.refreshes, 1);
+      expect(transport.calls, hasLength(1));
+      expect((await SyncQueueDao(db).getAll()).single.state, 'resolved');
+    },
+  );
 
   test('does not sync while the user has switched sync off', () async {
     await enqueue('c1');

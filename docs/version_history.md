@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.830 - The disabled Disable button in Backup & Restore now has a gray fill and muted text instead of blue.
+Version: 0.0.831 - Offline edits now sync when the connection returns even if the device check failed while the app was opened offline.
 --------------------------------------
 
 ## Version History Log:
@@ -844,3 +844,4 @@ Version: 0.0.827 - The Next Date card now reads Today / আজ when the hearing 
 Version: 0.0.828 - The Edit Court/Steps menu now reads Court Categories and places Law Names after Case Types, Step etc.
 Version: 0.0.829 - In Backup & Restore, the Disable button is now inactive and gray while encryption is already off.
 Version: 0.0.830 - The disabled Disable button in Backup & Restore now has a gray fill and muted text instead of blue.
+Version: 0.0.831 - Offline edits now sync when the connection returns even if the device check failed while the app was opened offline.

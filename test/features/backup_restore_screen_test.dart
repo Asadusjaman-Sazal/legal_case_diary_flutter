@@ -834,13 +834,23 @@ void main() {
       final disable = find.byKey(
         const ValueKey('backup-encryption-disable'),
       );
+      final disabledChoice = tester.widget<FilledButton>(
+        find.descendant(of: disable, matching: find.byType(FilledButton)),
+      );
+      expect(disabledChoice.onPressed, isNull);
+      // Its selected state would otherwise keep the blue fill; the disabled
+      // state now paints a gray fill with muted text.
       expect(
-        tester
-            .widget<FilledButton>(
-              find.descendant(of: disable, matching: find.byType(FilledButton)),
-            )
-            .onPressed,
-        isNull,
+        disabledChoice.style?.backgroundColor?.resolve(<WidgetState>{
+          WidgetState.disabled,
+        }),
+        AppColors.surfaceContainerHigh,
+      );
+      expect(
+        disabledChoice.style?.foregroundColor?.resolve(<WidgetState>{
+          WidgetState.disabled,
+        }),
+        AppColors.onSurfaceVariant,
       );
 
       // Enable stores it; Disable puts it back.

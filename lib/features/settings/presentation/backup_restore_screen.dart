@@ -1372,10 +1372,18 @@ class _ChoiceButton extends StatelessWidget {
         ? FilledButton(
             onPressed: onPressed,
             style: style.copyWith(
-              backgroundColor: const WidgetStatePropertyAll(AppColors.primary),
-              foregroundColor: const WidgetStatePropertyAll(
-                AppColors.onPrimary,
-              ),
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.disabled)) {
+                  return AppColors.surfaceContainerHigh;
+                }
+                return AppColors.primary;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.disabled)) {
+                  return AppColors.onSurfaceVariant;
+                }
+                return AppColors.onPrimary;
+              }),
             ),
             child: Text(label),
           )

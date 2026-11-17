@@ -1,5 +1,12 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-17 — The disabled Backup encryption button is visibly gray — COMPLETE (0.0.830)
+
+- **What was asked.** The Disable button was disabled, but its background stayed blue, so it did not look disabled. Make it gray.
+- **What changed.** The disabled state now uses a gray fill and muted text instead of the selected button's blue; once encryption is on, it returns to the normal outlined style. Nothing else changed.
+- **Proof.** The Encryption On Backup widget test now pins the disabled fill and text colours; it passes and `flutter analyze` is clean.
+- **Not checked.** No phone run; the colours are covered by the widget test, not a device.
+
 ### 2026-11-17 — Backup encryption's Disable button is inactive when off — COMPLETE (0.0.829)
 
 - **What was asked.** On Settings > Backup & Restore only, in Encryption On Backup, disable and gray out **Disable** when encryption is already off.

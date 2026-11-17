@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.837 - Every successful versioned task now ends with a local commit plus saved debug and arm64 release APKs.
+Version: 0.0.838 - CLAUDE.md now matches the current rules, and saving a new APK pair deletes the earlier debug and release builds.
 --------------------------------------
 
 ## Version History Log:
@@ -851,3 +851,4 @@ Version: 0.0.834 - The Case Reference law header now has a bare back icon under 
 Version: 0.0.835 - The Admin Panel gains Active Users: every confirmed account, oldest first, with plans, usage, devices and the last five subscription entries.
 Version: 0.0.836 - Every Active Users account now sits in its own bordered card instead of sharing one continuous surface.
 Version: 0.0.837 - Every successful versioned task now ends with a local commit plus saved debug and arm64 release APKs.
+Version: 0.0.838 - CLAUDE.md now matches the current rules, and saving a new APK pair deletes the earlier debug and release builds.

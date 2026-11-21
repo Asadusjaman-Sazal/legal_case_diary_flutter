@@ -1901,6 +1901,9 @@ void main() {
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
+    // The taller section titles push the action past the test surface's fold.
+    await tester.ensureVisible(find.text(l.manageAssociates_dissolveFirm));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l.manageAssociates_dissolveFirm));
     await tester.pumpAndSettle();
     expect(find.text(l.manageAssociates_dissolveConfirmTitle), findsOneWidget);
@@ -1932,6 +1935,8 @@ void main() {
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
+    await tester.ensureVisible(find.text(l.manageAssociates_dissolveFirm));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l.manageAssociates_dissolveFirm));
     await tester.pumpAndSettle();
     await tester.tap(

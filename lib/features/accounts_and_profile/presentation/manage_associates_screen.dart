@@ -266,7 +266,7 @@ class _ManageAssociatesScreenState
           if (_devicesExpanded) _ChamberDevices(l: l),
         ],
         const SizedBox(height: AppSpacing.gutter),
-        SettingsSectionLabel(l.manageAssociates_sectionMembers),
+        _sectionTitle(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
         members.when(
           data: (rows) => _memberList(
@@ -305,7 +305,7 @@ class _ManageAssociatesScreenState
           ),
         ],
         const SizedBox(height: AppSpacing.lg),
-        SettingsSectionLabel(l.manageAssociates_sectionInvites),
+        _sectionTitle(l.manageAssociates_sectionInvites),
         const SizedBox(height: AppSpacing.sm),
         invites.when(
           data: (rows) => rows.isEmpty
@@ -351,7 +351,7 @@ class _ManageAssociatesScreenState
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        SettingsSectionLabel(l.manageAssociates_sectionFirm),
+        _sectionTitle(l.manageAssociates_sectionFirm),
         const SizedBox(height: AppSpacing.sm),
         _DissolveCard(
           intro: l.manageAssociates_dissolveIntro,
@@ -440,7 +440,7 @@ class _ManageAssociatesScreenState
       children: [
         _FirmCard(name: _firmTitle(l), readOnly: true),
         const SizedBox(height: AppSpacing.gutter),
-        SettingsSectionLabel(l.manageAssociates_sectionMembers),
+        _sectionTitle(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
         members.when(
           data: (rows) => _memberList(
@@ -2300,6 +2300,13 @@ String _initials(String name) {
   final last = words.length > 1 ? words.last.substring(0, 1) : '';
   return (first + last).toUpperCase();
 }
+
+/// A section title in the Notifications screen's own title style (user
+/// request, 0.0.846): titleMd, bold, above the list or card it names.
+Widget _sectionTitle(String text) => Text(
+  text,
+  style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+);
 
 /// What a member may do, in one short line under their name.
 ///

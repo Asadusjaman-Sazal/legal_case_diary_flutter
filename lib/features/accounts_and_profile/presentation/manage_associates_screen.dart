@@ -252,18 +252,13 @@ class _ManageAssociatesScreenState
         ),
         if (capacity != null) ...[
           const SizedBox(height: AppSpacing.gutter),
-          _CapacityCard(capacity: capacity, l: l),
-          // The arrow opens the two lists behind the numbers (user request):
-          // centred under the card, with the chamber's devices below it.
-          _DevicesToggle(
+          _CapacityCard(
+            capacity: capacity,
+            l: l,
             expanded: _devicesExpanded,
-            label: _devicesExpanded
-                ? l.manageAssociates_hideDevices
-                : l.manageAssociates_showDevices,
-            onPressed: () =>
+            onToggle: () =>
                 setState(() => _devicesExpanded = !_devicesExpanded),
           ),
-          if (_devicesExpanded) _ChamberDevices(l: l),
         ],
         const SizedBox(height: AppSpacing.gutter),
         _sectionTitle(l.manageAssociates_sectionMembers),
@@ -1259,13 +1254,28 @@ class _PictureAction extends StatelessWidget {
   );
 }
 
-/// The owner's shared-capacity card: slots used, a pending shrink, and the
-/// states that block a new join.
+/// The owner's shared-capacity card: slots used, a pending shrink, the states
+/// that block a new join, and the chamber's device lists behind the numbers.
+///
+/// The lists live **inside** this card (user request): the arrow sits on the
+/// card's own bottom edge, and opening it continues the same card rather than
+/// starting a second one.
 class _CapacityCard extends StatelessWidget {
-  const _CapacityCard({required this.capacity, required this.l});
+  const _CapacityCard({
+    required this.capacity,
+    required this.l,
+    required this.expanded,
+    required this.onToggle,
+  });
 
   final FirmCapacityView capacity;
   final AppLocalizations l;
+
+  /// Whether the chamber's device lists are open under the same card edge.
+  final bool expanded;
+
+  /// Opens or folds the device lists.
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -1283,7 +1293,14 @@ class _CapacityCard extends StatelessWidget {
 
     return Container(
       decoration: settingsCardDecoration(),
-      padding: const EdgeInsets.all(AppSpacing.md),
+      // No bottom inset: the toggle is the card's own bottom edge, not a
+      // separate control under it (user request).
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1294,16 +1311,20 @@ class _CapacityCard extends StatelessWidget {
             used: capacity.used,
             limit: capacity.slots,
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l.manageAssociates_capacityBreakdown(
-              digits(capacity.associates),
-              digits(capacity.ownerDevices),
+          // The split is hidden while the lists are open, because the lists
+          // themselves are the split (user request).
+          if (!expanded) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              l.manageAssociates_capacityBreakdown(
+                digits(capacity.associates),
+                digits(capacity.ownerDevices),
+              ),
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
             ),
-            style: AppTypography.bodySm.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
+          ],
           if (capacity.shrinkPending && capacity.shrinkAt != null) ...[
             const SizedBox(height: AppSpacing.md),
             Text(
@@ -1361,6 +1382,21 @@ class _CapacityCard extends StatelessWidget {
               ),
             ),
           ],
+          // Open: the two lists continue the card, then the same arrow folds
+          // them again.
+          if (expanded) ...[
+            const SizedBox(height: AppSpacing.md),
+            const Divider(height: 1, color: AppColors.outlineVariant),
+            const SizedBox(height: AppSpacing.xs),
+            _ChamberDevices(l: l),
+          ],
+          _DevicesToggle(
+            expanded: expanded,
+            label: expanded
+                ? l.manageAssociates_hideDevices
+                : l.manageAssociates_showDevices,
+            onPressed: onToggle,
+          ),
         ],
       ),
     );
@@ -1422,68 +1458,66 @@ class _ChamberDevices extends ConsumerWidget {
     final firm = ref.watch(firmDeviceListProvider);
     final associates = firm.value?.associateDevices;
 
-    return Container(
-      decoration: settingsCardDecoration(),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _ChamberDevicesHeading(
-            l.devices_ownerSectionCount(digits(ownerDevices.length)),
+    // No card of its own: these lists are drawn inside the capacity card, so
+    // the two read as one connected surface (user request).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ChamberDevicesHeading(
+          l.devices_ownerSectionCount(digits(ownerDevices.length)),
+        ),
+        for (final device in ownerDevices) ...[
+          _ChamberDeviceRow(
+            title: device.isCurrent
+                ? '${device.label} · ${l.devices_thisDevice}'
+                : device.label,
+            platform: device.platform,
+            lastSeenAt: device.lastSeenAt,
           ),
-          for (final device in ownerDevices) ...[
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        const Divider(height: 1, color: AppColors.outlineVariant),
+        _ChamberDevicesHeading(
+          associates == null
+              ? l.devices_associateSection
+              : l.devices_associateSectionCount(digits(associates.length)),
+        ),
+        if (firm.isLoading && associates == null)
+          const Padding(
+            padding: EdgeInsets.all(AppSpacing.sm),
+            child: Center(
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else if (firm.hasError && associates == null)
+          Text(
+            l.devices_firmUnavailable,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          )
+        else if (associates == null || associates.isEmpty)
+          Text(
+            l.devices_noAssociateDevices,
+            style: AppTypography.bodyMd.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          )
+        else
+          for (final device in associates) ...[
             _ChamberDeviceRow(
-              title: device.isCurrent
-                  ? '${device.label} · ${l.devices_thisDevice}'
-                  : device.label,
+              title: device.memberName.isEmpty ? '—' : device.memberName,
+              subtitle: device.label,
               platform: device.platform,
               lastSeenAt: device.lastSeenAt,
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
-          const SizedBox(height: AppSpacing.xs),
-          _ChamberDevicesHeading(
-            associates == null
-                ? l.devices_associateSection
-                : l.devices_associateSectionCount(digits(associates.length)),
-          ),
-          if (firm.isLoading && associates == null)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.sm),
-              child: Center(
-                child: SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else if (firm.hasError && associates == null)
-            Text(
-              l.devices_firmUnavailable,
-              style: AppTypography.bodyMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            )
-          else if (associates == null || associates.isEmpty)
-            Text(
-              l.devices_noAssociateDevices,
-              style: AppTypography.bodyMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            )
-          else
-            for (final device in associates) ...[
-              _ChamberDeviceRow(
-                title: device.memberName.isEmpty ? '—' : device.memberName,
-                subtitle: device.label,
-                platform: device.platform,
-                lastSeenAt: device.lastSeenAt,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-        ],
-      ),
+      ],
     );
   }
 }

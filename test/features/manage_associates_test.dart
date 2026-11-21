@@ -2223,20 +2223,40 @@ void main() {
       ],
     );
 
-    // The list is closed until asked for.
+    // The list is closed until asked for, with the split under the meter.
     expect(find.text('Pixel 8 · ${l.devices_thisDevice}'), findsNothing);
     expect(find.text('Samsung SM-A525F'), findsNothing);
+    expect(
+      find.text(l.manageAssociates_capacityBreakdown('1', '1')),
+      findsOneWidget,
+    );
 
     await tester.tap(
       find.byKey(const ValueKey('manage-associates-devices-toggle')),
     );
     await tester.pumpAndSettle();
 
-    // Two sections, the owner's first, as the Devices screen draws them.
+    // Two sections inside the same card, owner's first, as the Devices screen
+    // draws them; the split sentence gives way to the lists themselves.
     expect(find.text(l.devices_ownerSectionCount('1')), findsOneWidget);
     expect(find.text(l.devices_associateSectionCount('1')), findsOneWidget);
     expect(find.text('Pixel 8 · ${l.devices_thisDevice}'), findsOneWidget);
     expect(find.text('Samsung SM-A525F'), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_capacityBreakdown('1', '1')),
+      findsNothing,
+    );
+
+    // The up arrow folds the lists and the split returns.
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-devices-toggle')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Pixel 8 · ${l.devices_thisDevice}'), findsNothing);
+    expect(
+      find.text(l.manageAssociates_capacityBreakdown('1', '1')),
+      findsOneWidget,
+    );
 
     await unmountApp(tester);
   });

@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.846 - Manage Firm's section titles now use the same bold title style as View Settings and Notifications.
+Version: 0.0.847 - The Seats and Devices arrow now sits on the card's own edge, and opening it continues the same card with the device lists while the split line is hidden.
 --------------------------------------
 
 ## Version History Log:
@@ -860,3 +860,4 @@ Version: 0.0.843 - Manage Firm lists members as a sorted roster with pictures or
 Version: 0.0.844 - Manage Firm now puts Add Associate after the member list, names each member's permissions as Add, Edit or Delete, folds the chamber's device lists under the capacity card, and renames the dissolve section and action.
 Version: 0.0.845 - View Settings' card section titles now use the Notifications screen's bold section-title size and style.
 Version: 0.0.846 - Manage Firm's section titles now use the same bold title style as View Settings and Notifications.
+Version: 0.0.847 - The Seats and Devices arrow now sits on the card's own edge, and opening it continues the same card with the device lists while the split line is hidden.

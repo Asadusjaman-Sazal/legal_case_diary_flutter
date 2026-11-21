@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Bengali is the app's default language — COMPLETE (0.0.849)
+
+- **What was asked.** Change the app's default language from English to Bengali.
+- **What changed.** `defaultLocale` in `shared/providers/locale_provider.dart` is now `Locale('bn')`, so a fresh install, an account switch/logout reset and an unreadable stored language code all land in বাংলা. English remains the other choice on Settings → Language and the auth cards. Every existing saved choice is untouched: a device that already stored `app_locale` keeps it.
+- **Tests.** `language_screen_test.dart` now seeds `app_locale = en` for the cases that read the English copy, and a new case, *a fresh install starts in Bengali*, pins the default with বাংলা filled and English outlined. The sign-in/sign-up language tests already assert the explicit choice and are unchanged.
+- **Verification.** `flutter analyze` clean; `language_screen_test.dart` **10 cases** passed. No ARB, server or mockup change.
+- **Not checked.** No phone run and no APK build; the default was not viewed on a device.
+- **Resume point:** no feature work open.
+
 ### 2026-11-21 — Manage Firm's section gaps grow by 25% — COMPLETE (0.0.848)
 
 - **What was asked.** Increase the vertical space among the Seats and Devices, Members, Outstanding Invitation Codes and Dissolve Firm sections by 25%.

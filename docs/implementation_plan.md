@@ -209,7 +209,7 @@ A full-screen modal sheet for adding a new case or editing an existing one.
 
 **Task 07 AD/HCD extension:** When Appellate Division or High Court Division is selected, show and persist Name of Honorable Judges', Case Category, Tender Number, Previous Court Case, and District of Origin after Name of Court/Case Type and Case Number as specified below. Show Result after Day Offset, hide Step, and treat Result containing `Dismissed`, `খারিজ`, `Disposed`, `নিষ্পত্তি`, `Discharged`, or `অব্যহতি` as disposed without validating AD/HCD against seeded Steps.
 
-**Reference-data labels:** Seeded District, Court, Case Type, and Step dropdown items resolve through the active locale (EN or BN); custom rows fall back to their stored English name. The current development default locale is EN.
+**Reference-data labels:** Seeded District, Court, Case Type, and Step dropdown items resolve through the active locale (EN or BN); custom rows fall back to their stored English name. The app's shipped default locale is **বাংলা** (0.0.849, user request): a fresh install, an account-switch reset and an unreadable stored code start there, and English is one tap away on Settings → Language. A device that already stored `app_locale` keeps its choice.
 
 **Design reference:** The Add New Case form mockup is embedded in `legal_case_diary_flutter\mockup_html_screens\dailyCauseList\code.html`.
 

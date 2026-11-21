@@ -40,7 +40,7 @@ Build all fields **in the exact order and with the exact widget types** from the
 
 For Appellate Division and High Court Division, the Task 07 implementation must resolve the selected court category from field 1, show the seeded Case Category after Name of Court, and filter Case Type by that selected Case Category. Case Categories and Case Types are separate persisted tables/relations; labels are never used as database keys. AD/HCD do not have seeded Steps, so the Step control must not offer placeholder values for those selections.
 
-Seeded District, Court, Case Type, and Step dropdown labels must resolve through the active app locale: English labels for EN and Bengali labels for BN. User-created rows may fall back to their stored English name. The current development default locale is EN.
+Seeded District, Court, Case Type, and Step dropdown labels must resolve through the active app locale: English labels for EN and Bengali labels for BN. User-created rows may fall back to their stored English name. The app's shipped default locale is **বাংলা** (0.0.849, user request); English remains one tap away on Settings → Language, and a saved `app_locale` is never overwritten.
 
 The AD/HCD-only fields are persisted on `cases`. If `result` contains any of `Dismissed`, `খারিজ`, `Disposed`, `নিষ্পত্তি`, `Discharged`, or `অব্যহতি` (case-insensitive for English), the case is treated as disposed. AD/HCD disposal never validates against seeded Steps.
 

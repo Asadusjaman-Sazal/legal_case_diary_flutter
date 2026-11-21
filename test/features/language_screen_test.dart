@@ -35,7 +35,15 @@ void main() {
   });
 
   /// Pumps the screen in the app's own localized, locale-driven shell.
-  Future<void> pumpScreen(WidgetTester tester, {double textScale = 1.0}) async {
+  ///
+  /// Most cases read the English copy, so they seed it as the stored language;
+  /// pass `language: null` to leave a fresh install on the default (Bengali).
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    double textScale = 1.0,
+    String? language = 'en',
+  }) async {
+    if (language != null) await prefs.setString('app_locale', language);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
@@ -92,6 +100,18 @@ void main() {
         find.ancestor(of: find.text(label), matching: find.byType(Semantics)),
       )
       .firstWhere((s) => s.properties.selected != null);
+
+  testWidgets('a fresh install starts in Bengali', (tester) async {
+    await pumpScreen(tester, language: null);
+
+    // No stored choice: the app now opens in বাংলা, with English outlined.
+    expect(find.text('ভাষা'), findsOneWidget);
+    expect(find.text('অ্যাপের ভাষা নির্বাচন করুন'), findsOneWidget);
+    expect(optionOf(tester, 'বাংলা').color, Colors.black);
+    expect(styleOf(tester, 'বাংলা').color, Colors.white);
+    expect(optionOf(tester, 'English').color, Colors.white);
+    expect(styleOf(tester, 'English').color, Colors.black);
+  });
 
   testWidgets('frames the two choices with a heading, a preview and a note', (
     tester,
@@ -151,7 +171,7 @@ void main() {
   ) async {
     await pumpScreen(tester);
 
-    // English is the default, so it is the filled one.
+    // English is the stored language here, so it is the filled one.
     expect(optionOf(tester, 'English').color, Colors.black);
     expect(styleOf(tester, 'English').color, Colors.white);
 

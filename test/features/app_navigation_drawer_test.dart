@@ -1167,6 +1167,62 @@ void main() {
     );
   });
 
+  testWidgets(
+    'A completed logout reaches Login after the panel is dismissed',
+    (tester) async {
+      // The panel stays open while the flow runs, and a tap outside it closes it
+      // (its transparent barrier is dismissible). The flow is not cancelled by
+      // that — its providers are read before the first await — so a logout that
+      // finishes after the tap must still take the app to Login rather than
+      // leave the user on the shell with its drawer open.
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final gate = Completer<void>();
+      var sessionsEnded = 0;
+      final flow = LogoutFlow(
+        db: db,
+        premium: true,
+        online: false,
+        runBacklogPush: () async => null,
+        endSession: () async {
+          await gate.future;
+          sessionsEnded++;
+        },
+      );
+
+      final router = await pumpDrawerOnRouter(tester, logoutFlow: flow);
+      await tester.tap(find.byKey(const ValueKey('drawer-profile-icon')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('drawer-account-logout')));
+      await tester.pump();
+
+      // Still up, and showing that the flow is running.
+      expect(
+        find.byKey(const ValueKey('drawer-account-popover')),
+        findsOneWidget,
+      );
+
+      // A tap on the transparent barrier dismisses the panel mid-flow.
+      await tester.tapAt(const Offset(450, 1300));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('drawer-account-popover')),
+        findsNothing,
+      );
+
+      gate.complete();
+      // Bounded pumps: the wipe and sign-out are real asynchronous work, so the
+      // frames alone cannot say when they are done.
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(sessionsEnded, 1, reason: 'the logout still ended the session');
+      expect(find.text(loginMarker), findsOneWidget);
+      expect(router.state.matchedLocation, AppRoutes.login);
+    },
+  );
+
   testWidgets('Logout survives the drawer being unmounted under the popover', (
     tester,
   ) async {

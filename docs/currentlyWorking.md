@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — A completed logout always reaches Login — COMPLETE (0.0.841)
+
+- **What was asked.** Logging out from the side menu and then tapping anywhere, or logging out from Manage Account and then pressing Back, finished the logout but left the user in the app instead of on the Login screen. The app must go to Login after every completed logout.
+- **Why it happened.** Both entries run `runBranchedLogout`, which keeps going after its screen closes (its providers are read before the first `await`), but each navigated only if the surface that started it was still mounted. The account popover's transparent barrier is dismissible, so a tap outside it closes the panel mid-flow; Manage Account's Back button pops the sub-page mid-flow. In both cases the session really ended — the mount guard then returned before the Login navigation. A cancelled logout was, and remains, unaffected and navigates nowhere.
+- **The fix.** Manage Account takes `GoRouter.of(context)` before the flow and navigates through it once the logout completes, with no `context.mounted` check on the navigation. The panel's Logout uses the router it captured when it opened, and guards only its own close with `context.mounted`. `runBranchedLogout`, `LogoutFlow`, the router, the gate and the other logout entry points are unchanged.
+- **Verification.** `flutter analyze` is clean. `flutter test test/features/app_navigation_drawer_test.dart test/features/manage_account_test.dart` passes **82 tests**, including the two new regressions: a completed logout after the panel was dismissed by its barrier, and a completed logout after the Manage Account sub-page was popped. `python tool/record_version.py --check` passes.
+- **Not checked.** No phone install and no APK build; APKs are built only when asked.
+- **Resume point:** no feature work open.
+
 ### 2026-11-17 — Commit descriptions use the version log — COMPLETE (0.0.840)
 
 - **What was asked.** When committing a task, put the version-log line from `docs/version_history.md` in the commit description instead of the Codebuff attribution footer.

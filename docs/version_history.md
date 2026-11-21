@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.840 - Local commits now use the version-log line as both subject and description, with no AI attribution footer.
+Version: 0.0.841 - Logout from the side menu and Manage Account now always reaches the Login screen, even when the panel or screen that started it is dismissed while the flow is still running.
 --------------------------------------
 
 ## Version History Log:
@@ -854,3 +854,4 @@ Version: 0.0.837 - Every successful versioned task now ends with a local commit 
 Version: 0.0.838 - CLAUDE.md now matches the current rules, and saving a new APK pair deletes the earlier debug and release builds.
 Version: 0.0.839 - Versioned tasks still commit locally, but debug and arm64 release APKs are built only when the user asks.
 Version: 0.0.840 - Local commits now use the version-log line as both subject and description, with no AI attribution footer.
+Version: 0.0.841 - Logout from the side menu and Manage Account now always reaches the Login screen, even when the panel or screen that started it is dismissed while the flow is still running.

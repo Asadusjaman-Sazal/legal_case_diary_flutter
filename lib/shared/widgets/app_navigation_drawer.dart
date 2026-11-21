@@ -1692,9 +1692,12 @@ class _AccountPopoverState extends ConsumerState<_AccountPopover> {
                 // widget's `ref` also stay mounted for the whole flow, which is
                 // what the one branched logout reads its providers through.
                 final completed = await runBranchedLogout(context, ref);
-                if (!context.mounted) return;
-                // The panel is closed once the flow has finished its windows.
-                Navigator.of(context).pop();
+                // The panel may be gone by now: a tap anywhere outside it closes
+                // it, because its transparent barrier is dismissible, and that
+                // does not cancel the flow. Only the panel's own close needs a
+                // live context; the router was captured when the panel opened,
+                // so a completed logout reaches Login however the panel ended.
+                if (context.mounted) Navigator.of(context).pop();
                 // Login is reached explicitly: the router's sign-in gate is
                 // decided once per launch, so a signed-out user would otherwise
                 // be left on the now-empty shell.

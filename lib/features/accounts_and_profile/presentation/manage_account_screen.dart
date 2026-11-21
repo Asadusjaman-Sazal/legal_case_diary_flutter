@@ -271,19 +271,27 @@ class _ManageAccountScreenState extends ConsumerState<ManageAccountScreen> {
   /// the now-empty Settings surface instead of the sign-in screen. It is a `go`,
   /// not a pop — Login is a top-level route, so the shell is left behind rather
   /// than uncovered — the same navigation the expired-session notice uses.
+  ///
+  /// **The router is taken before the flow** because this screen may be gone by
+  /// the time the session ends: the sub-page's Back button pops it while the
+  /// wipe and sign-out are still running, and that does not cancel the logout.
+  /// Navigating through the router captured up front is what makes the completed
+  /// logout reach Login anyway; only the spinner still needs a mounted widget.
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
     // The card answers the tap at once with a spinner, and ignores re-taps,
     // so a logout that takes a few seconds (wipe + reseed + sign-out) never
     // reads as a dead button.
     if (_loggingOut) return;
+    final router = GoRouter.of(context);
     setState(() => _loggingOut = true);
     try {
       // Leaving for Login only when the logout actually completed; a
       // cancellation leaves the account signed in, so there is nothing to
-      // leave behind.
+      // leave behind. No `context.mounted` check: the screen may have been
+      // popped mid-flow, and the router outlives it.
       final completed = await runBranchedLogout(context, ref);
-      if (!context.mounted || !completed) return;
-      context.go(AppRoutes.login);
+      if (!completed) return;
+      router.go(AppRoutes.login);
     } finally {
       // Clear the spinner whatever the outcome — a throw must never leave the
       // card stuck spinning.

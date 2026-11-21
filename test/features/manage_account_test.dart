@@ -616,6 +616,80 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets(
+    'a completed logout reaches Login after Manage Account is closed mid-flow',
+    (tester) async {
+      // The AppBar's Back button pops this sub-page while the flow is still
+      // running. That does not cancel the logout — its providers are read up
+      // front — so the completed session must still take the app to Login
+      // rather than leave the user on the Settings screen underneath.
+      const settingsMarker = 'Settings Route';
+      final gate = Completer<void>();
+      await tester.binding.setSurfaceSize(const Size(420, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await pumpSettingsRouter(
+        tester,
+        location: AppRoutes.settings,
+        overrides: await harness.setUp(
+          extra: [
+            logoutFlowProvider.overrideWith((ref) async {
+              final db = await ref.watch(databaseProvider.future);
+              return LogoutFlow(
+                db: db,
+                premium: true,
+                online: false,
+                runBacklogPush: () async => null,
+                endSession: () => gate.future,
+              );
+            }),
+          ],
+        ),
+        routes: [
+          GoRoute(
+            path: AppRoutes.settings,
+            builder: (_, _) => const Scaffold(body: Text(settingsMarker)),
+          ),
+          GoRoute(
+            path: AppRoutes.settingsManageAccount,
+            builder: (_, _) => const ManageAccountScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.login,
+            builder: (_, _) => const Scaffold(body: Text(loginRouteMarker)),
+          ),
+        ],
+      );
+      l = await AppLocalizations.delegate.load(const Locale('en'));
+
+      final router = GoRouter.of(tester.element(find.text(settingsMarker)));
+      router.push(AppRoutes.settingsManageAccount);
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text(l.settingsManageAccount_logout));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.settingsManageAccount_logout));
+      await tester.pump();
+
+      // The screen leaves while the logout is still awaiting its session end.
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(ManageAccountScreen), findsNothing);
+
+      gate.complete();
+      // Bounded pumps: the wipe and sign-out are real asynchronous work, so the
+      // frames alone cannot say when they are done.
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.text(loginRouteMarker), findsOneWidget);
+      expect(router.state.matchedLocation, AppRoutes.login);
+
+      await unmountApp(tester);
+    },
+  );
+
   group('Delete Data (0.0.473, user request)', () {
     /// Live (non-tombstoned) rows of [table].
     Future<int> liveRows(String table) async {

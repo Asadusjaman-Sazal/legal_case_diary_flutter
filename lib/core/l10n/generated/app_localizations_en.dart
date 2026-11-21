@@ -5185,16 +5185,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only the firm owner can manage the firm.';
 
   @override
-  String get manageAssociates_sectionMembers => 'Associates';
+  String get manageAssociates_sectionMembers => 'Members';
 
   @override
   String get manageAssociates_addAssociate => 'Add Associate';
 
   @override
-  String get manageAssociates_noMembers => 'No Associates Yet.';
+  String get manageAssociates_noMembers => 'No members yet.';
 
   @override
-  String get manageAssociates_statusNotSignedIn => 'Not Signed In';
+  String get manageAssociates_aloneInFirm =>
+      'You are the only member. Invite an associate to start working together.';
+
+  @override
+  String get manageAssociates_memberFullAccess => 'Full access';
+
+  @override
+  String get manageAssociates_memberReadOnly => 'Read only';
+
+  @override
+  String manageAssociates_memberPermissionCount(String count, String total) {
+    return '$count of $total permissions';
+  }
+
+  @override
+  String get manageAssociates_statusNotSignedIn => 'Not signed in';
 
   @override
   String get manageAssociates_signedOutNote =>
@@ -5234,7 +5249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_firmNameHint => 'Enter your chamber or firm name';
 
   @override
-  String get manageAssociates_addLogo => 'Add Logo';
+  String get manageAssociates_tapToAddLogo => 'Tap to add a logo';
 
   @override
   String get manageAssociates_changeLogo => 'Change Logo';
@@ -5292,7 +5307,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_inviteIntro =>
-      'Share this code with your associate. It works once, and this is the only time it is shown.';
+      'Share this code with your associate. It works once. This phone keeps it in the list below while the invite is unused.';
 
   @override
   String get manageAssociates_copyCode => 'Copy Code';
@@ -5304,7 +5319,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_shareCode => 'Share';
 
   @override
-  String get manageAssociates_shareFailed => 'Could Not Share The Code';
+  String get manageAssociates_shareFailed => 'Could not share the code.';
 
   @override
   String manageAssociates_inviteMessage(String code) {
@@ -5323,17 +5338,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get manageAssociates_revokeInvite => 'Revoke';
+  String get manageAssociates_newCode => 'New Code';
 
   @override
-  String get manageAssociates_revokeInviteTitle => 'Revoke This Invite?';
+  String get manageAssociates_newCodeTitle => 'Replace This Invite?';
 
   @override
-  String get manageAssociates_revokeInviteBody =>
+  String get manageAssociates_deleteInvite => 'Delete Invite';
+
+  @override
+  String get manageAssociates_deleteInviteTitle => 'Delete This Invite?';
+
+  @override
+  String get manageAssociates_deleteInviteBody =>
       'The code will stop working immediately.';
 
   @override
-  String get manageAssociates_inviteRevoked => 'Invite Revoked.';
+  String get manageAssociates_inviteDeleted => 'Invite Deleted.';
 
   @override
   String get manageAssociates_permissionsTitle => 'Permissions';
@@ -5355,6 +5376,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageAssociates_permissionsUpdated => 'Permissions Updated.';
+
+  @override
+  String get manageAssociates_discardChangesTitle => 'Discard Changes?';
+
+  @override
+  String get manageAssociates_discardChangesBody =>
+      'Your unsaved changes to this member\'s permissions will be lost.';
+
+  @override
+  String get manageAssociates_discardChanges => 'Discard';
 
   @override
   String get manageAssociates_removeAssociate => 'Remove from Firm';
@@ -5411,7 +5442,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Firm dissolved. Its cases are now your own diary.';
 
   @override
-  String get manageAssociates_capacityTitle => 'Device Usage';
+  String manageAssociates_capacityBreakdown(
+    String associates,
+    String ownerDevices,
+  ) {
+    return '$associates associates · $ownerDevices owner devices';
+  }
 
   @override
   String get manageAssociates_inviteCodeUnavailable =>

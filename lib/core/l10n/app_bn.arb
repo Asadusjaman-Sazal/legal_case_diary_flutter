@@ -2252,9 +2252,23 @@
   "@@_section_settingsManageAssociates": "SETTINGS - MANAGE ASSOCIATES  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
   "manageAssociates_title": "ফার্ম পরিচালনা",
   "manageAssociates_ownerOnly": "শুধু ফার্মের স্বত্বাধিকারী ফার্ম পরিচালনা করতে পারেন।",
-  "manageAssociates_sectionMembers": "সহযোগীরা",
+  "manageAssociates_sectionMembers": "সদস্যরা",
   "manageAssociates_addAssociate": "সহযোগী যোগ করুন",
-  "manageAssociates_noMembers": "এখনো কোনো সহযোগী নেই।",
+  "manageAssociates_noMembers": "এখনো কোনো সদস্য নেই।",
+  "manageAssociates_aloneInFirm": "আপনি একমাত্র সদস্য। একসঙ্গে কাজ শুরু করতে একজন সহযোগী যোগ করুন।",
+  "manageAssociates_memberFullAccess": "সম্পূর্ণ অ্যাক্সেস",
+  "manageAssociates_memberReadOnly": "শুধু পড়ার অনুমতি",
+  "manageAssociates_memberPermissionCount": "{total}টির মধ্যে {count}টি অনুমতি",
+  "@manageAssociates_memberPermissionCount": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          },
+          "total": {
+              "type": "String"
+          }
+      }
+  },
   "manageAssociates_statusNotSignedIn": "সাইন ইন করা নেই",
   "manageAssociates_signedOutNote": "ফার্মে খালি স্লট না থাকায় এই সদস্যের ডিভাইসগুলো সাইন আউট করা হয়েছে। সিট খালি করতে তাঁকে সরান, অথবা জায়গা হলে আবার সাইন ইন করান।",
   "manageAssociates_capacityAdmit": "আবার সাইন ইন করান",
@@ -2268,7 +2282,7 @@
   "manageAssociates_createFirmTitle": "ফার্ম তৈরি করুন",
   "manageAssociates_firmNameLabel": "ফার্মের নাম",
   "manageAssociates_firmNameHint": "আপনার চেম্বার বা ফার্মের নাম লিখুন",
-  "manageAssociates_addLogo": "লোগো যোগ করুন",
+  "manageAssociates_tapToAddLogo": "লোগো যোগ করতে ট্যাপ করুন",
   "manageAssociates_changeLogo": "লোগো পরিবর্তন করুন",
   "manageAssociates_removeLogo": "লোগো সরান",
   "manageAssociates_logoNeedsPlan": "লোগো পরিবর্তন করতে সক্রিয় চেম্বার প্ল্যান প্রয়োজন।",
@@ -2286,7 +2300,7 @@
   "manageAssociates_changeNameTitle": "ফার্মের নাম পরিবর্তন করুন",
   "manageAssociates_nameUpdated": "ফার্মের নাম হালনাগাদ হয়েছে।",
   "manageAssociates_inviteTitle": "ইনভাইটেশন কোড",
-  "manageAssociates_inviteIntro": "এই কোডটি আপনার সহযোগীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।",
+  "manageAssociates_inviteIntro": "এই কোডটি আপনার সহযোগীকে দিন। এটি একবারই কাজ করে। আমন্ত্রণটি অব্যবহৃত থাকা পর্যন্ত এই ফোনই নিচের তালিকায় এটি রাখে।",
   "manageAssociates_copyCode": "কোড কপি করুন",
   "manageAssociates_codeCopied": "কোড কপি হয়েছে।",
   "manageAssociates_shareCode": "শেয়ার করুন",
@@ -2310,10 +2324,12 @@
           }
       }
   },
-  "manageAssociates_revokeInvite": "বাতিল করুন",
-  "manageAssociates_revokeInviteTitle": "এই আমন্ত্রণটি বাতিল করবেন?",
-  "manageAssociates_revokeInviteBody": "কোডটি সঙ্গে সঙ্গে কাজ করা বন্ধ করে দেবে।",
-  "manageAssociates_inviteRevoked": "আমন্ত্রণ বাতিল করা হয়েছে।",
+  "manageAssociates_newCode": "নতুন কোড",
+  "manageAssociates_newCodeTitle": "এই আমন্ত্রণটি বদলাবেন?",
+  "manageAssociates_deleteInvite": "আমন্ত্রণ মুছুন",
+  "manageAssociates_deleteInviteTitle": "এই আমন্ত্রণটি মুছবেন?",
+  "manageAssociates_deleteInviteBody": "কোডটি সঙ্গে সঙ্গে কাজ করা বন্ধ করে দেবে।",
+  "manageAssociates_inviteDeleted": "আমন্ত্রণ মুছে ফেলা হয়েছে।",
   "manageAssociates_permissionsTitle": "অনুমতি",
   "manageAssociates_roleLabel": "ভূমিকা",
   "manageAssociates_permissionAdd": "মামলা, নোট ইত্যাদি যোগ",
@@ -2321,6 +2337,9 @@
   "manageAssociates_permissionDelete": "মামলা, নোট ইত্যাদি মুছে ফেলা",
   "manageAssociates_savePermissions": "অনুমতি সংরক্ষণ করুন",
   "manageAssociates_permissionsUpdated": "অনুমতি হালনাগাদ করা হয়েছে।",
+  "manageAssociates_discardChangesTitle": "পরিবর্তন বাতিল করবেন?",
+  "manageAssociates_discardChangesBody": "এই সদস্যের অনুমতিতে আপনার অসংরক্ষিত পরিবর্তনগুলো মুছে যাবে।",
+  "manageAssociates_discardChanges": "বাতিল করুন",
   "manageAssociates_removeAssociate": "ফার্ম থেকে সরান",
   "manageAssociates_removeAssociateTitle": "এই সহযোগীকে সরিয়ে দেবেন?",
   "manageAssociates_removeAssociateBody": "তিনি সঙ্গে সঙ্গে ফার্মের মামলাগুলোতে প্রবেশাধিকার হারাবেন, আর তিনি তৈরি করা রেকর্ড ফার্মেই থাকবে। তাঁর ফোনে ফার্মের একটি কপি থেকে যাবে যতক্ষণ না তিনি পরের বার অ্যাপটি খুলছেন, তখনই তা নিজে থেকে মুছে যাবে। আপনারা যদি তখনও একসঙ্গে থাকেন, সংযোগ থাকা অবস্থায় তাঁকে একবার অ্যাপটি খুলতে বলুন, যাতে মুছে যাওয়াটা আপনি দেখতে পারেন। যে ফোন আর কখনো খোলা হবে না, তা কেবল ফ্যাক্টরি রিসেট বা প্ল্যাটফর্মের রিমোট-ওয়াইপ সুবিধা দিয়েই মোছা যায় — বন্ধ থাকা ডিভাইস কোনো অ্যাপ মুছতে পারে না।",
@@ -2341,7 +2360,17 @@
   "manageAssociates_dissolveConfirmTitle": "এই ফার্ম বিলুপ্ত করবেন?",
   "manageAssociates_dissolveConfirmBody": "ফার্ম ও তার আমন্ত্রণগুলো মুছে যাবে। এতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হয়ে যাবে, আর যাঁরা সেগুলো লিখেছেন সেই সহযোগীরা আর সেগুলো দেখতে পাবেন না। আপনার প্ল্যান বাতিল হবে না, আর প্রতিটি রেকর্ডে লেখকের নাম অপরিবর্তিত থাকবে। এটি ফিরিয়ে আনা যাবে না।",
   "manageAssociates_dissolveDone": "ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।",
-  "manageAssociates_capacityTitle": "ডিভাইস ব্যবহার",
+  "manageAssociates_capacityBreakdown": "{associates} জন সহযোগী · মালিকের {ownerDevices}টি ডিভাইস",
+  "@manageAssociates_capacityBreakdown": {
+      "placeholders": {
+          "associates": {
+              "type": "String"
+          },
+          "ownerDevices": {
+              "type": "String"
+          }
+      }
+  },
   "manageAssociates_inviteCodeUnavailable": "এই ডিভাইসে কোডটি নেই।",
   "manageAssociates_firmOverviewTitle": "ফার্ম কী?",
   "manageAssociates_firmOverviewCollaborateTitle": "সহযোগীদের সাথে একসাথে কাজ করুন",

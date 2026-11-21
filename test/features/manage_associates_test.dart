@@ -41,6 +41,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_st
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/profiles_dao.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/profile_picture_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/firm_menu_screen.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_associates_screen.dart';
@@ -462,6 +463,99 @@ void main() {
     expect(find.text('Adv. Karim'), findsOneWidget);
     expect(find.text(l.settingsManageAccount_roleOwner), findsOneWidget);
     expect(find.text(l.settingsManageAccount_roleAssociate), findsOneWidget);
+    // Each row says what its member may do, and initials stand in for the
+    // picture this device cannot read.
+    expect(find.text(l.manageAssociates_memberFullAccess), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_memberPermissionCount('2', '3')),
+      findsOneWidget,
+    );
+    expect(find.text('RU'), findsOneWidget);
+    // A single name after the dropped title yields one initial.
+    expect(find.text('K'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the roster puts the owner first and then sorts by name', (
+    tester,
+  ) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-3',
+        role: AccountRole.associate,
+        fullName: 'Zubair Ahmed',
+        canAdd: true,
+        canEdit: false,
+        canDelete: false,
+      ),
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Abul Kalam',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    final owner = tester.getTopLeft(find.text('Adv. Rahim Uddin')).dy;
+    final first = tester.getTopLeft(find.text('Abul Kalam')).dy;
+    final last = tester.getTopLeft(find.text('Zubair Ahmed')).dy;
+    expect(owner, lessThan(first));
+    expect(first, lessThan(last));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('an owner with no associate is told they are alone', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 0);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    expect(find.text(l.manageAssociates_aloneInFirm), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets("the signed-in member's own picture replaces their initials", (
+    tester,
+  ) async {
+    final picture = File(
+      '${Directory.systemTemp.path}/manage-associates-avatar-'
+      '${DateTime.now().microsecondsSinceEpoch}.png',
+    )..writeAsBytesSync(_pngBytes);
+    addTearDown(() {
+      if (picture.existsSync()) picture.deleteSync();
+    });
+    harness.firm.members = _roster(associates: 0);
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      preferences: <String, Object>{profilePicturePathKey: picture.path},
+    );
+
+    final avatar = find.byKey(
+      const ValueKey('manage-associates-avatar-user-1'),
+    );
+    expect(
+      find.descendant(of: avatar, matching: find.byType(Image)),
+      findsOneWidget,
+    );
+    expect(find.text('RU'), findsNothing);
 
     await unmountApp(tester);
   });
@@ -555,11 +649,56 @@ void main() {
     await unmountApp(tester);
   });
 
+  testWidgets('the capacity card reuses the plan meter and names the split', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 2);
+    const capacity = FirmCapacityView(
+      slots: 5,
+      associates: 2,
+      seated: 2,
+      ownerDevices: 2,
+      ownerDeviceCap: 3,
+      used: 4,
+      active: 4,
+      overRoster: false,
+      overDevices: false,
+      frozen: true,
+      pendingSlots: null,
+      shrinkAt: null,
+      pendingAssociatesExcess: 0,
+      pendingDevicesExcess: 0,
+      shrinkPending: false,
+    );
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      overrides: [firmCapacityViewProvider.overrideWithValue(capacity)],
+    );
+
+    // The card uses Manage Plan's own meter and names what makes up the number.
+    expect(find.text(l.settingsSubscription_usageSeats), findsOneWidget);
+    expect(
+      find.text(l.manageAssociates_capacityBreakdown('2', '2')),
+      findsOneWidget,
+    );
+    // A frozen chamber can still reach the plan it needs to fix it.
+    expect(
+      find.byKey(const ValueKey('manage-associates-manage-plan')),
+      findsOneWidget,
+    );
+
+    await unmountApp(tester);
+  });
+
   testWidgets('the chamber logo frame opens its viewer', (tester) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 
     // The frame is the control now; the round picture buttons are gone.
     expect(find.byKey(const ValueKey('firm-logo-frame')), findsOneWidget);
+    // An empty frame says that it can be tapped (user request).
+    expect(find.text(l.manageAssociates_tapToAddLogo), findsOneWidget);
     expect(find.byKey(const ValueKey('firm-logo-change')), findsNothing);
     expect(find.byKey(const ValueKey('firm-logo-remove')), findsNothing);
     // The firm's name is bold and centred, with no "Firm" caption above it.
@@ -579,18 +718,23 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the firm-name pencil takes the Profile edit button size', (
+  testWidgets('the firm-name pencil keeps its face and gains a 48 px target', (
     tester,
   ) async {
     await pumpManageAssociates(tester, seed: seedOwner);
 
+    final pencil = find.byKey(const ValueKey('firm-name-change'));
     // The Profile picture button is an 18 px icon, xs padding on each side and
-    // a 2 px rim on each edge; the name pencil must be that same box.
+    // a 2 px rim on each edge; the visible circle keeps that same box.
     final side = 18 + AppSpacing.xs * 2 + 2 * 2;
     expect(
-      tester.getSize(find.byKey(const ValueKey('firm-name-change'))),
+      tester.getSize(
+        find.descendant(of: pencil, matching: find.byType(Container)),
+      ),
       Size(side, side),
     );
+    // Its tap target is the 48 px minimum (user request).
+    expect(tester.getSize(pencil), const Size(48, 48));
 
     await unmountApp(tester);
   });
@@ -855,6 +999,11 @@ void main() {
     expect(find.text(l.manageAssociates_createFirmTitle), findsNothing);
     expect(find.text('Rahman & Associates'), findsOneWidget);
 
+    // The pencil is small, so its tap target is a full 48 px.
+    expect(
+      tester.getSize(find.byKey(const ValueKey('firm-name-change'))).width,
+      greaterThanOrEqualTo(48),
+    );
     await tester.tap(find.byKey(const ValueKey('firm-name-change')));
     await tester.pumpAndSettle();
 
@@ -902,8 +1051,37 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('firm-name-save')));
     await tester.pumpAndSettle();
 
-    // The failure is the screen's own banner, worded by the shared map.
-    expect(find.text(l.auth_errorNetwork), findsOneWidget);
+    // The failure is the screen's own banner and the snackbar that puts the
+    // same words where the user is looking.
+    expect(find.text(l.auth_errorNetwork), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text(l.auth_errorNetwork),
+      ),
+      findsOneWidget,
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('a failed action is shown where the user is', (tester) async {
+    harness.firm
+      ..members = _roster(associates: 0)
+      ..adminError = const FirmFailure(FirmFailureKind.network);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(find.text(l.manageAssociates_addAssociate));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text(l.auth_errorNetwork),
+      ),
+      findsOneWidget,
+    );
 
     await unmountApp(tester);
   });
@@ -1011,7 +1189,7 @@ void main() {
     },
   );
 
-  testWidgets('the owner sees the outstanding invites and can revoke one', (
+  testWidgets('the owner sees the outstanding invites and can delete one', (
     tester,
   ) async {
     harness.firm
@@ -1044,25 +1222,25 @@ void main() {
     );
 
     await tester.tap(
-      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+      find.byKey(const ValueKey('manage-associates-delete-invite-9')),
     );
     await tester.pumpAndSettle();
 
-    // Revoking is confirmed first: the code stops working at once and cannot be
+    // Deleting is confirmed first: the code stops working at once and cannot be
     // shown again, so it is not a one-tap accident.
-    expect(find.text(l.manageAssociates_revokeInviteTitle), findsOneWidget);
+    expect(find.text(l.manageAssociates_deleteInviteTitle), findsOneWidget);
     expect(harness.firm.revokedInviteIds, isEmpty);
 
     await tester.tap(
       find.descendant(
         of: find.byType(AlertDialog),
-        matching: find.text(l.manageAssociates_revokeInvite),
+        matching: find.text(l.manageAssociates_deleteInvite),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(harness.firm.revokedInviteIds, ['invite-9']);
-    expect(find.text(l.manageAssociates_inviteRevoked), findsOneWidget);
+    expect(find.text(l.manageAssociates_inviteDeleted), findsOneWidget);
 
     await unmountApp(tester);
   });
@@ -1098,16 +1276,47 @@ void main() {
     // says the code is not here rather than inventing one.
     expect(find.text(l.manageAssociates_inviteCodeUnavailable), findsOneWidget);
 
-    await tester.tap(
-      find.byKey(const ValueKey('manage-associates-invite-code-invite-9')),
-    );
+    final copy = find.byKey(const ValueKey('manage-associates-copy-invite-9'));
+    expect(tester.getSize(copy).width, greaterThanOrEqualTo(48));
+    await tester.tap(copy);
     await tester.pumpAndSettle();
     expect(find.text(l.manageAssociates_codeCopied), findsOneWidget);
 
     await unmountApp(tester);
   });
 
-  testWidgets('Revoke is black-filled and Dissolve is tall and red', (
+  testWidgets('a code this device never saw can be replaced', (tester) async {
+    harness.firm
+      ..members = _roster(associates: 0)
+      ..invites = [const FirmInviteSummary(id: 'invite-8', createdAt: 4000)];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-new-code-invite-8')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_newCodeTitle), findsOneWidget);
+    expect(harness.firm.revokedInviteIds, isEmpty);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text(l.manageAssociates_newCode),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(harness.firm.revokedInviteIds, ['invite-8']);
+    expect(harness.firm.createInviteCalls, 1);
+    // The replacement's code is shown, not silently created.
+    expect(find.text(harness.firm.invite.code), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('the invite row uses a delete icon and Dissolve is tall and red', (
     tester,
   ) async {
     harness.firm.invites = [
@@ -1116,17 +1325,13 @@ void main() {
 
     await pumpManageAssociates(tester, seed: seedOwner);
 
-    final revoke = tester.widget<FilledButton>(
-      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+    // The row's destructive control is a 48 px delete icon in the error colour.
+    final delete = find.byKey(
+      const ValueKey('manage-associates-delete-invite-9'),
     );
-    expect(
-      revoke.style?.backgroundColor?.resolve(<WidgetState>{}),
-      AppColors.primary,
-    );
-    expect(
-      revoke.style?.foregroundColor?.resolve(<WidgetState>{}),
-      AppColors.onPrimary,
-    );
+    expect(tester.getSize(delete).width, greaterThanOrEqualTo(48));
+    expect(tester.getSize(delete).height, greaterThanOrEqualTo(48));
+    expect(tester.widget<IconButton>(delete).color, AppColors.error);
 
     // Dissolve is a full-height red button, not an outlined one.
     final dissolve = tester.widget<FilledButton>(
@@ -1152,7 +1357,7 @@ void main() {
     await unmountApp(tester);
   });
 
-  testWidgets('the revoke window takes the Invite Code window\'s shape', (
+  testWidgets('the delete window takes the Invite Code window\'s shape', (
     tester,
   ) async {
     harness.firm.invites = [
@@ -1162,11 +1367,11 @@ void main() {
     await pumpManageAssociates(tester, seed: seedOwner);
 
     await tester.tap(
-      find.byKey(const ValueKey('manage-associates-revoke-invite-9')),
+      find.byKey(const ValueKey('manage-associates-delete-invite-9')),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l.manageAssociates_revokeInviteTitle), findsOneWidget);
+    expect(find.text(l.manageAssociates_deleteInviteTitle), findsOneWidget);
     final dialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
     expect(
       (dialog.shape! as RoundedRectangleBorder).borderRadius,
@@ -1174,10 +1379,10 @@ void main() {
     );
 
     // Both actions are the Invite Code window's 112 x 48 at 16 pt, centred.
-    // Scoped to the window: Revoke's label also exists on the row behind it.
+    // Scoped to the window, so the row behind it cannot satisfy the finder.
     for (final (label, type) in <(String, Type)>[
       (l.sharedActions_cancel, TextButton),
-      (l.manageAssociates_revokeInvite, FilledButton),
+      (l.manageAssociates_deleteInvite, FilledButton),
     ]) {
       final button = tester.widget<ButtonStyleButton>(
         find.descendant(
@@ -1276,8 +1481,21 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('member-role-viewer')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l.manageAssociates_permissionDelete));
-    await tester.pumpAndSettle();
+
+    // Viewer is read-only: the switches are off and cannot be changed, so a
+    // viewer can never be saved with a permission the role contradicts.
+    for (final label in <String>[
+      l.manageAssociates_permissionAdd,
+      l.manageAssociates_permissionEdit,
+      l.manageAssociates_permissionDelete,
+    ]) {
+      final toggle = tester.widget<SwitchListTile>(
+        find.widgetWithText(SwitchListTile, label),
+      );
+      expect(toggle.value, isFalse);
+      expect(toggle.onChanged, isNull);
+    }
+
     await tester.tap(find.text(l.manageAssociates_savePermissions));
     await tester.pumpAndSettle();
 
@@ -1285,10 +1503,109 @@ void main() {
     final write = harness.firm.permissionWrites.single;
     expect(write.userId, 'user-2');
     expect(write.role, AccountRole.viewer);
-    expect(write.canAdd, isTrue, reason: 'untouched flags keep their value');
+    expect(write.canAdd, isFalse);
     expect(write.canEdit, isFalse);
-    expect(write.canDelete, isTrue);
+    expect(write.canDelete, isFalse);
     expect(find.text(l.manageAssociates_permissionsUpdated), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('leaving Viewer restores the associate flags', (tester) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Adv. Karim',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-member-user-2')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('member-role-viewer')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('member-role-associate')));
+    await tester.pumpAndSettle();
+
+    SwitchListTile toggle(String label) => tester.widget<SwitchListTile>(
+      find.widgetWithText(SwitchListTile, label),
+    );
+    expect(toggle(l.manageAssociates_permissionAdd).value, isTrue);
+    expect(toggle(l.manageAssociates_permissionEdit).value, isTrue);
+    expect(toggle(l.manageAssociates_permissionDelete).value, isFalse);
+    expect(
+      toggle(l.manageAssociates_permissionAdd).onChanged,
+      isNotNull,
+      reason: 'Associate unlocks the switches again',
+    );
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('closing a changed member sheet asks before discarding', (
+    tester,
+  ) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Adv. Karim',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-member-user-2')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('member-role-viewer')));
+    await tester.pumpAndSettle();
+
+    // The sheet is dismissed the way a system back closes it.
+    Navigator.of(
+      tester.element(find.text(l.manageAssociates_savePermissions)),
+    ).maybePop();
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_discardChangesTitle), findsOneWidget);
+    expect(harness.firm.permissionWrites, isEmpty);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text(l.manageAssociates_discardChanges),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l.manageAssociates_savePermissions), findsNothing);
+    expect(harness.firm.permissionWrites, isEmpty);
 
     await unmountApp(tester);
   });
@@ -1625,9 +1942,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The banner and the snackbar both carry the server's count.
     expect(
       find.text(l.manageAssociates_dissolveBlockedMembers(2)),
-      findsOneWidget,
+      findsWidgets,
     );
     expect(find.text(l.manageAssociates_dissolveDone), findsNothing);
 

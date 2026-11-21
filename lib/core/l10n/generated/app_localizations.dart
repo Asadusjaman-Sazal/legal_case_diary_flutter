@@ -8851,7 +8851,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_sectionMembers.
   ///
   /// In en, this message translates to:
-  /// **'Associates'**
+  /// **'Members'**
   String get manageAssociates_sectionMembers;
 
   /// No description provided for @manageAssociates_addAssociate.
@@ -8863,13 +8863,37 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_noMembers.
   ///
   /// In en, this message translates to:
-  /// **'No Associates Yet.'**
+  /// **'No members yet.'**
   String get manageAssociates_noMembers;
+
+  /// No description provided for @manageAssociates_aloneInFirm.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the only member. Invite an associate to start working together.'**
+  String get manageAssociates_aloneInFirm;
+
+  /// No description provided for @manageAssociates_memberFullAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Full access'**
+  String get manageAssociates_memberFullAccess;
+
+  /// No description provided for @manageAssociates_memberReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Read only'**
+  String get manageAssociates_memberReadOnly;
+
+  /// No description provided for @manageAssociates_memberPermissionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} permissions'**
+  String manageAssociates_memberPermissionCount(String count, String total);
 
   /// No description provided for @manageAssociates_statusNotSignedIn.
   ///
   /// In en, this message translates to:
-  /// **'Not Signed In'**
+  /// **'Not signed in'**
   String get manageAssociates_statusNotSignedIn;
 
   /// No description provided for @manageAssociates_signedOutNote.
@@ -8938,11 +8962,11 @@ abstract class AppLocalizations {
   /// **'Enter your chamber or firm name'**
   String get manageAssociates_firmNameHint;
 
-  /// No description provided for @manageAssociates_addLogo.
+  /// No description provided for @manageAssociates_tapToAddLogo.
   ///
   /// In en, this message translates to:
-  /// **'Add Logo'**
-  String get manageAssociates_addLogo;
+  /// **'Tap to add a logo'**
+  String get manageAssociates_tapToAddLogo;
 
   /// No description provided for @manageAssociates_changeLogo.
   ///
@@ -9049,7 +9073,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_inviteIntro.
   ///
   /// In en, this message translates to:
-  /// **'Share this code with your associate. It works once, and this is the only time it is shown.'**
+  /// **'Share this code with your associate. It works once. This phone keeps it in the list below while the invite is unused.'**
   String get manageAssociates_inviteIntro;
 
   /// No description provided for @manageAssociates_copyCode.
@@ -9073,7 +9097,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_shareFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Share The Code'**
+  /// **'Could not share the code.'**
   String get manageAssociates_shareFailed;
 
   /// No description provided for @manageAssociates_inviteMessage.
@@ -9100,29 +9124,41 @@ abstract class AppLocalizations {
   /// **'Created {date}'**
   String manageAssociates_inviteCreated(String date);
 
-  /// No description provided for @manageAssociates_revokeInvite.
+  /// No description provided for @manageAssociates_newCode.
   ///
   /// In en, this message translates to:
-  /// **'Revoke'**
-  String get manageAssociates_revokeInvite;
+  /// **'New Code'**
+  String get manageAssociates_newCode;
 
-  /// No description provided for @manageAssociates_revokeInviteTitle.
+  /// No description provided for @manageAssociates_newCodeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Revoke This Invite?'**
-  String get manageAssociates_revokeInviteTitle;
+  /// **'Replace This Invite?'**
+  String get manageAssociates_newCodeTitle;
 
-  /// No description provided for @manageAssociates_revokeInviteBody.
+  /// No description provided for @manageAssociates_deleteInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Invite'**
+  String get manageAssociates_deleteInvite;
+
+  /// No description provided for @manageAssociates_deleteInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete This Invite?'**
+  String get manageAssociates_deleteInviteTitle;
+
+  /// No description provided for @manageAssociates_deleteInviteBody.
   ///
   /// In en, this message translates to:
   /// **'The code will stop working immediately.'**
-  String get manageAssociates_revokeInviteBody;
+  String get manageAssociates_deleteInviteBody;
 
-  /// No description provided for @manageAssociates_inviteRevoked.
+  /// No description provided for @manageAssociates_inviteDeleted.
   ///
   /// In en, this message translates to:
-  /// **'Invite Revoked.'**
-  String get manageAssociates_inviteRevoked;
+  /// **'Invite Deleted.'**
+  String get manageAssociates_inviteDeleted;
 
   /// No description provided for @manageAssociates_permissionsTitle.
   ///
@@ -9165,6 +9201,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Permissions Updated.'**
   String get manageAssociates_permissionsUpdated;
+
+  /// No description provided for @manageAssociates_discardChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard Changes?'**
+  String get manageAssociates_discardChangesTitle;
+
+  /// No description provided for @manageAssociates_discardChangesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved changes to this member\'s permissions will be lost.'**
+  String get manageAssociates_discardChangesBody;
+
+  /// No description provided for @manageAssociates_discardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get manageAssociates_discardChanges;
 
   /// No description provided for @manageAssociates_removeAssociate.
   ///
@@ -9238,11 +9292,14 @@ abstract class AppLocalizations {
   /// **'Firm dissolved. Its cases are now your own diary.'**
   String get manageAssociates_dissolveDone;
 
-  /// No description provided for @manageAssociates_capacityTitle.
+  /// No description provided for @manageAssociates_capacityBreakdown.
   ///
   /// In en, this message translates to:
-  /// **'Device Usage'**
-  String get manageAssociates_capacityTitle;
+  /// **'{associates} associates · {ownerDevices} owner devices'**
+  String manageAssociates_capacityBreakdown(
+    String associates,
+    String ownerDevices,
+  );
 
   /// No description provided for @manageAssociates_inviteCodeUnavailable.
   ///

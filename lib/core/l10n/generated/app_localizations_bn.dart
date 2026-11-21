@@ -5205,13 +5205,28 @@ class AppLocalizationsBn extends AppLocalizations {
       'শুধু ফার্মের স্বত্বাধিকারী ফার্ম পরিচালনা করতে পারেন।';
 
   @override
-  String get manageAssociates_sectionMembers => 'সহযোগীরা';
+  String get manageAssociates_sectionMembers => 'সদস্যরা';
 
   @override
   String get manageAssociates_addAssociate => 'সহযোগী যোগ করুন';
 
   @override
-  String get manageAssociates_noMembers => 'এখনো কোনো সহযোগী নেই।';
+  String get manageAssociates_noMembers => 'এখনো কোনো সদস্য নেই।';
+
+  @override
+  String get manageAssociates_aloneInFirm =>
+      'আপনি একমাত্র সদস্য। একসঙ্গে কাজ শুরু করতে একজন সহযোগী যোগ করুন।';
+
+  @override
+  String get manageAssociates_memberFullAccess => 'সম্পূর্ণ অ্যাক্সেস';
+
+  @override
+  String get manageAssociates_memberReadOnly => 'শুধু পড়ার অনুমতি';
+
+  @override
+  String manageAssociates_memberPermissionCount(String count, String total) {
+    return '$totalটির মধ্যে $countটি অনুমতি';
+  }
 
   @override
   String get manageAssociates_statusNotSignedIn => 'সাইন ইন করা নেই';
@@ -5256,7 +5271,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'আপনার চেম্বার বা ফার্মের নাম লিখুন';
 
   @override
-  String get manageAssociates_addLogo => 'লোগো যোগ করুন';
+  String get manageAssociates_tapToAddLogo => 'লোগো যোগ করতে ট্যাপ করুন';
 
   @override
   String get manageAssociates_changeLogo => 'লোগো পরিবর্তন করুন';
@@ -5314,7 +5329,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get manageAssociates_inviteIntro =>
-      'এই কোডটি আপনার সহযোগীকে দিন। এটি একবারই কাজ করে এবং শুধু এই একবারই দেখানো হবে।';
+      'এই কোডটি আপনার সহযোগীকে দিন। এটি একবারই কাজ করে। আমন্ত্রণটি অব্যবহৃত থাকা পর্যন্ত এই ফোনই নিচের তালিকায় এটি রাখে।';
 
   @override
   String get manageAssociates_copyCode => 'কোড কপি করুন';
@@ -5345,17 +5360,23 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get manageAssociates_revokeInvite => 'বাতিল করুন';
+  String get manageAssociates_newCode => 'নতুন কোড';
 
   @override
-  String get manageAssociates_revokeInviteTitle => 'এই আমন্ত্রণটি বাতিল করবেন?';
+  String get manageAssociates_newCodeTitle => 'এই আমন্ত্রণটি বদলাবেন?';
 
   @override
-  String get manageAssociates_revokeInviteBody =>
+  String get manageAssociates_deleteInvite => 'আমন্ত্রণ মুছুন';
+
+  @override
+  String get manageAssociates_deleteInviteTitle => 'এই আমন্ত্রণটি মুছবেন?';
+
+  @override
+  String get manageAssociates_deleteInviteBody =>
       'কোডটি সঙ্গে সঙ্গে কাজ করা বন্ধ করে দেবে।';
 
   @override
-  String get manageAssociates_inviteRevoked => 'আমন্ত্রণ বাতিল করা হয়েছে।';
+  String get manageAssociates_inviteDeleted => 'আমন্ত্রণ মুছে ফেলা হয়েছে।';
 
   @override
   String get manageAssociates_permissionsTitle => 'অনুমতি';
@@ -5379,6 +5400,16 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get manageAssociates_permissionsUpdated =>
       'অনুমতি হালনাগাদ করা হয়েছে।';
+
+  @override
+  String get manageAssociates_discardChangesTitle => 'পরিবর্তন বাতিল করবেন?';
+
+  @override
+  String get manageAssociates_discardChangesBody =>
+      'এই সদস্যের অনুমতিতে আপনার অসংরক্ষিত পরিবর্তনগুলো মুছে যাবে।';
+
+  @override
+  String get manageAssociates_discardChanges => 'বাতিল করুন';
 
   @override
   String get manageAssociates_removeAssociate => 'ফার্ম থেকে সরান';
@@ -5435,7 +5466,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'ফার্ম বিলুপ্ত হয়েছে। এর কেসগুলো এখন আপনার নিজের ডায়েরি।';
 
   @override
-  String get manageAssociates_capacityTitle => 'ডিভাইস ব্যবহার';
+  String manageAssociates_capacityBreakdown(
+    String associates,
+    String ownerDevices,
+  ) {
+    return '$associates জন সহযোগী · মালিকের $ownerDevicesটি ডিভাইস';
+  }
 
   @override
   String get manageAssociates_inviteCodeUnavailable => 'এই ডিভাইসে কোডটি নেই।';

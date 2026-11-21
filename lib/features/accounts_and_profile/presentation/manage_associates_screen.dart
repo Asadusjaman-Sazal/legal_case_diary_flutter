@@ -29,6 +29,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +47,7 @@ import '../../../core/services/app_share_service.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../shared/widgets/app_dialog.dart';
 import '../../../shared/widgets/app_dialog_actions.dart';
+import '../../../shared/widgets/usage_meter.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
@@ -65,6 +67,7 @@ import 'image_crop_screen.dart';
 import 'image_source_sheet.dart';
 import 'picture_viewer_screen.dart';
 import '../data/firm_repository.dart';
+import '../data/profile_picture_store.dart';
 import '../data/profile_repository.dart' show AccountRole;
 
 /// The firm screen: firm creation, invites and the roster.
@@ -88,8 +91,14 @@ class _ManageAssociatesScreenState
   /// The firm name typed while this account is still an individual.
   final TextEditingController _firmNameController = TextEditingController();
 
-  /// Set while a server call is in flight, so no control can be tapped twice.
-  bool _busy = false;
+  /// Which server call is in flight, or null when nothing is running.
+  ///
+  /// A value rather than a bare flag, so only the button that started the work
+  /// draws a spinner; every other control is still disabled through [_busy].
+  _BusyAction? _busyAction;
+
+  /// Whether any server call is in flight.
+  bool get _busy => _busyAction != null;
 
   /// The last failure to show; cleared when a new attempt starts.
   Object? _failure;
@@ -106,8 +115,12 @@ class _ManageAssociatesScreenState
     // Unknown connectivity counts as online, the same choice Task 17 Phase 4
     // made: a wrong "offline" would hide an operation the server accepts.
     final online = ref.watch(isOnlineProvider).value ?? true;
-    final signedIn = ref.watch(authIdentityProvider) != null;
+    final identity = ref.watch(authIdentityProvider);
+    final signedIn = identity != null;
     final owner = ref.watch(canManageFirmProvider);
+    // The only picture this device can read is the signed-in account's own, so
+    // its row shows the saved file and every other row shows initials.
+    final selfUserId = identity?.userId ?? '';
 
     final Widget body;
     if (!online) {
@@ -117,13 +130,13 @@ class _ManageAssociatesScreenState
       // a device that never signed in.
       body = _MessageBody(l.sharedMessages_signInRequired);
     } else if (owner) {
-      body = _rosterBody(l);
+      body = _rosterBody(l, selfUserId);
     } else if (ref.watch(canOpenManageAssociatesProvider)) {
       body = _firmSetupBody(l);
     } else if (ref.watch(firmMemberProvider)) {
       // An associate or viewer of somebody else's chamber: what the firm is and
       // who is in it, with nothing to change (0.0.666, user request).
-      body = _memberBody(l);
+      body = _memberBody(l, selfUserId);
     } else {
       // A firm member who is not the owner: the entry point hides this screen,
       // and a deep link into it must not offer a create-firm form either — the
@@ -175,10 +188,11 @@ class _ManageAssociatesScreenState
   /// invalidated rather than cached after a change, which is what keeps this
   /// screen from becoming a second copy of the firm's server state (AGENTS.md
   /// rule 4: `firm_members` and `firm_invites` are not this device's to own).
-  Widget _rosterBody(AppLocalizations l) {
+  Widget _rosterBody(AppLocalizations l, String selfUserId) {
     final firm = ref.watch(accountFirmProvider).value;
     final firmName = firm?.name ?? '';
     final members = ref.watch(firmMembersListProvider);
+    final avatarFile = ref.watch(profilePictureProvider);
     final invites = ref.watch(firmInvitesListProvider);
     // The owner's shared-capacity picture: associates and the owner's own
     // devices against the tier's slots.
@@ -232,9 +246,12 @@ class _ManageAssociatesScreenState
           _CapacityCard(capacity: capacity, l: l),
         ],
         const SizedBox(height: AppSpacing.gutter),
+        SettingsSectionLabel(l.manageAssociates_sectionMembers),
+        const SizedBox(height: AppSpacing.sm),
         _PrimaryButton(
           icon: Icons.person_add_alt_1_outlined,
           label: l.manageAssociates_addAssociate,
+          busy: _busyAction == _BusyAction.add,
           onPressed: _busy || addBlockReason != null ? null : _addAssociate,
         ),
         if (addBlockReason != null) ...[
@@ -246,30 +263,15 @@ class _ManageAssociatesScreenState
             ),
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
-        SettingsSectionLabel(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
         members.when(
-          data: (rows) => rows.isEmpty
-              ? _InfoRow(text: l.manageAssociates_noMembers)
-              : Column(
-                  children: [
-                    for (final member in rows) ...[
-                      _MemberRow(
-                        member: member,
-                        l: l,
-                        // The owner's own row is not the roster's to edit: their
-                        // permissions are structural (`firms.owner_id`), so a
-                        // flag on their `firm_members` row would not change what
-                        // they may do. Tapping it opens nothing at all.
-                        onTap: member.role == AccountRole.owner
-                            ? null
-                            : () => _editMember(member),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                  ],
-                ),
+          data: (rows) => _memberList(
+            rows: rows,
+            l: l,
+            selfUserId: selfUserId,
+            avatarFile: avatarFile,
+            editable: true,
+          ),
           loading: () => const Padding(
             padding: EdgeInsets.all(AppSpacing.lg),
             child: Center(child: CircularProgressIndicator()),
@@ -306,9 +308,13 @@ class _ManageAssociatesScreenState
                         unavailableLabel:
                             l.manageAssociates_inviteCodeUnavailable,
                         copyLabel: l.manageAssociates_copyCode,
-                        revokeLabel: l.manageAssociates_revokeInvite,
+                        newCodeLabel: l.manageAssociates_newCode,
+                        deleteLabel: l.manageAssociates_deleteInvite,
                         onCopy: _copyInviteCode,
-                        onRevoke: _busy ? null : () => _revokeInvite(invite.id),
+                        onNewCode: _busy
+                            ? null
+                            : () => _replaceInvite(invite.id),
+                        onDelete: _busy ? null : () => _deleteInvite(invite.id),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                     ],
@@ -327,6 +333,7 @@ class _ManageAssociatesScreenState
         const SizedBox(height: AppSpacing.sm),
         _DissolveCard(
           intro: l.manageAssociates_dissolveIntro,
+          busy: _busyAction == _BusyAction.dissolve,
           // One reason at a time, in the order the action has to clear them.
           note: membersLeft == null
               ? null
@@ -340,6 +347,43 @@ class _ManageAssociatesScreenState
               ? _dissolveFirm
               : null,
         ),
+      ],
+    );
+  }
+
+  /// The Members list, shared by the owner's editable page and the member's
+  /// read-only one: owner first, then names A–Z (blank names last), with the
+  /// "only member" line when nobody else has joined.
+  Widget _memberList({
+    required List<FirmMemberSummary> rows,
+    required AppLocalizations l,
+    required String selfUserId,
+    required File? avatarFile,
+    required bool editable,
+  }) {
+    final sorted = _sortedMembers(rows);
+    final hasAssociates = rows.any((row) => row.role != AccountRole.owner);
+    if (sorted.isEmpty) {
+      return _InfoRow(text: l.manageAssociates_noMembers);
+    }
+    return Column(
+      children: [
+        for (final member in sorted) ...[
+          _MemberRow(
+            member: member,
+            l: l,
+            selfUserId: selfUserId,
+            avatarFile: avatarFile,
+            // The owner's own row is not the roster's to edit: their
+            // permissions are structural (`firms.owner_id`), so a flag on their
+            // `firm_members` row would not change what they may do.
+            onTap: editable && member.role != AccountRole.owner
+                ? () => _editMember(member)
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        if (!hasAssociates) _InfoRow(text: l.manageAssociates_aloneInFirm),
       ],
     );
   }
@@ -360,8 +404,9 @@ class _ManageAssociatesScreenState
   /// live read the owner's body uses, which the server's own rules already
   /// allow for every member of the chamber, and every row is drawn without a
   /// tap so the page cannot look like the owner's.
-  Widget _memberBody(AppLocalizations l) {
+  Widget _memberBody(AppLocalizations l, String selfUserId) {
     final members = ref.watch(firmMembersListProvider);
+    final avatarFile = ref.watch(profilePictureProvider);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -376,16 +421,13 @@ class _ManageAssociatesScreenState
         SettingsSectionLabel(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
         members.when(
-          data: (rows) => rows.isEmpty
-              ? _InfoRow(text: l.manageAssociates_noMembers)
-              : Column(
-                  children: [
-                    for (final member in rows) ...[
-                      _MemberRow(member: member, l: l),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                  ],
-                ),
+          data: (rows) => _memberList(
+            rows: rows,
+            l: l,
+            selfUserId: selfUserId,
+            avatarFile: avatarFile,
+            editable: false,
+          ),
           loading: () => const Padding(
             padding: EdgeInsets.all(AppSpacing.lg),
             child: Center(child: CircularProgressIndicator()),
@@ -521,6 +563,7 @@ class _ManageAssociatesScreenState
     }
 
     final name = _firmNameController.text.trim();
+    GeneratedInvite? created;
     await _run(() async {
       final repository = ref.read(firmRepositoryProvider);
       await repository.ensureFirm(name);
@@ -528,11 +571,15 @@ class _ManageAssociatesScreenState
       // without this the screen would still believe it is an individual and this
       // account would not count as firm mode until the next launch.
       await ref.read(accountRefreshProvider)();
-      final invite = await _newInvite();
+      created = await _newInvite();
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
-      await _showInviteCode(invite);
     });
+    final invite = created;
+    if (invite == null || !mounted) return;
+    // Shown after the call finishes, so no button keeps a spinner behind a
+    // window the user may leave open.
+    await _showInviteCode(invite);
   }
 
   /// Puts an invite's remembered code on the clipboard and says so.
@@ -560,39 +607,73 @@ class _ManageAssociatesScreenState
   }
 
   /// Generates one invite for an existing firm and shows its code.
-  Future<void> _addAssociate() => _run(() async {
-    final invite = await _newInvite();
-    if (!mounted) return;
-    // The new code joins the outstanding list as soon as this sheet closes.
-    ref.invalidate(firmInvitesListProvider);
+  Future<void> _addAssociate() async {
+    GeneratedInvite? created;
+    await _run(() async {
+      created = await _newInvite();
+      if (!mounted) return;
+      // The new code joins the outstanding list as soon as this sheet closes.
+      ref.invalidate(firmInvitesListProvider);
+    }, busyWith: _BusyAction.add);
+    final invite = created;
+    if (invite == null || !mounted) return;
     await _showInviteCode(invite);
-  });
+  }
 
-  /// Revokes an unused invite, after confirming it.
+  /// Deletes an unused invite, after confirming it.
   ///
-  /// The confirmation is not ceremony: a revoked code stops working instantly
+  /// The confirmation is not ceremony: a deleted code stops working instantly
   /// and its plaintext is unrecoverable, so the associate holding it cannot be
   /// re-told what it was — the owner has to send a fresh one.
-  Future<void> _revokeInvite(String inviteId) async {
+  Future<void> _deleteInvite(String inviteId) async {
     final l = AppLocalizations.of(context);
     final confirmed = await _confirm(
       context: context,
-      title: l.manageAssociates_revokeInviteTitle,
-      body: l.manageAssociates_revokeInviteBody,
-      confirmLabel: l.manageAssociates_revokeInvite,
+      title: l.manageAssociates_deleteInviteTitle,
+      body: l.manageAssociates_deleteInviteBody,
+      confirmLabel: l.manageAssociates_deleteInvite,
       // The Invite Code window's corner and action size (user request).
       matchesInviteCodeWindow: true,
     );
     if (!confirmed) return;
     await _run(() async {
       await ref.read(firmRepositoryProvider).revokeInvite(inviteId);
-      // A revoked code can never be redeemed, so this device stops remembering
+      // A deleted code can never be redeemed, so this device stops remembering
       // it (no server copy exists to clean up — only the hash is stored).
       await ref.read(firmInviteCodeStoreProvider).forget(inviteId);
       if (!mounted) return;
       ref.invalidate(firmInvitesListProvider);
-      _say(context, l.manageAssociates_inviteRevoked);
+      _say(context, l.manageAssociates_inviteDeleted);
     });
+  }
+
+  /// Replaces an invite this device cannot show with a fresh one.
+  ///
+  /// The old code is still held by somebody — the server only has its hash — so
+  /// the replacement is confirmed before it is retired. The new plaintext is
+  /// remembered locally and shown in the same window a new invite uses.
+  Future<void> _replaceInvite(String inviteId) async {
+    final l = AppLocalizations.of(context);
+    final confirmed = await _confirm(
+      context: context,
+      title: l.manageAssociates_newCodeTitle,
+      body: l.manageAssociates_deleteInviteBody,
+      confirmLabel: l.manageAssociates_newCode,
+      matchesInviteCodeWindow: true,
+    );
+    if (!confirmed) return;
+    GeneratedInvite? created;
+    await _run(() async {
+      final repository = ref.read(firmRepositoryProvider);
+      await repository.revokeInvite(inviteId);
+      await ref.read(firmInviteCodeStoreProvider).forget(inviteId);
+      created = await _newInvite();
+      if (!mounted) return;
+      ref.invalidate(firmInvitesListProvider);
+    });
+    final invite = created;
+    if (invite == null || !mounted) return;
+    await _showInviteCode(invite);
   }
 
   /// Dissolves the firm, after confirming it, and turns the ledger into the
@@ -639,7 +720,7 @@ class _ManageAssociatesScreenState
       await ref.read(syncServiceProvider).syncNow(force: true, pull: true);
       if (!mounted) return;
       _say(context, l.manageAssociates_dissolveDone);
-    });
+    }, busyWith: _BusyAction.dissolve);
   }
 
   /// Picks a chamber logo through the source chooser, selects its 148:100 area,
@@ -756,10 +837,16 @@ class _ManageAssociatesScreenState
   /// Runs [action] with the busy flag and the failure banner wired up.
   ///
   /// One place owns both, so every call on this screen behaves the same way and
-  /// no failure can be silently dropped.
-  Future<void> _run(Future<void> Function() action) async {
+  /// no failure can be silently dropped. [busyWith] names the button that shows
+  /// the spinner while the call runs; every other control is disabled by
+  /// [_busy] but keeps its normal face.
+  Future<void> _run(
+    Future<void> Function() action, {
+    _BusyAction busyWith = _BusyAction.other,
+  }) async {
+    final l = AppLocalizations.of(context);
     setState(() {
-      _busy = true;
+      _busyAction = busyWith;
       _failure = null;
     });
     try {
@@ -770,9 +857,13 @@ class _ManageAssociatesScreenState
       // rethrowing it: a refused invite is precisely the report this log has to
       // be able to answer, and without this it would leave no trace at all.
       recordFailure(ref.read(errorLogProvider), 'firm.action', error);
+      final text = failureText(l, error) ?? l.auth_errorUnknown;
       setState(() => _failure = error);
+      // The banner at the top of the list can be scrolled past, so the same
+      // sentence is shown where the user is looking (user request).
+      _say(context, text);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _busyAction = null);
     }
   }
 
@@ -1006,6 +1097,18 @@ class _FirmCard extends ConsumerWidget {
                     child: frame,
                   ),
           ),
+          // An empty frame is tappable, but nothing on it said so (user
+          // request): the caption makes the control visible.
+          if (!readOnly && logo == null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l.manageAssociates_tapToAddLogo,
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySm.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           // The same round pencil the logo carries, beside the name: the name
           // takes the line when it needs it, and the pencil drops to the next
@@ -1084,6 +1187,9 @@ class _PictureAction extends StatelessWidget {
     super.key,
   });
 
+  /// The visible circle is small, so the tap target is padded to 48 px around
+  /// it and the same words are announced as the tooltip (user request).
+
   /// The glyph inside the circle.
   final IconData icon;
 
@@ -1097,22 +1203,34 @@ class _PictureAction extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: onTap == null ? 0.4 : 1,
-        child: Container(
-          // The Profile picture edit/delete buttons' own padding (user request:
-          // the firm's logo and name actions must match their size).
-          padding: const EdgeInsets.all(AppSpacing.xs),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-            border: Border.all(color: AppColors.surface, width: 2),
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    enabled: onTap != null,
+    label: tooltip,
+    child: Tooltip(
+      message: tooltip,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Opacity(
+              opacity: onTap == null ? 0.4 : 1,
+              child: Container(
+                // The Profile picture edit/delete buttons' own padding (user
+                // request: the firm's logo and name actions match their size).
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color,
+                  border: Border.all(color: AppColors.surface, width: 2),
+                ),
+                child: Icon(icon, color: AppColors.onPrimary, size: 18),
+              ),
+            ),
           ),
-          child: Icon(icon, color: AppColors.onPrimary, size: 18),
         ),
       ),
     ),
@@ -1147,27 +1265,19 @@ class _CapacityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            // The title the user chose for this card (0.0.653): *Seats and
-            // Devices* described the parts rather than the number under it.
-            // The shared `settingsSubscription_usageSeats` is untouched, because
-            // Manage Plan's usage meters still use it.
-            l.manageAssociates_capacityTitle,
-            style: AppTypography.labelMd.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+          // The same meter Manage Plan draws, so the two screens can never
+          // disagree about the shape of the same numbers (user request).
+          UsageMeter(
+            label: l.settingsSubscription_usageSeats,
+            used: capacity.used,
+            limit: capacity.slots,
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.sm),
           Text(
-            l.settingsSubscription_usageOfLimit(
-              digits(capacity.used),
-              digits(capacity.slots),
+            l.manageAssociates_capacityBreakdown(
+              digits(capacity.associates),
+              digits(capacity.ownerDevices),
             ),
-            style: AppTypography.titleMd,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            l.settingsSubscription_usageSeatsNote,
             style: AppTypography.bodySm.copyWith(
               color: AppColors.onSurfaceVariant,
             ),
@@ -1220,6 +1330,14 @@ class _CapacityCard extends StatelessWidget {
                 color: AppColors.onSurfaceVariant,
               ),
             ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                key: const ValueKey('manage-associates-manage-plan'),
+                onPressed: () => context.push(AppRoutes.paywall),
+                child: Text(l.settingsSubscription_managePlanTitle),
+              ),
+            ),
           ],
         ],
       ),
@@ -1227,32 +1345,57 @@ class _CapacityCard extends StatelessWidget {
   }
 }
 
-/// One associate: name on the left, role on the right, an edit affordance when
-/// the row can be edited.
+/// One member: picture or initials, name, what they may do, and their role.
 class _MemberRow extends StatelessWidget {
-  const _MemberRow({required this.member, required this.l, this.onTap});
+  const _MemberRow({
+    required this.member,
+    required this.l,
+    required this.selfUserId,
+    required this.avatarFile,
+    this.onTap,
+  });
 
   final FirmMemberSummary member;
   final AppLocalizations l;
 
+  /// The signed-in account, whose saved picture is the only one this device can
+  /// read; every other row falls back to initials.
+  final String selfUserId;
+
+  /// The signed-in account's saved profile picture, when it has one.
+  final File? avatarFile;
+
   /// Opens the permissions sheet; null for the owner's own row, which is not
-  /// editable from the roster.
+  /// editable from the roster, and for every row in a member's read-only view.
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final picture = member.userId == selfUserId ? avatarFile : null;
     final content = Padding(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           Container(
+            key: ValueKey('manage-associates-avatar-${member.userId}'),
             width: 40,
             height: 40,
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: AppColors.surfaceContainerLow,
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
             ),
-            child: const Icon(Icons.person_outline, color: AppColors.primary),
+            child: picture == null
+                ? Center(
+                    child: Text(
+                      _initials(member.fullName),
+                      style: AppTypography.titleMd.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  )
+                : Image.file(picture, fit: BoxFit.cover),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -1267,6 +1410,13 @@ class _MemberRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.bodyLg,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _permissionSummary(context, l, member),
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
                 ),
                 if (member.capacitySignedOutAt != null) ...[
                   const SizedBox(height: 2),
@@ -1310,11 +1460,11 @@ class _MemberRow extends StatelessWidget {
 }
 
 /// One outstanding invite: when it was created, its code when this device knows
-/// it, and the way to revoke it.
+/// it, and the copy and delete controls.
 ///
 /// The server keeps only the code's SHA-256 hash, so the plaintext can only come
-/// from the local store: an invite made on another phone says so instead of
-/// inventing one.
+/// from the local store: an invite made on another phone says so and offers a
+/// replacement instead of inventing one.
 class _InviteRow extends StatelessWidget {
   const _InviteRow({
     required this.id,
@@ -1322,9 +1472,11 @@ class _InviteRow extends StatelessWidget {
     required this.code,
     required this.unavailableLabel,
     required this.copyLabel,
+    required this.newCodeLabel,
+    required this.deleteLabel,
     required this.onCopy,
-    required this.revokeLabel,
-    required this.onRevoke,
+    required this.onNewCode,
+    required this.onDelete,
   });
 
   final String id;
@@ -1336,21 +1488,31 @@ class _InviteRow extends StatelessWidget {
   /// What the row says when this device never held the code.
   final String unavailableLabel;
 
-  /// Spoken/screen-reader label for the tappable code.
+  /// Spoken/screen-reader label for the copy button.
   final String copyLabel;
+
+  /// The replacement action's label, shown only when the code is unknown.
+  final String newCodeLabel;
+
+  /// Spoken/screen-reader label for the delete button.
+  final String deleteLabel;
 
   /// Copies the code; only called when [code] is non-null.
   final ValueChanged<String> onCopy;
 
-  final String revokeLabel;
-  final VoidCallback? onRevoke;
+  /// Replaces an invite this device cannot show; only called when [code] is null.
+  final VoidCallback? onNewCode;
+
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) => Container(
     decoration: settingsCardDecoration(),
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.md,
-      vertical: AppSpacing.sm,
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.md,
+      AppSpacing.xs,
+      AppSpacing.xs,
+      AppSpacing.xs,
     ),
     child: Row(
       children: [
@@ -1363,51 +1525,72 @@ class _InviteRow extends StatelessWidget {
             children: [
               Text(createdLabel, style: AppTypography.bodyMd),
               const SizedBox(height: 2),
-              // The code under the date, a step smaller and tappable to copy
-              // (user request, 0.0.653). A code this device never saw says so
-              // rather than disappearing, so the row keeps its shape.
+              // The code is plain text with its own copy button, so a tap on
+              // the words no longer has to guess (user request). A code this
+              // device never saw says so and offers a replacement.
               if (code != null)
-                GestureDetector(
-                  key: ValueKey('manage-associates-invite-code-$id'),
-                  onTap: () => onCopy(code!),
-                  child: Tooltip(
-                    message: copyLabel,
-                    child: Text(
-                      code!,
-                      style: AppTypography.bodySm.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
-                        decoration: TextDecoration.underline,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        code!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
-                  ),
+                    IconButton(
+                      key: ValueKey('manage-associates-copy-$id'),
+                      tooltip: copyLabel,
+                      onPressed: () => onCopy(code!),
+                      icon: const Icon(Icons.copy_outlined, size: 18),
+                      color: AppColors.primary,
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
                 )
-              else
+              else ...[
                 Text(
                   unavailableLabel,
                   style: AppTypography.bodySm.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
+                TextButton(
+                  key: ValueKey('manage-associates-new-code-$id'),
+                  onPressed: onNewCode,
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: Text(newCodeLabel),
+                ),
+              ],
             ],
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
-        // Black fill with white text (user request): the revoke action is the
-        // list's one control, and it wears the app's primary action colour.
-        FilledButton(
-          key: ValueKey('manage-associates-revoke-$id'),
-          onPressed: onRevoke,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
-            disabledForegroundColor: AppColors.onPrimary,
-            minimumSize: const Size(0, 40),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          ),
-          child: Text(revokeLabel),
+        const SizedBox(width: AppSpacing.xs),
+        // A delete icon rather than a worded button (user request): the row's
+        // only destructive action, in the app's error colour.
+        IconButton(
+          key: ValueKey('manage-associates-delete-$id'),
+          tooltip: deleteLabel,
+          onPressed: onDelete,
+          icon: const Icon(Icons.delete_outline),
+          color: AppColors.error,
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          padding: EdgeInsets.zero,
         ),
       ],
     ),
@@ -1456,12 +1639,81 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
   late String _role = widget.member.role == AccountRole.viewer
       ? AccountRole.viewer
       : AccountRole.associate;
-  late bool _canAdd = widget.member.canAdd;
-  late bool _canEdit = widget.member.canEdit;
-  late bool _canDelete = widget.member.canDelete;
+  late bool _canAdd = _role == AccountRole.viewer
+      ? false
+      : widget.member.canAdd;
+  late bool _canEdit = _role == AccountRole.viewer
+      ? false
+      : widget.member.canEdit;
+  late bool _canDelete = _role == AccountRole.viewer
+      ? false
+      : widget.member.canDelete;
+
+  /// The last associate flags, so returning from Viewer restores them.
+  late bool _lastAdd = widget.member.canAdd;
+  late bool _lastEdit = widget.member.canEdit;
+  late bool _lastDelete = widget.member.canDelete;
 
   bool _busy = false;
   Object? _failure;
+
+  /// The role the sheet opened on, with Viewer's switches already off.
+  String get _initialRole => widget.member.role == AccountRole.viewer
+      ? AccountRole.viewer
+      : AccountRole.associate;
+
+  bool get _initialAdd =>
+      _initialRole == AccountRole.viewer ? false : widget.member.canAdd;
+
+  bool get _initialEdit =>
+      _initialRole == AccountRole.viewer ? false : widget.member.canEdit;
+
+  bool get _initialDelete =>
+      _initialRole == AccountRole.viewer ? false : widget.member.canDelete;
+
+  /// Whether closing now would throw away a choice the owner has not saved.
+  bool get _dirty =>
+      _role != _initialRole ||
+      _canAdd != _initialAdd ||
+      _canEdit != _initialEdit ||
+      _canDelete != _initialDelete;
+
+  /// Chooses a role, keeping Viewer and the three flags coherent.
+  ///
+  /// The server has no rule tying them together, so the sheet is where a viewer
+  /// is kept read-only: choosing Viewer clears and disables the switches, and
+  /// going back to Associate restores the last associate flags.
+  void _selectRole(String role) {
+    if (_busy || role == _role) return;
+    setState(() {
+      if (role == AccountRole.viewer) {
+        _lastAdd = _canAdd;
+        _lastEdit = _canEdit;
+        _lastDelete = _canDelete;
+        _canAdd = false;
+        _canEdit = false;
+        _canDelete = false;
+      } else {
+        _canAdd = _lastAdd;
+        _canEdit = _lastEdit;
+        _canDelete = _lastDelete;
+      }
+      _role = role;
+    });
+  }
+
+  /// Asks before a dismiss throws away unsaved changes.
+  Future<void> _confirmDiscard() async {
+    final l = AppLocalizations.of(context);
+    final discard = await _confirm(
+      context: context,
+      title: l.manageAssociates_discardChangesTitle,
+      body: l.manageAssociates_discardChangesBody,
+      confirmLabel: l.manageAssociates_discardChanges,
+    );
+    if (!discard || !mounted) return;
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1472,155 +1724,168 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
         !flagged &&
         capacity != null &&
         (capacity.shrinkPending || capacity.overRoster || capacity.overDevices);
+    final viewer = _role == AccountRole.viewer;
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.member.fullName.isEmpty
-                  ? l.manageAssociates_unnamedMember
-                  : widget.member.fullName,
-              style: AppTypography.titleLg,
-            ),
-            if (flagged) ...[
-              const SizedBox(height: AppSpacing.sm),
+      child: PopScope(
+        canPop: !_dirty,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          _confirmDiscard();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Text(
-                l.manageAssociates_signedOutNote,
-                style: AppTypography.bodySm.copyWith(
+                widget.member.fullName.isEmpty
+                    ? l.manageAssociates_unnamedMember
+                    : widget.member.fullName,
+                style: AppTypography.titleLg,
+              ),
+              if (flagged) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  l.manageAssociates_signedOutNote,
+                  style: AppTypography.bodySm.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              if (_failure != null) ...[
+                AuthErrorBanner(
+                  text: failureText(l, _failure) ?? l.auth_errorUnknown,
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+              // The sheet opens on the role, then on the permissions the role
+              // governs (user request): the label that heads the switches sits
+              // after the role rather than above it, and wears the same small
+              // style as the role's own label so the two read as one pair.
+              Text(
+                l.manageAssociates_roleLabel,
+                style: AppTypography.labelMd.copyWith(
                   color: AppColors.onSurfaceVariant,
                 ),
               ),
-            ],
-            const SizedBox(height: AppSpacing.md),
-            if (_failure != null) ...[
-              AuthErrorBanner(
-                text: failureText(l, _failure) ?? l.auth_errorUnknown,
+              const SizedBox(height: AppSpacing.xs),
+              // A member is an associate or a viewer; `owner` is not a choice,
+              // because ownership is `firms.owner_id` and not a row flag.
+              Row(
+                children: [
+                  SettingsChoiceButton(
+                    key: const ValueKey('member-role-associate'),
+                    label: l.settingsManageAccount_roleAssociate,
+                    selected: _role == AccountRole.associate,
+                    onTap: () => _selectRole(AccountRole.associate),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  SettingsChoiceButton(
+                    key: const ValueKey('member-role-viewer'),
+                    label: l.settingsManageAccount_roleViewer,
+                    selected: _role == AccountRole.viewer,
+                    onTap: () => _selectRole(AccountRole.viewer),
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.md),
-            ],
-            // The sheet opens on the role, then on the permissions the role
-            // governs (user request): the label that heads the switches sits
-            // after the role rather than above it, and wears the same small
-            // style as the role's own label so the two read as one pair.
-            Text(
-              l.manageAssociates_roleLabel,
-              style: AppTypography.labelMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            // A member is an associate or a viewer; `owner` is not a choice,
-            // because ownership is `firms.owner_id` and not a row flag.
-            Row(
-              children: [
-                SettingsChoiceButton(
-                  key: const ValueKey('member-role-associate'),
-                  label: l.settingsManageAccount_roleAssociate,
-                  selected: _role == AccountRole.associate,
-                  onTap: _busy
-                      ? () {}
-                      : () => setState(() => _role = AccountRole.associate),
+              Text(
+                l.manageAssociates_permissionsTitle,
+                style: AppTypography.labelMd.copyWith(
+                  color: AppColors.onSurfaceVariant,
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                SettingsChoiceButton(
-                  key: const ValueKey('member-role-viewer'),
-                  label: l.settingsManageAccount_roleViewer,
-                  selected: _role == AccountRole.viewer,
-                  onTap: _busy
-                      ? () {}
-                      : () => setState(() => _role = AccountRole.viewer),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              _PermissionToggle(
+                label: l.manageAssociates_permissionAdd,
+                value: _canAdd,
+                enabled: !_busy && !viewer,
+                onChanged: (value) => setState(() => _canAdd = value),
+              ),
+              _PermissionToggle(
+                label: l.manageAssociates_permissionEdit,
+                value: _canEdit,
+                enabled: !_busy && !viewer,
+                onChanged: (value) => setState(() => _canEdit = value),
+              ),
+              _PermissionToggle(
+                label: l.manageAssociates_permissionDelete,
+                value: _canDelete,
+                enabled: !_busy && !viewer,
+                onChanged: (value) => setState(() => _canDelete = value),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _PrimaryButton(
+                icon: Icons.check_outlined,
+                label: l.manageAssociates_savePermissions,
+                onPressed: _busy ? null : _save,
+              ),
+              if (flagged) ...[
+                const SizedBox(height: AppSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    key: const ValueKey('member-admit'),
+                    onPressed: _busy ? null : _admit,
+                    icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                    label: Text(l.manageAssociates_capacityAdmit),
+                  ),
+                ),
+              ] else if (showSignOut) ...[
+                const SizedBox(height: AppSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    key: const ValueKey('member-sign-out'),
+                    onPressed: _busy ? null : _signOut,
+                    icon: const Icon(Icons.logout_outlined, size: 18),
+                    label: Text(l.manageAssociates_capacitySignOut),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                    ),
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              l.manageAssociates_permissionsTitle,
-              style: AppTypography.labelMd.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _PermissionToggle(
-              label: l.manageAssociates_permissionAdd,
-              value: _canAdd,
-              enabled: !_busy,
-              onChanged: (value) => setState(() => _canAdd = value),
-            ),
-            _PermissionToggle(
-              label: l.manageAssociates_permissionEdit,
-              value: _canEdit,
-              enabled: !_busy,
-              onChanged: (value) => setState(() => _canEdit = value),
-            ),
-            _PermissionToggle(
-              label: l.manageAssociates_permissionDelete,
-              value: _canDelete,
-              enabled: !_busy,
-              onChanged: (value) => setState(() => _canDelete = value),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _PrimaryButton(
-              icon: Icons.check_outlined,
-              label: l.manageAssociates_savePermissions,
-              onPressed: _busy ? null : _save,
-            ),
-            if (flagged) ...[
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
+              const Divider(height: 1, color: AppColors.outlineVariant),
+              const SizedBox(height: AppSpacing.lg),
+              // Removal is the destructive action of this sheet, so it wears the
+              // app's red fill with white ink, at the Save button's own height and
+              // shape (user request) — the same reading the Dissolve action
+              // carries on the page behind this sheet.
               SizedBox(
                 width: double.infinity,
-                child: TextButton.icon(
-                  key: const ValueKey('member-admit'),
-                  onPressed: _busy ? null : _admit,
-                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
-                  label: Text(l.manageAssociates_capacityAdmit),
-                ),
-              ),
-            ] else if (showSignOut) ...[
-              const SizedBox(height: AppSpacing.sm),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton.icon(
-                  key: const ValueKey('member-sign-out'),
-                  onPressed: _busy ? null : _signOut,
-                  icon: const Icon(Icons.logout_outlined, size: 18),
-                  label: Text(l.manageAssociates_capacitySignOut),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                child: FilledButton.icon(
+                  key: const ValueKey('member-remove'),
+                  onPressed: _busy ? null : _remove,
+                  icon: const Icon(
+                    Icons.person_remove_alt_1_outlined,
+                    size: 20,
+                  ),
+                  label: Text(l.manageAssociates_removeAssociate),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: AppColors.onError,
+                    disabledBackgroundColor: AppColors.error.withValues(
+                      alpha: 0.38,
+                    ),
+                    textStyle: AppTypography.titleMd,
+                    minimumSize: const Size.fromHeight(
+                      settingsPrimaryButtonHeight,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.cardRadius,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.sm),
-            // Removal is the destructive action of this sheet, so it wears the
-            // app's red fill with white ink, at the Save button's own height and
-            // shape (user request) — the same reading the Dissolve action
-            // carries on the page behind this sheet.
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                key: const ValueKey('member-remove'),
-                onPressed: _busy ? null : _remove,
-                icon: const Icon(Icons.person_remove_alt_1_outlined, size: 20),
-                label: Text(l.manageAssociates_removeAssociate),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.error,
-                  foregroundColor: AppColors.onError,
-                  disabledBackgroundColor: AppColors.error.withValues(
-                    alpha: 0.38,
-                  ),
-                  textStyle: AppTypography.titleMd,
-                  minimumSize: const Size.fromHeight(
-                    settingsPrimaryButtonHeight,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -1629,19 +1894,22 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
   /// Writes the role and the three flags, then closes on success.
   Future<void> _save() async {
     final l = AppLocalizations.of(context);
+    final viewer = _role == AccountRole.viewer;
     await _run(() async {
       await ref
           .read(firmRepositoryProvider)
           .updateMemberPermissions(
             userId: widget.member.userId,
             role: _role,
-            canAdd: _canAdd,
-            canEdit: _canEdit,
-            canDelete: _canDelete,
+            canAdd: viewer ? false : _canAdd,
+            canEdit: viewer ? false : _canEdit,
+            canDelete: viewer ? false : _canDelete,
           );
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
-      Navigator.of(context).maybePop();
+      // A successful save is not a discard: pop directly, because the unsaved
+      // changes guard would otherwise ask about changes that were just written.
+      Navigator.of(context).pop();
       _say(context, l.manageAssociates_permissionsUpdated);
     });
   }
@@ -1660,7 +1928,7 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
       await ref.read(firmRepositoryProvider).removeMember(widget.member.userId);
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
-      Navigator.of(context).maybePop();
+      Navigator.of(context).pop();
       _say(context, l.manageAssociates_associateRemoved);
     });
   }
@@ -1684,7 +1952,7 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
           .signOutMember(widget.member.userId);
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
-      Navigator.of(context).maybePop();
+      Navigator.of(context).pop();
       _say(context, l.manageAssociates_capacitySignedOut);
     });
   }
@@ -1696,7 +1964,7 @@ class _MemberSheetState extends ConsumerState<_MemberSheet> {
       await ref.read(firmRepositoryProvider).admitMember(widget.member.userId);
       if (!mounted) return;
       ref.invalidate(firmMembersListProvider);
-      Navigator.of(context).maybePop();
+      Navigator.of(context).pop();
       _say(context, l.manageAssociates_capacityAdmitted);
     });
   }
@@ -1758,6 +2026,67 @@ Future<bool> _confirm({
   return answer ?? false;
 }
 
+/// Sorts the roster for display: the owner first, then names A–Z, blank last.
+List<FirmMemberSummary> _sortedMembers(List<FirmMemberSummary> rows) {
+  final sorted = [...rows];
+  sorted.sort((a, b) {
+    final aOwner = a.role == AccountRole.owner;
+    final bOwner = b.role == AccountRole.owner;
+    if (aOwner != bOwner) return aOwner ? -1 : 1;
+    final aName = a.fullName.trim().toLowerCase();
+    final bName = b.fullName.trim().toLowerCase();
+    if (aName.isEmpty != bName.isEmpty) return aName.isEmpty ? 1 : -1;
+    return aName.compareTo(bName);
+  });
+  return sorted;
+}
+
+/// A member's initials: the first letter of their first and last words.
+///
+/// A leading advocate title (`Adv.`) is skipped, because every roster name in
+/// the app tends to carry it and every avatar would otherwise read `A?`.
+String _initials(String name) {
+  var words = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList(growable: false);
+  if (words.length > 1 &&
+      (words.first.toLowerCase() == 'adv.' ||
+          words.first.toLowerCase() == 'adv')) {
+    words = words.sublist(1);
+  }
+  if (words.isEmpty) return '?';
+  final first = words.first.substring(0, 1);
+  final last = words.length > 1 ? words.last.substring(0, 1) : '';
+  return (first + last).toUpperCase();
+}
+
+/// What a member may do, in one short line under their name.
+String _permissionSummary(
+  BuildContext context,
+  AppLocalizations l,
+  FirmMemberSummary member,
+) {
+  if (member.role == AccountRole.owner) {
+    return l.manageAssociates_memberFullAccess;
+  }
+  final count = [
+    member.canAdd,
+    member.canEdit,
+    member.canDelete,
+  ].where((allowed) => allowed).length;
+  if (count == 0) return l.manageAssociates_memberReadOnly;
+  final locale = Localizations.localeOf(context).toString();
+  return l.manageAssociates_memberPermissionCount(
+    AppDateUtils.formatDigits(count, locale, grouping: false),
+    AppDateUtils.formatDigits(3, locale, grouping: false),
+  );
+}
+
+/// The action whose own button draws the progress spinner while it runs.
+enum _BusyAction { add, dissolve, other }
+
 /// The role label for [role]; the account screen's own words, reused.
 String _roleLabel(AppLocalizations l, String role) => switch (role) {
   AccountRole.owner => l.settingsManageAccount_roleOwner,
@@ -1777,6 +2106,7 @@ class _DissolveCard extends StatelessWidget {
     required this.note,
     required this.actionLabel,
     required this.onPressed,
+    this.busy = false,
   });
 
   /// What dissolving does, in plain words.
@@ -1790,6 +2120,9 @@ class _DissolveCard extends StatelessWidget {
 
   /// Runs the dissolve; null disables the button.
   final VoidCallback? onPressed;
+
+  /// Whether the dissolve itself is running, so the button shows a spinner.
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -1808,9 +2141,13 @@ class _DissolveCard extends StatelessWidget {
           ),
           if (note != null) ...[
             const SizedBox(height: AppSpacing.sm),
+            // A reason is not a refusal: muted, so red stays for the refusal
+            // that actually came back from the server.
             Text(
               note,
-              style: AppTypography.bodyMd.copyWith(color: AppColors.error),
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
             ),
           ],
           const SizedBox(height: AppSpacing.md),
@@ -1821,7 +2158,13 @@ class _DissolveCard extends StatelessWidget {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: onPressed,
-              icon: const Icon(Icons.delete_forever_outlined),
+              icon: busy
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.delete_forever_outlined),
               label: Text(actionLabel),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.error,
@@ -1884,16 +2227,26 @@ class _PrimaryButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
+    this.busy = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
 
+  /// Whether this button's own call is running, so it shows a spinner.
+  final bool busy;
+
   @override
   Widget build(BuildContext context) => FilledButton.icon(
     onPressed: onPressed,
-    icon: Icon(icon, size: 20),
+    icon: busy
+        ? const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : Icon(icon, size: 20),
     label: Text(label),
     style: FilledButton.styleFrom(
       backgroundColor: AppColors.primary,

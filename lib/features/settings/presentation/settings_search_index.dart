@@ -333,7 +333,7 @@ List<SettingsSearchEntry> buildSettingsSearchIndex({
         [settings, firm, associates],
       ),
       e(
-        l.manageAssociates_revokeInvite,
+        l.manageAssociates_deleteInvite,
         Icons.link_off,
         AppRoutes.settingsManageAssociates,
         [settings, firm, associates],

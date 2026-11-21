@@ -7,8 +7,6 @@
 /// a dash rather than a guess.
 library;
 
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,8 +15,8 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/providers/device_providers.dart';
-import '../../../core/utils/date_utils.dart';
 import '../../../shared/providers/database_provider.dart';
+import '../../../shared/widgets/usage_meter.dart';
 import '../../accounts_and_profile/data/account_mode.dart';
 import '../../accounts_and_profile/data/firm_capacity.dart';
 import '../../auth/data/device_registration.dart';
@@ -82,7 +80,7 @@ class PlanUsageSection extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _UsageMeter(
+              UsageMeter(
                 label: l.settingsSubscription_usageCases,
                 used: caseUsed,
                 limit: caseLimit,
@@ -91,7 +89,7 @@ class PlanUsageSection extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
                 child: Divider(height: 1, color: AppColors.outlineVariant),
               ),
-              _UsageMeter(
+              UsageMeter(
                 label: showSeats
                     ? l.settingsSubscription_usageSeats
                     : l.devices_title,
@@ -153,78 +151,6 @@ class PlanUsageSection extends ConsumerWidget {
             ),
           ],
         ],
-      ],
-    );
-  }
-}
-
-/// One meter: what is left, how much of the limit that is, and the tally.
-class _UsageMeter extends StatelessWidget {
-  const _UsageMeter({
-    required this.label,
-    required this.used,
-    required this.limit,
-  });
-
-  final String label;
-
-  /// Rows in use, or null until the device has an answer.
-  final int? used;
-
-  /// The plan's ceiling, or null when it has none.
-  final int? limit;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final known = used != null && limit != null;
-    String number(int value) =>
-        AppDateUtils.formatDigits(value, l.localeName, grouping: true);
-    final remaining = known ? math.max(0, limit! - used!) : null;
-    final fraction = known && limit! > 0
-        ? (used! / limit!).clamp(0.0, 1.0)
-        : 0.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(child: Text(label, style: AppTypography.bodyMd)),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              remaining == null
-                  ? '—'
-                  : l.settingsSubscription_usageRemaining(number(remaining)),
-              style: AppTypography.titleMd.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(3),
-          child: LinearProgressIndicator(
-            value: fraction,
-            minHeight: 6,
-            backgroundColor: AppColors.surfaceContainer,
-            color: AppColors.primary,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          known
-              ? l.settingsSubscription_usageOfLimit(
-                  number(used!),
-                  number(limit!),
-                )
-              : '—',
-          style: AppTypography.bodySm.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
       ],
     );
   }

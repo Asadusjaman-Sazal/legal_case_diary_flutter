@@ -2464,10 +2464,24 @@
   "@@_section_settingsManageAssociates": "SETTINGS - MANAGE ASSOCIATES  |  lib/features/accounts_and_profile/presentation/manage_associates_screen.dart",
   "manageAssociates_title": "Manage Firm",
   "manageAssociates_ownerOnly": "Only the firm owner can manage the firm.",
-  "manageAssociates_sectionMembers": "Associates",
+  "manageAssociates_sectionMembers": "Members",
   "manageAssociates_addAssociate": "Add Associate",
-  "manageAssociates_noMembers": "No Associates Yet.",
-  "manageAssociates_statusNotSignedIn": "Not Signed In",
+  "manageAssociates_noMembers": "No members yet.",
+  "manageAssociates_aloneInFirm": "You are the only member. Invite an associate to start working together.",
+  "manageAssociates_memberFullAccess": "Full access",
+  "manageAssociates_memberReadOnly": "Read only",
+  "manageAssociates_memberPermissionCount": "{count} of {total} permissions",
+  "@manageAssociates_memberPermissionCount": {
+      "placeholders": {
+          "count": {
+              "type": "String"
+          },
+          "total": {
+              "type": "String"
+          }
+      }
+  },
+  "manageAssociates_statusNotSignedIn": "Not signed in",
   "manageAssociates_signedOutNote": "This member's devices are signed out because the firm had no free slot. Remove them to free the seat, or admit them again when there is room.",
   "manageAssociates_capacityAdmit": "Admit Again",
   "manageAssociates_capacitySignOut": "Sign Out Devices",
@@ -2480,7 +2494,7 @@
   "manageAssociates_createFirmTitle": "Create a Firm",
   "manageAssociates_firmNameLabel": "Firm Name",
   "manageAssociates_firmNameHint": "Enter your chamber or firm name",
-  "manageAssociates_addLogo": "Add Logo",
+  "manageAssociates_tapToAddLogo": "Tap to add a logo",
   "manageAssociates_changeLogo": "Change Logo",
   "manageAssociates_removeLogo": "Remove Logo",
   "manageAssociates_logoNeedsPlan": "An active chamber plan is needed to change the logo.",
@@ -2498,11 +2512,11 @@
   "manageAssociates_changeNameTitle": "Change Firm Name",
   "manageAssociates_nameUpdated": "Firm name updated.",
   "manageAssociates_inviteTitle": "Invite Code",
-  "manageAssociates_inviteIntro": "Share this code with your associate. It works once, and this is the only time it is shown.",
+  "manageAssociates_inviteIntro": "Share this code with your associate. It works once. This phone keeps it in the list below while the invite is unused.",
   "manageAssociates_copyCode": "Copy Code",
   "manageAssociates_codeCopied": "Code Copied.",
   "manageAssociates_shareCode": "Share",
-  "manageAssociates_shareFailed": "Could Not Share The Code",
+  "manageAssociates_shareFailed": "Could not share the code.",
   "manageAssociates_inviteMessage": "Join my firm on Legal Case Diary. Invite code: {code}",
   "@manageAssociates_inviteMessage": {
       "placeholders": {
@@ -2522,10 +2536,12 @@
           }
       }
   },
-  "manageAssociates_revokeInvite": "Revoke",
-  "manageAssociates_revokeInviteTitle": "Revoke This Invite?",
-  "manageAssociates_revokeInviteBody": "The code will stop working immediately.",
-  "manageAssociates_inviteRevoked": "Invite Revoked.",
+  "manageAssociates_newCode": "New Code",
+  "manageAssociates_newCodeTitle": "Replace This Invite?",
+  "manageAssociates_deleteInvite": "Delete Invite",
+  "manageAssociates_deleteInviteTitle": "Delete This Invite?",
+  "manageAssociates_deleteInviteBody": "The code will stop working immediately.",
+  "manageAssociates_inviteDeleted": "Invite Deleted.",
   "manageAssociates_permissionsTitle": "Permissions",
   "manageAssociates_roleLabel": "Role",
   "manageAssociates_permissionAdd": "Add Cases, Notes etc",
@@ -2533,6 +2549,9 @@
   "manageAssociates_permissionDelete": "Delete Cases, Notes etc",
   "manageAssociates_savePermissions": "Save Permissions",
   "manageAssociates_permissionsUpdated": "Permissions Updated.",
+  "manageAssociates_discardChangesTitle": "Discard Changes?",
+  "manageAssociates_discardChangesBody": "Your unsaved changes to this member's permissions will be lost.",
+  "manageAssociates_discardChanges": "Discard",
   "manageAssociates_removeAssociate": "Remove from Firm",
   "manageAssociates_removeAssociateTitle": "Remove This Associate?",
   "manageAssociates_removeAssociateBody": "They lose access to the firm's cases immediately, and the records they authored stay with the firm. Their phone keeps a copy of the firm until it next opens the app, and erases itself then. If you are still together, have them open the app once while you are connected, so you can see the erase happen. A phone that is never opened again can only be cleared by a factory reset or the platform's remote-wipe feature — no app can erase a device that is off.",
@@ -2553,7 +2572,17 @@
   "manageAssociates_dissolveConfirmTitle": "Dissolve This Firm?",
   "manageAssociates_dissolveConfirmBody": "The firm and its invites will be removed. Every case, note and reference it holds becomes your own diary, and the associates who wrote them lose access to them. Your plan is not cancelled, and your records keep the name of whoever wrote them. This cannot be undone.",
   "manageAssociates_dissolveDone": "Firm dissolved. Its cases are now your own diary.",
-  "manageAssociates_capacityTitle": "Device Usage",
+  "manageAssociates_capacityBreakdown": "{associates} associates · {ownerDevices} owner devices",
+  "@manageAssociates_capacityBreakdown": {
+      "placeholders": {
+          "associates": {
+              "type": "String"
+          },
+          "ownerDevices": {
+              "type": "String"
+          }
+      }
+  },
   "manageAssociates_inviteCodeUnavailable": "Code not available on this device.",
   "manageAssociates_firmOverviewTitle": "What Is a Firm?",
   "manageAssociates_firmOverviewCollaborateTitle": "Collaborate with Your Associates",

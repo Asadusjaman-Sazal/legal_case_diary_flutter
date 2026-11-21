@@ -5,7 +5,7 @@ description: "Offline-first case diary for lawyers with local encryption and fut
 publish_to: 'none'
 
 # Initial build version; user-facing versioning is tracked in docs/version_history.md.
-version: 0.0.849
+version: 0.0.850
 
 environment:
   sdk: ^3.12.2
@@ -51,8 +51,13 @@ dependencies:
   # Launcher (Task 14 tasks such as phone/SMS/email).
   url_launcher: ^6.3.2
 
-  # Profile picture selection (Task 12 Phase 2 Profile screen).
+  # Profile picture selection (Task 12 Phase 2 Profile screen). The Android
+  # implementation and its interface are direct dependencies because the
+  # Profile Picture screen turns on the system Photo Picker: image_picker's
+  # Android default is the document picker, which is the file-manager UI.
   image_picker: ^1.1.2
+  image_picker_android: ^0.8.13
+  image_picker_platform_interface: ^2.11.1
 
   # Encryption support for the sqlite3/Drift native database (Task 03).
   # SQLite3MultipleCiphers is selected via the hooks section below.

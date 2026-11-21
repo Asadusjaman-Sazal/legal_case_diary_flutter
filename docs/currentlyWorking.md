@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Profile Picture's Gallery opens the photo grid — COMPLETE (0.0.850)
+
+- **What was reported.** On the Profile Picture screen, Edit → Gallery opened the phone's file manager instead of the gallery.
+- **Cause.** The row already called `ImagePicker` with `ImageSource.gallery`, but `image_picker_android` 0.8.13 defaults `useAndroidPhotoPicker` to **false** below Android 16, which sends `ACTION_GET_CONTENT` — the document/file-manager UI. The system Photo Picker is opt-in on Android 15 and below.
+- **What changed.** The profile flow turns the plugin's documented switch on before the pick: `image_source_sheet.dart` gained `useSystemPhotoPicker`, and `profile_screen.dart` is its only caller passing `true`. Gallery now opens the system photo grid (Android 13+, or the Play-services backport on 11–12); Files is untouched, and so is Manage Firm's logo picker. `image_picker_android` and `image_picker_platform_interface` are now declared direct dependencies because the code imports them.
+- **Verification.** `flutter analyze` clean; `profile_picture_test.dart` **7 passed**. **Not checked:** no phone run and no APK build, so the actual picker UI was not seen.
+- **Resume point:** device check — Profile Picture → Edit → Gallery should show photos, not the file manager.
+
 ### 2026-11-21 — Bengali is the app's default language — COMPLETE (0.0.849)
 
 - **What was asked.** Change the app's default language from English to Bengali.

@@ -12,6 +12,8 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -23,7 +25,10 @@ enum _PictureSource { gallery, files }
 ///
 /// A dismissed chooser or a cancelled picker returns null; the caller leaves
 /// the current picture alone.
-Future<Uint8List?> pickPictureBytes(BuildContext context) async {
+Future<Uint8List?> pickPictureBytes(
+  BuildContext context, {
+  bool useSystemPhotoPicker = false,
+}) async {
   final l = AppLocalizations.of(context);
   final choice = await showModalBottomSheet<_PictureSource>(
     context: context,
@@ -79,6 +84,16 @@ Future<Uint8List?> pickPictureBytes(BuildContext context) async {
 
   try {
     if (choice == _PictureSource.gallery) {
+      if (useSystemPhotoPicker) {
+        // image_picker_android defaults to ACTION_GET_CONTENT below Android 16,
+        // whose UI is the phone's file manager. The system Photo Picker is the
+        // photo grid the Gallery row promises, on Android 13+ and through its
+        // Play-services backport on 11-12.
+        final platform = ImagePickerPlatform.instance;
+        if (platform is ImagePickerAndroid) {
+          platform.useAndroidPhotoPicker = true;
+        }
+      }
       final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery,
         maxWidth: 1024,

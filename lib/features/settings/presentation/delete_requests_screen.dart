@@ -147,7 +147,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
         AppSpacing.xl,
       ),
       children: [
-        SettingsSectionLabel(l.deleteRequests_toReview),
+        _sectionTitle(l.deleteRequests_toReview),
         const SizedBox(height: AppSpacing.sm),
         if (queue.isEmpty)
           _InfoRow(text: l.deleteRequests_noneToReview)
@@ -185,7 +185,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
           ],
         if (visiblePrevious.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          SettingsSectionLabel(l.deleteRequests_previous),
+          _sectionTitle(l.deleteRequests_previous),
           const SizedBox(height: AppSpacing.sm),
           for (final request in visiblePrevious) ...[
             _RequestRow(
@@ -319,7 +319,7 @@ class _DeleteRequestsScreenState extends ConsumerState<DeleteRequestsScreen> {
         AppSpacing.xl,
       ),
       children: [
-        SettingsSectionLabel(l.deleteRequests_mine),
+        _sectionTitle(l.deleteRequests_mine),
         const SizedBox(height: AppSpacing.sm),
         if (visible.isEmpty)
           _InfoRow(text: l.deleteRequests_noneMine)
@@ -838,6 +838,13 @@ Future<bool> _confirmWithdraw(BuildContext context, AppLocalizations l) async {
   );
   return answer ?? false;
 }
+
+/// A section title in the Notifications screen's own title style (user
+/// request, 0.0.852): titleMd, bold, above the list it names.
+Widget _sectionTitle(String text) => Text(
+  text,
+  style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+);
 
 /// The status word for [status]; unknown values fall back to pending so a row
 /// never renders an empty chip.

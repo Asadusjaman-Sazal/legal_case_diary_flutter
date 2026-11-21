@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Delete Requests section titles match the other Settings screens — COMPLETE (0.0.852)
+
+- **What was asked.** Give the Delete Requests screen the same section-title style as Manage Firm, Notifications and View Settings.
+- **What changed.** **To Review**, **Previous Delete Requests** and **My Delete Requests** now use `AppTypography.titleMd` with `FontWeight.w700` through one local `_sectionTitle`, instead of the smaller muted `SettingsSectionLabel`. No copy, row, action, spacing or behaviour changed; the three headings simply read at the same weight and size as the other Settings sections.
+- **Verification.** `flutter analyze` clean; `delete_request_review_test.dart` **38 passed**. **Not checked:** no phone run and no APK, so the new weight was not seen on screen.
+- **Suggestions for the same polish (not changed):** Accounts & Profile (Profile, Account), Delete Request Review (Current, Original), Support (Channels, Scope), Guidelines (Guidelines, FAQs) and More About the App (Key Features) still use the old smaller muted heading. Notifications' inner card labels and View Settings' control labels should stay muted — they name fields inside a card, not sections.
+- **Resume point:** decide which of the suggested screens, if any, should get the same treatment.
+
 ### 2026-11-21 — Gallery opens the phone's gallery app itself — COMPLETE (0.0.851)
 
 - **What was reported.** After 0.0.850, Profile Picture/Firm Logo → Edit → Gallery still opened the phone's file manager.

@@ -41,6 +41,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/errors/error_log.dart';
 import '../../../core/errors/error_log_provider.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/providers/device_providers.dart';
 import '../../../core/providers/print_providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/services/app_share_service.dart';
@@ -51,6 +52,7 @@ import '../../../shared/widgets/usage_meter.dart';
 import '../../../sync/connectivity_monitor.dart';
 import '../../../sync/sync_service.dart';
 import '../../../sync/sync_status_providers.dart';
+import '../../auth/data/device_registration.dart';
 import '../../auth/presentation/auth_viewmodel.dart';
 import '../../auth/presentation/auth_widgets.dart';
 import '../../settings/presentation/settings_controls.dart';
@@ -59,6 +61,7 @@ import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
 import '../data/avatar_image_processor.dart';
 import '../data/firm_capacity.dart';
+import '../data/firm_devices.dart';
 import '../data/firm_invite_code_store.dart';
 import '../data/firm_logo_repository.dart';
 import '../data/firm_logo_store.dart';
@@ -102,6 +105,9 @@ class _ManageAssociatesScreenState
 
   /// The last failure to show; cleared when a new attempt starts.
   Object? _failure;
+
+  /// Whether the capacity card's device lists are open.
+  bool _devicesExpanded = false;
 
   @override
   void dispose() {
@@ -172,6 +178,9 @@ class _ManageAssociatesScreenState
   Future<void> _reloadFirmReads() async {
     ref.invalidate(firmMembersListProvider);
     ref.invalidate(firmInvitesListProvider);
+    // The expanded capacity card lists the chamber's devices from the same
+    // server answer the Devices screen reads; a pull re-asks for it too.
+    ref.invalidate(firmDeviceListProvider);
     try {
       await Future.wait([
         ref.read(firmMembersListProvider.future),
@@ -244,25 +253,20 @@ class _ManageAssociatesScreenState
         if (capacity != null) ...[
           const SizedBox(height: AppSpacing.gutter),
           _CapacityCard(capacity: capacity, l: l),
+          // The arrow opens the two lists behind the numbers (user request):
+          // centred under the card, with the chamber's devices below it.
+          _DevicesToggle(
+            expanded: _devicesExpanded,
+            label: _devicesExpanded
+                ? l.manageAssociates_hideDevices
+                : l.manageAssociates_showDevices,
+            onPressed: () =>
+                setState(() => _devicesExpanded = !_devicesExpanded),
+          ),
+          if (_devicesExpanded) _ChamberDevices(l: l),
         ],
         const SizedBox(height: AppSpacing.gutter),
         SettingsSectionLabel(l.manageAssociates_sectionMembers),
-        const SizedBox(height: AppSpacing.sm),
-        _PrimaryButton(
-          icon: Icons.person_add_alt_1_outlined,
-          label: l.manageAssociates_addAssociate,
-          busy: _busyAction == _BusyAction.add,
-          onPressed: _busy || addBlockReason != null ? null : _addAssociate,
-        ),
-        if (addBlockReason != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            addBlockReason,
-            style: AppTypography.bodySm.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-        ],
         const SizedBox(height: AppSpacing.sm),
         members.when(
           data: (rows) => _memberList(
@@ -282,6 +286,24 @@ class _ManageAssociatesScreenState
             text: failureText(l, error) ?? l.auth_errorUnknown,
           ),
         ),
+        // The action sits at the end of its own list (user request): Add
+        // Associate is the last thing under the Members heading.
+        const SizedBox(height: AppSpacing.md),
+        _PrimaryButton(
+          icon: Icons.person_add_alt_1_outlined,
+          label: l.manageAssociates_addAssociate,
+          busy: _busyAction == _BusyAction.add,
+          onPressed: _busy || addBlockReason != null ? null : _addAssociate,
+        ),
+        if (addBlockReason != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            addBlockReason,
+            style: AppTypography.bodySm.copyWith(
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         SettingsSectionLabel(l.manageAssociates_sectionInvites),
         const SizedBox(height: AppSpacing.sm),
@@ -1345,6 +1367,223 @@ class _CapacityCard extends StatelessWidget {
   }
 }
 
+/// The arrow under the capacity card: opens the chamber's device lists.
+class _DevicesToggle extends StatelessWidget {
+  const _DevicesToggle({
+    required this.expanded,
+    required this.label,
+    required this.onPressed,
+  });
+
+  /// Whether the lists below are open.
+  final bool expanded;
+
+  /// The button's own label, and its tooltip.
+  final String label;
+
+  /// Toggles the lists.
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: IconButton(
+      key: const ValueKey('manage-associates-devices-toggle'),
+      onPressed: onPressed,
+      tooltip: label,
+      icon: Icon(
+        expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+      ),
+    ),
+  );
+}
+
+/// The chamber's devices, read-only and split like the Devices screen: the
+/// owner's own devices, then the associates'.
+///
+/// The two sections read the same answers the Devices screen does
+/// (`deviceGateProvider` and `firm_device_list`); no removal is offered here,
+/// because this page lists what the capacity number is made of.
+class _ChamberDevices extends ConsumerWidget {
+  const _ChamberDevices({required this.l});
+
+  final AppLocalizations l;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context).toString();
+    String digits(int value) =>
+        AppDateUtils.formatDigits(value, locale, grouping: false);
+
+    // The capacity card is only built when the gate answered (the capacity
+    // provider refuses a null one), so this is the list behind its count.
+    final ownerDevices =
+        ref.watch(deviceGateProvider).value?.devices ??
+        const <RegisteredDevice>[];
+    final firm = ref.watch(firmDeviceListProvider);
+    final associates = firm.value?.associateDevices;
+
+    return Container(
+      decoration: settingsCardDecoration(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _ChamberDevicesHeading(
+            l.devices_ownerSectionCount(digits(ownerDevices.length)),
+          ),
+          for (final device in ownerDevices) ...[
+            _ChamberDeviceRow(
+              title: device.isCurrent
+                  ? '${device.label} · ${l.devices_thisDevice}'
+                  : device.label,
+              platform: device.platform,
+              lastSeenAt: device.lastSeenAt,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          const SizedBox(height: AppSpacing.xs),
+          _ChamberDevicesHeading(
+            associates == null
+                ? l.devices_associateSection
+                : l.devices_associateSectionCount(digits(associates.length)),
+          ),
+          if (firm.isLoading && associates == null)
+            const Padding(
+              padding: EdgeInsets.all(AppSpacing.sm),
+              child: Center(
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else if (firm.hasError && associates == null)
+            Text(
+              l.devices_firmUnavailable,
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            )
+          else if (associates == null || associates.isEmpty)
+            Text(
+              l.devices_noAssociateDevices,
+              style: AppTypography.bodyMd.copyWith(
+                color: AppColors.onSurfaceVariant,
+              ),
+            )
+          else
+            for (final device in associates) ...[
+              _ChamberDeviceRow(
+                title: device.memberName.isEmpty ? '—' : device.memberName,
+                subtitle: device.label,
+                platform: device.platform,
+                lastSeenAt: device.lastSeenAt,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+/// One device in the expanded list, drawn like the Devices screen's rows.
+class _ChamberDeviceRow extends StatelessWidget {
+  const _ChamberDeviceRow({
+    required this.title,
+    required this.platform,
+    this.subtitle,
+    this.lastSeenAt,
+  });
+
+  final String title;
+  final String? subtitle;
+  final String platform;
+  final DateTime? lastSeenAt;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final seen = lastSeenAt;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        border: Border.all(color: AppColors.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            platform == 'windows'
+                ? Icons.desktop_windows_outlined
+                : Icons.smartphone_outlined,
+            color: AppColors.onSurfaceVariant,
+          ),
+          const SizedBox(width: AppSpacing.gutter),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.labelLg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    subtitle!,
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+                if (seen != null)
+                  Text(
+                    l.devices_lastUsed(
+                      AppDateUtils.formatDateTimeDDMMYYYY(
+                        seen.millisecondsSinceEpoch,
+                        locale: Localizations.localeOf(context).toString(),
+                      ),
+                    ),
+                    style: AppTypography.bodySm.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A section's label inside the expanded device list.
+class _ChamberDevicesHeading extends StatelessWidget {
+  const _ChamberDevicesHeading(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.xs,
+      vertical: AppSpacing.sm,
+    ),
+    child: Text(
+      title,
+      style: AppTypography.labelLg.copyWith(
+        color: AppColors.onSurfaceVariant,
+        letterSpacing: 0.7,
+      ),
+    ),
+  );
+}
+
 /// One member: picture or initials, name, what they may do, and their role.
 class _MemberRow extends StatelessWidget {
   const _MemberRow({
@@ -1413,7 +1652,7 @@ class _MemberRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _permissionSummary(context, l, member),
+                  _permissionSummary(l, member),
                   style: AppTypography.bodySm.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),
@@ -2063,25 +2302,21 @@ String _initials(String name) {
 }
 
 /// What a member may do, in one short line under their name.
-String _permissionSummary(
-  BuildContext context,
-  AppLocalizations l,
-  FirmMemberSummary member,
-) {
+///
+/// The three permissions are listed in the order the member sheet shows them
+/// (user request), so a row reads *Add, Edit*. A member with none of them is
+/// read-only, and the owner's access is structural rather than a set of flags.
+String _permissionSummary(AppLocalizations l, FirmMemberSummary member) {
   if (member.role == AccountRole.owner) {
     return l.manageAssociates_memberFullAccess;
   }
-  final count = [
-    member.canAdd,
-    member.canEdit,
-    member.canDelete,
-  ].where((allowed) => allowed).length;
-  if (count == 0) return l.manageAssociates_memberReadOnly;
-  final locale = Localizations.localeOf(context).toString();
-  return l.manageAssociates_memberPermissionCount(
-    AppDateUtils.formatDigits(count, locale, grouping: false),
-    AppDateUtils.formatDigits(3, locale, grouping: false),
-  );
+  final allowed = <String>[
+    if (member.canAdd) l.sharedActions_add,
+    if (member.canEdit) l.sharedActions_edit,
+    if (member.canDelete) l.sharedActions_delete,
+  ];
+  if (allowed.isEmpty) return l.manageAssociates_memberReadOnly;
+  return allowed.join(', ');
 }
 
 /// The action whose own button draws the progress spinner while it runs.

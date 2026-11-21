@@ -5204,9 +5204,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_memberReadOnly => 'Read only';
 
   @override
-  String manageAssociates_memberPermissionCount(String count, String total) {
-    return '$count of $total permissions';
-  }
+  String get manageAssociates_showDevices => 'Show Devices';
+
+  @override
+  String get manageAssociates_hideDevices => 'Hide Devices';
 
   @override
   String get manageAssociates_statusNotSignedIn => 'Not signed in';
@@ -5401,10 +5402,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAssociates_associateRemoved => 'Associate Removed.';
 
   @override
-  String get manageAssociates_sectionFirm => 'Firm Management';
+  String get manageAssociates_sectionFirm => 'Dissolve Firm';
 
   @override
-  String get manageAssociates_dissolveFirm => 'Dissolve Firm';
+  String get manageAssociates_dissolveFirm => 'Dissolve';
 
   @override
   String get manageAssociates_dissolveIntro =>
@@ -5420,8 +5421,9 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$countString associates are still in the firm. Remove them first.',
-      one: 'One associate is still in the firm. Remove them first.',
+          '$countString associates are still in the firm. In order to dissolve your firm, remove them first.',
+      one:
+          'One associate is still in the firm. In order to dissolve your firm, remove them first.',
     );
     return '$_temp0';
   }

@@ -2258,17 +2258,8 @@
   "manageAssociates_aloneInFirm": "আপনি একমাত্র সদস্য। একসঙ্গে কাজ শুরু করতে একজন সহযোগী যোগ করুন।",
   "manageAssociates_memberFullAccess": "সম্পূর্ণ অ্যাক্সেস",
   "manageAssociates_memberReadOnly": "শুধু পড়ার অনুমতি",
-  "manageAssociates_memberPermissionCount": "{total}টির মধ্যে {count}টি অনুমতি",
-  "@manageAssociates_memberPermissionCount": {
-      "placeholders": {
-          "count": {
-              "type": "String"
-          },
-          "total": {
-              "type": "String"
-          }
-      }
-  },
+  "manageAssociates_showDevices": "ডিভাইস দেখুন",
+  "manageAssociates_hideDevices": "ডিভাইস লুকান",
   "manageAssociates_statusNotSignedIn": "সাইন ইন করা নেই",
   "manageAssociates_signedOutNote": "ফার্মে খালি স্লট না থাকায় এই সদস্যের ডিভাইসগুলো সাইন আউট করা হয়েছে। সিট খালি করতে তাঁকে সরান, অথবা জায়গা হলে আবার সাইন ইন করান।",
   "manageAssociates_capacityAdmit": "আবার সাইন ইন করান",
@@ -2344,10 +2335,10 @@
   "manageAssociates_removeAssociateTitle": "এই সহযোগীকে সরিয়ে দেবেন?",
   "manageAssociates_removeAssociateBody": "তিনি সঙ্গে সঙ্গে ফার্মের মামলাগুলোতে প্রবেশাধিকার হারাবেন, আর তিনি তৈরি করা রেকর্ড ফার্মেই থাকবে। তাঁর ফোনে ফার্মের একটি কপি থেকে যাবে যতক্ষণ না তিনি পরের বার অ্যাপটি খুলছেন, তখনই তা নিজে থেকে মুছে যাবে। আপনারা যদি তখনও একসঙ্গে থাকেন, সংযোগ থাকা অবস্থায় তাঁকে একবার অ্যাপটি খুলতে বলুন, যাতে মুছে যাওয়াটা আপনি দেখতে পারেন। যে ফোন আর কখনো খোলা হবে না, তা কেবল ফ্যাক্টরি রিসেট বা প্ল্যাটফর্মের রিমোট-ওয়াইপ সুবিধা দিয়েই মোছা যায় — বন্ধ থাকা ডিভাইস কোনো অ্যাপ মুছতে পারে না।",
   "manageAssociates_associateRemoved": "সহযোগীকে সরানো হয়েছে।",
-  "manageAssociates_sectionFirm": "ফার্ম ব্যবস্থাপনা",
-  "manageAssociates_dissolveFirm": "ফার্ম বিলুপ্ত করুন",
+  "manageAssociates_sectionFirm": "ফার্ম বিলুপ্তি",
+  "manageAssociates_dissolveFirm": "বিলুপ্ত করুন",
   "manageAssociates_dissolveIntro": "ফার্ম বিলুপ্ত করলে ফার্ম ও তার ইনভাইটেশন কোড গুলো মুছে যাবে। ফার্ম/চেম্বারের ডায়েরিতে থাকা প্রতিটি কেস, নোট ও রেফারেন্স আপনার নিজের ডায়েরি হিসেবে থেকে যাবে, আর আপনার প্ল্যান চালু থাকবে।",
-  "manageAssociates_dissolveBlockedMembers": "{count, plural, =1{ফার্মে এখনো একজন সহযোগী আছেন। প্রথমে তাঁকে সরান।} other{ফার্মে এখনো {count} জন সহযোগী আছেন। প্রথমে তাঁদের সরান।}}",
+  "manageAssociates_dissolveBlockedMembers": "{count, plural, =1{ফার্মে এখনো একজন সহযোগী আছেন। আপনার ফার্ম বিলুপ্ত করতে প্রথমে তাঁকে সরান।} other{ফার্মে এখনো {count} জন সহযোগী আছেন। আপনার ফার্ম বিলুপ্ত করতে প্রথমে তাঁদের সরান।}}",
   "@manageAssociates_dissolveBlockedMembers": {
       "placeholders": {
           "count": {

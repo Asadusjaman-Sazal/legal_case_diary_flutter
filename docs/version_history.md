@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.843 - Manage Firm lists members as a sorted roster with pictures or initials and permission lines, puts each action with its list, reuses the plan usage meter, and gives invites copy, delete and New Code controls.
+Version: 0.0.844 - Manage Firm now puts Add Associate after the member list, names each member's permissions as Add, Edit or Delete, folds the chamber's device lists under the capacity card, and renames the dissolve section and action.
 --------------------------------------
 
 ## Version History Log:
@@ -857,3 +857,4 @@ Version: 0.0.840 - Local commits now use the version-log line as both subject an
 Version: 0.0.841 - Logout from the side menu and Manage Account now always reaches the Login screen, even when the panel or screen that started it is dismissed while the flow is still running.
 Version: 0.0.842 - Bengali step names are shorter: সমন (SR), তদ্ধির, জবাব গ্রহণ শুনানী, আপত্তি গ্রহণ শুনানী, একতরফা, ৩০ ধারা, SD (Settling Date) and ব্যার্থতায় আদেশ.
 Version: 0.0.843 - Manage Firm lists members as a sorted roster with pictures or initials and permission lines, puts each action with its list, reuses the plan usage meter, and gives invites copy, delete and New Code controls.
+Version: 0.0.844 - Manage Firm now puts Add Associate after the member list, names each member's permissions as Add, Edit or Delete, folds the chamber's device lists under the capacity card, and renames the dissolve section and action.

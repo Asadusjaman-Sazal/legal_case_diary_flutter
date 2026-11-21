@@ -33,10 +33,12 @@ import 'package:legal_case_diary/core/constants/app_spacing.dart';
 import 'package:legal_case_diary/core/constants/app_typography.dart';
 import 'package:legal_case_diary/core/errors/error_log.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
+import 'package:legal_case_diary/core/providers/device_providers.dart';
 import 'package:legal_case_diary/core/router/app_router.dart';
 import 'package:legal_case_diary/database/app_database.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/account_mode.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_capacity.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/data/firm_devices.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_logo_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/firm_repository.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/local/firms_dao.dart';
@@ -48,6 +50,7 @@ import 'package:legal_case_diary/features/accounts_and_profile/presentation/mana
 import 'package:legal_case_diary/features/settings/presentation/settings_menu_card.dart'
     show settingsPrimaryButtonHeight;
 import 'package:legal_case_diary/features/auth/data/auth_repository.dart';
+import 'package:legal_case_diary/features/auth/data/device_registration.dart';
 import 'package:legal_case_diary/sync/connectivity_monitor.dart';
 import 'package:legal_case_diary/sync/sync_providers.dart';
 import 'package:legal_case_diary/sync/sync_service.dart';
@@ -467,7 +470,7 @@ void main() {
     // picture this device cannot read.
     expect(find.text(l.manageAssociates_memberFullAccess), findsOneWidget);
     expect(
-      find.text(l.manageAssociates_memberPermissionCount('2', '3')),
+      find.text('${l.sharedActions_add}, ${l.sharedActions_edit}'),
       findsOneWidget,
     );
     expect(find.text('RU'), findsOneWidget);
@@ -2078,6 +2081,171 @@ void main() {
 
     await unmountApp(tester);
   });
+
+  testWidgets('a member row lists the permissions it holds', (tester) async {
+    harness.firm.members = const [
+      FirmMemberSummary(
+        userId: 'user-1',
+        role: AccountRole.owner,
+        fullName: 'Adv. Rahim Uddin',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-2',
+        role: AccountRole.associate,
+        fullName: 'Abu Sayeed',
+        canAdd: true,
+        canEdit: true,
+        canDelete: false,
+      ),
+      FirmMemberSummary(
+        userId: 'user-3',
+        role: AccountRole.associate,
+        fullName: 'Jannat',
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      ),
+      FirmMemberSummary(
+        userId: 'user-4',
+        role: AccountRole.associate,
+        fullName: 'Read Only',
+        canAdd: false,
+        canEdit: false,
+        canDelete: false,
+      ),
+    ];
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    // The three switches read back as their own words, in the sheet's order.
+    expect(
+      find.text('${l.sharedActions_add}, ${l.sharedActions_edit}'),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        '${l.sharedActions_add}, ${l.sharedActions_edit}, '
+        '${l.sharedActions_delete}',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(l.manageAssociates_memberReadOnly), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+
+  testWidgets('Add Associate sits at the end of the Members list', (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 1);
+
+    await pumpManageAssociates(tester, seed: seedOwner);
+
+    final addY = tester
+        .getTopLeft(find.text(l.manageAssociates_addAssociate))
+        .dy;
+    final memberY = tester.getTopLeft(find.text('Adv. 0')).dy;
+    final invitesY = tester
+        .getTopLeft(find.text(l.manageAssociates_sectionInvites))
+        .dy;
+    expect(addY, greaterThan(memberY));
+    expect(addY, lessThan(invitesY));
+
+    await unmountApp(tester);
+  });
+
+  testWidgets("the capacity arrow opens the chamber's two device lists", (
+    tester,
+  ) async {
+    harness.firm.members = _roster(associates: 1);
+    const capacity = FirmCapacityView(
+      slots: 5,
+      associates: 1,
+      seated: 1,
+      ownerDevices: 1,
+      ownerDeviceCap: 4,
+      used: 2,
+      active: 2,
+      overRoster: false,
+      overDevices: false,
+      frozen: false,
+      pendingSlots: null,
+      shrinkAt: null,
+      pendingAssociatesExcess: 0,
+      pendingDevicesExcess: 0,
+      shrinkPending: false,
+    );
+    final gate = _FakeDeviceGate(
+      const DeviceGateState(
+        status: DeviceGateStatus.active,
+        cap: 5,
+        devices: [
+          RegisteredDevice(
+            id: 'device-1',
+            label: 'Pixel 8',
+            platform: 'android',
+            isCurrent: true,
+          ),
+        ],
+      ),
+    );
+
+    await pumpManageAssociates(
+      tester,
+      seed: seedOwner,
+      surfaceSize: const Size(420, 1400),
+      overrides: [
+        firmCapacityViewProvider.overrideWithValue(capacity),
+        deviceGateProvider.overrideWith(() => gate),
+        firmDeviceListProvider.overrideWith(
+          (ref) async => const FirmDeviceList(
+            slots: 5,
+            associates: 1,
+            devices: [
+              FirmDevice(
+                id: 'device-2',
+                label: 'Samsung SM-A525F',
+                platform: 'android',
+                memberName: 'Adv. 0',
+                isOwner: false,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    // The list is closed until asked for.
+    expect(find.text('Pixel 8 · ${l.devices_thisDevice}'), findsNothing);
+    expect(find.text('Samsung SM-A525F'), findsNothing);
+
+    await tester.tap(
+      find.byKey(const ValueKey('manage-associates-devices-toggle')),
+    );
+    await tester.pumpAndSettle();
+
+    // Two sections, the owner's first, as the Devices screen draws them.
+    expect(find.text(l.devices_ownerSectionCount('1')), findsOneWidget);
+    expect(find.text(l.devices_associateSectionCount('1')), findsOneWidget);
+    expect(find.text('Pixel 8 · ${l.devices_thisDevice}'), findsOneWidget);
+    expect(find.text('Samsung SM-A525F'), findsOneWidget);
+
+    await unmountApp(tester);
+  });
+}
+
+/// A gate whose answer the test decides.
+class _FakeDeviceGate extends DeviceGateController {
+  _FakeDeviceGate(this.currentState);
+
+  /// The state this gate builds with.
+  final DeviceGateState currentState;
+
+  @override
+  Future<DeviceGateState> build() async => currentState;
 }
 
 /// A sync engine that records a manual retry without a server.

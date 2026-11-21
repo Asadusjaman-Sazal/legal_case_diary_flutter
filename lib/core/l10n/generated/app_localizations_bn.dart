@@ -5224,9 +5224,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_memberReadOnly => 'শুধু পড়ার অনুমতি';
 
   @override
-  String manageAssociates_memberPermissionCount(String count, String total) {
-    return '$totalটির মধ্যে $countটি অনুমতি';
-  }
+  String get manageAssociates_showDevices => 'ডিভাইস দেখুন';
+
+  @override
+  String get manageAssociates_hideDevices => 'ডিভাইস লুকান';
 
   @override
   String get manageAssociates_statusNotSignedIn => 'সাইন ইন করা নেই';
@@ -5426,10 +5427,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get manageAssociates_associateRemoved => 'সহযোগীকে সরানো হয়েছে।';
 
   @override
-  String get manageAssociates_sectionFirm => 'ফার্ম ব্যবস্থাপনা';
+  String get manageAssociates_sectionFirm => 'ফার্ম বিলুপ্তি';
 
   @override
-  String get manageAssociates_dissolveFirm => 'ফার্ম বিলুপ্ত করুন';
+  String get manageAssociates_dissolveFirm => 'বিলুপ্ত করুন';
 
   @override
   String get manageAssociates_dissolveIntro =>
@@ -5444,8 +5445,10 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ফার্মে এখনো $countString জন সহযোগী আছেন। প্রথমে তাঁদের সরান।',
-      one: 'ফার্মে এখনো একজন সহযোগী আছেন। প্রথমে তাঁকে সরান।',
+      other:
+          'ফার্মে এখনো $countString জন সহযোগী আছেন। আপনার ফার্ম বিলুপ্ত করতে প্রথমে তাঁদের সরান।',
+      one:
+          'ফার্মে এখনো একজন সহযোগী আছেন। আপনার ফার্ম বিলুপ্ত করতে প্রথমে তাঁকে সরান।',
     );
     return '$_temp0';
   }

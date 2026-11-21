@@ -2470,17 +2470,8 @@
   "manageAssociates_aloneInFirm": "You are the only member. Invite an associate to start working together.",
   "manageAssociates_memberFullAccess": "Full access",
   "manageAssociates_memberReadOnly": "Read only",
-  "manageAssociates_memberPermissionCount": "{count} of {total} permissions",
-  "@manageAssociates_memberPermissionCount": {
-      "placeholders": {
-          "count": {
-              "type": "String"
-          },
-          "total": {
-              "type": "String"
-          }
-      }
-  },
+  "manageAssociates_showDevices": "Show Devices",
+  "manageAssociates_hideDevices": "Hide Devices",
   "manageAssociates_statusNotSignedIn": "Not signed in",
   "manageAssociates_signedOutNote": "This member's devices are signed out because the firm had no free slot. Remove them to free the seat, or admit them again when there is room.",
   "manageAssociates_capacityAdmit": "Admit Again",
@@ -2556,10 +2547,10 @@
   "manageAssociates_removeAssociateTitle": "Remove This Associate?",
   "manageAssociates_removeAssociateBody": "They lose access to the firm's cases immediately, and the records they authored stay with the firm. Their phone keeps a copy of the firm until it next opens the app, and erases itself then. If you are still together, have them open the app once while you are connected, so you can see the erase happen. A phone that is never opened again can only be cleared by a factory reset or the platform's remote-wipe feature — no app can erase a device that is off.",
   "manageAssociates_associateRemoved": "Associate Removed.",
-  "manageAssociates_sectionFirm": "Firm Management",
-  "manageAssociates_dissolveFirm": "Dissolve Firm",
+  "manageAssociates_sectionFirm": "Dissolve Firm",
+  "manageAssociates_dissolveFirm": "Dissolve",
   "manageAssociates_dissolveIntro": "Dissolving removes the firm and its invites. Every case, note and reference it holds stays with you as your own diary, and your plan keeps running.",
-  "manageAssociates_dissolveBlockedMembers": "{count, plural, =1{One associate is still in the firm. Remove them first.} other{{count} associates are still in the firm. Remove them first.}}",
+  "manageAssociates_dissolveBlockedMembers": "{count, plural, =1{One associate is still in the firm. In order to dissolve your firm, remove them first.} other{{count} associates are still in the firm. In order to dissolve your firm, remove them first.}}",
   "@manageAssociates_dissolveBlockedMembers": {
       "placeholders": {
           "count": {

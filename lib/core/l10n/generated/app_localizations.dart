@@ -8884,11 +8884,17 @@ abstract class AppLocalizations {
   /// **'Read only'**
   String get manageAssociates_memberReadOnly;
 
-  /// No description provided for @manageAssociates_memberPermissionCount.
+  /// No description provided for @manageAssociates_showDevices.
   ///
   /// In en, this message translates to:
-  /// **'{count} of {total} permissions'**
-  String manageAssociates_memberPermissionCount(String count, String total);
+  /// **'Show Devices'**
+  String get manageAssociates_showDevices;
+
+  /// No description provided for @manageAssociates_hideDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Devices'**
+  String get manageAssociates_hideDevices;
 
   /// No description provided for @manageAssociates_statusNotSignedIn.
   ///
@@ -9247,13 +9253,13 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_sectionFirm.
   ///
   /// In en, this message translates to:
-  /// **'Firm Management'**
+  /// **'Dissolve Firm'**
   String get manageAssociates_sectionFirm;
 
   /// No description provided for @manageAssociates_dissolveFirm.
   ///
   /// In en, this message translates to:
-  /// **'Dissolve Firm'**
+  /// **'Dissolve'**
   String get manageAssociates_dissolveFirm;
 
   /// No description provided for @manageAssociates_dissolveIntro.
@@ -9265,7 +9271,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageAssociates_dissolveBlockedMembers.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{One associate is still in the firm. Remove them first.} other{{count} associates are still in the firm. Remove them first.}}'**
+  /// **'{count, plural, =1{One associate is still in the firm. In order to dissolve your firm, remove them first.} other{{count} associates are still in the firm. In order to dissolve your firm, remove them first.}}'**
   String manageAssociates_dissolveBlockedMembers(int count);
 
   /// No description provided for @manageAssociates_dissolveBlockedPending.

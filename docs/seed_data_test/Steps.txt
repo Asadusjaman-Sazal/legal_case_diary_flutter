@@ -10,23 +10,23 @@ Admission Hearing- | গ্রহণযোগ্যতা শুনানী-
 Statusque- | স্থিতিবস্থার আদেশ-
 Show Cause- | কারন দর্শানো-
 Injunction Hearing- | অস্থায়ী নিষেধাজ্ঞার শুনানী-
-Service Return- | সমন ফেরত-
-Step for SR- | সমন বিষয়ক তদ্ধির-
+Service Return- | সমন (SR)-
+Step for SR- | তদ্ধির-
 Written Statement- | জবাব দাখিল (WS)-
-WS Admission Hearing- | জবাব গ্রহণ বিষয়ক শুনানী-
+WS Admission Hearing- | জবাব গ্রহণ শুনানী-
 Ex Parte in failure- | ব্যার্থতায় একতরফা-
 Written Objection- | আপত্তি দাখিল (WO)-
-WO Admission Hearing- | আপত্তি গ্রহণ বিষয়ক শুনানী-
+WO Admission Hearing- | আপত্তি গ্রহণ শুনানী-
 Document Submission- | কাগজ-পত্র দাখিল-
-Ex Parte- | একতরফা শুনানী-
+Ex Parte- | একতরফা-
 Hearing- | শুনানী-
 Petition Hearing- | দরখাস্ত শুনানী-
 ADR- | ৮৯(ক)-
 Compromise Petition- | আপোষ দরখাস্ত-
 Compromise- | আপোষ মিমাংসা-
 Framing of Issue- | ইস্যু গঠন-
-Step for Section 30- | ৩০ ধারায় তদ্বির-
-Settling Date- | SD-
+Step for Section 30- | ৩০ ধারা-
+Settling Date- | SD (Settling Date)-
 Reply- | প্রশ্নোত্তর দাখিল (Reply)-
 Peremptory Hearing- | চূড়ান্ত শুনানী (PH)-
 Further Peremptory Hearing- | অধিকতর চূড়ান্ত শুনানী (FPH)-
@@ -40,7 +40,7 @@ Preliminary Decree- | প্রাথমিক ডিক্রী-
 Part Decree- | আংশিক ডিক্রী-
 Petitioner Appearance- | বাদীর উপস্থিতি-
 Respondent Appearance- | বিবাদীর উপস্থিতি-
-Necessary Order in Failure- | ব্যার্থতায় প্রয়োজনীয় আদেশ-
+Necessary Order in Failure- | ব্যার্থতায় আদেশ-
 Comission Fee- | কমিশন ফি দাখিল-
 Comission Report- | কমিশন প্রতিবেদন-
 Put Up- | নথি উপস্থাপন (Put Up)-
@@ -219,11 +219,11 @@ ULAO Report- | ULAO প্রতিবেদন-
 ACL Report- | ACL প্রতিবেদন-
 Written Statement- | জবাব দাখিল (WS)-
 Written Objection- | আপত্তি দাখিল (WO)-
-WS Admission Hearing- | জবাব গ্রহণ বিষয়ক শুনানী-
+WS Admission Hearing- | জবাব গ্রহণ শুনানী-
 Document Submission- | কাগজ-পত্র দাখিল-
 Hearing- | শুনানী-
 Petition Hearing- | দরখাস্ত শুনানী-
-Necessary Order in Failure- | ব্যার্থতায় প্রয়োজনীয় আদেশ-
+Necessary Order in Failure- | ব্যার্থতায় আদেশ-
 Kanungo Review- | কানুনগো পর্যালোচনা-
 Witness | সাক্ষী-
 Cross Examination- | জেরা-

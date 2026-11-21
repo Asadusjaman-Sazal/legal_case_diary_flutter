@@ -1,5 +1,14 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Shorter Bengali step names — COMPLETE (0.0.842)
+
+- **What was asked.** The Bengali labels of eight steps were too long. They now read: সমন (SR) (Service Return), তদ্ধির (Step for SR), জবাব গ্রহণ শুনানী (WS Admission Hearing), আপত্তি গ্রহণ শুনানী (WO Admission Hearing), একতরফা (Ex Parte), ৩০ ধারা (Step for Section 30), SD (Settling Date) (Settling Date) and ব্যার্থতায় আদেশ (Necessary Order in Failure).
+- **What changed.** Only `labelBn` in `lib/core/constants/pre_seeded_data.dart`, for every category that carries these steps: the district civil set, plus WS Admission Hearing and Necessary Order in Failure in the executive magistrates' set. English labels, stable IDs, order and the step lists are untouched, so saved cases and server rows keep their names, and no seed migration or server SQL was owed — the Bengali a step shows is read from these constants.
+- **Docs.** `docs/seed_data_test/Steps.txt` and `docs/seed_data_test/LowerCourt_Steps_CaseTypes_OnBehalf.txt` now show the new labels in both of their sections.
+- **Verification.** `flutter analyze` is clean; the seed, locale and version tests pass; `python tool/record_version.py --check` passes.
+- **Not checked.** No phone install and no APK build; APKs are built only when asked.
+- **Resume point:** no feature work open.
+
 ### 2026-11-21 — A completed logout always reaches Login — COMPLETE (0.0.841)
 
 - **What was asked.** Logging out from the side menu and then tapping anywhere, or logging out from Manage Account and then pressing Back, finished the logout but left the user in the app instead of on the Login screen. The app must go to Login after every completed logout.

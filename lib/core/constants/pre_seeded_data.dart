@@ -2460,13 +2460,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Service Return')),
         labelEn: 'Service Return',
-        labelBn: 'সমন ফেরত',
+        labelBn: 'সমন (SR)',
         orderIndex: 9,
       ),
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Step for SR')),
         labelEn: 'Step for SR',
-        labelBn: 'সমন বিষয়ক তদ্ধির',
+        labelBn: 'তদ্ধির',
         orderIndex: 10,
       ),
       SeedOption(
@@ -2478,7 +2478,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('WS Admission Hearing')),
         labelEn: 'WS Admission Hearing',
-        labelBn: 'জবাব গ্রহণ বিষয়ক শুনানী',
+        labelBn: 'জবাব গ্রহণ শুনানী',
         orderIndex: 12,
       ),
       SeedOption(
@@ -2496,7 +2496,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('WO Admission Hearing')),
         labelEn: 'WO Admission Hearing',
-        labelBn: 'আপত্তি গ্রহণ বিষয়ক শুনানী',
+        labelBn: 'আপত্তি গ্রহণ শুনানী',
         orderIndex: 15,
       ),
       SeedOption(
@@ -2508,7 +2508,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Ex Parte')),
         labelEn: 'Ex Parte',
-        labelBn: 'একতরফা শুনানী',
+        labelBn: 'একতরফা',
         orderIndex: 17,
       ),
       SeedOption(
@@ -2553,13 +2553,13 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Step for Section 30')),
         labelEn: 'Step for Section 30',
-        labelBn: '৩০ ধারায় তদ্বির',
+        labelBn: '৩০ ধারা',
         orderIndex: 24,
       ),
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Settling Date')),
         labelEn: 'Settling Date',
-        labelBn: 'SD',
+        labelBn: 'SD (Settling Date)',
         orderIndex: 25,
       ),
       SeedOption(
@@ -2643,7 +2643,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(districtCourtsCivilId, _slug('Necessary Order in Failure')),
         labelEn: 'Necessary Order in Failure',
-        labelBn: 'ব্যার্থতায় প্রয়োজনীয় আদেশ',
+        labelBn: 'ব্যার্থতায় আদেশ',
         orderIndex: 39,
       ),
       SeedOption(
@@ -3919,7 +3919,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(executiveMagistrateId, _slug('WS Admission Hearing')),
         labelEn: 'WS Admission Hearing',
-        labelBn: 'জবাব গ্রহণ বিষয়ক শুনানী',
+        labelBn: 'জবাব গ্রহণ শুনানী',
         orderIndex: 16,
       ),
       SeedOption(
@@ -3943,7 +3943,7 @@ final List<SeedCategory> seedCategories = <SeedCategory>[
       SeedOption(
         id: _stepId(executiveMagistrateId, _slug('Necessary Order in Failure')),
         labelEn: 'Necessary Order in Failure',
-        labelBn: 'ব্যার্থতায় প্রয়োজনীয় আদেশ',
+        labelBn: 'ব্যার্থতায় আদেশ',
         orderIndex: 20,
       ),
       SeedOption(

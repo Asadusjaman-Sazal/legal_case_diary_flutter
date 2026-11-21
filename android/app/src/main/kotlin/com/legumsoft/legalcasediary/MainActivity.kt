@@ -1,10 +1,15 @@
 package com.legumsoft.legalcasediary
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -16,8 +21,10 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.security.MessageDigest
+import kotlin.math.roundToInt
 
 /**
  * Hosts the two things the Android side must do for Dart.
@@ -38,6 +45,9 @@ class MainActivity : FlutterFragmentActivity() {
     /// The folder picker's pending reply, held until the picker answers.
     private var pendingBackupPick: MethodChannel.Result? = null
 
+    /// The gallery picker's pending reply, held until the gallery answers.
+    private var pendingGalleryPick: MethodChannel.Result? = null
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
@@ -52,6 +62,160 @@ class MainActivity : FlutterFragmentActivity() {
         configurePublicDownloadsChannel(flutterEngine)
         configureAppInstallChannel(flutterEngine)
         configureBackupFolderChannel(flutterEngine)
+        configureGalleryChannel(flutterEngine)
+    }
+
+    /**
+     * Opens the phone's gallery app for one picture (Profile Picture and Firm
+     * Logo → Edit → Gallery).
+     *
+     * `image_picker`'s Android gallery path is `ACTION_GET_CONTENT` below Android
+     * 16 (or the system Photo Picker when enabled, which falls back to
+     * DocumentsUI where the Photo Picker is absent). Both can show the phone's
+     * file manager, which is the reported behaviour. `ACTION_PICK` against
+     * `MediaStore.Images` is the gallery's own contract and resolves to the
+     * installed gallery app. The chosen picture is copied into the cache as an
+     * upright JPEG capped at 1024 px, so the crop screen receives the same small
+     * source the old picker produced.
+     */
+    private fun configureGalleryChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GALLERY_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "pick" -> openGalleryPicker(result)
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /// Starts the gallery app, or answers immediately when it cannot be opened.
+    private fun openGalleryPicker(result: MethodChannel.Result) {
+        if (pendingGalleryPick != null) {
+            result.error("busy", "A gallery picker is already open", null)
+            return
+        }
+        val intent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        ).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        pendingGalleryPick = result
+        try {
+            startActivityForResult(intent, PICK_GALLERY_REQUEST)
+        } catch (error: ActivityNotFoundException) {
+            pendingGalleryPick = null
+            result.error("no_gallery", "No gallery app can open pictures", null)
+        }
+    }
+
+    /// The gallery's answer: null on cancel, otherwise the cached JPEG's path.
+    private fun finishGalleryPick(resultCode: Int, data: Intent?) {
+        val pending = pendingGalleryPick ?: return
+        pendingGalleryPick = null
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null) {
+            pending.success(null)
+            return
+        }
+        Thread {
+            runCatching { copyPickedImage(uri) }
+                .onSuccess { path -> runOnUiThread { pending.success(path) } }
+                .onFailure { error ->
+                    runOnUiThread { pending.error("read_failed", error.message, null) }
+                }
+        }.start()
+    }
+
+    /**
+     * Copies the gallery's `content:` picture into the cache as a JPEG.
+     *
+     * The bitmap is sampled to at most twice [GALLERY_MAX_SIDE], rotated by its
+     * EXIF orientation, scaled to [GALLERY_MAX_SIDE], and encoded at quality 90 —
+     * the same shape `image_picker` returned before, so the crop screen and the
+     * 50 KB pipeline keep working unchanged.
+     */
+    @Suppress("DEPRECATION")
+    private fun copyPickedImage(uri: Uri): String {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, bounds)
+        }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+            throw IOException("The chosen picture could not be read")
+        }
+
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >=
+            GALLERY_MAX_SIDE
+        ) {
+            sample *= 2
+        }
+        val decoded = contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(
+                it,
+                null,
+                BitmapFactory.Options().apply { inSampleSize = sample }
+            )
+        } ?: throw IOException("The chosen picture could not be read")
+
+        val orientation = runCatching {
+            contentResolver.openInputStream(uri)?.use {
+                ExifInterface(it).getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+            }
+        }.getOrNull() ?: ExifInterface.ORIENTATION_NORMAL
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
+            ExifInterface.ORIENTATION_TRANSPOSE -> {
+                matrix.postRotate(90f)
+                matrix.postScale(-1f, 1f)
+            }
+            ExifInterface.ORIENTATION_TRANSVERSE -> {
+                matrix.postRotate(270f)
+                matrix.postScale(-1f, 1f)
+            }
+        }
+        val upright = if (matrix.isIdentity) {
+            decoded
+        } else {
+            Bitmap.createBitmap(
+                decoded,
+                0,
+                0,
+                decoded.width,
+                decoded.height,
+                matrix,
+                true
+            ).also { decoded.recycle() }
+        }
+
+        val longest = maxOf(upright.width, upright.height)
+        val scaled = if (longest > GALLERY_MAX_SIDE) {
+            val ratio = GALLERY_MAX_SIDE.toFloat() / longest
+            Bitmap.createScaledBitmap(
+                upright,
+                (upright.width * ratio).roundToInt(),
+                (upright.height * ratio).roundToInt(),
+                true
+            ).also { upright.recycle() }
+        } else {
+            upright
+        }
+
+        val target = File(cacheDir, "gallery_pick_${System.currentTimeMillis()}.jpg")
+        FileOutputStream(target).use {
+            scaled.compress(Bitmap.CompressFormat.JPEG, 90, it)
+        }
+        scaled.recycle()
+        return target.absolutePath
     }
 
     /**
@@ -376,6 +540,10 @@ class MainActivity : FlutterFragmentActivity() {
     @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_GALLERY_REQUEST) {
+            finishGalleryPick(resultCode, data)
+            return
+        }
         if (requestCode != PICK_BACKUP_REQUEST) return
         val pending = pendingBackupPick ?: return
         pendingBackupPick = null
@@ -427,5 +595,14 @@ class MainActivity : FlutterFragmentActivity() {
 
         /// Request code for the diary-folder document picker.
         const val PICK_BACKUP_REQUEST = 4711
+
+        /// The gallery channel (`image_source_sheet.dart`).
+        const val GALLERY_CHANNEL = "com.legumsoft.legalcasediary/gallery_picker"
+
+        /// Request code for the gallery app's image picker.
+        const val PICK_GALLERY_REQUEST = 4712
+
+        /// The longest side handed to the crop screen, matching the old picker.
+        const val GALLERY_MAX_SIDE = 1024
     }
 }

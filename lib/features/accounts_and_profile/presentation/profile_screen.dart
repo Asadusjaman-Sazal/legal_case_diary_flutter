@@ -68,10 +68,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _pickAvatar(BuildContext viewerContext) async {
     final l = AppLocalizations.of(viewerContext);
     final navigator = Navigator.of(viewerContext);
-    final bytes = await pickPictureBytes(
-      viewerContext,
-      useSystemPhotoPicker: true,
-    );
+    final bytes = await pickPictureBytes(viewerContext);
     if (bytes == null || !mounted) return;
 
     try {

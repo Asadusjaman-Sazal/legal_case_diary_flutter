@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Gallery opens the phone's gallery app itself — COMPLETE (0.0.851)
+
+- **What was reported.** After 0.0.850, Profile Picture/Firm Logo → Edit → Gallery still opened the phone's file manager.
+- **Why the first fix was not enough.** 0.0.850 asked `image_picker` for Android's system Photo Picker, but that picker is optional below Android 16 and falls back to the document picker where it is unavailable — which is DocumentsUI, the file-manager screen the user saw.
+- **What changed.** Both screens share `image_source_sheet.dart`, so the Gallery row now calls a small host channel on Android instead of `image_picker`. `MainActivity` launches `ACTION_PICK` against `MediaStore.Images`, the intent the gallery app itself handles. The chosen picture is copied into the app cache as an upright JPEG, capped at 1024 px and quality 90 — the same shape the old picker returned — so the crop screen and the 50 KB avatar/logo pipeline are unchanged. `Files` still opens the document picker, and iOS keeps `image_picker`'s photo library. The Android-only `image_picker_android`/platform-interface direct dependencies from 0.0.850 are removed again.
+- **Verification.** `flutter analyze` clean; `profile_picture_test.dart` **8 passed**, including a new case proving Gallery asks the host gallery channel on Android; `:app:compileDebugKotlin` **BUILD SUCCESSFUL**. **Not checked:** no phone run and no APK build, so the gallery app itself was not seen opening; a device check is required.
+- **Resume point:** device check — Profile Picture → Edit → Gallery and Firm Logo → Edit → Gallery should open a photo gallery, not the file manager.
+
 ### 2026-11-21 — Profile Picture's Gallery opens the photo grid — COMPLETE (0.0.850)
 
 - **What was reported.** On the Profile Picture screen, Edit → Gallery opened the phone's file manager instead of the gallery.

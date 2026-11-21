@@ -8,12 +8,15 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:legal_case_diary/core/l10n/generated/app_localizations.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_name_store.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/data/profile_picture_store.dart';
+import 'package:legal_case_diary/features/accounts_and_profile/presentation/image_source_sheet.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/manage_account_screen.dart';
 import 'package:legal_case_diary/features/accounts_and_profile/presentation/profile_screen.dart';
 import 'package:legal_case_diary/database/app_database.dart';
@@ -108,6 +111,47 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_avatarPaths(tester), contains(picture.path));
+  });
+
+  testWidgets('Gallery asks the host gallery app on Android', (tester) async {
+    // The phone's own gallery (ACTION_PICK), never image_picker's document
+    // picker, which is the file-manager UI this row was reported to open.
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    const channel = MethodChannel(
+      'com.legumsoft.legalcasediary/gallery_picker',
+    );
+    final calls = <String>[];
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call.method);
+      return null;
+    });
+
+    try {
+      await tester.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Center(
+              child: TextButton(
+                onPressed: () => pickPictureBytes(context),
+                child: const Text('Pick'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Pick'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('image-source-gallery')));
+      await tester.pumpAndSettle();
+
+      expect(calls, ['pick']);
+    } finally {
+      // The framework checks this variable before tearDown runs.
+      debugDefaultTargetPlatformOverride = null;
+      messenger.setMockMethodCallHandler(channel, null);
+    }
   });
 
   testWidgets('the picture opens its viewer, which can delete it', (

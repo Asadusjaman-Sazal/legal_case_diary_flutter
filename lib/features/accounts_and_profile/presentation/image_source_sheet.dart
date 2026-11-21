@@ -1,19 +1,19 @@
 /// The two ways into an image: the phone's gallery, or the file manager.
 ///
 /// The system gallery is another app, so it cannot carry our own Files button.
-/// Edit therefore opens this small chooser: **Gallery** opens the system photo
-/// picker, and the **Files** action at the bottom right opens the file manager
-/// filtered to images. Both return bytes; the caller prepares and crops them.
+/// Edit therefore opens this small chooser: **Gallery** opens the phone's
+/// gallery app on Android (the photo library on iOS), and the **Files** action
+/// at the bottom right opens the file manager filtered to images. Both return
+/// bytes; the caller prepares and crops them.
 library;
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_picker_android/image_picker_android.dart';
-import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
@@ -21,14 +21,20 @@ import '../../../core/l10n/generated/app_localizations.dart';
 
 enum _PictureSource { gallery, files }
 
+/// The host's gallery picker (`MainActivity.configureGalleryChannel`).
+///
+/// `image_picker`'s Android gallery path can land in the document picker, whose
+/// UI is the phone's file manager; `ACTION_PICK` always opens the installed
+/// gallery app.
+const MethodChannel _galleryChannel = MethodChannel(
+  'com.legumsoft.legalcasediary/gallery_picker',
+);
+
 /// Asks for a source and returns the chosen image's bytes, or null.
 ///
 /// A dismissed chooser or a cancelled picker returns null; the caller leaves
 /// the current picture alone.
-Future<Uint8List?> pickPictureBytes(
-  BuildContext context, {
-  bool useSystemPhotoPicker = false,
-}) async {
+Future<Uint8List?> pickPictureBytes(BuildContext context) async {
   final l = AppLocalizations.of(context);
   final choice = await showModalBottomSheet<_PictureSource>(
     context: context,
@@ -84,24 +90,23 @@ Future<Uint8List?> pickPictureBytes(
 
   try {
     if (choice == _PictureSource.gallery) {
-      if (useSystemPhotoPicker) {
-        // image_picker_android defaults to ACTION_GET_CONTENT below Android 16,
-        // whose UI is the phone's file manager. The system Photo Picker is the
-        // photo grid the Gallery row promises, on Android 13+ and through its
-        // Play-services backport on 11-12.
-        final platform = ImagePickerPlatform.instance;
-        if (platform is ImagePickerAndroid) {
-          platform.useAndroidPhotoPicker = true;
-        }
+      // Android goes through the host's ACTION_PICK: image_picker's own gallery
+      // path can show DocumentsUI (the file manager) on phones without the
+      // system Photo Picker. Other platforms keep the photo-library picker.
+      final String? path;
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        path = await _galleryChannel.invokeMethod<String>('pick');
+      } else {
+        final picked = await ImagePicker().pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1024,
+          maxHeight: 1024,
+          imageQuality: 90,
+        );
+        path = picked?.path;
       }
-      final picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 90,
-      );
-      if (picked == null) return null;
-      return File(picked.path).readAsBytes();
+      if (path == null) return null;
+      return File(path).readAsBytes();
     }
     final file = await FilePicker.pickFile(type: FileType.image);
     if (file == null) return null;

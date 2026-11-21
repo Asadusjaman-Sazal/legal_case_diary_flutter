@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.850 - The Profile Picture screen's Gallery button now opens the system photo picker instead of the file manager.
+Version: 0.0.851 - Profile Picture and Firm Logo Gallery now opens the Android gallery app through ACTION_PICK, not the file manager.
 --------------------------------------
 
 ## Version History Log:
@@ -864,3 +864,4 @@ Version: 0.0.847 - The Seats and Devices arrow now sits on the card's own edge, 
 Version: 0.0.848 - The gaps between the Seats and Devices, Members, Outstanding Invitation Codes and Dissolve Firm sections are 25% larger.
 Version: 0.0.849 - The app now opens in Bengali by default, with English one tap away in Settings > Language.
 Version: 0.0.850 - The Profile Picture screen's Gallery button now opens the system photo picker instead of the file manager.
+Version: 0.0.851 - Profile Picture and Firm Logo Gallery now opens the Android gallery app through ACTION_PICK, not the file manager.

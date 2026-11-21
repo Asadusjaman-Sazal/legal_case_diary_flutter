@@ -260,7 +260,9 @@ class _ManageAssociatesScreenState
                 setState(() => _devicesExpanded = !_devicesExpanded),
           ),
         ],
-        const SizedBox(height: AppSpacing.gutter),
+        // The owner's four sections read with 25% more air between them (user
+        // request): the existing 12 px and 24 px gaps grow in place.
+        const SizedBox(height: AppSpacing.gutter * 1.25),
         _sectionTitle(l.manageAssociates_sectionMembers),
         const SizedBox(height: AppSpacing.sm),
         members.when(
@@ -299,7 +301,7 @@ class _ManageAssociatesScreenState
             ),
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg * 1.25),
         _sectionTitle(l.manageAssociates_sectionInvites),
         const SizedBox(height: AppSpacing.sm),
         invites.when(
@@ -345,7 +347,7 @@ class _ManageAssociatesScreenState
             text: failureText(l, error) ?? l.auth_errorUnknown,
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg * 1.25),
         _sectionTitle(l.manageAssociates_sectionFirm),
         const SizedBox(height: AppSpacing.sm),
         _DissolveCard(

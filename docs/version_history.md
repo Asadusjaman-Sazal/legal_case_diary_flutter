@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.847 - The Seats and Devices arrow now sits on the card's own edge, and opening it continues the same card with the device lists while the split line is hidden.
+Version: 0.0.848 - The gaps between the Seats and Devices, Members, Outstanding Invitation Codes and Dissolve Firm sections are 25% larger.
 --------------------------------------
 
 ## Version History Log:
@@ -861,3 +861,4 @@ Version: 0.0.844 - Manage Firm now puts Add Associate after the member list, nam
 Version: 0.0.845 - View Settings' card section titles now use the Notifications screen's bold section-title size and style.
 Version: 0.0.846 - Manage Firm's section titles now use the same bold title style as View Settings and Notifications.
 Version: 0.0.847 - The Seats and Devices arrow now sits on the card's own edge, and opening it continues the same card with the device lists while the split line is hidden.
+Version: 0.0.848 - The gaps between the Seats and Devices, Members, Outstanding Invitation Codes and Dissolve Firm sections are 25% larger.

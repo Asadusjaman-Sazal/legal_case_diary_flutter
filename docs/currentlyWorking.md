@@ -1,5 +1,13 @@
 > **Phase note (read before any session).** **Tasks 01–21 and Task 23 (the admin panel, added later) are complete; Task 22 (`docs/tasks/22_verification_plan.md`) is the only task still open.** We are now **bug-fixing and polishing the app**, and inside that we are **revamping firm mode and the plans/pricing** — both of which are current work, not future task numbers. **Part A and Part B are finished historical labels**, not a current constraint: the offline app and the Supabase backend are both built and live, so nothing should be deferred, refused or labelled "Part A" or "Part B" any more. Universal Working Rule 10 ("Part A is strictly offline") is history — Task 16 fulfilled it, and the app has talked to the server since. Recorded in `docs/tasks/00_INDEX.md` under *Current Phase*.
 
+### 2026-11-21 — Manage Firm's section gaps grow by 25% — COMPLETE (0.0.848)
+
+- **What was asked.** Increase the vertical space among the Seats and Devices, Members, Outstanding Invitation Codes and Dissolve Firm sections by 25%.
+- **What changed.** The three inter-section gaps in the owner's page grew in place: the 12 px gap between the capacity card and Members became 15 px, and the two 24 px gaps (Members → Outstanding Invitation Codes and invites → Dissolve Firm) became 30 px. Only those separators moved; no card, text, control or section order changed.
+- **Verification.** `flutter analyze` clean; `manage_associates_test.dart` **54 cases** passed. No ARB, server or mockup change.
+- **Not checked.** No phone run and no APK build; the spacing was not viewed on a device.
+- **Resume point:** no feature work open.
+
 ### 2026-11-21 — The capacity card folds its device lists in place — COMPLETE (0.0.847)
 
 - **What was asked.** The down arrow should sit on the Seats and Devices card's own edge, and opening it should continue the same card with the Owner's Devices and Associates' Devices lists — hiding the *N associates · N owner devices* line — with an up arrow at the end; folding shows that line again.

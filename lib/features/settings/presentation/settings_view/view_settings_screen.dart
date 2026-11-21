@@ -510,7 +510,13 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SettingsSectionLabel(label),
+          // The card's section title follows the Notifications screen's own
+          // section-title style (user request): titleMd, bold, rather than the
+          // smaller muted label the controls under it use.
+          Text(
+            label,
+            style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: AppSpacing.md),
           ...children,
         ],

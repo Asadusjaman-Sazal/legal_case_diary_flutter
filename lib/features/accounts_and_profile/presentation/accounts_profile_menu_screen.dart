@@ -2,9 +2,9 @@
 /// UI shell (Task 12 Phase 2); full account wiring in Part B / Task 17.
 ///
 /// The body is grouped into two labelled sections — **Profile** and **Account**
-/// — using the shared [SettingsSectionLabel] the other sectioned Settings
-/// screens use, so the menu reads as a set of account-level groups rather than
-/// one flat list. Every entry still renders through [SettingsMenuCard], the
+/// — each titled in the bolder section-title style the other Settings screens
+/// use, so the menu reads as a set of account-level groups rather than one flat
+/// list. Every entry still renders through [SettingsMenuCard], the
 /// shared card the other sub-menus use, which is what keeps this screen the size
 /// reference for the whole Settings surface.
 ///
@@ -23,10 +23,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_typography.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../payments/data/payment_plans.dart';
-import '../../settings/presentation/settings_controls.dart';
 import '../../settings/presentation/settings_menu_card.dart';
 import '../../settings/presentation/settings_sub_page_modal.dart';
 import '../data/account_mode.dart';
@@ -50,7 +50,7 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
           // Profile: the user's own details.
-          SettingsSectionLabel(l.settingsAccountProfile_sectionProfile),
+          _sectionTitle(l.settingsAccountProfile_sectionProfile),
           const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
             icon: Icons.person_outline,
@@ -60,7 +60,7 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           // Account: the account-level actions and settings.
-          SettingsSectionLabel(l.settingsAccountProfile_sectionAccount),
+          _sectionTitle(l.settingsAccountProfile_sectionAccount),
           const SizedBox(height: AppSpacing.sm),
           SettingsMenuCard(
             icon: Icons.manage_accounts_outlined,
@@ -91,3 +91,10 @@ class AccountsProfileMenuScreen extends ConsumerWidget {
     );
   }
 }
+
+/// A section title in the Settings screens' own title style (user request,
+/// 0.0.853): titleMd, bold, rather than the smaller muted label.
+Widget _sectionTitle(String text) => Text(
+  text,
+  style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+);

@@ -301,7 +301,7 @@ class _DeleteRequestReviewScreenState
           // the requester saw — so Reconfirm is a decision about the record that
           // exists rather than about an old snapshot. One card otherwise.
           if (shownCurrent != null) ...[
-            SettingsSectionLabel(l.deleteRequests_current),
+            _sectionTitle(l.deleteRequests_current),
             const SizedBox(height: AppSpacing.sm),
             _SnapshotCard(
               rows: deleteRequestDetailRows(
@@ -312,7 +312,7 @@ class _DeleteRequestReviewScreenState
             ),
             const SizedBox(height: AppSpacing.md),
           ],
-          SettingsSectionLabel(
+          _sectionTitle(
             shownCurrent != null
                 ? l.deleteRequests_original
                 : l.deleteRequests_snapshot,
@@ -481,6 +481,13 @@ class _DeleteRequestReviewScreenState
     }
   }
 }
+
+/// A section title in the Settings screens' own title style (user request,
+/// 0.0.853): titleMd, bold, rather than the smaller muted label.
+Widget _sectionTitle(String text) => Text(
+  text,
+  style: AppTypography.titleMd.copyWith(fontWeight: FontWeight.w700),
+);
 
 /// The snapshot's fields as labelled rows, or a note when there are none.
 class _SnapshotCard extends StatelessWidget {

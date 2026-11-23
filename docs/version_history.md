@@ -11,7 +11,7 @@ This file tracks all modifications made to the **Legal Case Diary** codebase dur
 ---
 
 ## Current Version:
-Version: 0.0.852 - Delete Requests' section titles now use the same bold title style as Manage Firm, Notifications and View Settings.
+Version: 0.0.853 - Accounts & Profile and Delete Request Review now use the same bold section-title style as the other Settings screens.
 --------------------------------------
 
 ## Version History Log:
@@ -866,3 +866,4 @@ Version: 0.0.849 - The app now opens in Bengali by default, with English one tap
 Version: 0.0.850 - The Profile Picture screen's Gallery button now opens the system photo picker instead of the file manager.
 Version: 0.0.851 - Profile Picture and Firm Logo Gallery now opens the Android gallery app through ACTION_PICK, not the file manager.
 Version: 0.0.852 - Delete Requests' section titles now use the same bold title style as Manage Firm, Notifications and View Settings.
+Version: 0.0.853 - Accounts & Profile and Delete Request Review now use the same bold section-title style as the other Settings screens.
